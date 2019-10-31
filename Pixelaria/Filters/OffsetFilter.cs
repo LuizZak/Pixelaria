@@ -77,80 +77,78 @@ namespace Pixelaria.Filters
             if (!Modifying)
                 return;
 
-            using (var bit = (Bitmap) bitmap.Clone())
-            using (var g = Graphics.FromImage(bitmap))
+            using var bit = (Bitmap) bitmap.Clone();
+            using var g = Graphics.FromImage(bitmap);
+            g.Clear(Color.Transparent);
+
+            var rec = new RectangleF(0, 0, bitmap.Width, bitmap.Height);
+
+            rec.X += OffsetX;
+            rec.Y += OffsetY;
+
+            g.DrawImage(bit, rec, new RectangleF(0, 0, bitmap.Width, bitmap.Height), GraphicsUnit.Pixel);
+
+            // Draw wrap-arounds
+            if (WrapHorizontal && Math.Abs(OffsetX) > float.Epsilon)
             {
-                g.Clear(Color.Transparent);
+                var wrapRec = rec;
 
-                var rec = new RectangleF(0, 0, bitmap.Width, bitmap.Height);
-
-                rec.X += OffsetX;
-                rec.Y += OffsetY;
-
-                g.DrawImage(bit, rec, new RectangleF(0, 0, bitmap.Width, bitmap.Height), GraphicsUnit.Pixel);
-
-                // Draw wrap-arounds
-                if (WrapHorizontal && Math.Abs(OffsetX) > float.Epsilon)
+                if (OffsetX > 0)
                 {
-                    var wrapRec = rec;
-
-                    if (OffsetX > 0)
-                    {
-                        wrapRec.X -= bitmap.Width;
-                    }
-                    else
-                    {
-                        wrapRec.X += bitmap.Width;
-                    }
-
-                    g.DrawImage(bit, wrapRec, new RectangleF(0, 0, bitmap.Width, bitmap.Height), GraphicsUnit.Pixel);
+                    wrapRec.X -= bitmap.Width;
+                }
+                else
+                {
+                    wrapRec.X += bitmap.Width;
                 }
 
-                if (WrapVertical && Math.Abs(OffsetY) > float.Epsilon)
-                {
-                    var wrapRec = rec;
-
-                    if (OffsetY > 0)
-                    {
-                        wrapRec.Y -= bitmap.Height;
-                    }
-                    else
-                    {
-                        wrapRec.Y += bitmap.Height;
-                    }
-
-                    g.DrawImage(bit, wrapRec, new RectangleF(0, 0, bitmap.Width, bitmap.Height), GraphicsUnit.Pixel);
-                }
-
-                // Diagonal wrap-arounds
-                if (WrapVertical && WrapHorizontal && Math.Abs(OffsetX) > float.Epsilon &&
-                    Math.Abs(OffsetY) > float.Epsilon)
-                {
-                    var wrapRec = rec;
-
-                    if (OffsetX > 0)
-                    {
-                        wrapRec.X -= bitmap.Width;
-                    }
-                    else
-                    {
-                        wrapRec.X += bitmap.Width;
-                    }
-
-                    if (OffsetY > 0)
-                    {
-                        wrapRec.Y -= bitmap.Height;
-                    }
-                    else
-                    {
-                        wrapRec.Y += bitmap.Height;
-                    }
-
-                    g.DrawImage(bit, wrapRec, new RectangleF(0, 0, bitmap.Width, bitmap.Height), GraphicsUnit.Pixel);
-                }
-
-                g.Flush();
+                g.DrawImage(bit, wrapRec, new RectangleF(0, 0, bitmap.Width, bitmap.Height), GraphicsUnit.Pixel);
             }
+
+            if (WrapVertical && Math.Abs(OffsetY) > float.Epsilon)
+            {
+                var wrapRec = rec;
+
+                if (OffsetY > 0)
+                {
+                    wrapRec.Y -= bitmap.Height;
+                }
+                else
+                {
+                    wrapRec.Y += bitmap.Height;
+                }
+
+                g.DrawImage(bit, wrapRec, new RectangleF(0, 0, bitmap.Width, bitmap.Height), GraphicsUnit.Pixel);
+            }
+
+            // Diagonal wrap-arounds
+            if (WrapVertical && WrapHorizontal && Math.Abs(OffsetX) > float.Epsilon &&
+                Math.Abs(OffsetY) > float.Epsilon)
+            {
+                var wrapRec = rec;
+
+                if (OffsetX > 0)
+                {
+                    wrapRec.X -= bitmap.Width;
+                }
+                else
+                {
+                    wrapRec.X += bitmap.Width;
+                }
+
+                if (OffsetY > 0)
+                {
+                    wrapRec.Y -= bitmap.Height;
+                }
+                else
+                {
+                    wrapRec.Y += bitmap.Height;
+                }
+
+                g.DrawImage(bit, wrapRec, new RectangleF(0, 0, bitmap.Width, bitmap.Height), GraphicsUnit.Pixel);
+            }
+
+            g.Flush();
         }
 
         /// <summary>

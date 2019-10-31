@@ -36,20 +36,18 @@ namespace Pixelaria.Data
                 }
                 else
                 {
-                    using (var g = Graphics.FromImage(bitmap))
+                    using var g = Graphics.FromImage(bitmap);
+                    var cm = new ColorMatrix
                     {
-                        var cm = new ColorMatrix
-                        {
-                            Matrix33 = statuses[i].Transparency
-                        };
+                        Matrix33 = statuses[i].Transparency
+                    };
 
-                        var attributes = new ImageAttributes();
-                        attributes.SetColorMatrix(cm, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+                    var attributes = new ImageAttributes();
+                    attributes.SetColorMatrix(cm, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
 
-                        g.DrawImage(layerBitmap, new Rectangle(Point.Empty, layerBitmap.Size), 0, 0, layerBitmap.Width, layerBitmap.Height, GraphicsUnit.Pixel, attributes);
+                    g.DrawImage(layerBitmap, new Rectangle(Point.Empty, layerBitmap.Size), 0, 0, layerBitmap.Width, layerBitmap.Height, GraphicsUnit.Pixel, attributes);
 
-                        g.Flush();
-                    }
+                    g.Flush();
                 }
             }
 

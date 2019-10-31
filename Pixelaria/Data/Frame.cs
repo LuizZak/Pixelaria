@@ -439,10 +439,8 @@ namespace Pixelaria.Data
                 throw new InvalidOperationException("The frame was not initialized prior to this action");
             }
 
-            using (var bitmap = GetComposedBitmap())
-            {
-                SetHash(ImageUtilities.GetHashForBitmap(bitmap));
-            }
+            using var bitmap = GetComposedBitmap();
+            SetHash(ImageUtilities.GetHashForBitmap(bitmap));
         }
 
         /// <summary>

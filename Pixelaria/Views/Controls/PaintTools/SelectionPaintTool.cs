@@ -418,26 +418,24 @@ namespace Pixelaria.Views.Controls.PaintTools
 
             if ((selected || drawingSelection) && pictureBox != null)
             {
-                using (var graphics = Graphics.FromImage(pictureBox.Buffer))
+                using var graphics = Graphics.FromImage(pictureBox.Buffer);
+                if (selectionBitmap != null)
                 {
-                    if (selectionBitmap != null)
+                    if (compositingMode == CompositingMode.SourceCopy)
                     {
-                        if (compositingMode == CompositingMode.SourceCopy)
-                        {
-                            var reg = graphics.Clip;
+                        var reg = graphics.Clip;
 
-                            graphics.SetClip(GetSelectionArea(false));
+                        graphics.SetClip(GetSelectionArea(false));
 
-                            graphics.Clear(Color.Transparent);
+                        graphics.Clear(Color.Transparent);
 
-                            graphics.Clip = reg;
-                        }
-
-                        graphics.DrawImage(selectionBitmap, selectedArea);
+                        graphics.Clip = reg;
                     }
 
-                    graphics.Flush();
+                    graphics.DrawImage(selectionBitmap, selectedArea);
                 }
+
+                graphics.Flush();
             }
         }
 
@@ -815,12 +813,10 @@ namespace Pixelaria.Views.Controls.PaintTools
                 if (selectionBitmap != null)
                 {
                     // Draw the original slice back
-                    using (var graphics = Graphics.FromImage(internalPictureBox.Image))
-                    {
-                        graphics.DrawImage(selectionBitmap, selectedStartArea);
+                    using var graphics = Graphics.FromImage(internalPictureBox.Image);
+                    graphics.DrawImage(selectionBitmap, selectedStartArea);
 
-                        graphics.Flush();
-                    }
+                    graphics.Flush();
                 }
             }
 
@@ -875,14 +871,12 @@ namespace Pixelaria.Views.Controls.PaintTools
                 }
 
                 // Render the selected area
-                using (var graphics2 = Graphics.FromImage(internalPictureBox.Image))
-                {
-                    graphics2.CompositingMode = compositingMode;
+                using var graphics2 = Graphics.FromImage(internalPictureBox.Image);
+                graphics2.CompositingMode = compositingMode;
 
-                    graphics2.DrawImage(selectionBitmap, selectedArea);
+                graphics2.DrawImage(selectionBitmap, selectedArea);
 
-                    graphics2.Flush();
-                }
+                graphics2.Flush();
             }
 
             if (selectedArea != selectedStartArea || OperationType != SelectionOperationType.Moved || ForceApplyChanges)
@@ -1066,30 +1060,28 @@ namespace Pixelaria.Views.Controls.PaintTools
             /// </summary>
             public void Undo()
             {
-                using (var gfx = Graphics.FromImage(_targetbitmap))
+                using var gfx = Graphics.FromImage(_targetbitmap);
+                gfx.CompositingMode = CompositingMode.SourceCopy;
+
+                switch (_operationType)
                 {
-                    gfx.CompositingMode = CompositingMode.SourceCopy;
-
-                    switch (_operationType)
-                    {
-                        case SelectionOperationType.Moved:
-                            // Draw the original slice back
-                            gfx.DrawImage(_originalSlice, _area, new Rectangle(0, 0, _originalSlice.Width, _originalSlice.Height), GraphicsUnit.Pixel);
-                            // Draw the selection back
-                            gfx.DrawImage(_selectionBitmap, _selectionStartArea, new Rectangle(0, 0, _selectionBitmap.Width, _selectionBitmap.Height), GraphicsUnit.Pixel);
-                            break;
-                        case SelectionOperationType.Cut:
-                            // Draw the original slice back
-                            gfx.DrawImage(_selectionBitmap, _selectionStartArea, new Rectangle(0, 0, _selectionBitmap.Width, _selectionBitmap.Height), GraphicsUnit.Pixel);
-                            break;
-                        case SelectionOperationType.Paste:
-                            // Draw the original slice back
-                            gfx.DrawImage(_originalSlice, _area, new Rectangle(0, 0, _originalSlice.Width, _originalSlice.Height), GraphicsUnit.Pixel);
-                            break;
-                    }
-
-                    gfx.Flush();
+                    case SelectionOperationType.Moved:
+                        // Draw the original slice back
+                        gfx.DrawImage(_originalSlice, _area, new Rectangle(0, 0, _originalSlice.Width, _originalSlice.Height), GraphicsUnit.Pixel);
+                        // Draw the selection back
+                        gfx.DrawImage(_selectionBitmap, _selectionStartArea, new Rectangle(0, 0, _selectionBitmap.Width, _selectionBitmap.Height), GraphicsUnit.Pixel);
+                        break;
+                    case SelectionOperationType.Cut:
+                        // Draw the original slice back
+                        gfx.DrawImage(_selectionBitmap, _selectionStartArea, new Rectangle(0, 0, _selectionBitmap.Width, _selectionBitmap.Height), GraphicsUnit.Pixel);
+                        break;
+                    case SelectionOperationType.Paste:
+                        // Draw the original slice back
+                        gfx.DrawImage(_originalSlice, _area, new Rectangle(0, 0, _originalSlice.Width, _originalSlice.Height), GraphicsUnit.Pixel);
+                        break;
                 }
+
+                gfx.Flush();
             }
 
             /// <summary>
@@ -1097,36 +1089,34 @@ namespace Pixelaria.Views.Controls.PaintTools
             /// </summary>
             public void Redo()
             {
-                using (var gfx = Graphics.FromImage(_targetbitmap))
+                using var gfx = Graphics.FromImage(_targetbitmap);
+                Region reg;
+
+                gfx.CompositingMode = _compositingMode;
+
+                switch (_operationType)
                 {
-                    Region reg;
-
-                    gfx.CompositingMode = _compositingMode;
-
-                    switch (_operationType)
-                    {
-                        case SelectionOperationType.Moved:
-                            // Clear the image background
-                            reg = gfx.Clip;
-                            gfx.SetClip(_selectionStartArea);
-                            gfx.Clear(Color.Transparent);
-                            gfx.Clip = reg;
-                            gfx.DrawImage(_selectionBitmap, _area, new Rectangle(0, 0, _selectionBitmap.Width, _selectionBitmap.Height), GraphicsUnit.Pixel);
-                            break;
-                        case SelectionOperationType.Cut:
-                            reg = gfx.Clip;
-                            gfx.SetClip(_selectionStartArea);
-                            gfx.Clear(Color.Transparent);
-                            gfx.Clip = reg;
-                            break;
-                        case SelectionOperationType.Paste:
-                            // Draw the original slice back
-                            gfx.DrawImage(_selectionBitmap, _area, new Rectangle(0, 0, _selectionBitmap.Width, _selectionBitmap.Height), GraphicsUnit.Pixel);
-                            break;
-                    }
-
-                    gfx.Flush();
+                    case SelectionOperationType.Moved:
+                        // Clear the image background
+                        reg = gfx.Clip;
+                        gfx.SetClip(_selectionStartArea);
+                        gfx.Clear(Color.Transparent);
+                        gfx.Clip = reg;
+                        gfx.DrawImage(_selectionBitmap, _area, new Rectangle(0, 0, _selectionBitmap.Width, _selectionBitmap.Height), GraphicsUnit.Pixel);
+                        break;
+                    case SelectionOperationType.Cut:
+                        reg = gfx.Clip;
+                        gfx.SetClip(_selectionStartArea);
+                        gfx.Clear(Color.Transparent);
+                        gfx.Clip = reg;
+                        break;
+                    case SelectionOperationType.Paste:
+                        // Draw the original slice back
+                        gfx.DrawImage(_selectionBitmap, _area, new Rectangle(0, 0, _selectionBitmap.Width, _selectionBitmap.Height), GraphicsUnit.Pixel);
+                        break;
                 }
+
+                gfx.Flush();
             }
 
             /// <summary>

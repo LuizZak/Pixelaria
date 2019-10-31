@@ -142,20 +142,18 @@ namespace Pixelaria.Views.ModelViews.Decorators
                     }
                     else
                     {
-                        using(Graphics g = Graphics.FromImage(bitmap))
+                        using Graphics g = Graphics.FromImage(bitmap);
+                        var cm = new ColorMatrix
                         {
-                            var cm = new ColorMatrix
-                            {
-                                Matrix33 = _layerStatuses[i].Transparency
-                            };
+                            Matrix33 = _layerStatuses[i].Transparency
+                        };
 
-                            ImageAttributes attributes = new ImageAttributes();
-                            attributes.SetColorMatrix(cm, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+                        ImageAttributes attributes = new ImageAttributes();
+                        attributes.SetColorMatrix(cm, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
 
-                            g.DrawImage(layerBitmap, new Rectangle(Point.Empty, layerBitmap.Size), 0, 0, layerBitmap.Width, layerBitmap.Height, GraphicsUnit.Pixel, attributes);
+                        g.DrawImage(layerBitmap, new Rectangle(Point.Empty, layerBitmap.Size), 0, 0, layerBitmap.Width, layerBitmap.Height, GraphicsUnit.Pixel, attributes);
 
-                            g.Flush();
-                        }
+                        g.Flush();
                     }
                 }
             }

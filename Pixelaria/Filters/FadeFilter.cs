@@ -82,7 +82,7 @@ namespace Pixelaria.Filters
         public unsafe void ApplyToBitmap(Bitmap bitmap)
         {
             // 
-            // !!!   ATENTION: UNSAFE POINTER HANDLING    !!!
+            // !!!   ATTENTION: UNSAFE POINTER HANDLING   !!!
             // !!! WATCH IT WHEN MESSING WITH THIS METHOD !!!
             // 
 
@@ -93,52 +93,50 @@ namespace Pixelaria.Filters
                 return;
 
             // Lock the bitmap
-            using (var fastBitmap = bitmap.FastLock())
+            using var fastBitmap = bitmap.FastLock();
+            // ReSharper disable once InconsistentNaming
+            byte* scan0b = (byte*) fastBitmap.Scan0;
+            int count = bitmap.Width * bitmap.Height;
+
+            // Pre-multiply the fade color
+            float factor = FadeFactor > 1 ? 1 : FadeFactor;
+            float from = 1 - factor;
+
+            int fa = (int) (FadeColor.A * factor);
+            int fr = (int) (FadeColor.R * factor);
+            int fg = (int) (FadeColor.G * factor);
+            int fb = (int) (FadeColor.B * factor);
+
+            if (Math.Abs(factor - 1) < float.Epsilon)
             {
-                // ReSharper disable once InconsistentNaming
-                byte* scan0b = (byte*) fastBitmap.Scan0;
-                int count = bitmap.Width * bitmap.Height;
-
-                // Pre-multiply the fade color
-                float factor = FadeFactor > 1 ? 1 : FadeFactor;
-                float from = 1 - factor;
-
-                int fa = (int) (FadeColor.A * factor);
-                int fr = (int) (FadeColor.R * factor);
-                int fg = (int) (FadeColor.G * factor);
-                int fb = (int) (FadeColor.B * factor);
-
-                if (Math.Abs(factor - 1) < float.Epsilon)
+                // Apply the fade
+                while (count-- > 0)
                 {
-                    // Apply the fade
-                    while (count-- > 0)
-                    {
-                        byte* b = scan0b++;
-                        byte* g = scan0b++;
-                        byte* r = scan0b++;
-                        byte* a = scan0b++;
+                    byte* b = scan0b++;
+                    byte* g = scan0b++;
+                    byte* r = scan0b++;
+                    byte* a = scan0b++;
 
-                        *a = (byte) (FadeAlpha ? fa : *a);
-                        *r = (byte) fr;
-                        *g = (byte) fg;
-                        *b = (byte) fb;
-                    }
+                    *a = (byte) (FadeAlpha ? fa : *a);
+                    *r = (byte) fr;
+                    *g = (byte) fg;
+                    *b = (byte) fb;
                 }
-                else
+            }
+            else
+            {
+                // Apply the fade
+                while (count-- > 0)
                 {
-                    // Apply the fade
-                    while (count-- > 0)
-                    {
-                        byte* b = scan0b++;
-                        byte* g = scan0b++;
-                        byte* r = scan0b++;
-                        byte* a = scan0b++;
+                    byte* b = scan0b++;
+                    byte* g = scan0b++;
+                    byte* r = scan0b++;
+                    byte* a = scan0b++;
 
-                        *a = (byte) (FadeAlpha ? *a * from + fa : *a);
-                        *r = (byte) (*r * from + fr);
-                        *g = (byte) (*g * from + fg);
-                        *b = (byte) (*b * from + fb);
-                    }
+                    *a = (byte) (FadeAlpha ? *a * @from + fa : *a);
+                    *r = (byte) (*r * @from + fr);
+                    *g = (byte) (*g * @from + fg);
+                    *b = (byte) (*b * @from + fb);
                 }
             }
         }

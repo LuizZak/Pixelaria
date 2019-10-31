@@ -166,10 +166,8 @@ namespace Pixelaria.Views.ModelViews.Decorators
                     mult *= multDecay;
                     attributes.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
 
-                    using (var bitmap = FrameImageProvider.GetComposedBitmapForFrame(i))
-                    {
-                        og.DrawImage(bitmap, bounds, 0, 0, bounds.Width, bounds.Height, GraphicsUnit.Pixel, attributes);
-                    }
+                    using var bitmap = FrameImageProvider.GetComposedBitmapForFrame(i);
+                    og.DrawImage(bitmap, bounds, 0, 0, bounds.Width, bounds.Height, GraphicsUnit.Pixel, attributes);
                 }
             }
             // Draw the next frames
@@ -183,10 +181,8 @@ namespace Pixelaria.Views.ModelViews.Decorators
                     mult *= multDecay;
                     attributes.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
 
-                    using (var bitmap = FrameImageProvider.GetComposedBitmapForFrame(i))
-                    {
-                        og.DrawImage(bitmap, bounds, 0, 0, bounds.Width, bounds.Height, GraphicsUnit.Pixel, attributes);
-                    }
+                    using var bitmap = FrameImageProvider.GetComposedBitmapForFrame(i);
+                    og.DrawImage(bitmap, bounds, 0, 0, bounds.Width, bounds.Height, GraphicsUnit.Pixel, attributes);
                 }
             }
 

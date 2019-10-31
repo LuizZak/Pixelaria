@@ -244,14 +244,12 @@ namespace Pixelaria.Utils
             int width = target.Width;
             int height = target.Height;
 
-            using (FastBitmap fastTarget = target.FastLock(), fastForeBitmap = foreBitmap.FastLock())
+            using FastBitmap fastTarget = target.FastLock(), fastForeBitmap = foreBitmap.FastLock();
+            for (int y = 0; y < height; y++)
             {
-                for (int y = 0; y < height; y++)
+                for (int x = 0; x < width; x++)
                 {
-                    for (int x = 0; x < width; x++)
-                    {
-                        fastTarget.SetPixel(x, y, Utilities.FlattenColor(fastTarget.GetPixelUInt(x, y), fastForeBitmap.GetPixelUInt(x, y)));
-                    }
+                    fastTarget.SetPixel(x, y, Utilities.FlattenColor(fastTarget.GetPixelUInt(x, y), fastForeBitmap.GetPixelUInt(x, y)));
                 }
             }
         }
@@ -268,21 +266,17 @@ namespace Pixelaria.Utils
         /// <returns>The hash of the given bitmap</returns>
         public static unsafe byte[] GetHashForBitmap([NotNull] Bitmap bitmap)
         {
-            using (var fastBitmap = bitmap.FastLock())
+            using var fastBitmap = bitmap.FastLock();
+            var bytes = new byte[fastBitmap.Height * fastBitmap.Width * (Image.GetPixelFormatSize(bitmap.PixelFormat) / 8)];
+            var scByte = (byte*)fastBitmap.Scan0;
+            fixed (byte* pByte = bytes)
             {
-                var bytes = new byte[fastBitmap.Height * fastBitmap.Width * (Image.GetPixelFormatSize(bitmap.PixelFormat) / 8)];
-                var scByte = (byte*)fastBitmap.Scan0;
-                fixed (byte* pByte = bytes)
-                {
-                    FastBitmap.memcpy(pByte, scByte, (ulong)bytes.Length);
-                }
-
-                using (var stream = new MemoryStream(bytes, false))
-                {
-                    var hash = GetHashForStream(stream);
-                    return hash;
-                }
+                FastBitmap.memcpy(pByte, scByte, (ulong)bytes.Length);
             }
+
+            using var stream = new MemoryStream(bytes, false);
+            var hash = GetHashForStream(stream);
+            return hash;
         }
 
         /// <summary>

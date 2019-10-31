@@ -80,37 +80,35 @@ namespace Pixelaria.Filters
             if (Transparency <= 0)
                 Transparency = 0;
 
-            using (var fastBitmap = bitmap.FastLock())
+            using var fastBitmap = bitmap.FastLock();
+            // ReSharper disable once InconsistentNaming
+            byte* scan0b = (byte*)fastBitmap.Scan0;
+
+            const int loopUnroll = 8;
+            int count = bitmap.Width * bitmap.Height;
+            int rem = count % loopUnroll;
+            count /= loopUnroll;
+
+            // Pre-align to the alpha offset
+            scan0b += 3;
+
+            // Unrolled loop for faster operations
+            while (count-- > 0)
             {
-                // ReSharper disable once InconsistentNaming
-                byte* scan0b = (byte*)fastBitmap.Scan0;
+                *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
+                *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
+                *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
+                *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
 
-                const int loopUnroll = 8;
-                int count = bitmap.Width * bitmap.Height;
-                int rem = count % loopUnroll;
-                count /= loopUnroll;
-
-                // Pre-align to the alpha offset
-                scan0b += 3;
-
-                // Unrolled loop for faster operations
-                while (count-- > 0)
-                {
-                    *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
-                    *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
-                    *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
-                    *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
-
-                    *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
-                    *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
-                    *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
-                    *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
-                }
-                while (rem-- > 0)
-                {
-                    *scan0b = (byte)(*scan0b * Transparency);
-                    scan0b += 4;
-                }
+                *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
+                *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
+                *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
+                *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
+            }
+            while (rem-- > 0)
+            {
+                *scan0b = (byte)(*scan0b * Transparency);
+                scan0b += 4;
             }
         }
 

@@ -122,7 +122,7 @@ namespace Pixelaria.Views.Controls
         public bool ShowImageArea { get; set; }
 
         /// <summary>
-        /// Gets or sets a value specifing whether this ZoomablePictureBox should change it's size to match the
+        /// Gets or sets a value specifying whether this ZoomablePictureBox should change it's size to match the
         /// image's current zoom settings. Setting this value to true disables scrollbars display when the
         /// image bounds is larger than the control's area
         /// </summary>
@@ -584,24 +584,22 @@ namespace Pixelaria.Views.Controls
 
                 if (BackgroundImageLayout == ImageLayout.Tile)
                 {
-                    using (var tex = new TextureBrush(BackgroundImage) {WrapMode = WrapMode.Tile})
-                    {
-                        var state = pevent.Graphics.Save();
+                    using var tex = new TextureBrush(BackgroundImage) {WrapMode = WrapMode.Tile};
+                    var state = pevent.Graphics.Save();
 
-                        tex.TranslateTransform(points[0].X, points[0].Y);
+                    tex.TranslateTransform(points[0].X, points[0].Y);
                         
-                        var rect = Utilities.GetRectangleArea(points);
+                    var rect = Utilities.GetRectangleArea(points);
 
-                        pevent.Graphics.CompositingMode = CompositingMode.SourceCopy;
-                        pevent.Graphics.CompositingQuality = CompositingQuality.HighSpeed;
-                        pevent.Graphics.PixelOffsetMode = PixelOffsetMode.HighSpeed;
-                        pevent.Graphics.SmoothingMode = SmoothingMode.None;
-                        pevent.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+                    pevent.Graphics.CompositingMode = CompositingMode.SourceCopy;
+                    pevent.Graphics.CompositingQuality = CompositingQuality.HighSpeed;
+                    pevent.Graphics.PixelOffsetMode = PixelOffsetMode.HighSpeed;
+                    pevent.Graphics.SmoothingMode = SmoothingMode.None;
+                    pevent.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
 
-                        pevent.Graphics.FillRectangle(tex, rect);
+                    pevent.Graphics.FillRectangle(tex, rect);
 
-                        pevent.Graphics.Restore(state);
-                    }
+                    pevent.Graphics.Restore(state);
                 }
                 else
                 {

@@ -86,10 +86,8 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
             }
             else
             {
-                using (var bitmap = frame.GetComposedBitmap())
-                {
-                    PersistenceHelper.SaveImageToStream(bitmap, stream);
-                }
+                using var bitmap = frame.GetComposedBitmap();
+                PersistenceHelper.SaveImageToStream(bitmap, stream);
             }
 
             // Write the frame ID
@@ -138,41 +136,39 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// <returns>The Frame object loaded</returns>
         public FrameInfo LoadFrameFromBuffer(int width, int height)
         {
-            using (var stream = new MemoryStream(GetBlockBuffer(), false))
+            using var stream = new MemoryStream(GetBlockBuffer(), false);
+            var reader = new BinaryReader(stream);
+                
+            var animationId = reader.ReadInt32();
+
+            var frame = new Frame(null, width, height, false);
+            frame.Layers.Clear();
+
+            FrameLayer[] layers;
+
+            if (blockVersion == 0)
             {
-                var reader = new BinaryReader(stream);
-                
-                var animationId = reader.ReadInt32();
+                var bitmap = PersistenceHelper.LoadImageFromStream(stream);
+                frame.SetFrameBitmap(bitmap, false);
 
-                var frame = new Frame(null, width, height, false);
-                frame.Layers.Clear();
-
-                FrameLayer[] layers;
-
-                if (blockVersion == 0)
-                {
-                    var bitmap = PersistenceHelper.LoadImageFromStream(stream);
-                    frame.SetFrameBitmap(bitmap, false);
-
-                    layers = new FrameLayer[0];
-                }
-                else if (blockVersion >= 1 && blockVersion <= CurrentVersion)
-                {
-                    layers = LoadLayersFromStream(stream);
-                }
-                else
-                {
-                    throw new Exception("Unknown frame block version " + blockVersion);
-                }
-
-                frame.ID = reader.ReadInt32();
-
-                // Get the hash now
-                int length = reader.ReadInt32();
-                var hash = reader.ReadBytes(length);
-                
-                return new FrameInfo(animationId, hash, layers, frame);
+                layers = new FrameLayer[0];
             }
+            else if (blockVersion >= 1 && blockVersion <= CurrentVersion)
+            {
+                layers = LoadLayersFromStream(stream);
+            }
+            else
+            {
+                throw new Exception("Unknown frame block version " + blockVersion);
+            }
+
+            frame.ID = reader.ReadInt32();
+
+            // Get the hash now
+            int length = reader.ReadInt32();
+            var hash = reader.ReadBytes(length);
+                
+            return new FrameInfo(animationId, hash, layers, frame);
         }
 
         /// <summary>

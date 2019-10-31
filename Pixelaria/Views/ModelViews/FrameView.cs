@@ -2028,27 +2028,25 @@ namespace Pixelaria.Views.ModelViews
         private void OnColorPicked(object sender, [NotNull] PaintToolColorPickedEventArgs args)
         {
             // Pick the color from the composed bitmap
-            using(var composed = FrameRenderer.ComposeFrame(_viewFrameController, lcp_layers.LayerStatuses, !ModifierKeys.HasFlag(Keys.Control)))
+            using var composed = FrameRenderer.ComposeFrame(_viewFrameController, lcp_layers.LayerStatuses, !ModifierKeys.HasFlag(Keys.Control));
+            Color colorAt = composed.GetPixel(args.ImagePoint.X, args.ImagePoint.Y);
+
+            ColorPickerColor colorIndex;
+
+            switch (args.ColorIndex)
             {
-                Color colorAt = composed.GetPixel(args.ImagePoint.X, args.ImagePoint.Y);
-
-                ColorPickerColor colorIndex;
-
-                switch (args.ColorIndex)
-                {
-                    case ColorIndex.FirstColor:
-                        colorIndex = ColorPickerColor.FirstColor;
-                        break;
-                    case ColorIndex.SecondColor:
-                        colorIndex = ColorPickerColor.SecondColor;
-                        break;
-                    default:
-                        colorIndex = ColorPickerColor.CurrentColor;
-                        break;
-                }
-
-                iepb_frame.FireColorChangeEvent(colorAt, colorIndex);
+                case ColorIndex.FirstColor:
+                    colorIndex = ColorPickerColor.FirstColor;
+                    break;
+                case ColorIndex.SecondColor:
+                    colorIndex = ColorPickerColor.SecondColor;
+                    break;
+                default:
+                    colorIndex = ColorPickerColor.CurrentColor;
+                    break;
             }
+
+            iepb_frame.FireColorChangeEvent(colorAt, colorIndex);
         }
 
         // 

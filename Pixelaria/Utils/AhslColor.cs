@@ -43,22 +43,22 @@ namespace Pixelaria.Utils
         /// <summary>
         /// Gets or sets the alpha component as a value ranging from 0 - 255
         /// </summary>
-        public int Alpha => (int) (_floatAlpha * 255.0f);
+        public int Alpha => (int) (FloatAlpha * 255.0f);
 
         /// <summary>
         /// Gets or sets the hue component as a value ranging from 0 - 360
         /// </summary>
-        public int Hue => (int) (_floatHue * 360.0f);
+        public int Hue => (int) (FloatHue * 360.0f);
 
         /// <summary>
         /// Gets or sets the saturation component as a value ranging from 0 - 100
         /// </summary>
-        public int Saturation => (int) (_floatSaturation * 100.0f);
+        public int Saturation => (int) (FloatSaturation * 100.0f);
 
         /// <summary>
         /// Gets or sets the lightness component as a value ranging from 0 - 100
         /// </summary>
-        public int Lightness => (int) (_floatLightness * 100.0f);
+        public int Lightness => (int) (FloatLightness * 100.0f);
 
         /// <summary>
         /// Gets the Red component value for this AHSL color
@@ -78,55 +78,38 @@ namespace Pixelaria.Utils
         /// <summary>
         /// Gets the Red component value for this AHSL color
         /// </summary>
-        public float FloatRed => FloatArgbFromAhsl(_floatHue, _floatSaturation, _floatLightness, _floatAlpha)[1];
+        public float FloatRed => FloatArgbFromAhsl(FloatHue, FloatSaturation, FloatLightness, FloatAlpha)[1];
 
         /// <summary>
         /// Gets the Red component value for this AHSL color
         /// </summary>
-        public float FloatGreen => FloatArgbFromAhsl(_floatHue, _floatSaturation, _floatLightness, _floatAlpha)[2];
+        public float FloatGreen => FloatArgbFromAhsl(FloatHue, FloatSaturation, FloatLightness, FloatAlpha)[2];
 
         /// <summary>
         /// Gets the Red component value for this AHSL color
         /// </summary>
-        public float FloatBlue => FloatArgbFromAhsl(_floatHue, _floatSaturation, _floatLightness, _floatAlpha)[3];
+        public float FloatBlue => FloatArgbFromAhsl(FloatHue, FloatSaturation, FloatLightness, FloatAlpha)[3];
 
         /// <summary>
-        /// Gets or sets the alpha component as a value ranging from 0 - 1
+        /// Gets the alpha component as a value ranging from 0 - 1
         /// </summary>
-        public float FloatAlpha => _floatAlpha;
+        public float FloatAlpha { get; }
 
         /// <summary>
-        /// Gets or sets the hue component as a value ranging from 0 - 1
+        /// Gets the hue component as a value ranging from 0 - 1
         /// </summary>
-        public float FloatHue => _floatHue;
+        public float FloatHue { get; }
 
         /// <summary>
-        /// Gets or sets the saturation component as a value ranging from 0 - 1
+        /// Gets the saturation component as a value ranging from 0 - 1
         /// </summary>
-        public float FloatSaturation => _floatSaturation;
+        public float FloatSaturation { get; }
 
         /// <summary>
-        /// Gets or sets the lightness component as a value ranging from 0 - 1
+        /// Gets the lightness component as a value ranging from 0 - 1
         /// </summary>
-        public float FloatLightness => _floatLightness;
+        public float FloatLightness { get; }
 
-        /// <summary>
-        /// The alpha component as a value ranging from 0 - 1
-        /// </summary>
-        private readonly float _floatAlpha;
-        /// <summary>
-        /// The hue component as a value ranging from 0 - 1
-        /// </summary>
-        private readonly float _floatHue;
-        /// <summary>
-        /// The saturation component as a value ranging from 0 - 1
-        /// </summary>
-        private readonly float _floatSaturation;
-        /// <summary>
-        /// The lightness component as a value ranging from 0 - 1
-        /// </summary>
-        private readonly float _floatLightness;
-        
         /// <summary>
         /// Creates a new AHSL color
         /// </summary>
@@ -146,10 +129,10 @@ namespace Pixelaria.Utils
         /// <param name="l">The Lightness component, ranging from 0-1</param>
         public AhslColor(float a, float h, float s, float l)
         {
-            _floatAlpha = Math.Max(0, Math.Min(1, a));
-            _floatHue = Math.Max(0, Math.Min(1, h));
-            _floatSaturation = Math.Max(0, Math.Min(1, s));
-            _floatLightness = Math.Max(0, Math.Min(1, l));
+            FloatAlpha = Math.Max(0, Math.Min(1, a));
+            FloatHue = Math.Max(0, Math.Min(1, h));
+            FloatSaturation = Math.Max(0, Math.Min(1, s));
+            FloatLightness = Math.Max(0, Math.Min(1, l));
         }
 
         /// <summary>
@@ -171,10 +154,10 @@ namespace Pixelaria.Utils
         /// <returns>Whether two AHSL color structures are the same</returns>
         public static bool operator==(AhslColor color1, AhslColor color2)
         {
-            return (Math.Abs(color1._floatAlpha - color2._floatAlpha) < Single.Epsilon &&
-                    Math.Abs(color1._floatHue - color2._floatHue) < Single.Epsilon &&
-                    Math.Abs(color1._floatSaturation - color2._floatSaturation) < Single.Epsilon &&
-                    Math.Abs(color1._floatLightness - color2._floatLightness) < Single.Epsilon);
+            return (Math.Abs(color1.FloatAlpha - color2.FloatAlpha) < Single.Epsilon &&
+                    Math.Abs(color1.FloatHue - color2.FloatHue) < Single.Epsilon &&
+                    Math.Abs(color1.FloatSaturation - color2.FloatSaturation) < Single.Epsilon &&
+                    Math.Abs(color1.FloatLightness - color2.FloatLightness) < Single.Epsilon);
         }
 
         public static explicit operator AhslColor(Color source)
@@ -204,7 +187,7 @@ namespace Pixelaria.Utils
         [Pure]
         public int ToArgb(bool revertByteOrder = false)
         {
-            return ArgbFromAhsl(_floatHue, _floatSaturation, _floatLightness, _floatAlpha, revertByteOrder);
+            return ArgbFromAhsl(FloatHue, FloatSaturation, FloatLightness, FloatAlpha, revertByteOrder);
         }
 
         /// <summary>
@@ -213,7 +196,7 @@ namespace Pixelaria.Utils
         [Pure]
         public AhslColor WithTransparency(float alpha)
         {
-            return new AhslColor(alpha, _floatHue, _floatSaturation, _floatLightness);
+            return new AhslColor(alpha, FloatHue, FloatSaturation, FloatLightness);
         }
 
         public override string ToString()
@@ -228,8 +211,8 @@ namespace Pixelaria.Utils
         /// <returns>Whether this AHSL color object equals another AHSL color</returns>
         public bool Equals(AhslColor other)
         {
-            return _floatAlpha.Equals(other._floatAlpha) && _floatHue.Equals(other._floatHue) &&
-                   _floatSaturation.Equals(other._floatSaturation) && _floatLightness.Equals(other._floatLightness);
+            return FloatAlpha.Equals(other.FloatAlpha) && FloatHue.Equals(other.FloatHue) &&
+                   FloatSaturation.Equals(other.FloatSaturation) && FloatLightness.Equals(other.FloatLightness);
         }
 
         // Override Equals
@@ -240,15 +223,15 @@ namespace Pixelaria.Utils
             return obj is AhslColor color && Equals(color);
         }
 
-        // Overrided GetHashCode
+        // Overriden GetHashCode
         public override int GetHashCode()
         {
             unchecked
             {
-                var hashCode = _floatAlpha.GetHashCode();
-                hashCode = (hashCode * 397) ^ _floatHue.GetHashCode();
-                hashCode = (hashCode * 397) ^ _floatSaturation.GetHashCode();
-                hashCode = (hashCode * 397) ^ _floatLightness.GetHashCode();
+                var hashCode = FloatAlpha.GetHashCode();
+                hashCode = (hashCode * 397) ^ FloatHue.GetHashCode();
+                hashCode = (hashCode * 397) ^ FloatSaturation.GetHashCode();
+                hashCode = (hashCode * 397) ^ FloatLightness.GetHashCode();
                 return hashCode;
             }
         }
@@ -332,15 +315,15 @@ namespace Pixelaria.Utils
             float h;
             float s;
             
-            if (Math.Abs(d) < Single.Epsilon)
+            if (Math.Abs(d) < float.Epsilon)
             {
                 h = 0;
             }
-            else if (Math.Abs(M - r) < Single.Epsilon)
+            else if (Math.Abs(M - r) < float.Epsilon)
             {
-                h = (((g - b) / d) % 6) * 60;
+                h = (g - b) / d % 6 * 60;
             }
-            else if (Math.Abs(M - g) < Single.Epsilon)
+            else if (Math.Abs(M - g) < float.Epsilon)
             {
                 h = ((b - r) / d + 2) * 60;
             }
@@ -354,9 +337,9 @@ namespace Pixelaria.Utils
                 h += 360;
             }
 
-            var l = (M + m) / 2;
+            float l = (M + m) / 2;
 
-            if (Math.Abs(d) < Single.Epsilon)
+            if (Math.Abs(d) < float.Epsilon)
             {
                 s = 0;
             }
@@ -638,10 +621,8 @@ namespace Pixelaria.Utils
         public override void PaintValue(PaintValueEventArgs e)
         {
             var color = (AhslColor)e.Value;
-            using (var brush = new SolidBrush(color.ToColor()))
-            {
-                e.Graphics.FillRectangle(brush, e.Bounds);
-            }
+            using var brush = new SolidBrush(color.ToColor());
+            e.Graphics.FillRectangle(brush, e.Bounds);
         }
     }
 

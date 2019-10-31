@@ -141,10 +141,8 @@ namespace Pixelaria.Data.Exports
                     var frameBounds = GetFrameBoundsRectangle(i);
                     var originBounds = GetFrameOriginsRectangle(i);
 
-                    using (var composed = frame.GetComposedBitmap())
-                    {
-                        fastTarget.CopyRegion(composed, originBounds, frameBounds);
-                    }
+                    using var composed = frame.GetComposedBitmap();
+                    fastTarget.CopyRegion(composed, originBounds, frameBounds);
                 }
             }
 

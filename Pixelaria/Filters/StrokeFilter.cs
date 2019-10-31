@@ -88,103 +88,97 @@ namespace Pixelaria.Filters
         public unsafe void ApplyToBitmap(Bitmap bitmap)
         {
             // 
-            // !!!   ATENTION: UNSAFE POINTER HANDLING    !!!
+            // !!!   ATTENTION: UNSAFE POINTER HANDLING   !!!
             // !!! WATCH IT WHEN MESSING WITH THIS METHOD !!!
             // 
 
             if(!Modifying)
                 return;
 
-            using (var bmo = new Bitmap(bitmap.Width, bitmap.Height, bitmap.PixelFormat))
+            using var bmo = new Bitmap(bitmap.Width, bitmap.Height, bitmap.PixelFormat);
+            using (var fbi = bitmap.FastLock())
+            using (var fbo = bmo.FastLock())
             {
-                using (var fbi = bitmap.FastLock())
-                using (var fbo = bmo.FastLock())
-                {
-                    int w = bitmap.Width;
-                    int h = bitmap.Height;
+                int w = bitmap.Width;
+                int h = bitmap.Height;
 
-                    int strokeColorInt = StrokeColor.ToArgb() & 0xFFFFFF;
+                int strokeColorInt = StrokeColor.ToArgb() & 0xFFFFFF;
 
-                    int strokeRadius = StrokeRadius + (Smooth ? 1 : 0);
-                    int strokeRadiusSqrd = strokeRadius * strokeRadius;
+                int strokeRadius = StrokeRadius + (Smooth ? 1 : 0);
+                int strokeRadiusSqrd = strokeRadius * strokeRadius;
 
-                    int* scan0I = (int*) fbi.Scan0;
-                    int* scan0O = (int*) fbo.Scan0;
+                int* scan0I = (int*) fbi.Scan0;
+                int* scan0O = (int*) fbo.Scan0;
 
-                    int strideWidthI = fbi.Stride;
+                int strideWidthI = fbi.Stride;
 
-                    bool smooth = Smooth;
+                bool smooth = Smooth;
                 
-                    // Apply the stroke
-                    for (int y = 0; y < h; y++)
+                // Apply the stroke
+                for (int y = 0; y < h; y++)
+                {
+                    for (int x = 0; x < w; x++)
                     {
-                        for (int x = 0; x < w; x++)
+                        int a = (*(scan0I + strideWidthI * y + x) >> 24) & 0xFF;
+
+                        // If the pixel has an alpha of 0, it can't apply any stroke
+                        if (a == 0)
+                            continue;
+
+                        int minY = Math.Max(y - strokeRadius, 0), maxY = Math.Min(y + strokeRadius, h - 1);
+                        int minX = Math.Max(x - strokeRadius, 0), maxX = Math.Min(x + strokeRadius, w - 1);
+
+                        for (int sy = minY; sy <= maxY; sy++)
                         {
-                            int a = (*(scan0I + strideWidthI * y + x) >> 24) & 0xFF;
+                            // We cache the Y pointer offset here so we don't need to recalculate for each column of pixels over and over
+                            int yMod = strideWidthI * sy;
 
-                            // If the pixel has an alpha of 0, it can't apply any stroke
-                            if (a == 0)
-                                continue;
-
-                            int minY = Math.Max(y - strokeRadius, 0), maxY = Math.Min(y + strokeRadius, h - 1);
-                            int minX = Math.Max(x - strokeRadius, 0), maxX = Math.Min(x + strokeRadius, w - 1);
-
-                            for (int sy = minY; sy <= maxY; sy++)
+                            for (int sx = minX; sx <= maxX; sx++)
                             {
-                                // We cache the Y pointer offset here so we don't need to recalculate for each column of pixels over and over
-                                int yMod = strideWidthI * sy;
+                                // Don't apply any stroke on top of fully opaque pixels
+                                if ((*(scan0I + yMod + sx) & 0xFF000000) == 0xFF000000 || (sx == x && sy == y))
+                                    continue;
 
-                                for (int sx = minX; sx <= maxX; sx++)
+                                int dx = sx - x;
+                                int dy = sy - y;
+                                int dis = dx * dx + dy * dy;
+
+                                if (dis > strokeRadiusSqrd)
+                                    continue;
+
+                                const int outA = 255;
+                                int outC = (outA << 24) + strokeColorInt;
+
+                                if (smooth)
                                 {
-                                    // Don't apply any stroke on top of fully opaque pixels
-                                    if ((*(scan0I + yMod + sx) & 0xFF000000) == 0xFF000000 || (sx == x && sy == y))
-                                        continue;
+                                    float oldA = ((*(scan0O + yMod + sx) >> 24) & 0xFF) / 255.0f;
 
-                                    int dx = sx - x;
-                                    int dy = sy - y;
-                                    int dis = dx * dx + dy * dy;
-
-                                    if (dis > strokeRadiusSqrd)
-                                        continue;
-
-                                    const int outA = 255;
-                                    int outC = (outA << 24) + strokeColorInt;
-
-                                    if (smooth)
-                                    {
-                                        float oldA = ((*(scan0O + yMod + sx) >> 24) & 0xFF) / 255.0f;
-
-                                        outC = (Math.Min(255,
-                                                    (int) ((oldA + (1 - Math.Sqrt(dis) / strokeRadius)) * 0xFF)) << 24) +
-                                               strokeColorInt;
-                                    }
-
-                                    *(scan0O + yMod + sx) = outC;
+                                    outC = (Math.Min(255,
+                                                (int) ((oldA + (1 - Math.Sqrt(dis) / strokeRadius)) * 0xFF)) << 24) +
+                                           strokeColorInt;
                                 }
+
+                                *(scan0O + yMod + sx) = outC;
                             }
                         }
                     }
                 }
-
-                // Draw the underlying image
-                if (!KnockoutImage)
-                {
-                    using (var gphTemp = Graphics.FromImage(bmo))
-                    {
-                        gphTemp.CompositingMode = CompositingMode.SourceOver;
-                        gphTemp.DrawImage(bitmap, Point.Empty);
-                        gphTemp.Flush();
-                    }
-                }
-
-                // Draw to the image now
-                using (var gphOut = Graphics.FromImage(bitmap))
-                {
-                    gphOut.CompositingMode = CompositingMode.SourceCopy;
-                    gphOut.DrawImage(bmo, Point.Empty);
-                    gphOut.Flush();
-                }
             }
+
+            // Draw the underlying image
+            if (!KnockoutImage)
+            {
+                using var gphTemp = Graphics.FromImage(bmo);
+                gphTemp.CompositingMode = CompositingMode.SourceOver;
+                gphTemp.DrawImage(bitmap, Point.Empty);
+                gphTemp.Flush();
+            }
+
+            // Draw to the image now
+            using var gphOut = Graphics.FromImage(bitmap);
+            gphOut.CompositingMode = CompositingMode.SourceCopy;
+            gphOut.DrawImage(bmo, Point.Empty);
+            gphOut.Flush();
         }
 
         /// <summary>
@@ -218,9 +212,7 @@ namespace Pixelaria.Filters
 
         public bool Equals(IFilter filter)
         {
-            var other = filter as StrokeFilter;
-
-            return other != null && StrokeColor == other.StrokeColor && StrokeRadius == other.StrokeRadius &&
+            return filter is StrokeFilter other && StrokeColor == other.StrokeColor && StrokeRadius == other.StrokeRadius &&
                    KnockoutImage == other.KnockoutImage && Smooth == other.Smooth && Version == other.Version;
         }
     }

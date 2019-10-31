@@ -161,116 +161,114 @@ namespace Pixelaria.Utils
                 File.Create(_filePath).Close();
 
             // Load the file line by line
-            using (var reader = new StreamReader(_filePath, Encoding.UTF8))
+            using var reader = new StreamReader(_filePath, Encoding.UTF8);
+            string currentPath = "";
+            while (!reader.EndOfStream)
             {
-                string currentPath = "";
-                while (!reader.EndOfStream)
-                {
-                    string line = reader.ReadLine();
+                string line = reader.ReadLine();
                 
-                    if (line == null)
-                        break;
+                if (line == null)
+                    break;
 
-                    if (line.Trim() != "")
+                if (line.Trim() != "")
+                {
+                    // Path block, change current path block
+                    if (line[0] == '[')
                     {
-                        // Path block, change current path block
-                        if (line[0] == '[')
+                        currentPath = "";
+                        string localPath = "";
+                        // Use a parser to guarantee consistency
+                        MiniParser parser = new MiniParser(line);
+                        parser.Next(); // Skip the starting '['
+                        parser.SkipWhiteSpace();
+
+                        if (parser.Peek() == ']')
+                            continue;
+                        bool afterSeparator = false;
+                        while (!parser.EOF())
                         {
-                            currentPath = "";
-                            string localPath = "";
-                            // Use a parser to guarantee consistency
-                            MiniParser parser = new MiniParser(line);
-                            parser.Next(); // Skip the starting '['
-                            parser.SkipWhiteSpace();
-
                             if (parser.Peek() == ']')
-                                continue;
-                            bool afterSeparator = false;
-                            while (!parser.EOF())
                             {
-                                if (parser.Peek() == ']')
-                                {
-                                    currentPath = localPath;
-                                    break;
-                                }
+                                currentPath = localPath;
+                                break;
+                            }
 
-                                if (parser.Peek() == '\\')
+                            if (parser.Peek() == '\\')
+                            {
+                                parser.Next();
+                                afterSeparator = true;
+                            }
+                            else
+                            {
+                                try
                                 {
-                                    parser.Next();
-                                    afterSeparator = true;
-                                }
-                                else
-                                {
-                                    try
+                                    if (afterSeparator)
+                                        localPath += "\\";
+
+                                    afterSeparator = false;
+
+                                    // Buffer the path until a '\' sign
+                                    while (!parser.EOF())
                                     {
-                                        if (afterSeparator)
-                                            localPath += "\\";
-
-                                        afterSeparator = false;
-
-                                        // Buffer the path until a '\' sign
-                                        while (!parser.EOF())
+                                        if (parser.Peek() != '\\' && parser.Peek() != ']')
                                         {
-                                            if (parser.Peek() != '\\' && parser.Peek() != ']')
-                                            {
-                                                localPath += parser.Next();
-                                            }
-                                            else
-                                            {
-                                                break;
-                                            }
+                                            localPath += parser.Next();
+                                        }
+                                        else
+                                        {
+                                            break;
                                         }
                                     }
-                                    catch (Exception)
-                                    {
-                                        continue;
-                                    }
                                 }
-
-                                parser.SkipWhiteSpace();
+                                catch (Exception)
+                                {
+                                    continue;
+                                }
                             }
+
+                            parser.SkipWhiteSpace();
                         }
-                        // Comment line, ignore
-                        else if (line.Trim()[0] == '\'')
-                        {
+                    }
+                    // Comment line, ignore
+                    else if (line.Trim()[0] == '\'')
+                    {
                         
-                        }
-                        // Normal line, read the settings
-                        else
+                    }
+                    // Normal line, read the settings
+                    else
+                    {
+                        // Parse the value
+                        MiniParser parser = new MiniParser(line);
+                        parser.SkipWhiteSpace();
+
+                        try
                         {
-                            // Parse the value
-                            MiniParser parser = new MiniParser(line);
+                            // VAR = VALUE
+
+                            // Read the settings identifier
+                            string valueName = parser.ReadIdent(false);
                             parser.SkipWhiteSpace();
 
-                            try
+                            // If there's no '=', the line is not correctly formated
+                            if (parser.Next() != '=')
+                                continue;
+
+                            // Skip to the value
+                            parser.SkipWhiteSpace();
+
+                            // Read the value
+                            StringBuilder builder = new StringBuilder();
+                            while (!parser.EOF() && (parser.Peek() != '\n' || parser.Peek() != '\r'))
                             {
-                                // VAR = VALUE
-
-                                // Read the settings identifier
-                                string valueName = parser.ReadIdent(false);
-                                parser.SkipWhiteSpace();
-
-                                // If there's no '=', the line is not correctly formated
-                                if (parser.Next() != '=')
-                                    continue;
-
-                                // Skip to the value
-                                parser.SkipWhiteSpace();
-
-                                // Read the value
-                                StringBuilder builder = new StringBuilder();
-                                while (!parser.EOF() && (parser.Peek() != '\n' || parser.Peek() != '\r'))
-                                {
-                                    builder.Append(parser.Next());
-                                }
-                                string value = builder.ToString();
-
-                                // 
-                                _values[currentPath + "\\" + valueName] = value;
+                                builder.Append(parser.Next());
                             }
-                            // ReSharper disable once EmptyGeneralCatchClause
-                            catch (Exception) { }
+                            string value = builder.ToString();
+
+                            // 
+                            _values[currentPath + "\\" + valueName] = value;
                         }
+                        // ReSharper disable once EmptyGeneralCatchClause
+                        catch (Exception) { }
                     }
                 }
             }

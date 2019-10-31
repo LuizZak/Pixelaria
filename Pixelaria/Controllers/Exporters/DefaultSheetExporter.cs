@@ -48,13 +48,11 @@ namespace Pixelaria.Controllers.Exporters
             //
             // 1. Generate texture atlas
             //
-            using (var atlas = await GenerateAtlasFromAnimationSheet(sheet, cancellationToken, progressHandler))
-            {
-                //
-                // 2. Generate an export sheet from the texture atlas
-                //
-                return BundleSheetExport.FromAtlas(atlas);
-            }
+            using var atlas = await GenerateAtlasFromAnimationSheet(sheet, cancellationToken, progressHandler);
+            //
+            // 2. Generate an export sheet from the texture atlas
+            //
+            return BundleSheetExport.FromAtlas(atlas);
         }
 
         /// <summary>
@@ -143,10 +141,8 @@ namespace Pixelaria.Controllers.Exporters
             {
                 var frame = animation.GetFrameController(animation.GetFrameAtIndex(i));
 
-                using (var composed = frame.GetComposedBitmap())
-                {
-                    FastBitmap.CopyRegion(composed, stripBitmap, new Rectangle(Point.Empty, frame.Size), new Rectangle(new Point(frame.Index * frame.Width, 0), frame.Size));
-                }
+                using var composed = frame.GetComposedBitmap();
+                FastBitmap.CopyRegion(composed, stripBitmap, new Rectangle(Point.Empty, frame.Size), new Rectangle(new Point(frame.Index * frame.Width, 0), frame.Size));
             }
 
             return stripBitmap;

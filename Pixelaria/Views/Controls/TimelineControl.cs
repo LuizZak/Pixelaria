@@ -263,10 +263,8 @@ namespace Pixelaria.Views.Controls
                 var currentFrameRect = new RectangleF(x, 0, _frameWidth, _frameCountHeight);
                 if (frame == _currentFrame)
                 {
-                    using (var brush = new SolidBrush(_selectedFrameColor))
-                    {
-                        e.Graphics.FillRectangle(brush, currentFrameRect);
-                    }
+                    using var brush = new SolidBrush(_selectedFrameColor);
+                    e.Graphics.FillRectangle(brush, currentFrameRect);
                 }
 
                 if (frame % 5 == 0)
@@ -360,10 +358,8 @@ namespace Pixelaria.Views.Controls
 
             if (relationship != KeyframePosition.None)
             {
-                using (var brush = new SolidBrush(currentFrame == _currentFrame ? _selectedFrameColor : _keyframeColor))
-                {
-                    e.Graphics.FillRectangle(brush, frameBounds);
-                }
+                using var brush = new SolidBrush(currentFrame == _currentFrame ? _selectedFrameColor : _keyframeColor);
+                e.Graphics.FillRectangle(brush, frameBounds);
             }
 
             if (relationship == KeyframePosition.First || relationship == KeyframePosition.Full)

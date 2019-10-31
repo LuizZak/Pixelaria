@@ -73,34 +73,32 @@ namespace Pixelaria.Filters
             if (!Modifying)
                 return;
 
-            using (var bit = (Bitmap) bitmap.Clone())
-            using (var gfx = Graphics.FromImage(bitmap))
+            using var bit = (Bitmap) bitmap.Clone();
+            using var gfx = Graphics.FromImage(bitmap);
+            gfx.Clear(Color.Transparent);
+
+            if (RotateAroundCenter)
             {
-                gfx.Clear(Color.Transparent);
-
-                if (RotateAroundCenter)
-                {
-                    gfx.TranslateTransform(bitmap.Width / 2.0f, bitmap.Height / 2.0f);
-                }
-
-                gfx.InterpolationMode = PixelQuality
-                    ? InterpolationMode.NearestNeighbor
-                    : InterpolationMode.HighQualityBicubic;
-
-                gfx.PixelOffsetMode = PixelOffsetMode.HighQuality;
-
-                gfx.RotateTransform(Rotation);
-
-                if (RotateAroundCenter)
-                {
-                    gfx.TranslateTransform(-bitmap.Width / 2.0f, -bitmap.Height / 2.0f);
-                }
-
-                var pivot = new Point();
-                gfx.DrawImage(bit, pivot);
-
-                gfx.Flush();
+                gfx.TranslateTransform(bitmap.Width / 2.0f, bitmap.Height / 2.0f);
             }
+
+            gfx.InterpolationMode = PixelQuality
+                ? InterpolationMode.NearestNeighbor
+                : InterpolationMode.HighQualityBicubic;
+
+            gfx.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+            gfx.RotateTransform(Rotation);
+
+            if (RotateAroundCenter)
+            {
+                gfx.TranslateTransform(-bitmap.Width / 2.0f, -bitmap.Height / 2.0f);
+            }
+
+            var pivot = new Point();
+            gfx.DrawImage(bit, pivot);
+
+            gfx.Flush();
         }
 
         /// <summary>

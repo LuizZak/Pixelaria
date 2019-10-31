@@ -62,38 +62,36 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         /// <returns>The Animation sheet entries loaded</returns>
         public AnimationSheetEntry[] LoadAnimationSheetsFromBuffer()
         {
-            using(var stream = new MemoryStream(GetBlockBuffer(), false))
+            using var stream = new MemoryStream(GetBlockBuffer(), false);
+            var reader = new BinaryReader(stream);
+
+            var sheetCount = reader.ReadInt32();
+            var sheets = new AnimationSheetEntry[sheetCount];
+
+            for (int i = 0; i < sheetCount; i++)
             {
-                var reader = new BinaryReader(stream);
+                // Load the animation sheet data
+                int id = reader.ReadInt32();
+                string name = reader.ReadString();
+                var settings = LoadExportSettingsFromStream(stream);
 
-                var sheetCount = reader.ReadInt32();
-                var sheets = new AnimationSheetEntry[sheetCount];
+                // Create the animation sheet
+                var sheet = new AnimationSheet(name) { ID = id, ExportSettings = settings };
 
-                for (int i = 0; i < sheetCount; i++)
+                // Load the animation indices
+                int animCount = reader.ReadInt32();
+
+                int[] animationIds = new int[animCount];
+
+                for (int j = 0; j < animCount; j++)
                 {
-                    // Load the animation sheet data
-                    int id = reader.ReadInt32();
-                    string name = reader.ReadString();
-                    var settings = LoadExportSettingsFromStream(stream);
-
-                    // Create the animation sheet
-                    var sheet = new AnimationSheet(name) { ID = id, ExportSettings = settings };
-
-                    // Load the animation indices
-                    int animCount = reader.ReadInt32();
-
-                    int[] animationIds = new int[animCount];
-
-                    for (int j = 0; j < animCount; j++)
-                    {
-                        animationIds[j] = reader.ReadInt32();
-                    }
-
-                    sheets[i] = new AnimationSheetEntry(sheet, animationIds);
+                    animationIds[j] = reader.ReadInt32();
                 }
 
-                return sheets;
+                sheets[i] = new AnimationSheetEntry(sheet, animationIds);
             }
+
+            return sheets;
         }
 
         /// <summary>
