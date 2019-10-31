@@ -185,7 +185,15 @@
     <Compile Include="Controllers\Exporters\IExporterController.cs" />
     <Compile Include="Controllers\Exporters\ISheetExporter.cs" />
     <Compile Include="Controllers\IInterfaceStateProvider.cs" />
+    <Compile Include="Data\KeyframeMetadata.cs" />
     <Compile Include="Data\Persistence\PixelariaFileBlocks\ExporterSettingsBlock.cs" />
+    <Compile Include="Data\KeyframeMetadataSerializers\PointKeyframeSerializer.cs" />
+    <Compile Include="Timeline\EmptyTimelineLayerController.cs" />
+    <Compile Include="Timeline\IKeyframeSource.cs" />
+    <Compile Include="Timeline\ITimeline.cs" />
+    <Compile Include="Timeline\ITimelineLayerController.cs" />
+    <Compile Include="Timeline\KeyframeCollectionSource.cs" />
+    <Compile Include="Timeline\TimelinePlayer.cs" />
     <Compile Include="Utils\AsyncHelpers.cs" />
     <Compile Include="Controllers\Exporters\Unity\UnityExporter.cs" />
     <Compile Include="Data\Exports\FrameBoundsMap.cs" />
@@ -227,6 +235,13 @@
     <Compile Include="Views\Controls\PaintTools\Interfaces\IAreaOperation.cs" />
     <Compile Include="Views\Controls\PaintTools\Interfaces\IPaintingPictureBoxTool.cs" />
     <Compile Include="Views\Controls\PaintTools\IUndoIntercepterPaintTool.cs" />
+    <Compile Include="Timeline\Timeline.cs" />
+    <Compile Include="Views\Controls\TimelineControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\TimelineControl.Designer.cs">
+      <DependentUpon>TimelineControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\Controls\TinyColorSlider.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -433,7 +448,7 @@
     <Compile Include="Views\Controls\PaintTools\SelectionPaintTool.cs" />
     <Compile Include="Views\Controls\PaintTools\SheetPreviewHoverMouseTool.cs" />
     <Compile Include="Views\Controls\PaintTools\SprayPaintTool.cs" />
-    <Compile Include="Views\Controls\TimelineControl.cs">
+    <Compile Include="Views\Controls\TimelineScrubControl.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Views\Controls\ZoomablePictureBox.cs">
@@ -501,6 +516,12 @@
     </Compile>
     <Compile Include="Views\ModelViews\AnimationView.Designer.cs">
       <DependentUpon>AnimationView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ModelViews\FrameOriginView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\ModelViews\FrameOriginView.Designer.cs">
+      <DependentUpon>FrameOriginView.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\ModelViews\ImageFilterView.cs">
       <SubType>Form</SubType>
@@ -653,6 +674,10 @@
       <DependentUpon>AnimationView.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="Views\ModelViews\FrameOriginView.resx">
+      <DependentUpon>FrameOriginView.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\ModelViews\ImageFilterView.resx">
       <DependentUpon>ImageFilterView.cs</DependentUpon>
     </EmbeddedResource>
@@ -778,6 +803,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="PXL Icon.ico" />
+    <None Include="Resources\frame_origin_marker.png" />
+    <None Include="Resources\frame_origin.png" />
     <None Include="Resources\error_22x22.png" />
     <None Include="Resources\emblem-important.png" />
     <None Include="Resources\frame_flip_vertical.png" />

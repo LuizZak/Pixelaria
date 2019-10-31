@@ -20,37 +20,30 @@
     base directory of this project.
 */
 
-using System.IO;
-using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Pixelaria.Controllers.Exporters.Pixelaria;
-using PixelariaTests.TestUtils;
-
-namespace PixelariaTests.Controllers.Exporters.Pixelaria
+namespace Pixelaria.Timeline
 {
-    [TestClass]
-    public class PixelariaExporterSettingsTests
+    public class TimelinePlayer
     {
-        [TestMethod]
-        public void TestSave()
+        private readonly ITimeline _timeline;
+
+        public int FrameCount => _timeline.FrameCount;
+
+        public TimelinePlayer(ITimeline timeline)
         {
-            var stream = new MemoryStream();
-            var sut = new PixelariaExporter.Settings();
-
-            sut.Save(stream);
-
-            Assert.That.MemoryStreamMatches(stream, new byte[] {0, 0});
+            _timeline = timeline;
         }
 
-        [TestMethod]
-        public void TestLoad()
+        public object ValueForFrame(int frame)
         {
-            var stream = new MemoryStream(new byte[] { 0, 0 });
-            var sut = new PixelariaExporter.Settings();
+            var range = _timeline.KeyframeRangeForFrame(frame);
+            if (!range.HasValue)
+                return _timeline.LayerController.DefaultKeyframeValue();
 
-            sut.Load(stream);
+            var (value1, value2) = _timeline.KeyframeValuesBetween(frame);
+            if (value1 == null || value2 == null)
+                return _timeline.LayerController.DefaultKeyframeValue();
 
-            Assert.AreEqual(stream.Position, 2);
+            return _timeline.LayerController.InterpolatedValue(value1, value2, range.Value.Ratio(frame));
         }
     }
 }

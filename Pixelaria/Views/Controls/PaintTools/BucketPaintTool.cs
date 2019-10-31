@@ -142,7 +142,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             }
             else if (e.Button == MouseButtons.Middle)
             {
-                ColorPickAtPoint(point, ColorIndex.Indiferent);
+                ColorPickAtPoint(point, ColorIndex.Indifferent);
             }
         }
 
@@ -163,7 +163,7 @@ namespace Pixelaria.Views.Controls.PaintTools
 
                 if (mouse != mouseLast && WithinBounds(mouse))
                 {
-                    ColorPickAtPoint(mouse, ColorIndex.Indiferent);
+                    ColorPickAtPoint(mouse, ColorIndex.Indifferent);
                 }
             }
 

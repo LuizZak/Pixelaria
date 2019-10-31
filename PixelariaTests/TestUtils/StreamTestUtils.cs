@@ -20,37 +20,21 @@
     base directory of this project.
 */
 
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Pixelaria.Controllers.Exporters.Pixelaria;
-using PixelariaTests.TestUtils;
 
-namespace PixelariaTests.Controllers.Exporters.Pixelaria
+namespace PixelariaTests.TestUtils
 {
-    [TestClass]
-    public class PixelariaExporterSettingsTests
+    public static class StreamTestUtils
     {
-        [TestMethod]
-        public void TestSave()
+        public static void MemoryStreamMatches(this Assert assert, [NotNull] MemoryStream stream, [NotNull] IEnumerable<byte> expected)
         {
-            var stream = new MemoryStream();
-            var sut = new PixelariaExporter.Settings();
-
-            sut.Save(stream);
-
-            Assert.That.MemoryStreamMatches(stream, new byte[] {0, 0});
-        }
-
-        [TestMethod]
-        public void TestLoad()
-        {
-            var stream = new MemoryStream(new byte[] { 0, 0 });
-            var sut = new PixelariaExporter.Settings();
-
-            sut.Load(stream);
-
-            Assert.AreEqual(stream.Position, 2);
+            var bytes = stream.GetBuffer().Take((int) stream.Length);
+            
+            Assert.IsTrue(bytes.SequenceEqual(expected));
         }
     }
 }

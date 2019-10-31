@@ -71,6 +71,11 @@ namespace Pixelaria.Controllers.DataControllers
         public Size Size => _animation.Size;
 
         /// <summary>
+        /// Gets the name of this animation
+        /// </summary>
+        public string Name => _animation.Name;
+
+        /// <summary>
         /// Gets or sets the playback settings for the animation
         /// </summary>
         public AnimationPlaybackSettings PlaybackSettings
@@ -311,6 +316,15 @@ namespace Pixelaria.Controllers.DataControllers
                 throw new ObjectDisposedException(nameof(AnimationController));
 
             return GetIdForFrame(_animation.Frames[index]);
+        }
+
+        /// <summary>
+        /// Returns the composed bitmap for a frame at a given index.
+        /// </summary>
+        [NotNull]
+        public Bitmap GetComposedBitmapForFrameAtIndex(int index)
+        {
+            return _animation[index].GetComposedBitmap();
         }
         
         /// <summary>
@@ -611,6 +625,11 @@ namespace Pixelaria.Controllers.DataControllers
                 throw new ArgumentException($@"Cannot find frame with ID {frame}", nameof(frame));
 
             return new FrameController((Frame)f);
+        }
+
+        public KeyframeMetadata MetadataForFrame(int frameIndex)
+        {
+            return _animation[frameIndex].KeyframeMetadata;
         }
 
         [CanBeNull]

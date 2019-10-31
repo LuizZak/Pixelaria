@@ -312,9 +312,9 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// </summary>
         SecondColor,
         /// <summary>
-        /// Indiferent, let the implementer decide the color
+        /// Indifferent, let the implementer decide the color
         /// </summary>
-        Indiferent
+        Indifferent
     }
 
     /// <summary>

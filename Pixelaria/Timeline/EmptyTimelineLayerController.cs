@@ -20,37 +20,28 @@
     base directory of this project.
 */
 
-using System.IO;
-using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Pixelaria.Controllers.Exporters.Pixelaria;
-using PixelariaTests.TestUtils;
-
-namespace PixelariaTests.Controllers.Exporters.Pixelaria
+namespace Pixelaria.Timeline
 {
-    [TestClass]
-    public class PixelariaExporterSettingsTests
+    /// <summary>
+    /// A layer controller that handles empty 0.0f values.
+    ///
+    /// Used mostly as a placeholder for timelines that are display-only.
+    /// </summary>
+    public class EmptyTimelineLayerController : ITimelineLayerController
     {
-        [TestMethod]
-        public void TestSave()
+        public object DefaultKeyframeValue()
         {
-            var stream = new MemoryStream();
-            var sut = new PixelariaExporter.Settings();
-
-            sut.Save(stream);
-
-            Assert.That.MemoryStreamMatches(stream, new byte[] {0, 0});
+            return 0.0f;
         }
 
-        [TestMethod]
-        public void TestLoad()
+        public object DuplicateKeyframeValue(object value)
         {
-            var stream = new MemoryStream(new byte[] { 0, 0 });
-            var sut = new PixelariaExporter.Settings();
+            return value;
+        }
 
-            sut.Load(stream);
-
-            Assert.AreEqual(stream.Position, 2);
+        public object InterpolatedValue(object start, object end, float ratio)
+        {
+            return start;
         }
     }
 }

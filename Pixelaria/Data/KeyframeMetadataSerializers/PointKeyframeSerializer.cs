@@ -20,37 +20,34 @@
     base directory of this project.
 */
 
+using System;
+using System.Drawing;
 using System.IO;
-using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Pixelaria.Controllers.Exporters.Pixelaria;
-using PixelariaTests.TestUtils;
 
-namespace PixelariaTests.Controllers.Exporters.Pixelaria
+namespace Pixelaria.Data.KeyframeMetadataSerializers
 {
-    [TestClass]
-    public class PixelariaExporterSettingsTests
+    public class PointKeyframeSerializer : IKeyframeValueSerializer
     {
-        [TestMethod]
-        public void TestSave()
+        public Type SerializedType => typeof(Point);
+        public string SerializedName => "System.Drawing.Point";
+
+        public void Serialize(object value, Stream stream)
         {
-            var stream = new MemoryStream();
-            var sut = new PixelariaExporter.Settings();
+            if(!(value is Point p))
+                throw new ArgumentException($@"Expected input of type {SerializedType.Name}", nameof(value));
 
-            sut.Save(stream);
-
-            Assert.That.MemoryStreamMatches(stream, new byte[] {0, 0});
+            var writer = new BinaryWriter(stream);
+            writer.Write(p.X);
+            writer.Write(p.Y);
         }
 
-        [TestMethod]
-        public void TestLoad()
+        public object Deserialize(Stream stream)
         {
-            var stream = new MemoryStream(new byte[] { 0, 0 });
-            var sut = new PixelariaExporter.Settings();
+            var reader = new BinaryReader(stream);
+            int x = reader.ReadInt32();
+            int y = reader.ReadInt32();
 
-            sut.Load(stream);
-
-            Assert.AreEqual(stream.Position, 2);
+            return new Point(x, y);
         }
     }
 }

@@ -20,37 +20,26 @@
     base directory of this project.
 */
 
-using System.IO;
-using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Pixelaria.Controllers.Exporters.Pixelaria;
-using PixelariaTests.TestUtils;
-
-namespace PixelariaTests.Controllers.Exporters.Pixelaria
+namespace Pixelaria.Timeline
 {
-    [TestClass]
-    public class PixelariaExporterSettingsTests
+    /// <summary>
+    /// Controls the values for a specific timeline layer's keyframes
+    /// </summary>
+    public interface ITimelineLayerController
     {
-        [TestMethod]
-        public void TestSave()
-        {
-            var stream = new MemoryStream();
-            var sut = new PixelariaExporter.Settings();
+        /// <summary>
+        /// Requests the default value for a newly created keyframe.
+        /// </summary>
+        object DefaultKeyframeValue();
 
-            sut.Save(stream);
+        /// <summary>
+        /// Requests a copy of the given keyframe value.
+        /// </summary>
+        object DuplicateKeyframeValue(object value);
 
-            Assert.That.MemoryStreamMatches(stream, new byte[] {0, 0});
-        }
-
-        [TestMethod]
-        public void TestLoad()
-        {
-            var stream = new MemoryStream(new byte[] { 0, 0 });
-            var sut = new PixelariaExporter.Settings();
-
-            sut.Load(stream);
-
-            Assert.AreEqual(stream.Position, 2);
-        }
+        /// <summary>
+        /// Requests the interpolated value between two keyframe values, with a given ratio.
+        /// </summary>
+        object InterpolatedValue(object start, object end, float ratio);
     }
 }

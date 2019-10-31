@@ -167,7 +167,7 @@ namespace Pixelaria.Views.Controls
         /// <summary>
         /// Specifies the delegate signature for custom interceptable mouse events of this panel
         /// </summary>
-        public delegate void PaintingOperationsPictureBoxMouseEvent(object sender, PaintingOperatinsPictureBoxMouseEventArgs e);
+        public delegate void PaintingOperationsPictureBoxMouseEvent(object sender, PaintingOperationsPictureBoxMouseEventArgs e);
 
         /// <summary>
         /// An event for mouse down that may be interceptable by a listener
@@ -290,9 +290,9 @@ namespace Pixelaria.Views.Controls
             {
                 operation.CompositingMode = OwningPanel.DefaultCompositingMode;
             }
-            if (_currentPaintTool is IFillModePaintTool)
+            if (_currentPaintTool is IFillModePaintTool tool)
             {
-                (_currentPaintTool as IFillModePaintTool).FillMode = OwningPanel.DefaultFillMode;
+                tool.FillMode = OwningPanel.DefaultFillMode;
             }
         }
 
@@ -439,10 +439,10 @@ namespace Pixelaria.Views.Controls
                     pe.Graphics.Clip = clip;
                     pe.Graphics.ResetTransform();
 
-                    Pen pen = Pens.Gray;
+                    var pen = Pens.Gray;
 
-                    float xOff = (-offsetPoint.X) % scale.X;
-                    float yOff = (-offsetPoint.Y) % scale.Y;
+                    float xOff = -offsetPoint.X % scale.X;
+                    float yOff = -offsetPoint.Y % scale.Y;
 
                     // Draw the horizontal lines
                     for (float y = yOff; y < Math.Min(Height, (Image.Height * scale.Y)); y += scale.Y)
@@ -513,7 +513,7 @@ namespace Pixelaria.Views.Controls
 
             var location = GetAbsolutePoint(e.Location);
 
-            var args = new PaintingOperatinsPictureBoxMouseEventArgs(e.Button, e.Clicks, e.X, e.Y, location.X, location.Y, e.Delta);
+            var args = new PaintingOperationsPictureBoxMouseEventArgs(e.Button, e.Clicks, e.X, e.Y, location.X, location.Y, e.Delta);
             InterceptableMouseDown?.Invoke(this, args);
 
             // Event was handled
@@ -640,7 +640,7 @@ namespace Pixelaria.Views.Controls
     /// A mouse event fired by the internal picture box of an image edit panel.
     /// This event allows listeners to intercept and handle mouse events of an internal picture box
     /// </summary>
-    public class PaintingOperatinsPictureBoxMouseEventArgs : MouseEventArgs
+    public class PaintingOperationsPictureBoxMouseEventArgs : MouseEventArgs
     {
         /// <summary>
         /// Whether this event was properly handled by the event listener
@@ -662,7 +662,7 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         public Point ImageLocation => new Point(ImageX, ImageY);
 
-        public PaintingOperatinsPictureBoxMouseEventArgs(MouseButtons button, int clicks, int x, int y, int mouseX, int mouseY, int delta) : base(button, clicks, x, y, delta)
+        public PaintingOperationsPictureBoxMouseEventArgs(MouseButtons button, int clicks, int x, int y, int mouseX, int mouseY, int delta) : base(button, clicks, x, y, delta)
         {
             ImageX = mouseX;
             ImageY = mouseY;

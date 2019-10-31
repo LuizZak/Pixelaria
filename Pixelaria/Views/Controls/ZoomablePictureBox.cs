@@ -464,8 +464,8 @@ namespace Pixelaria.Views.Controls
 
             if (excessW > 0)
             {
-                int largeChange = Math.Min((Width - vScrollBar.Width), excessW);
-                hScrollBar.LargeChange = Math.Min((Width - vScrollBar.Width), excessW);
+                int largeChange = Math.Max(0, Math.Min(Width - vScrollBar.Width, excessW));
+                hScrollBar.LargeChange = Math.Max(0, Math.Min(Width - vScrollBar.Width, excessW));
                 hScrollBar.Maximum = excessW + largeChange - 1;
                 hScrollBar.Value = offsetPoint.X;
                 hScrollBar.Visible = true;
@@ -477,8 +477,8 @@ namespace Pixelaria.Views.Controls
 
             if (excessH > 0)
             {
-                int largeChange = Math.Min((Height - hScrollBar.Height), excessH);
-                vScrollBar.LargeChange = Math.Min((Height - hScrollBar.Height), excessH);
+                int largeChange = Math.Max(0, Math.Min(Height - hScrollBar.Height, excessH));
+                vScrollBar.LargeChange = Math.Max(0, Math.Min(Height - hScrollBar.Height, excessH));
                 vScrollBar.Maximum = excessH + largeChange - 1;
                 vScrollBar.Value = offsetPoint.Y;
                 vScrollBar.Visible = true;

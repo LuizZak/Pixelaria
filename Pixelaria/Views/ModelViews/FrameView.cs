@@ -1,4 +1,4 @@
-/*
+﻿/*
     Pixelaria
     Copyright (C) 2013 Luiz Fernando Silva
 
@@ -558,9 +558,9 @@ namespace Pixelaria.Views.ModelViews
             {
                 basePaintTool.ColorPicked -= OnColorPicked;
             }
-            if (iepb_frame.CurrentPaintTool is SelectionPaintTool selectionTool)
+            if (iepb_frame.CurrentPaintTool is IAreaOperation areaOperation)
             {
-                selectionTool.FinishOperation(true);
+                areaOperation.FinishOperation(true);
             }
 
             iepb_frame.CurrentPaintTool = paintTool;
@@ -569,13 +569,13 @@ namespace Pixelaria.Views.ModelViews
             gb_fillMode.Visible = paintTool is IFillModePaintTool;
             gb_otherGroup.Visible = paintTool is IAirbrushPaintTool;
 
-            if (paintTool is IAirbrushPaintTool)
+            if (paintTool is IAirbrushPaintTool airbrushPaintTool)
             {
-                (paintTool as IAirbrushPaintTool).AirbrushMode = cb_airbrushMode.Checked;
+                airbrushPaintTool.AirbrushMode = cb_airbrushMode.Checked;
             }
-            if (paintTool is AbstractPaintTool)
+            if (paintTool is AbstractPaintTool abstractPaintTool)
             {
-                (paintTool as AbstractPaintTool).ColorPicked += OnColorPicked;
+                abstractPaintTool.ColorPicked += OnColorPicked;
             }
 
             // Focus on the canvas
@@ -1985,7 +1985,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         // Image Edit Panel interceptable mouse down
         // 
-        private void iepb_frame_interceptableMouseDown(object sender, [NotNull] PaintingOperatinsPictureBoxMouseEventArgs eventArgs)
+        private void iepb_frame_interceptableMouseDown(object sender, [NotNull] PaintingOperationsPictureBoxMouseEventArgs eventArgs)
         {
             // Select first visible layer under mouse point, if the user is hitting Left Click + Alt
             if (eventArgs.Button != MouseButtons.Left || ModifierKeys != Keys.Alt)

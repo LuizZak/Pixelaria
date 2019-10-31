@@ -44,8 +44,7 @@ namespace Pixelaria.Views.ModelViews
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrameView));
-            Pixelaria.Views.Controls.PaintTools.NullPaintTool nullPaintTool1 = new Pixelaria.Views.Controls.PaintTools.NullPaintTool();
-            Pixelaria.Data.Undo.UndoSystem undoSystem1 = new Pixelaria.Data.Undo.UndoSystem();
+            Pixelaria.Data.Undo.UndoSystem undoSystem2 = new Pixelaria.Data.Undo.UndoSystem();
             this.printDialog1 = new System.Windows.Forms.PrintDialog();
             this.tt_mainTooltip = new System.Windows.Forms.ToolTip(this.components);
             this.rb_pencil = new System.Windows.Forms.RadioButton();
@@ -61,7 +60,7 @@ namespace Pixelaria.Views.ModelViews
             this.pnl_framePreview = new Pixelaria.Views.Controls.LabeledPanel();
             this.zpb_framePreview = new Pixelaria.Views.Controls.ZoomablePictureBox();
             this.panel4 = new System.Windows.Forms.Panel();
-            this.tc_currentFrame = new Pixelaria.Views.Controls.TimelineControl();
+            this.tc_currentFrame = new Pixelaria.Views.Controls.TimelineScrubControl();
             this.pb_zoomIcon = new System.Windows.Forms.PictureBox();
             this.anud_zoom = new Pixelaria.Views.Controls.AssistedNumericUpDown();
             this.panel2 = new System.Windows.Forms.Panel();
@@ -368,7 +367,7 @@ namespace Pixelaria.Views.ModelViews
             this.tc_currentFrame.ScrollX = 0D;
             this.tc_currentFrame.Size = new System.Drawing.Size(545, 41);
             this.tc_currentFrame.TabIndex = 2;
-            this.tc_currentFrame.FrameChanged += new Pixelaria.Views.Controls.TimelineControl.FrameChangedEventHandler(this.tc_currentFrame_FrameChanged);
+            this.tc_currentFrame.FrameChanged += new Pixelaria.Views.Controls.TimelineScrubControl.FrameChangedEventHandler(this.tc_currentFrame_FrameChanged);
             // 
             // pb_zoomIcon
             // 
@@ -457,6 +456,7 @@ namespace Pixelaria.Views.ModelViews
             // cp_mainColorPicker
             // 
             this.cp_mainColorPicker.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.cp_mainColorPicker.ColorPickerMode = Pixelaria.Views.Controls.ColorControls.ColorPickerMode.DualColor;
             this.cp_mainColorPicker.Dock = System.Windows.Forms.DockStyle.Top;
             this.cp_mainColorPicker.FirstColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
             this.cp_mainColorPicker.Location = new System.Drawing.Point(0, 0);
@@ -1216,7 +1216,7 @@ namespace Pixelaria.Views.ModelViews
             this.tsm_toggleVisibleLayers.Image = global::Pixelaria.Properties.Resources.filter_enable_icon;
             this.tsm_toggleVisibleLayers.Name = "tsm_toggleVisibleLayers";
             this.tsm_toggleVisibleLayers.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.H)));
-            this.tsm_toggleVisibleLayers.Size = new System.Drawing.Size(250, 22);
+            this.tsm_toggleVisibleLayers.Size = new System.Drawing.Size(249, 22);
             this.tsm_toggleVisibleLayers.Text = "Hide/show other layers";
             this.tsm_toggleVisibleLayers.Click += new System.EventHandler(this.tsm_toggleVisibleLayers_Click);
             // 
@@ -1225,7 +1225,7 @@ namespace Pixelaria.Views.ModelViews
             this.tsm_resetLayerTransparencies.Image = global::Pixelaria.Properties.Resources.filter_transparency_icon;
             this.tsm_resetLayerTransparencies.Name = "tsm_resetLayerTransparencies";
             this.tsm_resetLayerTransparencies.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.T)));
-            this.tsm_resetLayerTransparencies.Size = new System.Drawing.Size(250, 22);
+            this.tsm_resetLayerTransparencies.Size = new System.Drawing.Size(249, 22);
             this.tsm_resetLayerTransparencies.Text = "Reset layer transparencies";
             this.tsm_resetLayerTransparencies.Click += new System.EventHandler(this.tsm_resetLayerTransparencies_Click);
             // 
@@ -1235,7 +1235,7 @@ namespace Pixelaria.Views.ModelViews
             this.tsm_expandAllLayers,
             this.tsm_collapseAllLayers});
             this.controlToolStripMenuItem.Name = "controlToolStripMenuItem";
-            this.controlToolStripMenuItem.Size = new System.Drawing.Size(250, 22);
+            this.controlToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
             this.controlToolStripMenuItem.Text = "Control";
             // 
             // tsm_expandAllLayers
@@ -1304,7 +1304,7 @@ namespace Pixelaria.Views.ModelViews
             // tsl_coordinates
             // 
             this.tsl_coordinates.Name = "tsl_coordinates";
-            this.tsl_coordinates.Size = new System.Drawing.Size(30, 17);
+            this.tsl_coordinates.Size = new System.Drawing.Size(31, 17);
             this.tsl_coordinates.Text = "3 x 4";
             // 
             // tsl_operationLabel
@@ -1325,12 +1325,11 @@ namespace Pixelaria.Views.ModelViews
             this.iepb_frame.Size = new System.Drawing.Size(407, 537);
             this.iepb_frame.TabIndex = 0;
             this.iepb_frame.Text = "imageEditPictureBox1";
-            undoSystem1.MaximumTaskCount = 15;
-            this.iepb_frame.UndoSystem = undoSystem1;
+            undoSystem2.MaximumTaskCount = 15;
+            this.iepb_frame.UndoSystem = undoSystem2;
             this.iepb_frame.ColorSelect += new Pixelaria.Views.Controls.ImageEditPanel.ColorPickEventHandler(this.iepb_frame_ColorSelect);
             this.iepb_frame.ClipboardStateChanged += new Pixelaria.Views.Controls.ImageEditPanel.ClipboardStateEventHandler(this.iepb_frame_ClipboardStateChanged);
             this.iepb_frame.ClipboardSetContents += new System.EventHandler(this.iepb_frame_ClipboardSetContents);
-            this.iepb_frame.OperationStatusChanged += new Pixelaria.Views.Controls.ImageEditPanel.OperationStatusEventHandler(this.iepb_frame_OperationStatusChanged);
             this.iepb_frame.MouseEnter += new System.EventHandler(this.iepb_frame_MouseEnter);
             this.iepb_frame.MouseLeave += new System.EventHandler(this.iepb_frame_MouseLeave);
             this.iepb_frame.MouseMove += new System.Windows.Forms.MouseEventHandler(this.iepb_frame_MouseMove);
@@ -1493,7 +1492,7 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
         private System.Windows.Forms.ToolStripButton tsb_osShowCurrentFrame;
         private System.Windows.Forms.RadioButton rb_sprayPaint;
-        private Controls.TimelineControl tc_currentFrame;
+        private Controls.TimelineScrubControl tc_currentFrame;
         private System.Windows.Forms.ToolStripButton tsb_osDisplayOnFront;
         private System.Windows.Forms.GroupBox gb_otherGroup;
         private System.Windows.Forms.CheckBox cb_airbrushMode;

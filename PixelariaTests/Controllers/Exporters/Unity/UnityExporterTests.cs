@@ -27,6 +27,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.Controllers.Exporters;
 using Pixelaria.Controllers.Exporters.Unity;
 using PixelariaTests.TestGenerators;
+using PixelariaTests.TestUtils;
 
 namespace PixelariaTests.Controllers.Exporters.Unity
 {
@@ -141,7 +142,7 @@ namespace PixelariaTests.Controllers.Exporters.Unity
 
             sut.Save(stream);
 
-            Assert.IsTrue(stream.GetBuffer().Take((int) stream.Length).SequenceEqual(new byte[] {0, 0, 0}));
+            Assert.That.MemoryStreamMatches(stream, new byte[] {0, 0, 0});
             Assert.AreEqual(stream.Position, 3);
         }
 

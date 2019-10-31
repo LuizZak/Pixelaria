@@ -41,7 +41,9 @@ namespace Pixelaria.Data
         /// The list of layers laid on this frame
         /// </summary>
         public readonly List<FrameLayer> Layers;
-        
+
+        public KeyframeMetadata KeyframeMetadata { get; } = new KeyframeMetadata();
+
         /// <summary>
         /// Gets the width of this frame
         /// </summary>
@@ -281,10 +283,13 @@ namespace Pixelaria.Data
 
             Hash = frame.Hash;
             _shortHash = castFrame._shortHash;
+
+            // Copy metadata
+            KeyframeMetadata.CopyFrom(frame.KeyframeMetadata);
         }
 
         /// <summary>
-        /// Returns whether the current frame can copy the conents of the specified frame type
+        /// Returns whether the current frame can copy the contents of the specified frame type
         /// </summary>
         /// <typeparam name="TFrame">The type of frame to copy from</typeparam>
         public virtual bool CanCopyFromType<TFrame>() where TFrame : IFrame
