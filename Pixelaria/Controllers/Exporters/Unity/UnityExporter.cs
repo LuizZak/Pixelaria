@@ -209,15 +209,7 @@ namespace Pixelaria.Controllers.Exporters.Unity
 
         private static IEnumerable<UnityAnimationFile> GenerateAnimations([NotNull] UnityPngMeta meta, [NotNull] BundleSheetExport sheet)
         {
-            var anims = new List<UnityAnimationFile>();
-
-            foreach (var animation in sheet.Animations)
-            {
-                var animFile = GenerateAnimationFile(meta, animation);
-                anims.Add(animFile);
-            }
-
-            return anims;
+            return sheet.Animations.Select(animation => GenerateAnimationFile(meta, animation)).ToList();
         }
 
         private static UnityAnimationFile GenerateAnimationFile([NotNull] UnityPngMeta meta, [NotNull] Animation animation)
@@ -515,7 +507,6 @@ namespace Pixelaria.Controllers.Exporters.Unity
                     {"edges", new YamlSequenceNode()},
                     {"weights", new YamlSequenceNode()},
                 };
-
 
                 return node;
             }

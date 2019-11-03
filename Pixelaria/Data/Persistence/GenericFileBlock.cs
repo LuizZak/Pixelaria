@@ -173,7 +173,7 @@ namespace Pixelaria.Data.Persistence
             }
 
             var reader = new BinaryReader(stream);
-            _blockContent = reader.ReadBytes((int)blockLength);
+            _blockContent = reader.ReadBytes((int) blockLength);
         }
 
         /// <summary>

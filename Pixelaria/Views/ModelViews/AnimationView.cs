@@ -768,7 +768,10 @@ namespace Pixelaria.Views.ModelViews
         {
             var view = new FrameOriginView(ViewAnimation.MakeCopyForEditing(true));
 
-            view.ShowDialog(this);
+            if (view.ShowDialog(this) == DialogResult.OK)
+            {
+                MarkModified();
+            }
         }
 
         /// <summary>

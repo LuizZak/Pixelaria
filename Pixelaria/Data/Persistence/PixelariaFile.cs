@@ -137,6 +137,11 @@ namespace Pixelaria.Data.Persistence
                     .GroupBy(block => block.ReadAnimationId())
                     .ToDictionary(blocks => blocks.Key, blocks => blocks.ToArray());
 
+            var keyframeBlocks =
+                Blocks.OfType<KeyframeBlock>()
+                    .GroupBy(block => block.GetFrameId())
+                    .ToDictionary(blocks => blocks.Key, blocks => blocks.ToArray());
+
             // Start by creating animations
             foreach (var block in legacyAnimBlocks)
             {
@@ -179,6 +184,15 @@ namespace Pixelaria.Data.Persistence
                         else
                         {
                             frameInfo.Frame.SetHash(frameInfo.HashBytes);
+                        }
+
+                        if (keyframeBlocks.TryGetValue(frame.ID, out var keyframes))
+                        {
+                            foreach (var keyframeBlock in keyframes)
+                            {
+                                var keyValuePair = keyframeBlock.DeserializerValue(KeyframeMetadata.SerializerForName(keyframeBlock.SerializerName));
+                                frame.KeyframeMetadata[keyValuePair.Key] = keyValuePair.Value;
+                            }
                         }
                     }
                 }

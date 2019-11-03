@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using System.Drawing;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.Controllers.Exporters.Pixelaria;
@@ -74,6 +75,38 @@ namespace PixelariaTests.Data.Persistence
             sut.AddDefaultBlocks();
 
             Assert.AreEqual(2, sut.GetBlocksByType(typeof(ExporterSettingsBlock)).Length);
+        }
+
+        [TestMethod]
+        public void TestAddsKeyframeBlocks()
+        {
+            var stream = new MemoryStream();
+            var bundle = BundleGenerator.GenerateTestBundle(0);
+            bundle.Animations[0].Frames[0].KeyframeMetadata["point"] = new Point(0, 1);
+            var sut = new PixelariaFile(bundle, stream);
+
+            sut.PrepareBlocksWithBundle();
+
+            Assert.AreEqual(1, sut.GetBlocksByType(typeof(KeyframeBlock)).Length);
+        }
+
+        [TestMethod]
+        public void TestConstructBundleAssignsKeyframes()
+        {
+            var stream = new MemoryStream();
+            var bundle = BundleGenerator.GenerateTestBundle(0, 1, 1, 1);
+            bundle.Animations[0].Frames[0].KeyframeMetadata["point"] = new Point(1, 2);
+            var sut = new PixelariaFile(bundle, stream);
+            sut.AddBlock(new AnimationHeaderBlock(bundle.Animations[0]));
+            sut.AddBlock(new FrameBlock(bundle.Animations[0].Frames[0]));
+            sut.Save();
+
+            var result = sut.ConstructBundle();
+
+            Assert.AreEqual(1, result.Animations.Count);
+            Assert.AreEqual(1, result.Animations[0].FrameCount);
+            Assert.AreEqual(new Point(1, 2), result.Animations[0].Frames[0].KeyframeMetadata["point"]);
+
         }
     }
 }

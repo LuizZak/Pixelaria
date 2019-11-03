@@ -40,7 +40,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         private const int CurrentVersion = 3;
 
         /// <summary>
-        /// Initializes a new instance of the FrameBlock class
+        /// Initializes a new instance of the <see cref="FrameBlock"/> class
         /// </summary>
         public FrameBlock()
         {
@@ -49,7 +49,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
         }
 
         /// <summary>
-        /// Initializes a new instance of the FrameBlock class
+        /// Initializes a new instance of the <see cref="FrameBlock"/> class
         /// </summary>
         public FrameBlock(IFrame frame)
             : this()
@@ -58,11 +58,27 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
             blockVersion = CurrentVersion;
         }
 
+        public override void PrepareFromBundle(Bundle bundle)
+        {
+            base.PrepareFromBundle(bundle);
+
+            foreach (var keyValuePair in _frame.KeyframeMetadata.GetDictionary())
+            {
+                var serializer = KeyframeMetadata.SerializerForValue(keyValuePair.Value);
+
+                if (serializer == null)
+                    continue;
+
+                var block = new KeyframeBlock(serializer, keyValuePair.Key, keyValuePair.Value, _frame.ID);
+                owningFile?.AddBlock(block);
+            }
+        }
+
         /// <summary>
         /// Saves the content portion of this block to the given stream
         /// </summary>
         /// <param name="stream">The stream to save the content portion to</param>
-        protected override void SaveContentToStream([NotNull] Stream stream)
+        protected override void SaveContentToStream(Stream stream)
         {
             var writer = new BinaryWriter(stream);
 
@@ -235,7 +251,7 @@ namespace Pixelaria.Data.Persistence.PixelariaFileBlocks
             public int AnimationId { get; }
 
             /// <summary>
-            /// The frame bieng manipulated by this FrameBlock
+            /// The frame being manipulated by this FrameBlock
             /// </summary>
             public Frame Frame { get; }
 

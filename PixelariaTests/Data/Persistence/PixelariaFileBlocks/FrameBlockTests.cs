@@ -1,4 +1,4 @@
-﻿/*
+/*
     Pixelaria
     Copyright (C) 2013 Luiz Fernando Silva
 
@@ -20,28 +20,32 @@
     base directory of this project.
 */
 
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Pixelaria.Data.Persistence.PixelariaFileBlocks;
+using System.Drawing;
+using System.IO;
+using Pixelaria.Data.Persistence;
+using PixelariaTests.TestGenerators;
 
-namespace PixelariaTests.TestUtils
+namespace PixelariaTests.Data.Persistence.PixelariaFileBlocks
 {
-    public static class StreamTestUtils
+    [TestClass]
+    public class FrameBlockTests
     {
-        public static void MemoryStreamMatches(this Assert assert, [NotNull] MemoryStream stream, [NotNull] IEnumerable<byte> expected)
+        [TestMethod]
+        public void TestPrepareFromBundleAddsKeyframeBlocks()
         {
-            static string StringFromStream(IEnumerable<byte> byteSequence)
-            {
-                return string.Join(", ", byteSequence.Select(b => $"0x{b:X2}"));
-            }
+            var stream = new MemoryStream();
+            var bundle = BundleGenerator.GenerateTestBundle(0);
+            var file = new PixelariaFile(bundle, stream);
+            var frame = bundle.Animations[0].Frames[0];
+            frame.KeyframeMetadata["point"] = new Point(0, 1);
+            var frameBlock = new FrameBlock(frame);
+            frameBlock.OwningFile = file;
 
-            var bytes = stream.GetBuffer().Take((int) stream.Length).ToArray();
-            var expectedBytes = expected.ToArray();
-            
-            Assert.IsTrue(bytes.SequenceEqual(expectedBytes), 
-                $"Streams mismatch: expected [{StringFromStream(expectedBytes)}], but received [{StringFromStream(bytes)}]");
+            frameBlock.PrepareFromBundle(bundle);
+
+            Assert.AreEqual(1, file.GetBlocksByType(typeof(KeyframeBlock)).Length);
         }
     }
 }

@@ -41,13 +41,13 @@ namespace PixelariaTests.Data.Persistence
         public void TestFileBlockIds()
         {
             using var fileBlock = new FileBlock();
-            var animBlock = new AnimationBlock();
-            var animHeaderBlock = new AnimationHeaderBlock();
-            var sheetBlock = new AnimationSheetBlock();
-            var frameBlock = new FrameBlock();
-            var treeBlock = new ProjectTreeBlock();
-            var exporterNameBlock = new ExporterNameBlock();
-            var exporterSettingsBlock = new ExporterSettingsBlock();
+            using var animBlock = new AnimationBlock();
+            using var animHeaderBlock = new AnimationHeaderBlock();
+            using var sheetBlock = new AnimationSheetBlock();
+            using var frameBlock = new FrameBlock();
+            using var treeBlock = new ProjectTreeBlock();
+            using var exporterNameBlock = new ExporterNameBlock();
+            using var exporterSettingsBlock = new ExporterSettingsBlock();
 
             // Assert block IDs
             Assert.AreEqual(FileBlock.BLOCKID_NULL, fileBlock.BlockID);

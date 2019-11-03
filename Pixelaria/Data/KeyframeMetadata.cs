@@ -32,12 +32,12 @@ namespace Pixelaria.Data
 {
     public sealed class KeyframeMetadata
     {
-        private readonly List<IKeyframeValueSerializer> _serializers;
+        private static readonly List<IKeyframeValueSerializer> Serializers;
         private readonly Dictionary<string, object> _values = new Dictionary<string, object>();
 
-        public KeyframeMetadata()
+        static KeyframeMetadata()
         {
-            _serializers = new List<IKeyframeValueSerializer>
+            Serializers = new List<IKeyframeValueSerializer>
             {
                 new PointKeyframeSerializer()
             };
@@ -65,10 +65,21 @@ namespace Pixelaria.Data
             }
         }
 
-        [CanBeNull]
-        private IKeyframeValueSerializer SerializerForValue(object value)
+        public IReadOnlyDictionary<string, object> GetDictionary()
         {
-            return _serializers.FirstOrDefault(s => s.SerializedType == value.GetType());
+            return _values;
+        }
+
+        [CanBeNull]
+        public static IKeyframeValueSerializer SerializerForValue(object value)
+        {
+            return Serializers.FirstOrDefault(s => s.SerializedType == value.GetType());
+        }
+
+        [CanBeNull]
+        public static IKeyframeValueSerializer SerializerForName(string name)
+        {
+            return Serializers.FirstOrDefault(s => s.SerializedName == name);
         }
     }
 

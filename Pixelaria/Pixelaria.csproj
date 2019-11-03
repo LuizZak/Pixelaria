@@ -194,6 +194,7 @@
     <Compile Include="Data\KeyframeMetadata.cs" />
     <Compile Include="Data\Persistence\PixelariaFileBlocks\ExporterSettingsBlock.cs" />
     <Compile Include="Data\KeyframeMetadataSerializers\PointKeyframeSerializer.cs" />
+    <Compile Include="Data\Persistence\PixelariaFileBlocks\KeyframeBlock.cs" />
     <Compile Include="Timeline\EmptyTimelineLayerController.cs" />
     <Compile Include="Timeline\IKeyframeSource.cs" />
     <Compile Include="Timeline\ITimeline.cs" />
