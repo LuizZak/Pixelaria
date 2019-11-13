@@ -27,7 +27,6 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using Pixelaria.Timeline;
-using Pixelaria.Views.ModelViews;
 
 namespace Pixelaria.Views.Controls
 {
@@ -269,14 +268,15 @@ namespace Pixelaria.Views.Controls
 
                 if (frame % 5 == 0)
                 {
-                    e.Graphics.DrawString(frame.ToString(), font, Brushes.DimGray, x, 0);
+                    string frameString = (frame + 1).ToString();
+                    e.Graphics.DrawString(frameString, font, Brushes.DimGray, x, 0);
 
                     if (frame == _currentFrame)
                     {
                         var state = e.Graphics.Save();
 
                         e.Graphics.IntersectClip(currentFrameRect);
-                        e.Graphics.DrawString(frame.ToString(), font, Brushes.White, x, 0);
+                        e.Graphics.DrawString(frameString, font, Brushes.White, x, 0);
 
                         e.Graphics.Restore(state);
                     }
