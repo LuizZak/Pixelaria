@@ -191,6 +191,7 @@ namespace Pixelaria.Controllers.Exporters.Unity
 
                 var rand = new Random($"{sheetName}_{i}".GetHashCode());
 
+                /*
                 var frameEntry = new UnityPngMeta.FrameEntry
                 {
                     Frames = entry.FrameRects.Select(f => f.Frame).ToArray(),
@@ -199,6 +200,16 @@ namespace Pixelaria.Controllers.Exporters.Unity
                     Rect = entry.SheetArea,
                     SpriteId = GuidHelper.GenerateSeededGuid(metaSeed + i).ToString().Replace("-", "")
                 };
+                */
+                var frameEntry = new UnityPngMeta.FrameEntry(
+                    entry.FrameRects.Select(f => f.Frame).ToArray(),
+                    entry.SheetArea,
+                    $"{sheetName}_{i}",
+                    (long)(rand.NextDouble() * long.MaxValue),
+                    GuidHelper.GenerateSeededGuid(metaSeed + i).ToString().Replace("-", ""),
+                    new PointF(0, 1)
+                );
+
                 frameEntry.Rect.Y = sheet.Sheet.Height - frameEntry.Rect.Y - frameEntry.Rect.Height;
 
                 meta.AddEntry(frameEntry);
@@ -477,6 +488,17 @@ namespace Pixelaria.Controllers.Exporters.Unity
             public string Name;
             public long InternalId;
             public string SpriteId;
+            public PointF Origin;
+
+            public FrameEntry(IFrame[] frames, Rectangle rect, string name, long internalId, string spriteId, PointF origin)
+            {
+                Frames = frames;
+                Rect = rect;
+                Name = name;
+                InternalId = internalId;
+                SpriteId = spriteId;
+                Origin = origin;
+            }
 
             public YamlMappingNode CreateSpriteNode()
             {
@@ -494,7 +516,7 @@ namespace Pixelaria.Controllers.Exporters.Unity
                         }
                     },
                     {"alignment", "1"},
-                    {"pivot", new YamlMappingNode {{"x", "0"}, {"y", "1"}}},
+                    {"pivot", new YamlMappingNode {{"x", Origin.X.ToString()}, {"y", Origin.Y.ToString()}}},
                     {"border", new YamlMappingNode {{"x", "0"}, {"y", "0"}, {"z", "0"}, {"w", "0"}}},
                     {"outline", new YamlSequenceNode()},
                     {"physicsShape", new YamlSequenceNode()},
