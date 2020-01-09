@@ -31,8 +31,9 @@ using PixRendering;
 
 namespace PixDirectX.Rendering.Blend2D
 {
-    class Blend2DFontManager : IFontManager
+    internal class Blend2DFontManager : IFontManager
     {
+        private readonly Dictionary<float, Blend2DFont> _defaultFontMap = new Dictionary<float, Blend2DFont>();
         private IReadOnlyList<FontInformation> _sansSerifFontFiles;
         private BLFontFace _defaultFontFace;
         private Dictionary<string, List<FontInformation>> _fontNameToFiles;
@@ -54,7 +55,15 @@ namespace PixDirectX.Rendering.Blend2D
                 _defaultFontFace = new BLFontFace(_sansSerifFontFiles[0].FileName, 0);
             }
 
-            return new Blend2DFont(new BLFont(_defaultFontFace, size), _sansSerifFontFiles[0].FontName, _sansSerifFontFiles[0].FamilyName, size);
+            if (_defaultFontMap.TryGetValue(size, out var font))
+            {
+                return font;
+            }
+
+            var blend2DFont = new Blend2DFont(new BLFont(_defaultFontFace, size), _sansSerifFontFiles[0].FontName, _sansSerifFontFiles[0].FamilyName, size);
+            _defaultFontMap[size] = blend2DFont;
+
+            return blend2DFont;
         }
 
         /// <summary>
