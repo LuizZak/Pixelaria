@@ -36,6 +36,8 @@ namespace PixDirectX.Rendering.Blend2D
 {
     public class Blend2DRenderer: IRenderer
     {
+        private static readonly Blend2DFontManager FontManager = new Blend2DFontManager();
+
         private readonly Stack<AABB> _clipStack = new Stack<AABB>();
         private readonly Stack<Matrix2D> _transformStack = new Stack<Matrix2D>();
 
@@ -44,7 +46,6 @@ namespace PixDirectX.Rendering.Blend2D
 
         private readonly Blend2DImageResources _imageResources;
         private readonly BLContext _context;
-        private readonly Blend2DFontManager _fontManager = new Blend2DFontManager();
 
         /// <summary>
         /// Gets or sets the topmost active transformation matrix.
@@ -525,7 +526,7 @@ namespace PixDirectX.Rendering.Blend2D
 
         public IFontManager GetFontManager()
         {
-            return _fontManager;
+            return FontManager;
         }
 
         public void DrawText(string text, IFont font, AABB area)

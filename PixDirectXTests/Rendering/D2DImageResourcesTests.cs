@@ -22,7 +22,6 @@
 
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PixDirectX.Rendering;
 using PixDirectX.Rendering.DirectX;
 using PixRendering;
 using SharpDX.Direct2D1;
