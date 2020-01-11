@@ -38,7 +38,7 @@ namespace PixDirectX.Rendering.Blend2D
     {
         private static readonly Blend2DFontManager FontManager = new Blend2DFontManager();
 
-        private readonly Stack<AABB> _clipStack = new Stack<AABB>();
+        private readonly Stack<(Matrix2D, AABB)> _clipStack = new Stack<(Matrix2D, AABB)>();
         private readonly Stack<Matrix2D> _transformStack = new Stack<Matrix2D>();
 
         private InternalBrush _strokeBrush;
@@ -354,10 +354,24 @@ namespace PixDirectX.Rendering.Blend2D
         {
             _context.RestoreClipping();
 
-            foreach (var aabb in _clipStack)
+            var clipStack = _clipStack.Reverse().ToArray();
+            if (clipStack.Length == 0)
+                return;
+
+            // For clipping, we must first transform each previously pushed clip box from their original
+            // transform matrix to the currently active transform. We do this by transforming each rect
+            // to the global space by applying their respective matrix, then convert to the current local
+            // transform by applying the current transform matrix.
+            var rect = clipStack[0].Item2;
+            rect = rect.TransformedBounds(clipStack[0].Item1).TransformedBounds(Transform.Inverted());
+
+            foreach (var (transform, aabb) in clipStack.Skip(1))
             {
-                _context.ClipToRect(aabb.ToBLRect());
+                var transformedAabb = aabb.TransformedBounds(transform).TransformedBounds(Transform.Inverted());
+                rect = rect.Intersect(transformedAabb);
             }
+
+            _context.ClipToRect(rect.ToBLRect());
         }
 
         /// <summary>
@@ -365,7 +379,7 @@ namespace PixDirectX.Rendering.Blend2D
         /// </summary>
         public void PushClippingArea(AABB area)
         {
-            _clipStack.Push(area);
+            _clipStack.Push((Transform, area));
             ApplyClipStack();
         }
 
@@ -374,7 +388,9 @@ namespace PixDirectX.Rendering.Blend2D
         /// </summary>
         public void PopClippingArea()
         {
-            _clipStack.Pop();
+            if (_clipStack.Count > 0)
+                _clipStack.Pop();
+
             ApplyClipStack();
         }
 
@@ -668,7 +684,7 @@ namespace PixDirectX.Rendering.Blend2D
 
         private class InternalBitmapBrush : InternalBrush
         {
-            public BLImage Bitmap { get; }
+            private BLImage Bitmap { get; }
 
             public InternalBitmapBrush(BLImage bitmap)
             {

@@ -47,6 +47,15 @@ namespace Blend2DCS.Internal
         public static extern uint blContextFlush(ref BLContextCore context, uint flags);
 
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blContextSave(ref BLContextCore context, ref BLContextCookie cookie);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blContextRestore(ref BLContextCore context, ref BLContextCookie cookie);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern uint blContextRestore(ref BLContextCore context, IntPtr cookie);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
         public static extern uint blContextGetUserMatrix(ref BLContextCore context, ref BLMatrix2D matrix);
 
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]

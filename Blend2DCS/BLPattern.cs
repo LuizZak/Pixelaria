@@ -21,10 +21,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Blend2DCS.Geometry;
 using Blend2DCS.Internal;
 using JetBrains.Annotations;

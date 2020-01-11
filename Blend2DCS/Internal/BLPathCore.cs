@@ -56,5 +56,8 @@ namespace Blend2DCS.Internal
 
         [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
         public static extern int blPathAddRectD(ref BLPathCore pathCore, ref BLRect rect, BLGeometryDirection geometryDirection);
+
+        [DllImport("blend2d.dll", CharSet = CharSet.Unicode)]
+        public static extern int blPathClose(ref BLPathCore pathCore);
     }
 }

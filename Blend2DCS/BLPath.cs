@@ -80,5 +80,10 @@ namespace Blend2DCS
         {
             UnsafePathCore.blPathAddRectD(ref Path, ref rectangle, direction);
         }
+
+        public void Close()
+        {
+            UnsafePathCore.blPathClose(ref Path);
+        }
     }
 }

@@ -61,7 +61,6 @@ namespace PixUI.Rendering
                 return false;
 
             return selfRendering.Visible;
-
         }
 
         public void OnVisitorExit([NotNull] ControlRenderingContext context, BaseView view)

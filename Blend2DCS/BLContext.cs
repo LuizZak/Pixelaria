@@ -81,6 +81,26 @@ namespace Blend2DCS
             UnsafeContextCore.blContextFlush(ref Context, 0);
         }
 
+        public BLContextCookie Save()
+        {
+            var cookie = new BLContextCookie();
+            UnsafeContextCore.blContextSave(ref Context, ref cookie);
+            return cookie;
+        }
+
+        public void Restore(BLContextCookie? cookie = null)
+        {
+            if (cookie != null)
+            {
+                var local = cookie.Value;
+                UnsafeContextCore.blContextRestore(ref Context, ref local);
+            }
+            else
+            {
+                UnsafeContextCore.blContextRestore(ref Context, IntPtr.Zero);
+            }
+        }
+
         public void SetPatternQuality(BLPatternQuality quality)
         {
             UnsafeContextCore.blContextSetHint(ref Context, BLContextHint.PatternQuality, (uint) quality);
@@ -219,15 +239,19 @@ namespace Blend2DCS
 
         #region Image
 
-        public void BlitImage(BLImage image, BLRectI imageArea, BLPoint point)
+        public void BlitImage([NotNull] BLImage image, BLRectI imageArea, BLPoint point)
         {
             UnsafeContextCore.blContextBlitImageD(ref Context, ref point, ref image.Image, ref imageArea);
         }
 
-        public void BlitImage(BLImage image, BLRectI imageArea, BLRect area)
+        public void BlitImage([NotNull] BLImage image, BLRectI imageArea, BLRect area)
         {
             UnsafeContextCore.blContextBlitScaledImageD(ref Context, ref area, ref image.Image, ref imageArea);
         }
+
+        #endregion
+
+        #region State
 
         #endregion
     }
@@ -239,7 +263,7 @@ namespace Blend2DCS
     public class BLContextCreateInfo
     {
         /// <summary>
-        /// Create flags, see `BLContextCreateFlags`.
+        /// Create flags, see <see cref="BLContextCreateFlags"/>.
         /// </summary>
         public BLContextCreateFlags Flags;
 
