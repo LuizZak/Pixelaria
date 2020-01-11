@@ -181,6 +181,13 @@ namespace PixRendering
         RectangleF[] RedrawRegionRectangles(Size size);
 
         /// <summary>
+        /// Gets the minimal rectangle capable of fitting the entire redraw region of this <see cref="IClippingRegion"/>.
+        ///
+        /// Returns <see cref="RectangleF.Empty"/>, if the redraw region is empty.
+        /// </summary>
+        RectangleF TotalRedrawRegion(Size size);
+
+        /// <summary>
         /// Returns true if a section of <see cref="rectangle"/> is visible on the clipping region.
         /// </summary>
         bool IsVisibleInClippingRegion(Rectangle rectangle);

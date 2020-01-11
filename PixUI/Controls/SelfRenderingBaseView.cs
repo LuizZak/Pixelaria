@@ -130,27 +130,34 @@ namespace PixUI.Controls
         /// </summary>
         public virtual void RenderBackground([NotNull] ControlRenderingContext context)
         {
-            context.Renderer.SetStrokeColor(StrokeColor);
-            context.Renderer.SetFillColor(BackColor);
+            if (BackColor.A > 0)
+            {
+                context.Renderer.SetFillColor(BackColor);
 
-            // Default background renderer
-            if (Math.Abs(CornerRadius) < float.Epsilon)
-            {
-                context.Renderer.FillArea(Bounds);
-            }
-            else
-            {
-                context.Renderer.FillRoundedArea(Bounds, CornerRadius, CornerRadius);
+                // Default background renderer
+                if (Math.Abs(CornerRadius) < float.Epsilon)
+                {
+                    context.Renderer.FillArea(Bounds);
+                }
+                else
+                {
+                    context.Renderer.FillRoundedArea(Bounds, CornerRadius, CornerRadius);
+                }
             }
 
-            // Stroke
-            if (Math.Abs(CornerRadius) < float.Epsilon)
+            if (StrokeColor.A > 0)
             {
-                context.Renderer.StrokeArea(Bounds);
-            }
-            else
-            {
-                context.Renderer.StrokeRoundedArea(Bounds, CornerRadius, CornerRadius);
+                context.Renderer.SetStrokeColor(StrokeColor);
+
+                // Stroke
+                if (Math.Abs(CornerRadius) < float.Epsilon)
+                {
+                    context.Renderer.StrokeArea(Bounds);
+                }
+                else
+                {
+                    context.Renderer.StrokeRoundedArea(Bounds, CornerRadius, CornerRadius);
+                }
             }
         }
 

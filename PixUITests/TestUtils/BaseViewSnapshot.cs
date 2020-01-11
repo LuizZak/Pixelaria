@@ -143,6 +143,11 @@ namespace PixUITests.TestUtils
                 return new[] { new RectangleF(PointF.Empty, size) };
             }
 
+            public RectangleF TotalRedrawRegion(Size size)
+            {
+                return new RectangleF(0, 0, size.Width, size.Height);
+            }
+
             public bool IsVisibleInClippingRegion(Rectangle rectangle)
             {
                 return true;

@@ -1,4 +1,4 @@
-﻿/*
+/*
     Pixelaria
     Copyright (C) 2013 Luiz Fernando Silva
 
@@ -399,6 +399,12 @@ namespace PixelariaTests.Views.ExportPipeline
             {
                 return new[] { new RectangleF(PointF.Empty, size) };
             }
+
+            public RectangleF TotalRedrawRegion(Size size)
+            {
+                return new RectangleF(0, 0, size.Width, size.Height);
+            }
+
             public bool IsVisibleInClippingRegion(Rectangle rectangle)
             {
                 return true;

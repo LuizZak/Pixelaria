@@ -63,6 +63,14 @@ namespace PixRendering
             _needsDissect = copy._needsDissect;
         }
 
+        public RectangleF TotalRedrawRegion(Size size)
+        {
+            if(_rectangles.Count == 0)
+                return RectangleF.Empty;
+
+            return _rectangles.Aggregate(_rectangles[0], RectangleF.Union).Intersection(new RectangleF(0, 0, size.Width, size.Height));
+        }
+
         /// <summary>
         /// Returns a series of <see cref="RectangleF"/> instances that approximate the redraw region
         /// of this <see cref="ClippingRegion"/>, truncated to be within the given <see cref="Size"/>-d rectangle.
@@ -86,9 +94,9 @@ namespace PixRendering
                         var rect = r;
                         rect.Intersect(controlRect);
                         return rect;
-                    });
+                    }).ToArray();
 
-            return RectangleDissection.MergeRectangles(clipped.ToArray());
+            return RectangleDissection.MergeRectangles(clipped);
         }
 
         public virtual bool IsVisibleInClippingRegion(Rectangle rectangle)
