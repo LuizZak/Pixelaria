@@ -28,6 +28,7 @@ using JetBrains.Annotations;
 using PixCore.Colors;
 using PixCore.Geometry;
 using PixCore.Text;
+using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using PixRendering;
 using PixUI;
@@ -200,34 +201,14 @@ namespace Pixelaria.Views.ExportPipeline
             Renderer.SetFillBrush(bodyFillBrush);
             Renderer.FillGeometry(textAreaGeom);
 
-            var attributes = new TextLayoutAttributes(textFormatAttributes)
-            {
-                AvailableWidth = BodyTextArea.Width,
-                AvailableHeight = BodyTextArea.Height
-            };
-
-            ITextLayout layout = null;
-            _parameters.TextLayoutRenderer.WithPreparedTextLayout(stepViewState.BodyFontColor, (AttributedText)bodyText, ref layout, attributes,
-                (textLayout, renderer) =>
-                {
-                    renderer.Draw(textLayout, BodyTextArea.Minimum.X, BodyTextArea.Minimum.Y);
-                });
+            Renderer.SetFillColor(stepViewState.BodyFontColor);
+            Renderer.DrawAttributedText((AttributedText)bodyText, textFormatAttributes, BodyTextArea);
         }
 
         private void DrawTitleText(TextFormatAttributes textFormatAttributes, PipelineStepViewState stepViewState)
         {
-            var attributes = new TextLayoutAttributes(textFormatAttributes)
-            {
-                AvailableWidth = _nodeView.TitleTextArea.Width,
-                AvailableHeight = _nodeView.TitleTextArea.Height
-            };
-
-            ITextLayout layout = null;
-            _parameters.TextLayoutRenderer.WithPreparedTextLayout(stepViewState.TitleFontColor, (AttributedText) _nodeView.Name, ref layout, attributes,
-                (textLayout, renderer) =>
-                {
-                    renderer.Draw(textLayout, _nodeView.TitleTextArea.Minimum.X, _nodeView.TitleTextArea.Minimum.Y);
-                });
+            Renderer.SetFillColor(stepViewState.TitleFontColor);
+            Renderer.DrawAttributedText((AttributedText) _nodeView.Name, textFormatAttributes, _nodeView.TitleTextArea);
         }
 
         private void DrawIcon(AABB titleArea)
@@ -329,18 +310,9 @@ namespace Pixelaria.Views.ExportPipeline
                     HorizontalTextAlignment = HorizontalTextAlignment.Leading,
                     VerticalTextAlignment = VerticalTextAlignment.Center
                 };
-                var attributes = new TextLayoutAttributes(format)
-                {
-                    AvailableWidth = textBounds.Width,
-                    AvailableHeight = textBounds.Height
-                };
 
-                ITextLayout existing = null;
-                parameters.TextLayoutRenderer.WithPreparedTextLayout(state.TextColor, labelView.AttributedText, ref existing, attributes,
-                    (layout, textRenderer) =>
-                    {
-                        textRenderer.Draw(layout, textBounds.Minimum.X, textBounds.Minimum.Y);
-                    });
+                renderer.SetFillColor(state.TextColor);
+                renderer.DrawAttributedText(labelView.AttributedText, format, textBounds);
             });
         }
     }

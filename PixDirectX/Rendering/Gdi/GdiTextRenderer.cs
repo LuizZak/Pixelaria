@@ -32,6 +32,11 @@ namespace PixDirectX.Rendering.Gdi
     {
         private readonly Graphics _graphics;
         private readonly Color _textColor;
+        
+        /// <summary>
+        /// TODO: ITextRenderers should take in IBrush instances; for now, we set custom brushes this way here.
+        /// </summary>
+        public Brush Brush { get; set; }
 
         public GdiTextRenderer(Graphics graphics, Color textColor)
         {
@@ -63,10 +68,14 @@ namespace PixDirectX.Rendering.Gdi
 
                     foreach (var region in regions)
                     {
-                        using (var solidBrush = new SolidBrush(foreColor))
+                        var solidBrush = Brush ?? new SolidBrush(foreColor);
+
+                        var rect = region.GetBounds(_graphics);
+                        _graphics.DrawString(segment.Text, font, solidBrush, rect.X, rect.Y, stringFormat);
+
+                        if (Brush == null)
                         {
-                            var rect = region.GetBounds(_graphics);
-                            _graphics.DrawString(segment.Text, font, solidBrush, rect.X, rect.Y, stringFormat);
+                            solidBrush.Dispose();
                         }
                     }
                 }
