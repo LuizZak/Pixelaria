@@ -33,10 +33,17 @@ namespace PixDirectX.Rendering.Blend2D
 {
     internal class Blend2DFontManager : IFontManager
     {
+        public static Blend2DFontManager Instance = new Blend2DFontManager();
+
         private readonly Dictionary<float, Blend2DFont> _defaultFontMap = new Dictionary<float, Blend2DFont>();
         private IReadOnlyList<FontInformation> _sansSerifFontFiles;
         private BLFontFace _defaultFontFace;
         private Dictionary<string, List<FontInformation>> _fontNameToFiles;
+
+        private Blend2DFontManager()
+        {
+
+        }
 
         public IReadOnlyList<IFontFamily> GetFontFamilies()
         {

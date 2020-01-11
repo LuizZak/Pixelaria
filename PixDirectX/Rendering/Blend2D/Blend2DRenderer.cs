@@ -36,8 +36,6 @@ namespace PixDirectX.Rendering.Blend2D
 {
     public class Blend2DRenderer: IRenderer
     {
-        private static readonly Blend2DFontManager FontManager = new Blend2DFontManager();
-
         private readonly Stack<(Matrix2D, AABB)> _clipStack = new Stack<(Matrix2D, AABB)>();
         private readonly Stack<Matrix2D> _transformStack = new Stack<Matrix2D>();
 
@@ -542,7 +540,7 @@ namespace PixDirectX.Rendering.Blend2D
 
         public IFontManager GetFontManager()
         {
-            return FontManager;
+            return Blend2DFontManager.Instance;
         }
 
         public void DrawText(string text, IFont font, AABB area)

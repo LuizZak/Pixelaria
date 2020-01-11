@@ -240,6 +240,7 @@ namespace PixDirectX.Rendering.DirectX
 
             return new InnerTextLayout(textLayout, text, ellipsisTrimming, attributes);
         }
+
         internal static Trimming CreateTrimming(TextEllipsisTrimming ellipsis)
         {
             var trimming = new Trimming
@@ -258,7 +259,7 @@ namespace PixDirectX.Rendering.DirectX
         {
             var parameters = new RenderListenerParameters(ImageResources, ClippingRegion, state, this,
                 TextMetricsProvider, _wrappedDirect2D,
-                new InnerTextRenderer(TextColorRenderer, state.DirectWriteFactory, state.D2DRenderTarget));
+                new Direct2DTextRenderer(TextColorRenderer, state.DirectWriteFactory, state.D2DRenderTarget));
 
             return parameters;
         }
@@ -918,7 +919,7 @@ namespace PixDirectX.Rendering.DirectX
         {
             var textRenderer = new TextColorRenderer();
             textRenderer.AssignResources(_state.D2DRenderTarget, BrushForFill());
-            var renderer = new InnerTextRenderer(textRenderer, _state.DirectWriteFactory, _state.D2DRenderTarget)
+            var renderer = new Direct2DTextRenderer(textRenderer, _state.DirectWriteFactory, _state.D2DRenderTarget)
             {
                 Brush = BrushForFill()
             };
@@ -1189,157 +1190,6 @@ namespace PixDirectX.Rendering.DirectX
             TextMetricsProvider = textMetricsProvider;
             Renderer = renderer;
             TextRenderer = textRenderer;
-        }
-    }
-    internal class InnerTextRenderer : ITextRenderer
-    {
-        public TextColorRenderer TextColorRenderer { get; }
-        private readonly Factory _directWriteFactory;
-        private readonly RenderTarget _renderTarget;
-
-        /// <summary>
-        /// TODO: ITextRenderers should take in IBrush instances; for now, we set custom brushes this way here.
-        /// </summary>
-        public Brush Brush { get; set; }
-
-        public InnerTextRenderer(TextColorRenderer textColorRenderer, Factory directWriteFactory, RenderTarget renderTarget)
-        {
-            TextColorRenderer = textColorRenderer;
-            _directWriteFactory = directWriteFactory;
-            _renderTarget = renderTarget;
-        }
-
-        public void Draw(ITextLayout textLayout, float x, float y)
-        {
-            if (!(textLayout is Direct2DRenderManager.InnerTextLayout layout))
-                return;
-
-            // Render background segments
-            var backSegments =
-                textLayout.Text.GetTextSegments()
-                    .Where(seg => seg.HasAttribute<BackgroundColorAttribute>());
-
-            foreach (var segment in backSegments)
-            {
-                var attr = segment.GetAttribute<BackgroundColorAttribute>();
-
-                var metrics = layout.TextLayout.HitTestTextRange(segment.TextRange.Start, segment.TextRange.Length, 0, 0);
-
-                var bounds = metrics.Select(range => AABB.FromRectangle(range.Left, range.Top, range.Width, range.Height));
-
-                using (var backBrush = new SolidColorBrush(_renderTarget, attr.BackColor.ToColor4()))
-                {
-                    foreach (var aabb in bounds)
-                    {
-                        _renderTarget.FillRectangle(aabb.Inflated(attr.Inflation).ToRawRectangleF(), backBrush);
-                    }
-                }
-            }
-
-            layout.TextLayout.Draw(TextColorRenderer, x, y);
-        }
-
-        public void Draw(IAttributedText text, TextFormatAttributes textFormatAttributes, AABB area, Color color)
-        {
-            EllipsisTrimming trimming = null;
-
-            using (var textFormat = TextFormatForAttributes(textFormatAttributes, ref trimming))
-            using (var textLayout = new TextLayout(_directWriteFactory, text.String, textFormat, area.Width, area.Height))
-            {
-                var disposes = new List<IDisposable>();
-
-                // Apply text attributes
-                foreach (var textSegment in text.GetTextSegments())
-                {
-                    var consumer = new CollectingTextAttributeConsumer();
-                    textSegment.ConsumeAttributes(consumer);
-
-                    if (consumer.ForeColor.HasValue)
-                    {
-                        var segmentBrush =
-                            new SolidColorBrush(_renderTarget, consumer.ForeColor.Value.ToColor4());
-
-                        disposes.Add(segmentBrush);
-
-                        textLayout.SetDrawingEffect(segmentBrush,
-                            new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
-                    }
-                    if (consumer.Font != null)
-                    {
-                        textLayout.SetFontFamilyName(consumer.Font.FontFamily.Name,
-                            new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
-                        textLayout.SetFontSize(consumer.Font.Size,
-                            new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
-                    }
-                }
-
-                // Render background segments
-                var backSegments =
-                    text.GetTextSegments()
-                        .Where(seg => seg.HasAttribute<BackgroundColorAttribute>());
-
-                foreach (var segment in backSegments)
-                {
-                    var attr = segment.GetAttribute<BackgroundColorAttribute>();
-
-                    var metrics = textLayout.HitTestTextRange(segment.TextRange.Start, segment.TextRange.Length, 0, 0);
-
-                    var bounds = metrics.Select(range => AABB.FromRectangle(range.Left, range.Top, range.Width, range.Height));
-
-                    using (var backBrush = new SolidColorBrush(_renderTarget, attr.BackColor.ToColor4()))
-                    {
-                        foreach (var aabb in bounds)
-                        {
-                            _renderTarget.FillRectangle(aabb.Inflated(attr.Inflation).ToRawRectangleF(), backBrush);
-                        }
-                    }
-                }
-
-                var brush = Brush ?? new SolidColorBrush(_renderTarget, color.ToColor4());
-
-                textLayout.Draw(brush, TextColorRenderer, area.Left, area.Top);
-
-                foreach (var disposable in disposes)
-                {
-                    disposable.Dispose();
-                }
-
-                if (Brush == null)
-                {
-                    brush.Dispose();
-                }
-            }
-        }
-
-        public void Draw(string text, TextFormatAttributes textFormatAttributes, AABB area, Color color)
-        {
-            EllipsisTrimming trimming = null;
-
-            using (var foreground = new SolidColorBrush(_renderTarget, color.ToColor4()))
-            using (var textFormat = TextFormatForAttributes(textFormatAttributes, ref trimming))
-            {
-                _renderTarget.DrawText(text, textFormat, area.ToRawRectangleF(), foreground);
-            }
-
-            trimming?.Dispose();
-        }
-
-        private TextFormat TextFormatForAttributes(TextFormatAttributes textFormatAttributes, ref EllipsisTrimming trimming)
-        {
-            var textFormat = new TextFormat(_directWriteFactory, textFormatAttributes.Font, textFormatAttributes.FontSize)
-            {
-                WordWrapping = Direct2DConversionHelpers.DirectWriteWordWrapFor(textFormatAttributes.WordWrap),
-                TextAlignment = Direct2DConversionHelpers.DirectWriteAlignmentFor(textFormatAttributes.HorizontalTextAlignment),
-                ParagraphAlignment = Direct2DConversionHelpers.DirectWriteAlignmentFor(textFormatAttributes.VerticalTextAlignment)
-            };
-
-            if (textFormatAttributes.TextEllipsisTrimming.HasValue)
-            {
-                trimming = new EllipsisTrimming(_directWriteFactory, textFormat);
-                textFormat.SetTrimming(Direct2DRenderManager.CreateTrimming(textFormatAttributes.TextEllipsisTrimming.Value), trimming);
-            }
-
-            return textFormat;
         }
     }
 

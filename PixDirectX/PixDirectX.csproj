@@ -28,7 +28,4 @@
     </Reference>
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Rendering\Blend2D\" />
-  </ItemGroup>
 </Project>
