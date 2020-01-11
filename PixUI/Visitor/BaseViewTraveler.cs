@@ -28,12 +28,12 @@ namespace PixUI.Visitor
     /// A visitor that walks through a hierarchy of <see cref="BaseView"/> instances, visiting each child view
     /// recursively and passing them to a base view visitor, along with a custom shared state.
     /// </summary>
-    public sealed class BaseViewTraverser<T>
+    public sealed class BaseViewTraveler<T>
     {
         private readonly T _state;
         private readonly IBaseViewVisitor<T> _viewVisitor;
 
-        public BaseViewTraverser(T state, [NotNull] IBaseViewVisitor<T> viewVisitor)
+        public BaseViewTraveler(T state, [NotNull] IBaseViewVisitor<T> viewVisitor)
         {
             _state = state;
             _viewVisitor = viewVisitor;

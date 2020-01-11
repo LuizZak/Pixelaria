@@ -110,7 +110,7 @@ namespace PixelariaTests.Views.ExportPipeline
                     var context = new ControlRenderingContext(
                         new WrappedDirect2DRenderer(renderLoop.D2DRenderState, (ImageResources)renderer.ImageResources), renderer.ClippingRegion,
                         renderer.TextMetricsProvider, renderer.ImageResources, renderer);
-                    var traverser = new BaseViewTraverser<ControlRenderingContext>(context, visitor);
+                    var traverser = new BaseViewTraveler<ControlRenderingContext>(context, visitor);
 
                     traverser.Visit(view);
                 });
@@ -141,6 +141,12 @@ namespace PixelariaTests.Views.ExportPipeline
             {
                 return new[] { new RectangleF(PointF.Empty, size) };
             }
+
+            public RectangleF TotalRedrawRegion(Size size)
+            {
+                return new RectangleF(0, 0, size.Width, size.Height);
+            }
+
             public bool IsVisibleInClippingRegion(Rectangle rectangle)
             {
                 return true;

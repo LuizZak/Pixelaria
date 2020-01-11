@@ -111,7 +111,7 @@ namespace PixUITests.TestUtils
                     var context = new ControlRenderingContext(
                         new WrappedDirect2DRenderer((IDirect2DRenderingState)state, (ImageResources)renderer.ImageResources), renderer.ClippingRegion,
                         renderer.TextMetricsProvider, renderer.ImageResources, renderer);
-                    var traverser = new BaseViewTraverser<ControlRenderingContext>(context, visitor);
+                    var traverser = new BaseViewTraveler<ControlRenderingContext>(context, visitor);
 
                     traverser.Visit(view);
                 });

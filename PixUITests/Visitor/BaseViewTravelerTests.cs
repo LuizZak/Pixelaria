@@ -28,7 +28,7 @@ using Rhino.Mocks;
 namespace PixUITests.Visitor
 {
     [TestClass]
-    public class BaseViewTraverserTests
+    public class BaseViewTravelerTests
     {
         public BaseView Root;
         public BaseView Child1;
@@ -54,7 +54,7 @@ namespace PixUITests.Visitor
             // Arrange
             const string state = "abc";
             var visitor = MockRepository.GenerateMock<IBaseViewVisitor<object>>();
-            var sut = new BaseViewTraverser<object>(state, visitor);
+            var sut = new BaseViewTraveler<object>(state, visitor);
 
             using (visitor.GetMockRepository().Ordered())
             {
@@ -100,7 +100,7 @@ namespace PixUITests.Visitor
             // Arrange
             const string state = "abc";
             var visitor = MockRepository.GenerateMock<IBaseViewVisitor<object>>();
-            var sut = new BaseViewTraverser<object>(state, visitor);
+            var sut = new BaseViewTraveler<object>(state, visitor);
 
             using (visitor.GetMockRepository().Ordered())
             {

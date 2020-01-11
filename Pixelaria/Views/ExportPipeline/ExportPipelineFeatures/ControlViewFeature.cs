@@ -1,4 +1,4 @@
-/*
+﻿/*
     Pixelaria
     Copyright (C) 2013 Luiz Fernando Silva
 
@@ -115,7 +115,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 }
             });
 
-            var traverser = new BaseViewTraverser<object>(null, visitor);
+            var traverser = new BaseViewTraveler<object>(null, visitor);
             traverser.Visit(BaseControl);
         }
 
@@ -125,7 +125,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
             // Create a renderer visitor for the root UI element we got
             var visitor = new ViewRenderingVisitor();
-            var traverser = new BaseViewTraverser<ControlRenderingContext>(context, visitor);
+            var traverser = new BaseViewTraveler<ControlRenderingContext>(context, visitor);
             traverser.Visit(BaseControl);
         }
 

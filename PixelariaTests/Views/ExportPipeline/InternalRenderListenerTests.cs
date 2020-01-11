@@ -1,4 +1,4 @@
-/*
+﻿/*
     Pixelaria
     Copyright (C) 2013 Luiz Fernando Silva
 
@@ -317,7 +317,7 @@ namespace PixelariaTests.Views.ExportPipeline
                         }
                     }
 
-                    var traverser = new BaseViewTraverser<IDirect2DRenderingState>((IDirect2DRenderingState)state, visitor);
+                    var traverser = new BaseViewTraveler<IDirect2DRenderingState>((IDirect2DRenderingState)state, visitor);
 
                     traverser.Visit(view);
                 });
