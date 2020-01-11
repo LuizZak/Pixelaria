@@ -30,7 +30,6 @@ using JetBrains.Annotations;
 using PixCore.Colors;
 using PixCore.Geometry;
 using PixCore.Text;
-using PixDirectX.Rendering;
 using PixRendering;
 using PixUI.Text;
 using Color = System.Drawing.Color;

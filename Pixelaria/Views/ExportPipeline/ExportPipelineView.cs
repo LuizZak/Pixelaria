@@ -31,7 +31,6 @@ using System.Windows.Forms;
 using System.Windows.Threading;
 using JetBrains.Annotations;
 using PixCore.Geometry;
-using PixDirectX.Rendering;
 using PixDirectX.Rendering.DirectX;
 using PixUI;
 using PixUI.Controls;

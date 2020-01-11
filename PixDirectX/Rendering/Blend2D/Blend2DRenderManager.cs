@@ -159,11 +159,7 @@ namespace PixDirectX.Rendering.Blend2D
 
         #endregion
 
-        public void WithPreparedTextLayout(Color textColor, IAttributedText text, ref ITextLayout layout, TextLayoutAttributes attributes, Action<ITextLayout, ITextRenderer> perform)
-        {
-            
-        }
-
+        [CanBeNull]
         public ITextLayout CreateTextLayout(IAttributedText text, TextLayoutAttributes attributes)
         {
             return null;

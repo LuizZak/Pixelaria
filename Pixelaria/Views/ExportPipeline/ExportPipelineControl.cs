@@ -30,7 +30,6 @@ using System.Windows.Forms;
 using JetBrains.Annotations;
 using PixCore.Colors;
 using PixCore.Geometry;
-using PixDirectX.Rendering;
 using PixUI;
 using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
