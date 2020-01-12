@@ -298,77 +298,22 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
             return new Vector(_scrollViewControl.VisibleContentBounds.Width / 2 - 20, 40);
         }
 
-#if false
-
         /// <summary>
         /// Gets an image resource from a given image resources provider that matches the given pipeline node.
         /// 
         /// This image is used for representing the node's type visually in a small icon form.
         /// </summary>
-        public static ImageResource? IconForPipelineNode([NotNull] IPipelineNode node, [NotNull] IImageResourceProvider resourcesProvider)
-        {
-            return IconForPipelineNodeType(node.GetType(), resourcesProvider);
-        }
-
-        /// <summary>
-        /// Gets an image resource from a given image resources provider that matches the given pipeline node.
-        /// 
-        /// This image is used for representing the node's type visually in a small icon form.
-        /// </summary>
-        public static ImageResource? IconForPipelineNodeType(Type nodeType, [NotNull] IImageResourceProvider resourcesProvider)
+        public static ImageResource? IconForPipelineNodeKind(PipelineNodeKind kind, [NotNull] IImageResourceProvider resourcesProvider)
         {
             string iconName = null;
 
-            // Automatically setup icons for known pipeline nodes
-            if (nodeType == typeof(TransparencyFilterPipelineStep))
-            {
-                iconName = "filter_transparency_icon";
-            }
-            else if (nodeType == typeof(FilterPipelineStep<HueFilter>))
-            {
-                iconName = "filter_hue";
-            }
-            else if (nodeType == typeof(FilterPipelineStep<SaturationFilter>))
-            {
-                iconName = "filter_saturation";
-            }
-            else if (nodeType == typeof(FilterPipelineStep<LightnessFilter>))
-            {
-                iconName = "filter_lightness";
-            }
-            else if (nodeType == typeof(FilterPipelineStep<OffsetFilter>))
-            {
-                iconName = "filter_offset_icon";
-            }
-            else if (nodeType == typeof(FilterPipelineStep<RotationFilter>))
-            {
-                iconName = "filter_rotation_icon";
-            }
-            else if (nodeType == typeof(FilterPipelineStep<ScaleFilter>))
-            {
-                iconName = "filter_scale_icon";
-            }
-            else if (nodeType == typeof(FilterPipelineStep<StrokeFilter>))
-            {
-                iconName = "filter_stroke";
-            }
-            else if (nodeType == typeof(SingleAnimationPipelineStep))
-            {
-                iconName = "anim_icon";
-            }
-            else if (nodeType == typeof(FileExportPipelineStep))
+            if (kind == PipelineNodeKinds.FileExport)
             {
                 iconName = "sheet_save_icon";
-            }
-            else if (nodeType == typeof(SpriteSheetGenerationPipelineStep))
-            {
-                iconName = "sheet_new";
             }
 
             return iconName != null ? resourcesProvider.GetImageResource(iconName) : null;
         }
-
-#endif
 
         /// <summary>
         /// Arguments for event fired when user selects a pipeline node from the pipeline node panels.
@@ -451,8 +396,8 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
             const BitmapCreateCacheOption bitmapCreateCacheOption = BitmapCreateCacheOption.CacheOnDemand;
             var pixelFormat = PixelFormat.Format32bppPBGRA;
 
-            var view = PipelineNodeView.Create(node, null);
-            //view.Icon = ExportPipelineNodesPanelManager.IconForPipelineNode(node, _exportPipelineControl.ImageResources);
+            var view = PipelineNodeView.Create(node.CreateView(), null);
+            view.Icon = ExportPipelineNodesPanelManager.IconForPipelineNodeKind(node.NodeKind, _exportPipelineControl.ImageResources);
 
             container.AutoSizeNode(view);
 

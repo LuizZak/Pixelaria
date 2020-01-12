@@ -141,9 +141,9 @@ namespace PixelariaTests.ExportPipeline
                 return false;
             }
 
-            public void CreateNode(PipelineNodeKind nodeKind, PipelineNodeBuilder builder)
+            public bool CreateNode(PipelineNodeKind nodeKind, PipelineNodeBuilder builder)
             {
-
+                return false;
             }
         }
     }

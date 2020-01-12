@@ -35,7 +35,7 @@ namespace PixPipelineGraph
         public Type DataType { get; internal set; }
 
         public InternalPipelineOutput([NotNull] PipelineNode node, PipelineOutput id, [NotNull] string name, [NotNull] Type dataType)
-            : base(node.Id, name)
+            : base(node.NodeId, name)
         {
             Node = node;
             Id = id;

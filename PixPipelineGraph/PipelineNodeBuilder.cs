@@ -30,17 +30,24 @@ namespace PixPipelineGraph
     /// </summary>
     public class PipelineNodeBuilder: IMetadataObjectBuilder
     {
+        private readonly PipelineNodeKind _nodeKind;
         private readonly IPipelineGraphNodeProvider _nodeProvider;
         private readonly PipelineBuildStepCollection<PipelineNode> _stepCollection = new PipelineBuildStepCollection<PipelineNode>();
 
-        internal PipelineNodeBuilder(IPipelineGraphNodeProvider nodeProvider)
+        internal PipelineNodeBuilder(IPipelineGraphNodeProvider nodeProvider, PipelineNodeKind nodeKind)
         {
             _nodeProvider = nodeProvider;
+            _nodeKind = nodeKind;
+        }
+
+        internal void SetKind(PipelineNodeKind nodeKind)
+        {
+            _stepCollection.AddClosureBuilderStep(node => node.NodeKind = nodeKind);
         }
 
         public void SetTitle(string title)
         {
-            _stepCollection.AddClosureBuilderStep(node => { node.Title = title; });
+            _stepCollection.AddClosureBuilderStep(node => node.Title = title);
         }
 
         /// <summary>
@@ -81,7 +88,7 @@ namespace PixPipelineGraph
 
                 var input = builder.Build(node, node.NextAvailableInputId(), name);
 
-                node.Inputs.Add(input);
+                node.InternalInputs.Add(input);
 
                 lazyInput.SetLazyValue(input.Id);
             });
@@ -106,7 +113,7 @@ namespace PixPipelineGraph
 
                 var output = builder.Build(node, node.NextAvailableOutputId(), name);
 
-                node.Outputs.Add(output);
+                node.InternalOutputs.Add(output);
 
                 lazyOutput.SetLazyValue(output.Id);
             });
@@ -132,7 +139,10 @@ namespace PixPipelineGraph
 
         internal PipelineNode Build(PipelineNodeId id)
         {
-            var node = new PipelineNode(id);
+            var node = new PipelineNode(id)
+            {
+                NodeKind = _nodeKind
+            };
 
             _stepCollection.Apply(node);
 

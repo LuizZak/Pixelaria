@@ -1,11 +1,32 @@
-﻿
-#if false
+﻿/*
+    Pixelaria
+    Copyright (C) 2013 Luiz Fernando Silva
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+    The full license may be found on the License.txt file attached to the
+    base directory of this project.
+*/
 
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using JetBrains.Annotations;
 using PixCore.Geometry;
+using Pixelaria.ExportPipeline;
+using PixPipelineGraph;
 using PixRendering;
 
 namespace Pixelaria.Views.ExportPipeline
@@ -15,13 +36,10 @@ namespace Pixelaria.Views.ExportPipeline
     /// </summary>
     internal class BitmapPreviewPipelineWindowManager : ExportPipelineUiFeature, IRenderListener
     {
-        [CanBeNull]
-        private IRenderLoopState _latestRenderState;
-
         private readonly Font _font = new Font(FontFamily.GenericSansSerif, 12);
 
-        private readonly List<BitmapPreviewPipelineStep> _previewSteps = new List<BitmapPreviewPipelineStep>();
-        private readonly Dictionary<BitmapPreviewPipelineStep, IManagedImageResource> _latestPreviews = new Dictionary<BitmapPreviewPipelineStep, IManagedImageResource>();
+        private readonly List<IPipelineNodeView> _previewSteps = new List<IPipelineNodeView>();
+        private readonly Dictionary<IPipelineNodeView, IManagedImageResource> _latestPreviews = new Dictionary<IPipelineNodeView, IManagedImageResource>();
         private readonly List<PreviewBounds> _previewBounds = new List<PreviewBounds>();
         private readonly InsetBounds _titleInset = new InsetBounds(5, 5, 5, 5);
         private InsetBounds _screenInsetBounds = new InsetBounds(5, 5, 5, 5);
@@ -67,18 +85,18 @@ namespace Pixelaria.Views.ExportPipeline
         
         private void PipelineContainerOnNodeAdded(object sender, [NotNull] PipelineNodeViewEventArgs e)
         {
-            if (!(e.Node.PipelineNode is BitmapPreviewPipelineStep step))
+            if (!(e.Node.NodeView.NodeKind == PipelineNodeKinds.BitmapPreview))
                 return;
 
-            AddPreview(step, e.Control);
+            AddPreview(e.Node.NodeView, e.Control);
         }
 
         private void PipelineContainerOnNodeRemoved(object sender, [NotNull] PipelineNodeViewEventArgs e)
         {
-            if (!(e.Node.PipelineNode is BitmapPreviewPipelineStep step))
+            if (!(e.Node.NodeView.NodeKind == PipelineNodeKinds.BitmapPreview))
                 return;
 
-            RemovePreview(step, e.Control);
+            RemovePreview(e.Node.NodeView, e.Control);
         }
 
         private void OnBitmapStepOnRenamed(object sender, EventArgs args)
@@ -87,28 +105,31 @@ namespace Pixelaria.Views.ExportPipeline
             Control.InvalidateAll();
         }
 
-        private void AddPreview([NotNull] BitmapPreviewPipelineStep step, [NotNull] IExportPipelineControl control)
+        private void AddPreview([NotNull] IPipelineNodeView step, [NotNull] IExportPipelineControl control)
         {
             _previewSteps.Add(step);
             _latestPreviews[step] = null;
 
             ReloadBoundsCache();
 
-            step.OnReceive = bitmap =>
-            {
-                UpdatePreview(step, bitmap, control);
-            };
+            // TODO: Enable value observing
+            //step.OnReceive = bitmap =>
+            //{
+            //    UpdatePreview(step, bitmap, control);
+            //};
 
-            step.Renamed += OnBitmapStepOnRenamed;
+            // TODO: Enable title renaming observing
+            //step.Renamed += OnBitmapStepOnRenamed;
 
             control.InvalidateAll();
         }
 
-        private void RemovePreview([NotNull] BitmapPreviewPipelineStep step, [NotNull] IExportPipelineControl control)
+        private void RemovePreview([NotNull] IPipelineNodeView step, [NotNull] IExportPipelineControl control)
         {
             control.InvalidateAll();
 
-            step.Renamed -= OnBitmapStepOnRenamed;
+            // TODO: Enable title renaming observing
+            //step.Renamed -= OnBitmapStepOnRenamed;
 
             _previewSteps.Remove(step);
             _latestPreviews[step]?.Dispose();
@@ -117,24 +138,21 @@ namespace Pixelaria.Views.ExportPipeline
             ReloadBoundsCache();
         }
 
-        private void UpdatePreview([NotNull] BitmapPreviewPipelineStep step, Bitmap bitmap, [NotNull] IExportPipelineControl control)
+        private void UpdatePreview([NotNull] IPipelineNodeView nodeId, [NotNull] Bitmap bitmap, [NotNull] IExportPipelineControl control)
         {
-            if (_latestRenderState == null)
-                return;
-
             IManagedImageResource managedBitmap;
 
-            if (_latestPreviews.TryGetValue(step, out var old))
+            if (_latestPreviews.TryGetValue(nodeId, out var old))
             {
                 managedBitmap = old;
-                control.ImageResources.UpdateManagedImageResource(_latestRenderState, ref managedBitmap, bitmap);
+                control.ImageResources.UpdateManagedImageResource(ref managedBitmap, bitmap);
             }
             else
             {
-                managedBitmap = control.ImageResources.CreateManagedImageResource(_latestRenderState, bitmap);
+                managedBitmap = control.ImageResources.CreateManagedImageResource(bitmap);
             }
 
-            _latestPreviews[step] = managedBitmap;
+            _latestPreviews[nodeId] = managedBitmap;
             
             ReloadBoundsCache();
 
@@ -143,15 +161,11 @@ namespace Pixelaria.Views.ExportPipeline
 
         public void RecreateState(IRenderLoopState state)
         {
-            _latestRenderState = state;
+
         }
 
         public void Render(IRenderListenerParameters parameters)
         {
-            var state = parameters.State;
-
-            _latestRenderState = state;
-
             for (int i = 0; i < _previewSteps.Count; i++)
             {
                 var step = _previewSteps[i];
@@ -186,7 +200,7 @@ namespace Pixelaria.Views.ExportPipeline
                 parameters.Renderer.SetFillColor(Color.Black);
                 parameters.Renderer.FillArea(bounds.TitleBounds);
 
-                parameters.TextRenderer.Draw(step.Name, format, bounds.TitleBounds.Inset(_titleInset), Color.White);
+                parameters.TextRenderer.Draw(step.Title, format, bounds.TitleBounds.Inset(_titleInset), Color.White);
             }
         }
 
@@ -198,7 +212,7 @@ namespace Pixelaria.Views.ExportPipeline
 
             foreach (var step in _previewSteps)
             {
-                string name = step.Name;
+                string name = step.Title;
 
                 var nameSize = Control.TextSizeProvider.CalculateTextSize(name, _font);
                 nameSize.Width += _titleInset.Left + _titleInset.Right;
@@ -251,4 +265,3 @@ namespace Pixelaria.Views.ExportPipeline
         }
     }
 }
-#endif

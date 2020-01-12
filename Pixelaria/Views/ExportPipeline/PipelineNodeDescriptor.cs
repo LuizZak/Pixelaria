@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using JetBrains.Annotations;
 using PixPipelineGraph;
 
@@ -30,6 +31,8 @@ namespace Pixelaria.Views.ExportPipeline
 {
     public class PipelineNodeDescriptor
     {
+        public PipelineNodeKind NodeKind { get; set; }
+
         [CanBeNull]
         public Bitmap Icon { get; set; }
         public string Title { get; set; }
@@ -38,7 +41,98 @@ namespace Pixelaria.Views.ExportPipeline
         public List<PipelineInputDescriptor> Inputs { get; } = new List<PipelineInputDescriptor>();
         public List<PipelineOutputDescriptor> Outputs { get; } = new List<PipelineOutputDescriptor>();
 
-        public List<PipelineBody> Bodies { get; } = new List<PipelineBody>();
+        public PipelineBody Body { get; set; }
+
+        public void CreateIn([NotNull] PipelineNodeBuilder nodeBuilder)
+        {
+            nodeBuilder.SetTitle(Title);
+            nodeBuilder.AddMetadataEntry(PipelineMetadataKeys.IconBitmap, Icon);
+            nodeBuilder.SetBody(Body);
+
+            foreach (var input in Inputs)
+            {
+                nodeBuilder.CreateInput(input.Title, builder => input.CreateIn(builder));
+            }
+            foreach (var output in Outputs)
+            {
+                nodeBuilder.CreateOutput(output.Title, builder => output.CreateIn(builder));
+            }
+        }
+
+        /// <summary>
+        /// Creates a view out of this pipeline node descriptor.
+        ///
+        /// <see cref="PipelineNodeId"/> featured in this structure are always equal to <see cref="Guid.Empty"/>
+        /// </summary>
+        public IPipelineNodeView CreateView()
+        {
+            return new InternalNodeView(this);
+        }
+
+        private class InternalNodeView : IPipelineNodeView
+        {
+            private readonly PipelineNodeDescriptor _nodeDescriptor;
+
+            public PipelineNodeId NodeId => new PipelineNodeId(Guid.Empty);
+            public string Title => _nodeDescriptor.Title;
+            public PipelineNodeKind NodeKind => _nodeDescriptor.NodeKind;
+            public PipelineBodyId BodyId => _nodeDescriptor.Body.Id;
+            public IPipelineMetadata PipelineMetadata => new PipelineMetadata();
+
+            public IReadOnlyList<IPipelineInput> Inputs => _nodeDescriptor.Inputs.Select((input, index) => new InternalInput(input, index)).ToList();
+            public IReadOnlyList<IPipelineOutput> Outputs => _nodeDescriptor.Outputs.Select((output, index) => new InternalOutput(output, index)).ToList();
+
+            public InternalNodeView(PipelineNodeDescriptor nodeDescriptor)
+            {
+                _nodeDescriptor = nodeDescriptor;
+            }
+        }
+
+        private class InternalInput : IPipelineInput
+        {
+            private readonly PipelineInputDescriptor _descriptor;
+            private readonly int _index;
+            
+            public PipelineNodeId NodeId => new PipelineNodeId(Guid.Empty);
+            public string Name => _descriptor.Title;
+
+            public PipelineInput Id => new PipelineInput(NodeId, _index);
+            public Type DataType => _descriptor.InputType;
+            
+            public InternalInput(PipelineInputDescriptor descriptor, int index)
+            {
+                _descriptor = descriptor;
+                _index = index;
+            }
+
+            public IPipelineMetadata GetMetadata()
+            {
+                return new PipelineMetadata();
+            }
+        }
+
+        private class InternalOutput : IPipelineOutput
+        {
+            private readonly PipelineOutputDescriptor _descriptor;
+            private readonly int _index;
+
+            public PipelineNodeId NodeId => new PipelineNodeId(Guid.Empty);
+            public string Name => _descriptor.Title;
+
+            public PipelineOutput Id => new PipelineOutput(NodeId, _index);
+            public Type DataType => _descriptor.OutputType;
+
+            public InternalOutput(PipelineOutputDescriptor descriptor, int index)
+            {
+                _descriptor = descriptor;
+                _index = index;
+            }
+
+            public IPipelineMetadata GetMetadata()
+            {
+                return new PipelineMetadata();
+            }
+        }
     }
 
     public class PipelineInputDescriptor
@@ -52,6 +146,12 @@ namespace Pixelaria.Views.ExportPipeline
         {
             Title = title;
         }
+
+        public void CreateIn([NotNull] PipelineInputBuilder inputBuilder)
+        {
+            inputBuilder.SetName(Title);
+            inputBuilder.SetInputType(InputType);
+        }
     }
 
     public class PipelineOutputDescriptor
@@ -64,6 +164,12 @@ namespace Pixelaria.Views.ExportPipeline
         public PipelineOutputDescriptor([NotNull] string title)
         {
             Title = title;
+        }
+
+        public void CreateIn([NotNull] PipelineOutputBuilder outputBuilder)
+        {
+            outputBuilder.SetName(Title);
+            outputBuilder.SetOutputType(OutputType);
         }
     }
 }

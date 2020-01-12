@@ -137,6 +137,11 @@ namespace PixPipelineGraph
         public static readonly string IconName = "IconName";
 
         /// <summary>
+        /// Describes a <see cref="System.Drawing.Bitmap"/> associated with the display icon for the object.
+        /// </summary>
+        public static readonly string IconBitmap = "IconBitmap";
+
+        /// <summary>
         /// Describes the location of a node in 2D space.
         /// </summary>
         public static readonly string Location2D = "Location2D";

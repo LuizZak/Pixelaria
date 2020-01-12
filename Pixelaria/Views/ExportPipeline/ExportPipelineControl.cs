@@ -757,7 +757,7 @@ namespace Pixelaria.Views.ExportPipeline
 
                         _selection.Remove(nodeView.NodeId);
                         view.StrokeWidth = 1;
-                        view.StrokeColor = PipelineNodeView.DefaultStrokeColorForPipelineStep(nodeView.NodeDescriptor);
+                        view.StrokeColor = PipelineNodeView.DefaultStrokeColorForPipelineStep(nodeView.NodeView.NodeKind);
                         _sel.FireOnSelectionChangedEvent();
                         break;
 
@@ -1003,13 +1003,13 @@ namespace Pixelaria.Views.ExportPipeline
             /// <inheritdoc />
             public PipelineNodeLinkView ViewForPipelineOutput(PipelineOutput output)
             {
-                return ViewForPipelineNode(output.NodeId)?.InputViews[output.Index];
+                return ViewForPipelineNode(output.NodeId)?.OutputViews[output.Index];
             }
 
             /// <inheritdoc />
             public PipelineNodeConnectionLineView ViewForPipelineConnection(IPipelineConnection connection)
             {
-                return _connectionViews.FirstOrDefault(view => view.Connection == connection);
+                return _connectionViews.FirstOrDefault(view => view.Connection.Equals(connection));
             }
 
             /// <inheritdoc />
@@ -1150,7 +1150,7 @@ namespace Pixelaria.Views.ExportPipeline
                 public PipelineNodeView[] NodeViews()
                 {
                     return _container
-                        .Selection.OfType<IPipelineNode>()
+                        .Selection.OfType<PipelineNodeId>()
                         .Select(node => _container.ViewForPipelineNode(node))
                         .ToArray();
                 }

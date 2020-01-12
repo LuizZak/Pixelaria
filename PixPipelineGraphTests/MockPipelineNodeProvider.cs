@@ -100,12 +100,15 @@ namespace PixPipelineGraphTests
             return NodeCreators.ContainsKey(kind);
         }
 
-        public void CreateNode(PipelineNodeKind nodeKind, PipelineNodeBuilder builder)
+        public bool CreateNode(PipelineNodeKind nodeKind, PipelineNodeBuilder builder)
         {
             if (NodeCreators.TryGetValue(nodeKind, out var action))
             {
                 action(builder);
+                return true;
             }
+
+            return false;
         }
     }
 }

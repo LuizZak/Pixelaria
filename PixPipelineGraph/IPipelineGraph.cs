@@ -114,6 +114,14 @@ namespace PixPipelineGraph
         /// </summary>
         [CanBeNull]
         IPipelineMetadata MetadataForNode(PipelineNodeId nodeId);
+
+        /// <summary>
+        /// Gets a view for the given pipeline node id.
+        ///
+        /// May return null, in case the node is not present in this graph.
+        /// </summary>
+        [CanBeNull]
+        IPipelineNodeView GetViewForPipelineNode(PipelineNodeId nodeId);
     }
 
     public static class PipelineGraphExtensions

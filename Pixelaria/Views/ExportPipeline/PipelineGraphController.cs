@@ -53,10 +53,7 @@ namespace Pixelaria.Views.ExportPipeline
                 node.CreateOutput(output.Title, builder => { builder.SetOutputType(output.OutputType); });
             }
 
-            foreach (var body in descriptor.Bodies)
-            {
-                node.SetBody(body);
-            }
+            node.SetBody(descriptor.Body);
         }
     }
 }

@@ -36,7 +36,6 @@ namespace Pixelaria.ExportPipeline
     class DefaultPipelineGraphNodeProvider : IPipelineGraphNodeProvider
     {
         private readonly List<PipelineNodeDescriptor> _nodeDescriptors = new List<PipelineNodeDescriptor>();
-        private readonly List<BasePipelineNodeEntry> _entries = new List<BasePipelineNodeEntry>();
 
         public IReadOnlyList<PipelineNodeDescriptor> NodeDescriptors => _nodeDescriptors;
 
@@ -49,6 +48,7 @@ namespace Pixelaria.ExportPipeline
         {
             _nodeDescriptors.Add(new PipelineNodeDescriptor
             {
+                NodeKind = PipelineNodeKinds.AnimationJoiner,
                 Title = "Animation Joiner",
                 Icon = Resources.anim_icon,
                 Inputs = {new PipelineInputDescriptor("animations")},
@@ -56,17 +56,20 @@ namespace Pixelaria.ExportPipeline
             });
             _nodeDescriptors.Add(new PipelineNodeDescriptor
             {
+                NodeKind = PipelineNodeKinds.BitmapImport,
                 Title = "Bitmap Import",
                 Outputs = {new PipelineOutputDescriptor("bitmap") {OutputType = typeof(Bitmap)}}
             });
             _nodeDescriptors.Add(new PipelineNodeDescriptor
             {
+                NodeKind = PipelineNodeKinds.BitmapPreview,
                 Title = "Bitmap Preview",
                 Inputs = { new PipelineInputDescriptor("bitmap") { InputType = typeof(Bitmap) } },
                 Outputs = { new PipelineOutputDescriptor("bitmap") { OutputType = typeof(Bitmap) } }
             });
             _nodeDescriptors.Add(new PipelineNodeDescriptor
             {
+                NodeKind = PipelineNodeKinds.FileExport,
                 Title = "File Export",
                 Inputs = { new PipelineInputDescriptor("bitmap") { InputType = typeof(Bitmap) } }
             });
@@ -79,92 +82,31 @@ namespace Pixelaria.ExportPipeline
 
         public PipelineBody GetBody(PipelineBodyId id)
         {
-            return _entries.FirstOrDefault(entry => entry.BodyId == id)?.Create();
+            return _nodeDescriptors.FirstOrDefault(entry => entry.Body?.Id == id)?.Body;
         }
 
         public bool CanCreateNode(PipelineNodeKind kind)
         {
-            return false;
+            return _nodeDescriptors.Any(node => node.NodeKind == kind);
         }
 
-        public void CreateNode(PipelineNodeKind nodeKind, PipelineNodeBuilder builder)
+        public bool CreateNode(PipelineNodeKind nodeKind, PipelineNodeBuilder builder)
         {
-            
+            var nodeDescriptor = _nodeDescriptors.FirstOrDefault(descriptor => descriptor.NodeKind == nodeKind);
+            if (nodeDescriptor == null)
+                return false;
+
+            nodeDescriptor.CreateIn(builder);
+
+            return true;
         }
     }
 
-    public abstract class BasePipelineNodeEntry
+    public static class PipelineNodeKinds
     {
-        /// <summary>
-        /// Gets the ID for this pipeline node entry.
-        ///
-        /// This ID will be the same for all pipeline bodies created with <see cref="Create"/>.
-        /// </summary>
-        public PipelineBodyId BodyId { get; protected set; }
-
-        protected BasePipelineNodeEntry()
-        {
-            BodyId = new PipelineBodyId(GetType().Name);
-        }
-
-        /// <summary>
-        /// Configures a given <see cref="PipelineNodeBuilder"/> to the specifications of this
-        /// pipeline node's entry.
-        /// </summary>
-        public abstract void CreateNode([NotNull] PipelineNodeBuilder builder);
-
-        /// <summary>
-        /// Invokes the initializer for a new pipeline body from this pipeline body entry.
-        /// </summary>
-        [NotNull]
-        public abstract PipelineBody Create();
-    }
-
-    public class FilterNodeEntry<T> : BasePipelineNodeEntry where T : IFilter
-    {
-        public override void CreateNode(PipelineNodeBuilder builder)
-        {
-            var newFilter = (IFilter)Activator.CreateInstance(typeof(T));
-            var properties = newFilter.InspectableProperties();
-
-            builder.CreateInput("Bitmap", input => { input.SetInputType(typeof(Bitmap)); });
-
-            foreach (var propertyInfo in properties)
-            {
-                string name = Utilities.DePascalCase(propertyInfo.Name);
-                builder.CreateInput(name, input =>
-                {
-                    input.SetInputType(propertyInfo.PropertyType);
-                });
-            }
-
-            builder.CreateOutput("Bitmap", output =>
-            {
-                output.SetOutputType(typeof(Bitmap));
-            });
-        }
-
-        public override PipelineBody Create()
-        {
-            var inputList = new List<Type> { typeof(Bitmap) };
-
-            var newFilter = (IFilter)Activator.CreateInstance(typeof(T));
-
-            var properties = newFilter.InspectableProperties();
-            foreach (var info in properties)
-            {
-                inputList.Add(info.PropertyType);
-            }
-
-            return new PipelineBody(BodyId, inputList.ToArray(), new[] { typeof(Bitmap) }, context =>
-            {
-                if (context.TryGetIndexedInputs(out IObservable<Bitmap> bitmap))
-                {
-                    //newFilter.ApplyToBitmap(bitmap);
-                }
-
-                return new[] { PipelineBodyInvocationResponse.Exception<Bitmap>(null) };
-            });
-        }
+        public static PipelineNodeKind AnimationJoiner { get; } = new PipelineNodeKind("animationJoiner");
+        public static PipelineNodeKind BitmapImport { get; } = new PipelineNodeKind("bitmapImport");
+        public static PipelineNodeKind BitmapPreview { get; } = new PipelineNodeKind("bitmapPreview");
+        public static PipelineNodeKind FileExport { get; } = new PipelineNodeKind("fileExport");
     }
 }

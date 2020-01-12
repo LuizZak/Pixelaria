@@ -78,7 +78,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         /// <summary>
         /// Gets this node view's underlying node name.
         /// </summary>
-        public string Name => NodeDescriptor.Title;
+        public string Name => NodeView.Title;
 
         /// <summary>
         /// Gets or sets the display color for this step view.
@@ -113,15 +113,15 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         /// <summary>
         /// Gets the node descriptor that fully describes this pipeline node view
         /// </summary>
-        public PipelineNodeDescriptor NodeDescriptor { get; private set; }
+        public IPipelineNodeView NodeView { get; private set; }
 
         /// <summary>
         /// Creates a new pipeline node view for a given pipeline node instance
         /// </summary>
-        public static PipelineNodeView Create([NotNull] PipelineNodeDescriptor nodeDescriptor, PipelineNodeId? nodeId)
+        public static PipelineNodeView Create([NotNull] IPipelineNodeView nodeView, PipelineNodeId? nodeId)
         {
             var node = new PipelineNodeView();
-            node.Initialize(nodeDescriptor, nodeId);
+            node.Initialize(nodeView, nodeId);
 
             return node;
         }
@@ -130,10 +130,10 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         /// Creates a new pipeline node view for a given pipeline node instance, passing it to
         /// a given initializer closure before returning.
         /// </summary>
-        public static PipelineNodeView Create([NotNull] PipelineNodeDescriptor nodeDescriptor, PipelineNodeId? nodeId, [NotNull, InstantHandle] Action<PipelineNodeView> initializer)
+        public static PipelineNodeView Create([NotNull] IPipelineNodeView nodeView, PipelineNodeId? nodeId, [NotNull, InstantHandle] Action<PipelineNodeView> initializer)
         {
             var node = new PipelineNodeView();
-            node.Initialize(nodeDescriptor, nodeId);
+            node.Initialize(nodeView, nodeId);
 
             initializer(node);
 
@@ -145,15 +145,15 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             
         }
 
-        private void Initialize([NotNull] PipelineNodeDescriptor nodeDescriptor, PipelineNodeId? nodeId)
+        private void Initialize([NotNull] IPipelineNodeView nodeView, PipelineNodeId? nodeId)
         {
             Font = new Font(FontFamily.GenericSansSerif, 11);
 
-            NodeDescriptor = nodeDescriptor;
+            NodeView = nodeView;
             NodeId = nodeId;
-            BodyText = nodeDescriptor.BodyText;
-            Color = DefaultColorForPipelineStep(nodeDescriptor);
-            StrokeColor = DefaultStrokeColorForPipelineStep(nodeDescriptor);
+            BodyText = nodeView.PipelineMetadata.GetValue(PipelineMetadataKeys.PipelineStepBodyText)?.ToString();
+            Color = DefaultColorForPipelineStep(nodeView.NodeKind);
+            StrokeColor = DefaultStrokeColorForPipelineStep(nodeView.NodeKind);
             
             ReloadLinkViews();
         }
@@ -169,12 +169,12 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             }
 
             // Create inputs
-            var inputs = NodeDescriptor.Inputs;
-            var outputs = NodeDescriptor.Outputs;
+            var inputs = NodeView.Inputs;
+            var outputs = NodeView.Outputs;
 
             foreach (var i in inputs)
             {
-                var input = PipelineNodeInputLinkView.Create(i, null);
+                var input = PipelineNodeInputLinkView.Create(i);
 
                 _inputs.Add(input);
                 AddChild(input);
@@ -182,7 +182,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
 
             foreach (var o in outputs)
             {
-                var output = PipelineNodeOutputLinkView.Create(o, null);
+                var output = PipelineNodeOutputLinkView.Create(o);
 
                 _outputs.Add(output);
                 AddChild(output);
@@ -258,17 +258,17 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         }
 
         /// <summary>
-        /// Gets the default color for the given implementation instance of <see cref="PipelineNodeDescriptor"/>.
+        /// Gets the default color for the given implementation instance of <see cref="PipelineNodeKind"/>.
         /// </summary>
-        public static Color DefaultColorForPipelineStep(PipelineNodeDescriptor pipelineNode)
+        public static Color DefaultColorForPipelineStep(PipelineNodeKind nodeKind)
         {
             return Color.White;
         }
 
         /// <summary>
-        /// Gets the default stroke color for the given implementation instance of <see cref="PipelineNodeDescriptor"/>
+        /// Gets the default stroke color for the given implementation instance of <see cref="PipelineNodeKind"/>
         /// </summary>
-        public static Color DefaultStrokeColorForPipelineStep(PipelineNodeDescriptor pipelineNode)
+        public static Color DefaultStrokeColorForPipelineStep(PipelineNodeKind nodeKind)
         {
             return Color.White.Faded(Color.Black, 0.3f);
         }

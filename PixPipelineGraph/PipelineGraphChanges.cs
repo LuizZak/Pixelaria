@@ -33,7 +33,7 @@ namespace PixPipelineGraph
     /// </summary>
     public class PipelineGraphChanges
     {
-        private Stack<StackItem> _stack = new Stack<StackItem>(new []{new StackItem()});
+        private readonly Stack<StackItem> _stack = new Stack<StackItem>(new []{new StackItem()});
         private StackItem TopmostItem => _stack.Peek();
 
         public int StackDepth => _stack.Count;

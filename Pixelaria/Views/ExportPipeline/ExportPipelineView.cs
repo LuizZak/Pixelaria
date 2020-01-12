@@ -36,6 +36,7 @@ using PixUI;
 using PixUI.Controls;
 
 using Pixelaria.Data.Persistence;
+using Pixelaria.ExportPipeline;
 using Pixelaria.Properties;
 using Pixelaria.Views.Direct2D;
 using Pixelaria.Views.ExportPipeline.PipelineNodePanel;
@@ -50,6 +51,7 @@ namespace Pixelaria.Views.ExportPipeline
         private readonly CompositeDisposable _disposeBag = new CompositeDisposable();
 
         private ExportPipelineNodesPanelManager _panelManager;
+        private BitmapPreviewPipelineWindowManager _previewManager;
 
         private PropertiesPanel _propertiesPanel;
 
@@ -124,6 +126,7 @@ namespace Pixelaria.Views.ExportPipeline
             ConfigurePipelineControl(state);
             ConfigureNodesPanel(renderer);
             ConfigurePropertiesPanel();
+            ConfigurePreviewManager(renderer, _propertiesPanel);
         }
 
         private void ConfigurePipelineControl([NotNull] IRenderLoopState state)
@@ -144,11 +147,78 @@ namespace Pixelaria.Views.ExportPipeline
             _propertiesPanel = new PropertiesPanel(exportPipelineControl);
         }
 
+        private void ConfigurePreviewManager([NotNull] IRenderManager renderer, [NotNull] PropertiesPanel propertiesPanel)
+        {
+            var manager = new BitmapPreviewPipelineWindowManager(exportPipelineControl, renderer)
+            {
+                ScreenInsetBounds = new InsetBounds(5, 5, 5, propertiesPanel.PanelWidth + 5)
+            };
+
+            exportPipelineControl.AddFeature(manager);
+
+            _previewManager = manager;
+        }
+
         #endregion
-        
+
         private void PanelManagerOnPipelineNodeSelected(object sender, [NotNull] ExportPipelineNodesPanelManager.PipelineNodeSelectedEventArgs e)
         {
             exportPipelineControl.PipelineContainer.ClearSelection();
+            AddPipelineNode(e.NodeDescriptor, e.ScreenPosition);
+        }
+
+        public void AddPipelineNode([NotNull] PipelineNodeDescriptor descriptor, Vector? screenPosition)
+        {
+            var container = exportPipelineControl.PipelineContainer;
+
+            var node = container.PipelineGraph.CreateNode(descriptor.NodeKind);
+            if (!node.HasValue)
+                return;
+            var nodeView = container.PipelineGraph.GetViewForPipelineNode(node.Value);
+            if (nodeView == null)
+                return;
+
+            var view = PipelineNodeView.Create(nodeView, node.Value);
+            view.Icon = ExportPipelineNodesPanelManager.IconForPipelineNodeKind(descriptor.NodeKind, exportPipelineControl.ImageResources);
+
+            // Rename bitmap preview steps w/ numbers so they are easily identifiable
+            if (descriptor.NodeKind == PipelineNodeKinds.BitmapPreview)
+            {
+                var bitmapPreviewNodes = container.Nodes
+                    .Select(n => container.PipelineGraph.GetViewForPipelineNode(n))
+                    .Where(n => n != null)
+                    .Where(n => n.NodeKind == PipelineNodeKinds.BitmapPreview)
+                    .ToArray();
+
+                bool HasPreviewWithName(string name)
+                {
+                    return bitmapPreviewNodes.Any(n => n.Title == name);
+                }
+
+                int count = bitmapPreviewNodes.Length + 1;
+
+                // Ensure unique names
+                while (HasPreviewWithName($"Bitmap Preview #{count}"))
+                    count += 1;
+
+                container.PipelineGraph.SetNodeTitle(node.Value, $"Bitmap Preview #{count}");
+            }
+
+            container.AddNodeView(view);
+            container.AutoSizeNode(view);
+
+            // Automatically adjust view to be on center of view port, if no location was informed
+            if (screenPosition == null)
+            {
+                var center = exportPipelineControl.Bounds.Center();
+                var centerCont = container.ContentsView.ConvertFrom(center, null);
+
+                view.Location = centerCont - view.Size / 2;
+            }
+            else
+            {
+                view.Location = container.ContentsView.ConvertFrom(screenPosition.Value, null);
+            }
         }
 
         private void tsb_sortSelected_Click(object sender, EventArgs e)

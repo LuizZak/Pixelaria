@@ -102,16 +102,16 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         /// </summary>
         public PipelineInput? InputId { get; }
 
-        public static PipelineNodeInputLinkView Create([NotNull] PipelineInputDescriptor descriptor, PipelineInput? inputId)
+        public static PipelineNodeInputLinkView Create([NotNull] IPipelineInput input)
         {
-            var view = new PipelineNodeInputLinkView(descriptor, inputId);
+            var view = new PipelineNodeInputLinkView(input);
             view.Initialize();
             return view;
         }
 
-        private PipelineNodeInputLinkView([NotNull] PipelineInputDescriptor descriptor, PipelineInput? inputId) : base(descriptor.Title)
+        private PipelineNodeInputLinkView([NotNull] IPipelineInput input) : base(input.Name)
         {
-            InputId = inputId;
+            InputId = input.Id;
         }
     }
 
@@ -127,16 +127,16 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         /// </summary>
         public PipelineOutput? OutputId { get; }
 
-        public static PipelineNodeOutputLinkView Create([NotNull] PipelineOutputDescriptor descriptor, PipelineOutput? outputId)
+        public static PipelineNodeOutputLinkView Create([NotNull] IPipelineOutput output)
         {
-            var view = new PipelineNodeOutputLinkView(descriptor, outputId);
+            var view = new PipelineNodeOutputLinkView(output);
             view.Initialize();
             return view;
         }
 
-        private PipelineNodeOutputLinkView([NotNull] PipelineOutputDescriptor descriptor, PipelineOutput? outputId) : base(descriptor.Title)
+        private PipelineNodeOutputLinkView([NotNull] IPipelineOutput output) : base(output.Name)
         {
-            OutputId = outputId;
+            OutputId = output.Id;
         }
     }
 }

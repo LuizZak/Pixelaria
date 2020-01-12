@@ -37,7 +37,7 @@ namespace PixPipelineGraph
 
         /// <inheritdoc />
         internal InternalPipelineInput([NotNull] PipelineNode node, PipelineInput id, [NotNull] string name, [NotNull] Type dataType)
-            : base(node.Id, name)
+            : base(node.NodeId, name)
         {
             Node = node;
             Id = id;

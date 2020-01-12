@@ -43,8 +43,11 @@ namespace PixPipelineGraph
 
         /// <summary>
         /// Asks this node provider to create a specific node kind into a provided node builder.
+        ///
+        /// Returns a value specifying whether the node kind is known and was properly created on
+        /// the provided builder.
         /// </summary>
-        void CreateNode(PipelineNodeKind nodeKind, PipelineNodeBuilder builder);
+        bool CreateNode(PipelineNodeKind nodeKind, PipelineNodeBuilder builder);
     }
 
     /// <summary>

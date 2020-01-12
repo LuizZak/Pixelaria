@@ -42,7 +42,7 @@ namespace PixPipelineGraph
         private readonly List<PipelineConnection> _connections = new List<PipelineConnection>();
 
         /// <inheritdoc />
-        public IReadOnlyList<PipelineNodeId> PipelineNodes => _nodes.Select(n => n.Id).ToArray();
+        public IReadOnlyList<PipelineNodeId> PipelineNodes => _nodes.Select(n => n.NodeId).ToArray();
 
         /// <inheritdoc />
         public IReadOnlyList<IPipelineConnection> PipelineConnections => _connections;
@@ -98,7 +98,7 @@ namespace PixPipelineGraph
         {
             var id = GenerateUniquePipelineNodeId();
 
-            var builder = new PipelineNodeBuilder(NodeProvider);
+            var builder = new PipelineNodeBuilder(NodeProvider, new PipelineNodeKind("custom"));
 
             constructor(builder);
 
@@ -106,7 +106,7 @@ namespace PixPipelineGraph
 
             _nodes.Add(node);
 
-            ReportNodeWasCreated(node.Id);
+            ReportNodeWasCreated(node.NodeId);
 
             return id;
         }
@@ -134,6 +134,7 @@ namespace PixPipelineGraph
 
             return CreateNode(builder =>
             {
+                builder.SetKind(kind);
                 NodeProvider.CreateNode(kind, builder);
             });
         }
@@ -236,7 +237,7 @@ namespace PixPipelineGraph
         /// <inheritdoc />
         public bool ContainsNode(PipelineNodeId nodeId)
         {
-            return _nodes.Any(node => node.Id == nodeId);
+            return _nodes.Any(node => node.NodeId == nodeId);
         }
 
         /// <summary>
@@ -407,7 +408,7 @@ namespace PixPipelineGraph
         {
             var node = NodeWithIdOrException(nodeId);
 
-            return node.Inputs.Select(i => i.Id).ToList();
+            return node.InternalInputs.Select(i => i.Id).ToList();
         }
 
         /// <inheritdoc />
@@ -415,7 +416,7 @@ namespace PixPipelineGraph
         {
             var node = NodeWithIdOrException(nodeId);
 
-            return node.Outputs.Select(o => o.Id).ToList();
+            return node.InternalOutputs.Select(o => o.Id).ToList();
         }
 
         [CanBeNull]
@@ -436,8 +437,8 @@ namespace PixPipelineGraph
             if (node1 == node2)
                 return false;
 
-            return _connections.Any(conn => conn.Input.Node.Id == node1 && conn.Output.Node.Id == node2 ||
-                                            conn.Input.Node.Id == node2 && conn.Output.Node.Id == node1);
+            return _connections.Any(conn => conn.Input.Node.NodeId == node1 && conn.Output.Node.NodeId == node2 ||
+                                            conn.Input.Node.NodeId == node2 && conn.Output.Node.NodeId == node1);
         }
 
         /// <inheritdoc />
@@ -476,19 +477,19 @@ namespace PixPipelineGraph
         /// <inheritdoc />
         public IReadOnlyList<IPipelineConnection> AllConnectionsForNode(PipelineNodeId node)
         {
-            return _connections.Where(c => c.Input.Node.Id == node || c.Output.Node.Id == node).ToArray();
+            return _connections.Where(c => c.Input.Node.NodeId == node || c.Output.Node.NodeId == node).ToArray();
         }
 
         /// <inheritdoc />
         public IReadOnlyList<IPipelineConnection> ConnectionsFromNode(PipelineNodeId node)
         {
-            return _connections.Where(c => c.Output.Node.Id == node).ToArray();
+            return _connections.Where(c => c.Output.Node.NodeId == node).ToArray();
         }
 
         /// <inheritdoc />
         public IReadOnlyList<IPipelineConnection> ConnectionsTowardsNode(PipelineNodeId node)
         {
-            return _connections.Where(c => c.Input.Node.Id == node).ToArray();
+            return _connections.Where(c => c.Input.Node.NodeId == node).ToArray();
         }
 
         /// <inheritdoc />
@@ -506,7 +507,13 @@ namespace PixPipelineGraph
         /// <inheritdoc />
         public IPipelineMetadata MetadataForNode(PipelineNodeId nodeId)
         {
-            return _nodes.FirstOrDefault(n => n.Id == nodeId)?.PipelineMetadata;
+            return _nodes.FirstOrDefault(n => n.NodeId == nodeId)?.PipelineMetadata;
+        }
+
+        /// <inheritdoc />
+        public IPipelineNodeView GetViewForPipelineNode(PipelineNodeId nodeId)
+        {
+            return _nodes.FirstOrDefault(node => node.NodeId == nodeId);
         }
 
         /// <summary>
@@ -517,7 +524,7 @@ namespace PixPipelineGraph
         [CanBeNull]
         public PipelineBody BodyForNode(PipelineNodeId nodeId)
         {
-            return _nodes.FirstOrDefault(n => n.Id == nodeId)?.Body;
+            return _nodes.FirstOrDefault(n => n.NodeId == nodeId)?.Body;
         }
 
         /// <summary>
@@ -528,7 +535,21 @@ namespace PixPipelineGraph
         [CanBeNull]
         public string TitleForNode(PipelineNodeId nodeId)
         {
-            return _nodes.FirstOrDefault(n => n.Id == nodeId)?.Title;
+            return _nodes.FirstOrDefault(n => n.NodeId == nodeId)?.Title;
+        }
+
+        /// <summary>
+        /// Sets the title for a node with a given Id on this graph.
+        ///
+        /// May do nothing, in case no node was found with a matching id.
+        /// </summary>
+        public void SetNodeTitle(PipelineNodeId nodeId, [NotNull] string newTitle)
+        {
+            var node = _nodes.FirstOrDefault(n => n.NodeId == nodeId);
+            if (node != null)
+            {
+                node.Title = newTitle;
+            }
         }
 
         /// <summary>
@@ -583,11 +604,11 @@ namespace PixPipelineGraph
 
             foreach (var node in other._nodes)
             {
-                nodesMap[node.Id] = CreateNode(n =>
+                nodesMap[node.NodeId] = CreateNode(n =>
                 {
                     n.SetBody(node.Body);
 
-                    foreach (var input in node.Inputs)
+                    foreach (var input in node.InternalInputs)
                     {
                         n.CreateInput(input.Name, i =>
                         {
@@ -595,7 +616,7 @@ namespace PixPipelineGraph
                         });
                     }
 
-                    foreach (var output in node.Outputs)
+                    foreach (var output in node.InternalOutputs)
                     {
                         n.CreateOutput(output.Name, o =>
                         {
@@ -637,25 +658,25 @@ namespace PixPipelineGraph
         [CanBeNull]
         private InternalPipelineInput InputWithId(PipelineInput input)
         {
-            return NodeWithId(input.NodeId)?.Inputs[input.Index];
+            return NodeWithId(input.NodeId)?.InternalInputs[input.Index];
         }
 
         [CanBeNull]
         private InternalPipelineOutput OutputWithId(PipelineOutput input)
         {
-            return NodeWithId(input.NodeId)?.Outputs[input.Index];
+            return NodeWithId(input.NodeId)?.InternalOutputs[input.Index];
         }
 
         [NotNull]
         private InternalPipelineInput InputWithIdOrException(PipelineInput input)
         {
-            return NodeWithIdOrException(input.NodeId).Inputs[input.Index];
+            return NodeWithIdOrException(input.NodeId).InternalInputs[input.Index];
         }
 
         [NotNull]
         private InternalPipelineOutput OutputWithIdOrException(PipelineOutput input)
         {
-            return NodeWithIdOrException(input.NodeId).Outputs[input.Index];
+            return NodeWithIdOrException(input.NodeId).InternalOutputs[input.Index];
         }
 
         [NotNull]
@@ -667,7 +688,7 @@ namespace PixPipelineGraph
         [CanBeNull]
         private PipelineNode NodeWithId(PipelineNodeId nodeId)
         {
-            return _nodes.FirstOrDefault(node => node.Id == nodeId);
+            return _nodes.FirstOrDefault(node => node.NodeId == nodeId);
         }
 
         [CanBeNull]

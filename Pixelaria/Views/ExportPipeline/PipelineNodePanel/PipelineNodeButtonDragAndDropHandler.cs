@@ -230,8 +230,8 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
                 public PipelineNodeDragRenderListener([NotNull] PipelineNodeDescriptor nodeDesc, [NotNull] IImageResourceProvider imageProvider, Matrix2D transformMatrix)
                 {
                     TransformMatrix = transformMatrix;
-                    _nodeView = PipelineNodeView.Create(nodeDesc, null);
-                    //_nodeView.Icon = IconForPipelineNode(node, imageProvider);
+                    _nodeView = PipelineNodeView.Create(nodeDesc.CreateView(), null);
+                    _nodeView.Icon = IconForPipelineNodeKind(nodeDesc.NodeKind, imageProvider);
 
                     var nodeViewSizer = new DefaultPipelineNodeViewSizer();
                     nodeViewSizer.AutoSize(_nodeView, LabelView.defaultTextSizeProvider);

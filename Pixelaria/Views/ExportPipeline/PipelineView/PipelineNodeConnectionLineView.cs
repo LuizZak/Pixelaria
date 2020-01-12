@@ -73,7 +73,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             var center2 = End.ConvertTo(End.Bounds.Center, this);
 
             bool startToRight = Start is PipelineNodeOutputLinkView;
-            bool endToRight = End is PipelineNodeInputLinkView;
+            bool endToRight = End is PipelineNodeOutputLinkView;
 
             float maxSep = Math.Min(75, Math.Abs(center1.Distance(center2)));
 
