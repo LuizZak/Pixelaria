@@ -49,6 +49,9 @@ namespace PixUI.Animation
         /// <param name="interval">Interval since the last update frame</param>
         public void Update(TimeSpan interval)
         {
+            if (_animations.Count == 0)
+                return;
+
             foreach (var animation in _animations.Where(a => !a.IsFinished))
             {
                 animation.Update(interval);
