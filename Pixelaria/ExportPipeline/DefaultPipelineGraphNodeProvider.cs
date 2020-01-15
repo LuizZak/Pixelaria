@@ -20,20 +20,16 @@
     base directory of this project.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using JetBrains.Annotations;
-using Pixelaria.Filters;
 using Pixelaria.Properties;
-using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline;
 using PixPipelineGraph;
 
 namespace Pixelaria.ExportPipeline
 {
-    class DefaultPipelineGraphNodeProvider : IPipelineGraphNodeProvider
+    internal class DefaultPipelineGraphNodeProvider : IPipelineGraphNodeProvider
     {
         private readonly List<PipelineNodeDescriptor> _nodeDescriptors = new List<PipelineNodeDescriptor>();
 
@@ -65,7 +61,9 @@ namespace Pixelaria.ExportPipeline
                 NodeKind = PipelineNodeKinds.BitmapPreview,
                 Title = "Bitmap Preview",
                 Inputs = { new PipelineInputDescriptor("bitmap") { InputType = typeof(Bitmap) } },
-                Outputs = { new PipelineOutputDescriptor("bitmap") { OutputType = typeof(Bitmap) } }
+                Outputs = { new PipelineOutputDescriptor("bitmap") { OutputType = typeof(Bitmap) } },
+                Body = new PipelineBody(new PipelineBodyId("bitmapPreview"), new[] { typeof(Bitmap) }, new[] { typeof(Bitmap) },
+                    context => AnyObservable.FromObservable(context.GetIndexedInput<Bitmap>(0)))
             });
             _nodeDescriptors.Add(new PipelineNodeDescriptor
             {
