@@ -77,7 +77,7 @@ namespace Pixelaria.Views.ExportPipeline
             public string Title => _nodeDescriptor.Title;
             public PipelineNodeKind NodeKind => _nodeDescriptor.NodeKind;
             public PipelineBodyId BodyId => _nodeDescriptor.Body.Id;
-            public IPipelineMetadata PipelineMetadata => new PipelineMetadata();
+            public IPipelineMetadata PipelineMetadata { get; } = new PipelineMetadata();
 
             public IReadOnlyList<IPipelineInput> Inputs => _nodeDescriptor.Inputs.Select((input, index) => new InternalInput(input, index)).ToList();
             public IReadOnlyList<IPipelineOutput> Outputs => _nodeDescriptor.Outputs.Select((output, index) => new InternalOutput(output, index)).ToList();
@@ -85,6 +85,7 @@ namespace Pixelaria.Views.ExportPipeline
             public InternalNodeView(PipelineNodeDescriptor nodeDescriptor)
             {
                 _nodeDescriptor = nodeDescriptor;
+                PipelineMetadata.SetValue(PipelineMetadataKeys.PipelineStepBodyText, _nodeDescriptor.BodyText);
             }
         }
 

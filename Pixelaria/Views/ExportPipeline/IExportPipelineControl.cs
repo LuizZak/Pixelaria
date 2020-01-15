@@ -25,7 +25,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using JetBrains.Annotations;
 using PixCore.Geometry;
-using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using PixPipelineGraph;
@@ -218,7 +217,7 @@ namespace Pixelaria.Views.ExportPipeline
         /// <summary>
         /// Selects a given pipeline node.
         /// </summary>
-        void SelectNode([NotNull] IPipelineNode node);
+        void SelectNode(PipelineNodeId node);
 
         /// <summary>
         /// Selects a given pipeline connection.
@@ -257,7 +256,7 @@ namespace Pixelaria.Views.ExportPipeline
         /// <summary>
         /// Adds a connection to the first input/output that match on two pipeline nodes
         /// </summary>
-        void AddConnection([NotNull] IPipelineStep start, [NotNull] IPipelineNode end);
+        void AddConnection(PipelineNodeId start, PipelineNodeId end);
 
         /// <summary>
         /// Adds a connection between the two given pipeline links.
@@ -316,12 +315,6 @@ namespace Pixelaria.Views.ExportPipeline
         /// </summary>
         [CanBeNull]
         PipelineNodeView ViewForPipelineNode(PipelineNodeId nodeId);
-
-        /// <summary>
-        /// Retrieves the view that represents the given pipeline node within this container
-        /// </summary>
-        [CanBeNull]
-        PipelineNodeView ViewForPipelineNode([NotNull] IPipelineNode node);
 
         /// <summary>
         /// Retrieves the view that represents the given pipeline input within this container
