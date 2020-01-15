@@ -24,8 +24,6 @@ using System.Drawing;
 using JetBrains.Annotations;
 
 using PixUI;
-
-using Pixelaria.ExportPipeline;
 using PixPipelineGraph;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView
@@ -35,15 +33,6 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
     /// </summary>
     internal abstract class PipelineNodeLinkView : BaseView
     {
-        /// <summary>
-        /// A static pipeline output connected to this node link, if available.
-        /// 
-        /// Is set to null and replaced by any other output that is connected to
-        /// this input.
-        /// </summary>
-        [CanBeNull]
-        public IStaticPipelineOutput FixedOutput { get; set; }
-
         /// <summary>
         /// Gets the parent step view for this link view
         /// </summary>

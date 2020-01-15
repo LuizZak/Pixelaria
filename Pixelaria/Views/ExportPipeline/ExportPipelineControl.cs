@@ -513,7 +513,7 @@ namespace Pixelaria.Views.ExportPipeline
                 _root.InvalidateRegionDelegate = this;
             }
 
-            private void PipelineGraphOnConnectionWillBeRemoved(object sender, ConnectionEventArgs args)
+            private void PipelineGraphOnConnectionWasAdded(object sender, [NotNull] ConnectionEventArgs args)
             {
                 var inpView = ViewForPipelineInput(args.Connection.End);
                 var outView = ViewForPipelineOutput(args.Connection.Start);
@@ -524,7 +524,7 @@ namespace Pixelaria.Views.ExportPipeline
                 AddConnectionView(inpView, outView, args.Connection);
             }
 
-            private void PipelineGraphOnConnectionWasAdded(object sender, ConnectionEventArgs args)
+            private void PipelineGraphOnConnectionWillBeRemoved(object sender, [NotNull] ConnectionEventArgs args)
             {
                 // Find view and remove it
                 var view = ViewForPipelineConnection(args.Connection);
@@ -533,6 +533,7 @@ namespace Pixelaria.Views.ExportPipeline
 
                 Deselect(view);
                 view.RemoveFromParent();
+                _connectionViews.Remove(view);
             }
 
             public void RemoveAllViews()
@@ -620,23 +621,6 @@ namespace Pixelaria.Views.ExportPipeline
                     default:
                         return false;
                 }
-            }
-
-            public void SelectNode(IPipelineNode node)
-            {
-                if (_selection.Contains(node))
-                    return;
-
-                _selection.Add(node);
-
-                var view = ViewForPipelineNode(node);
-                if (view != null)
-                {
-                    view.StrokeWidth = 3;
-                    view.StrokeColor = Color.Orange;
-                }
-
-                _sel.FireOnSelectionChangedEvent();
             }
 
             public void SelectNode(PipelineNodeId node)
@@ -795,6 +779,9 @@ namespace Pixelaria.Views.ExportPipeline
 
             private void AddConnectionView([NotNull] PipelineNodeLinkView start, [NotNull] PipelineNodeLinkView end, [NotNull] IPipelineConnection connection)
             {
+                if (ViewForPipelineConnection(connection) != null)
+                    return;
+
                 // Flip start/end to always match output/input
                 if (start is PipelineNodeInputLinkView && end is PipelineNodeOutputLinkView)
                 {
@@ -809,16 +796,13 @@ namespace Pixelaria.Views.ExportPipeline
                 view.UpdateBezier();
             }
 
-            public void AddConnection(IPipelineStep start, IPipelineNode end)
+            public void AddConnection(PipelineNodeId start, PipelineNodeId end)
             {
                 // Detect cycles
-                if (PipelineGraph.AreDirectlyConnected(start.Id, end.Id))
+                if (PipelineGraph.AreDirectlyConnected(start, end))
                     return;
 
-                if (!(end is IPipelineNodeWithInputs node))
-                    return;
-
-                PipelineGraph.Connect(start.Id, node.Id);
+                PipelineGraph.Connect(start, end);
             }
 
             public bool AreConnected(PipelineNodeLinkView start, PipelineNodeLinkView end)
@@ -845,10 +829,7 @@ namespace Pixelaria.Views.ExportPipeline
                 if (PipelineGraph.AreDirectlyConnected(inpNode, outNode))
                     return;
                 
-                var con = PipelineGraph.Connect(output.Id, input.Id);
-
-                if (con != null)
-                    AddConnectionView(inpView, outView, con);
+                PipelineGraph.Connect(output.Id, input.Id);
             }
 
             /// <summary>
@@ -980,12 +961,6 @@ namespace Pixelaria.Views.ExportPipeline
                     from linkTo in to.InputViews
                     where AreConnected(linkFrom, linkTo)
                     select (linkFrom, linkTo)).ToArray();
-            }
-
-            /// <inheritdoc />
-            public PipelineNodeView ViewForPipelineNode(IPipelineNode node)
-            {
-                return _nodeViews.FirstOrDefault(stepView => stepView.NodeId == node.Id);
             }
 
             /// <inheritdoc />

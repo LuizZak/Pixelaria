@@ -33,7 +33,7 @@ namespace Pixelaria.ExportPipeline
     /// <summary>
     /// Wraps a <see cref="PropertyInfo"/> into an <see cref="IEditableProperty"/> interface.
     ///
-    /// Wrapped properties must be of types that provide both a <see cref="System.Drawing.Design.UITypeEditor"/>
+    /// Wrapped properties must be of types that provide both a <see cref="UITypeEditor"/>
     /// and a <see cref="System.ComponentModel.TypeConverter"/>.
     /// </summary>
     sealed class EditableTypePropertyProxy : IEditableProperty
