@@ -71,6 +71,12 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineNodePanel
             BaseViewSnapshot.ImagesConfig = PipelineControlConfigurator.RegisterIcons;
         }
 
+        [TestCleanup]
+        public void TestCleanup()
+        {
+            BaseViewSnapshot.ImagesConfig = null;
+        }
+
         [TestMethod]
         public void TestRendering()
         {

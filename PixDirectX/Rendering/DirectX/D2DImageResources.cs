@@ -22,7 +22,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using JetBrains.Annotations;
 using PixRendering;
@@ -86,17 +85,19 @@ namespace PixDirectX.Rendering.DirectX
 
             var dxBitmap = Direct2DRenderManager.CreateSharpDxBitmap(state.D2DRenderTarget, bitmap);
 
-            return new DirectXBitmap(dxBitmap);
+            return new DirectXBitmap(dxBitmap, bitmap, state.D2DRenderTarget);
         }
 
         public void UpdateManagedImageResource(ref IManagedImageResource managedImage, Bitmap bitmap)
         {
             var state = _renderStateProvider.GetLatestValidRenderingState();
-            if(!(managedImage is DirectXBitmap dxBitmap))
+            if (!(managedImage is DirectXBitmap dxBitmap))
                 throw new ArgumentException($"Expected bitmap to be of type ${typeof(DirectXBitmap)}");
 
             dxBitmap.bitmap.Dispose();
             dxBitmap.bitmap = Direct2DRenderManager.CreateSharpDxBitmap(state.D2DRenderTarget, bitmap);
+            dxBitmap.original = bitmap;
+            dxBitmap.renderTarget = state.D2DRenderTarget;
         }
 
         public void RemoveAllImageResources()
@@ -143,25 +144,6 @@ namespace PixDirectX.Rendering.DirectX
         public SharpDX.Direct2D1.Bitmap BitmapForResource([NotNull] string name)
         {
             return _bitmapResources.TryGetValue(name, out var bitmap) ? bitmap : null;
-        }
-    }
-
-    public class DirectXBitmap : IManagedImageResource
-    {
-        internal SharpDX.Direct2D1.Bitmap bitmap;
-
-        public int Width => bitmap.PixelSize.Width;
-        public int Height => bitmap.PixelSize.Height;
-        public Size Size => new Size(Width, Height);
-
-        public DirectXBitmap(SharpDX.Direct2D1.Bitmap bitmap)
-        {
-            this.bitmap = bitmap;
-        }
-
-        public void Dispose()
-        {
-            bitmap.Dispose();
         }
     }
 }

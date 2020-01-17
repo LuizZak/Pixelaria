@@ -26,7 +26,6 @@ using FastBitmapLib;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixCore.Geometry;
-using PixDirectX.Rendering;
 using PixDirectX.Rendering.DirectX;
 using PixRendering;
 using PixSnapshot;
@@ -84,7 +83,7 @@ namespace PixelariaTests.Views.ExportPipeline
             var pixelFormat = PixelFormat.Format32bppPBGRA;
 
             int width = (int) Math.Round(view.Width);
-            int height = (int)Math.Round(view.Height);
+            int height = (int) Math.Round(view.Height);
 
             using (var imgFactory = new ImagingFactory())
             using (var wicBitmap = new SharpDX.WIC.Bitmap(imgFactory, width, height, pixelFormat, bitmapCreateCacheOption))
