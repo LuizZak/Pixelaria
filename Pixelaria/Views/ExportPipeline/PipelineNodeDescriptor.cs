@@ -143,9 +143,10 @@ namespace Pixelaria.Views.ExportPipeline
 
         public Type InputType { get; set; }
 
-        public PipelineInputDescriptor([NotNull] string title)
+        public PipelineInputDescriptor([NotNull] string title, [NotNull] Type inputType)
         {
             Title = title;
+            InputType = inputType;
         }
 
         public void CreateIn([NotNull] PipelineInputBuilder inputBuilder)
@@ -162,9 +163,10 @@ namespace Pixelaria.Views.ExportPipeline
 
         public Type OutputType { get; set; }
 
-        public PipelineOutputDescriptor([NotNull] string title)
+        public PipelineOutputDescriptor([NotNull] string title, [NotNull] Type outputType)
         {
             Title = title;
+            OutputType = outputType;
         }
 
         public void CreateIn([NotNull] PipelineOutputBuilder outputBuilder)

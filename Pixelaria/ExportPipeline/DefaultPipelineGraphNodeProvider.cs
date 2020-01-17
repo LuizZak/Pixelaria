@@ -47,21 +47,21 @@ namespace Pixelaria.ExportPipeline
                 NodeKind = PipelineNodeKinds.AnimationJoiner,
                 Title = "Animation Joiner",
                 Icon = Resources.anim_icon,
-                Inputs = {new PipelineInputDescriptor("animations")},
-                Outputs = {new PipelineOutputDescriptor("animations")}
+                Inputs = {new PipelineInputDescriptor("animations", typeof(object)) },
+                Outputs = {new PipelineOutputDescriptor("animations", typeof(object)) }
             });
             _nodeDescriptors.Add(new PipelineNodeDescriptor
             {
                 NodeKind = PipelineNodeKinds.BitmapImport,
                 Title = "Bitmap Import",
-                Outputs = {new PipelineOutputDescriptor("bitmap") {OutputType = typeof(Bitmap)}}
+                Outputs = {new PipelineOutputDescriptor("bitmap", typeof(Bitmap))}
             });
             _nodeDescriptors.Add(new PipelineNodeDescriptor
             {
                 NodeKind = PipelineNodeKinds.BitmapPreview,
                 Title = "Bitmap Preview",
-                Inputs = { new PipelineInputDescriptor("bitmap") { InputType = typeof(Bitmap) } },
-                Outputs = { new PipelineOutputDescriptor("bitmap") { OutputType = typeof(Bitmap) } },
+                Inputs = { new PipelineInputDescriptor("bitmap", typeof(Bitmap)) },
+                Outputs = { new PipelineOutputDescriptor("bitmap", typeof(Bitmap)) },
                 Body = new PipelineBody(new PipelineBodyId("bitmapPreview"), new[] { typeof(Bitmap) }, new[] { typeof(Bitmap) },
                     context => AnyObservable.FromObservable(context.GetIndexedInput<Bitmap>(0)))
             });
@@ -69,12 +69,12 @@ namespace Pixelaria.ExportPipeline
             {
                 NodeKind = PipelineNodeKinds.FileExport,
                 Title = "File Export",
-                Inputs = { new PipelineInputDescriptor("bitmap") { InputType = typeof(Bitmap) } }
+                Inputs = { new PipelineInputDescriptor("bitmap", typeof(Bitmap)) }
             });
             _nodeDescriptors.Add(new PipelineNodeDescriptor
             {
                 Title = "",
-                Inputs = { new PipelineInputDescriptor("bitmap") { InputType = typeof(Bitmap) } }
+                Inputs = { new PipelineInputDescriptor("bitmap", typeof(Bitmap)) }
             });
         }
 

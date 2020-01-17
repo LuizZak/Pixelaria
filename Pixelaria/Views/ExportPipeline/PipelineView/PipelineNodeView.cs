@@ -118,10 +118,10 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         /// <summary>
         /// Creates a new pipeline node view for a given pipeline node instance
         /// </summary>
-        public static PipelineNodeView Create([NotNull] IPipelineNodeView nodeView, PipelineNodeId? nodeId)
+        public static PipelineNodeView Create([NotNull] IPipelineNodeView nodeView)
         {
             var node = new PipelineNodeView();
-            node.Initialize(nodeView, nodeId);
+            node.Initialize(nodeView);
 
             return node;
         }
@@ -130,10 +130,10 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         /// Creates a new pipeline node view for a given pipeline node instance, passing it to
         /// a given initializer closure before returning.
         /// </summary>
-        public static PipelineNodeView Create([NotNull] IPipelineNodeView nodeView, PipelineNodeId? nodeId, [NotNull, InstantHandle] Action<PipelineNodeView> initializer)
+        public static PipelineNodeView Create([NotNull] IPipelineNodeView nodeView, [NotNull, InstantHandle] Action<PipelineNodeView> initializer)
         {
             var node = new PipelineNodeView();
-            node.Initialize(nodeView, nodeId);
+            node.Initialize(nodeView);
 
             initializer(node);
 
@@ -145,12 +145,12 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             
         }
 
-        private void Initialize([NotNull] IPipelineNodeView nodeView, PipelineNodeId? nodeId)
+        private void Initialize([NotNull] IPipelineNodeView nodeView)
         {
             Font = new Font(FontFamily.GenericSansSerif, 11);
 
             NodeView = nodeView;
-            NodeId = nodeId;
+            NodeId = nodeView.NodeId;
             BodyText = nodeView.PipelineMetadata.GetValue(PipelineMetadataKeys.PipelineStepBodyText)?.ToString();
             Color = DefaultColorForPipelineStep(nodeView.NodeKind);
             StrokeColor = DefaultStrokeColorForPipelineStep(nodeView.NodeKind);

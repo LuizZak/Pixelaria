@@ -178,7 +178,7 @@ namespace Pixelaria.Views.ExportPipeline
             if (nodeView == null)
                 return;
 
-            var view = PipelineNodeView.Create(nodeView, node.Value);
+            var view = PipelineNodeView.Create(nodeView);
             view.Icon = ExportPipelineNodesPanelManager.IconForPipelineNodeKind(descriptor.NodeKind, exportPipelineControl.ImageResources);
 
             // Rename bitmap preview steps w/ numbers so they are easily identifiable

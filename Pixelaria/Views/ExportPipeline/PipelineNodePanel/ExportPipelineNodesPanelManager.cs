@@ -289,8 +289,12 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
 
         private PipelineNodeButtonDragAndDropHandler DragAndDropHandlerForButton([NotNull] ButtonControl button, [NotNull] PipelineNodeDescriptor nodeDesc)
         {
-            return new PipelineNodeButtonDragAndDropHandler(button, nodeDesc, _invalidateTarget,
-                _pipelineRenderManager, new PipelineNodeButtonDragAndDropHandlerDelegate(this));
+            return new PipelineNodeButtonDragAndDropHandler(
+                button, 
+                nodeDesc, 
+                _invalidateTarget,
+                _pipelineRenderManager, 
+                new PipelineNodeButtonDragAndDropHandlerDelegate(this));
         }
 
         private Vector GetButtonSize()
@@ -396,7 +400,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
             const BitmapCreateCacheOption bitmapCreateCacheOption = BitmapCreateCacheOption.CacheOnDemand;
             var pixelFormat = PixelFormat.Format32bppPBGRA;
 
-            var view = PipelineNodeView.Create(node.CreateView(), null);
+            var view = PipelineNodeView.Create(node.CreateView());
             view.Icon = ExportPipelineNodesPanelManager.IconForPipelineNodeKind(node.NodeKind, _exportPipelineControl.ImageResources);
 
             container.AutoSizeNode(view);
