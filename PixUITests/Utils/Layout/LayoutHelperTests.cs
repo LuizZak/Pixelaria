@@ -22,12 +22,12 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixCore.Geometry;
-using PixUI.Utils.Layouting;
+using PixUI.Utils.Layout;
 
-namespace PixUITests.Utils.Layouting
+namespace PixUITests.Utils.Layout
 {
     [TestClass]
-    public class LayoutingTests
+    public class LayoutHelperTests
     {
         [TestMethod]
         public void TestWithCenterOn()
@@ -46,9 +46,9 @@ namespace PixUITests.Utils.Layouting
             var aabb = new AABB(new Vector(10, 10), new Vector(20, 20));
             var container = new AABB(new Vector(0, 0), new Vector(100, 50));
 
-            var result1 = LayoutingHelper.CenterWithinContainer(aabb, container, LayoutDirection.Horizontal);
-            var result2 = LayoutingHelper.CenterWithinContainer(aabb, container, LayoutDirection.Vertical);
-            var result3 = LayoutingHelper.CenterWithinContainer(aabb, container, LayoutDirection.Horizontal | LayoutDirection.Vertical);
+            var result1 = LayoutHelper.CenterWithinContainer(aabb, container, LayoutDirection.Horizontal);
+            var result2 = LayoutHelper.CenterWithinContainer(aabb, container, LayoutDirection.Vertical);
+            var result3 = LayoutHelper.CenterWithinContainer(aabb, container, LayoutDirection.Horizontal | LayoutDirection.Vertical);
 
             Assert.AreEqual(new Vector(45, 10), result1.Minimum);
             Assert.AreEqual(new Vector(55, 20), result1.Maximum);

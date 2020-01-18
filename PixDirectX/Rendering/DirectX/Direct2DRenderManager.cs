@@ -611,6 +611,7 @@ namespace PixDirectX.Rendering.DirectX
         {
             _state.D2DRenderTarget.FillRectangle(area.ToRawRectangleF(), BrushForFill());
         }
+
         public void FillRoundedArea(AABB area, float radiusX, float radiusY)
         {
             var roundedRect = new RoundedRectangle
@@ -751,6 +752,7 @@ namespace PixDirectX.Rendering.DirectX
                     return BitmapInterpolationMode.Linear;
             }
         }
+
         private static InterpolationMode ToInterpolation(ImageInterpolationMode imageInterpolationMode)
         {
             switch (imageInterpolationMode)

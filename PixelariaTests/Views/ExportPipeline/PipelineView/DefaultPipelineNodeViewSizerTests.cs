@@ -240,40 +240,13 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
             RunTest(nodeView, sut);
         }
 
-        private void RunTest([NotNull] PipelineNodeView view, IPipelineNodeViewSizer sut, bool? recordMode = null)
+        private void RunTest([NotNull] PipelineNodeView view, [NotNull] IPipelineNodeViewSizer sut, bool? recordMode = null)
         {
-            TestWithRenderingState(provider =>
-            {
-                var sizeProvider = new D2DTextSizeProvider(provider);
+            var sizeProvider = new D2DTextSizeProvider();
 
-                sut.AutoSize(view, sizeProvider);
-            });
+            sut.AutoSize(view, sizeProvider);
 
             PipelineViewSnapshot.Snapshot(view, TestContext, recordMode);
-        }
-
-        private static void TestWithRenderingState(Action<IDirect2DRenderingStateProvider> testAction)
-        {
-            using (var control = new ExportPipelineControl())
-            using (var factory = new SharpDX.Direct2D1.Factory())
-            using (var renderManager = new Direct2DRenderLoopManager(control, factory))
-            {
-                renderManager.Initialize();
-
-                renderManager.RenderSingleFrame(state =>
-                {
-                    ((IDirect2DRenderingState) state).D2DRenderTarget.Clear(null);
-
-                    var renderer = new TestDirect2DRenderManager();
-                    renderer.Initialize(state);
-
-                    PipelineControlConfigurator.RegisterIcons(renderer.ImageResources, state);
-
-                    control.InitializeRenderer(renderer);
-
-                    testAction(new StaticDirect2DRenderingStateProvider((IDirect2DRenderingState)state));
-                });
-            }
         }
     }
 

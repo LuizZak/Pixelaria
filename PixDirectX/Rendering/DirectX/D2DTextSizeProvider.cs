@@ -22,6 +22,7 @@
 
 
 using System.Drawing;
+using JetBrains.Annotations;
 using PixCore.Text;
 using PixCore.Text.Attributes;
 using PixRendering;
@@ -32,7 +33,16 @@ namespace PixDirectX.Rendering.DirectX
 {
     public class D2DTextSizeProvider : ITextSizeProvider
     {
+        [CanBeNull]
         private readonly IDirect2DRenderingStateProvider _renderingStateProvider;
+
+        [CanBeNull]
+        private readonly Factory _directWriteFactory;
+
+        public D2DTextSizeProvider()
+        {
+            _directWriteFactory = new Factory();
+        }
 
         public D2DTextSizeProvider(IDirect2DRenderingStateProvider renderingStateProvider)
         {
@@ -51,18 +61,28 @@ namespace PixDirectX.Rendering.DirectX
 
         public SizeF CalculateTextSize(IAttributedText text, string font, float fontSize)
         {
-            var renderState = _renderingStateProvider.GetLatestValidRenderingState();
-            if (renderState == null)
-                return SizeF.Empty;
+            Factory factory;
+            if(_renderingStateProvider != null)
+            {
+                var renderState = _renderingStateProvider.GetLatestValidRenderingState();
+                if (renderState == null)
+                    return SizeF.Empty;
 
-            var format = new TextFormat(renderState.DirectWriteFactory, font, fontSize)
+                factory = renderState.DirectWriteFactory;
+            }
+            else
+            {
+                factory = _directWriteFactory;
+            }
+
+            var format = new TextFormat(factory, font, fontSize)
             {
                 TextAlignment = TextAlignment.Leading,
                 ParagraphAlignment = ParagraphAlignment.Center
             };
 
             using (var textFormat = format)
-            using (var textLayout = new TextLayout(renderState.DirectWriteFactory, text.String, textFormat, float.PositiveInfinity, float.PositiveInfinity))
+            using (var textLayout = new TextLayout(factory, text.String, textFormat, float.PositiveInfinity, float.PositiveInfinity))
             {
                 foreach (var textSegment in text.GetTextSegments())
                 {

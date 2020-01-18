@@ -21,12 +21,11 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixRendering;
-using PixUI.Utils.Layouting;
+using PixUI.Utils.Layout;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView
 {
@@ -207,7 +206,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             float totalTitleHeight = Math.Max(nodeView.Icon.Value.Height + 4, titleArea.Height);
 
             titleArea = titleArea.OffsetBy(horizontalDisplace, 0);
-            titleArea = LayoutingHelper.CenterWithinContainer(titleArea, AABB.FromRectangle(0, 0, titleArea.Width, totalTitleHeight), LayoutDirection.Vertical);
+            titleArea = LayoutHelper.CenterWithinContainer(titleArea, AABB.FromRectangle(0, 0, titleArea.Width, totalTitleHeight), LayoutDirection.Vertical);
 
             return titleArea;
         }

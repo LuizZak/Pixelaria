@@ -27,7 +27,7 @@ using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixCore.Text;
 using PixRendering;
-using PixUI.Utils.Layouting;
+using PixUI.Utils.Layout;
 
 namespace PixUI.Controls
 {
@@ -355,7 +355,7 @@ namespace PixUI.Controls
             var bounds = Bounds.Inset(ImageInset);
 
             bitmapBounds = bitmapBounds.OffsetBy(bounds.Minimum.X, 0);
-            bitmapBounds = LayoutingHelper.CenterWithinContainer(bitmapBounds, bounds, LayoutDirection.Vertical);
+            bitmapBounds = LayoutHelper.CenterWithinContainer(bitmapBounds, bounds, LayoutDirection.Vertical);
 
             return bitmapBounds;
         }

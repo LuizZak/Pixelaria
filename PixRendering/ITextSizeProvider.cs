@@ -34,12 +34,12 @@ namespace PixRendering
         /// <summary>
         /// Calculates the text size for a given pair of string/font
         /// </summary>
-        SizeF CalculateTextSize([NotNull] string text, [NotNull] System.Drawing.Font font);
+        SizeF CalculateTextSize([NotNull] string text, [NotNull] Font font);
 
         /// <summary>
         /// Calculates the text size for a given pair of attributed string/font
         /// </summary>
-        SizeF CalculateTextSize([NotNull] IAttributedText text, [NotNull] System.Drawing.Font font);
+        SizeF CalculateTextSize([NotNull] IAttributedText text, [NotNull] Font font);
 
         /// <summary>
         /// Calculates the text size for a given pair of attributed string/font/font size

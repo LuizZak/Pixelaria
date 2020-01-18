@@ -24,14 +24,14 @@ using System;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 
-namespace PixUI.Utils.Layouting
+namespace PixUI.Utils.Layout
 {
     /// <summary>
-    /// Defines set of common layouting operations.
+    /// Defines set of common layout operations.
     /// 
     /// Mostly used by the Export Pipeline's UI system to aid in controls' content layouts.
     /// </summary>
-    public static class LayoutingHelper
+    public static class LayoutHelper
     {
         /// <summary>
         /// Aligns an AABB such that it sits aligned exactly midway through its container's area
