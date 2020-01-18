@@ -39,7 +39,7 @@ namespace PixelariaTests.Utils
     /// Tests the behavior of the Utils class and related components
     /// </summary>
     [TestClass]
-    public class UtilsTests
+    public class UtilitiesTests
     {
         [TestMethod]
         public void TestDePascalCase()
