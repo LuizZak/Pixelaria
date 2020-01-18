@@ -22,8 +22,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
+using PixPipelineGraph;
 
 namespace Pixelaria.ExportPipeline
 {
@@ -32,29 +32,27 @@ namespace Pixelaria.ExportPipeline
     /// </summary>
     internal class DefaultPipelineConnectionDelegate : IPipelineConnectionDelegate
     {
-        public bool CanConnect(IPipelineInput input, IPipelineOutput output, IPipelineContainer container)
+        public bool CanConnect(IPipelineInput input, IPipelineOutput output, IPipelineGraph graph)
         {
-            var inputNode = input.Node;
-            var outputNode = output.Node;
-            if (inputNode == null || outputNode == null)
-                return false;
+            var inputNode = input.NodeId;
+            var outputNode = output.NodeId;
 
             // Verify connection is not currently present already
             // Avoid links that belong to the same pipeline step
-            if (input.Node == output.Node)
+            if (input.NodeId == output.NodeId)
                 return false;
 
             // Avoid links that are already connected
-            if (container.AreConnected(input, output))
+            if (graph.AreConnected(input.NodeId, output.NodeId))
                 return false;
 
             // Verify connections won't result in a cycle in the node graphs
-            if (IsIndirectlyConnected(inputNode, outputNode, container))
+            if (IsIndirectlyConnected(inputNode, outputNode, graph))
                 return false;
             
             return
-                input.Node != output.Node &&
-                input.DataTypes.Any(type => type.IsAssignableFrom(output.DataType));
+                input.NodeId != output.NodeId &&
+                input.DataType.IsAssignableFrom(output.DataType);
         }
 
         /// <summary>
@@ -67,10 +65,10 @@ namespace Pixelaria.ExportPipeline
         /// A visitor closure that will be called for <see cref="node"/> and all parent nodes.
         /// If this closure returns false, traversal stops earlier.
         /// </param>
-        public void TraverseInputs([NotNull] IPipelineNode node, [NotNull] IPipelineContainer container, Func<IPipelineNode, bool> closure)
+        public void TraverseInputs(PipelineNodeId node, [NotNull] IPipelineGraph container, Func<PipelineNodeId, bool> closure)
         {
-            var visited = new HashSet<IPipelineNode>();
-            var queue = new Queue<IPipelineNode>();
+            var visited = new HashSet<PipelineNodeId>();
+            var queue = new Queue<PipelineNodeId>();
 
             queue.Enqueue(node);
 
@@ -84,16 +82,12 @@ namespace Pixelaria.ExportPipeline
 
                 visited.Add(cur);
 
-                if (!(cur is IPipelineNodeWithInputs n))
-                    continue;
+                var connections = container.ConnectionsFromNode(cur);
 
-                foreach (var input in n.Input)
+                foreach (var connection in connections)
                 {
-                    foreach (var connection in container.ConnectionsFor(input))
-                    {
-                        if (!visited.Contains(connection.Output.Node))
-                            queue.Enqueue(connection.Output.Node);
-                    }
+                    if (!visited.Contains(connection.End.NodeId))
+                        queue.Enqueue(connection.End.NodeId);
                 }
             }
         }
@@ -103,7 +97,7 @@ namespace Pixelaria.ExportPipeline
         /// 
         /// Used to detect cycles before they can be made.
         /// </summary>
-        public bool IsIndirectlyConnected([NotNull] IPipelineNode node, [NotNull] IPipelineNode target, [NotNull] IPipelineContainer container)
+        public bool IsIndirectlyConnected(PipelineNodeId node, PipelineNodeId target, [NotNull] IPipelineGraph container)
         {
             bool connected = false;
 

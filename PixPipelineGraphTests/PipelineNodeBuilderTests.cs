@@ -38,12 +38,12 @@ namespace PixPipelineGraphTests
             // Act
             unitUnderTest.CreateInput("input", builder =>
             {
-                builder.AddInputType(typeof(string));
-                builder.AddInputType(typeof(int));
+                builder.SetInputType(typeof(string));
+                builder.SetInputType(typeof(int));
             });
 
             // Assert
-            Assert.AreEqual(unitUnderTest.Build(CreatePipelineNodeId()).Inputs.Count, 1);
+            Assert.AreEqual(unitUnderTest.Build(CreatePipelineNodeId()).InternalInputs.Count, 1);
         }
 
         [TestMethod]
@@ -56,7 +56,7 @@ namespace PixPipelineGraphTests
             unitUnderTest.CreateOutput("output");
 
             // Assert
-            Assert.AreEqual(unitUnderTest.Build(CreatePipelineNodeId()).Outputs.Count, 1);
+            Assert.AreEqual(unitUnderTest.Build(CreatePipelineNodeId()).InternalOutputs.Count, 1);
         }
 
         #region Instantiation
@@ -69,7 +69,7 @@ namespace PixPipelineGraphTests
 
         private static PipelineNodeBuilder CreatePipelineNodeBuilder()
         {
-            return new PipelineNodeBuilder();
+            return new PipelineNodeBuilder(new MockPipelineNodeProvider(), new PipelineNodeKind("custom"));
         }
 
         #endregion

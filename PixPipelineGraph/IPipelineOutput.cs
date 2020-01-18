@@ -32,6 +32,11 @@ namespace PixPipelineGraph
     public interface IPipelineOutput : IPipelineNodeLink
     {
         /// <summary>
+        /// Gets the output ID for this node
+        /// </summary>
+        PipelineOutput Id { get; }
+
+        /// <summary>
         /// The type of data that is produced by this pipeline output
         /// </summary>
         [NotNull]

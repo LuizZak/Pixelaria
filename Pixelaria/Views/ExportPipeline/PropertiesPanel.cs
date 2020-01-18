@@ -31,6 +31,7 @@ using PixCore.Colors;
 using PixCore.Geometry;
 using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.PipelineNodePanel;
+using PixPipelineGraph;
 using PixUI.Controls;
 using PixUI.Controls.PropertyGrid;
 
@@ -97,6 +98,7 @@ namespace Pixelaria.Views.ExportPipeline
 
         private void PropertiesGridOnInspectablePropertyChanged([NotNull] object sender, [NotNull] InspectablePropertyChangedEventArgs e)
         {
+            /*
             if (typeof(IPipelineNode).IsAssignableFrom(e.InspectableProperty.TargetType))
             {
                 // Find all pipeline nodes affected by the change
@@ -122,6 +124,7 @@ namespace Pixelaria.Views.ExportPipeline
                     _control.PipelineNodeViewSizer.AutoSize(nodeLinkView.NodeView, _control.TextSizeProvider);
                 }
             }
+            */
         }
 
         private void SelectionModelOnOnSelectionChanged(object o, EventArgs eventArgs)

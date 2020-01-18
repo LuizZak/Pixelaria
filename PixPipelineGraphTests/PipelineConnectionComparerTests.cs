@@ -106,7 +106,7 @@ namespace PixPipelineGraphTests
         {
             var id = new PipelineNodeId(nodeId);
 
-            return new InternalPipelineInput(new PipelineNode(id), new PipelineInput(id, index), "input", new Type[0]);
+            return new InternalPipelineInput(new PipelineNode(id), new PipelineInput(id, index), "input", typeof(object));
         }
 
         private static InternalPipelineOutput CreatePipelineOutput(Guid nodeId, int index)

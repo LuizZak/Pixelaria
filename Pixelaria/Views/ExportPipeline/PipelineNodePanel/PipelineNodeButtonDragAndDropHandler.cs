@@ -25,7 +25,6 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using JetBrains.Annotations;
 using PixCore.Geometry;
-using PixDirectX.Rendering;
 using Pixelaria.ExportPipeline;
 using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
@@ -67,20 +66,20 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
 
             private readonly CompositeDisposable _disposeBag = new CompositeDisposable();
             private ButtonControl _buttonControl;
-            private readonly PipelineNodeSpec _nodeSpec;
+            private readonly PipelineNodeDescriptor _nodeDesc;
             [NotNull] 
             private readonly IPipelineNodeButtonDragAndDropHandlerDelegate _delegate;
 
             public Action<Vector?, PipelineNodeDragAndDropAction> MouseUp { private get; set; }
 
             public PipelineNodeButtonDragAndDropHandler([NotNull] ButtonControl buttonControl,
-                [NotNull] PipelineNodeSpec nodeSpec,
+                [NotNull] PipelineNodeDescriptor nodeDesc,
                 [NotNull] IInvalidatableControl invalidatableControl,
                 [NotNull] IRenderManager pipelineRenderManager, 
                 [NotNull] IPipelineNodeButtonDragAndDropHandlerDelegate @delegate)
             {
                 _buttonControl = buttonControl;
-                _nodeSpec = nodeSpec;
+                _nodeDesc = nodeDesc;
                 _invalidatableControl = invalidatableControl;
                 _pipelineRenderManager = pipelineRenderManager;
                 _delegate = @delegate;
@@ -105,7 +104,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
                     return _delegate.ActionForDropPoint(this, screenPoint);
                 }
 
-                var renderListener = new PipelineNodeDragRenderListener(_nodeSpec, _pipelineRenderManager.ImageResources, Matrix2D.Identity);
+                var renderListener = new PipelineNodeDragRenderListener(_nodeDesc, _pipelineRenderManager.ImageResources, Matrix2D.Identity);
 
                 _disposeBag.Add(renderListener);
 
@@ -228,20 +227,21 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
 
                 private readonly PipelineNodeView _nodeView;
 
-                public PipelineNodeDragRenderListener([NotNull] PipelineNodeSpec nodeSpec, [NotNull] IImageResourceProvider imageProvider, Matrix2D transformMatrix)
+                public PipelineNodeDragRenderListener([NotNull] PipelineNodeDescriptor nodeDesc, [NotNull] IImageResourceManager imageProvider, Matrix2D transformMatrix)
                 {
                     TransformMatrix = transformMatrix;
-                    var node = nodeSpec.CreateNode();
-                    _nodeView = PipelineNodeView.Create(node);
-                    _nodeView.Icon = IconForPipelineNode(node, imageProvider);
+                    _nodeView = PipelineNodeView.Create(nodeDesc.CreateView());
+                    _nodeView.Icon = IconForPipelineNodeKind(nodeDesc.NodeKind, imageProvider);
+                    if (nodeDesc.Icon != null)
+                        _nodeView.ManagedIcon = imageProvider.CreateManagedImageResource(nodeDesc.Icon);
 
-                    var nodeViewSizer = new DefaultPipelineNodeViewSizer();
-                    nodeViewSizer.AutoSize(_nodeView, LabelView.defaultTextSizeProvider);
+                    var nodeViewSizer = new DefaultPipelineNodeViewLayout();
+                    nodeViewSizer.Layout(_nodeView, LabelView.defaultTextSizeProvider);
                 }
 
                 public void Dispose()
                 {
-
+                    _nodeView.ManagedIcon?.Dispose();
                 }
 
                 public void RecreateState(IRenderLoopState state)

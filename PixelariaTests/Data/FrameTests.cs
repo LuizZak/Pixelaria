@@ -176,7 +176,7 @@ namespace PixelariaTests.Data
                 0x54, 0xBB, 0x1B, 0xFF, 0x74, 0x84, 0xDB, 0x3E, 0x23, 0x56, 0x8A, 0xB2, 0xB3, 0x8D, 0x18
             };
 
-            var currentHash = UtilsTests.GetHashForBitmap(target);
+            var currentHash = UtilitiesTests.GetHashForBitmap(target);
 
             RegisterResultBitmap(target, "FrameCompositing");
 
@@ -201,7 +201,7 @@ namespace PixelariaTests.Data
             bitmap.Save(file + ".png", ImageFormat.Png);
 
             // Also save a .txt file containing the hash
-            var hashBytes = UtilsTests.GetHashForBitmap(bitmap);
+            var hashBytes = UtilitiesTests.GetHashForBitmap(bitmap);
             var hashString = "";
             hashBytes.ToList().ForEach(b => hashString += (hashString.Length == 0 ? "" : ",") + "0x" + b.ToString("X2"));
             File.WriteAllText(file + ".txt", hashString);

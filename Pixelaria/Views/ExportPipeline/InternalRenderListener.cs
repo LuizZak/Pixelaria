@@ -25,7 +25,6 @@ using System.Drawing;
 using System.Linq;
 using JetBrains.Annotations;
 using PixCore.Geometry;
-using PixDirectX.Rendering;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using PixRendering;
 using PixUI;

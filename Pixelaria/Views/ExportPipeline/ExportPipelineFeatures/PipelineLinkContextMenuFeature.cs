@@ -72,7 +72,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
         public void ConfigureContextMenu([NotNull] ContextMenuStrip menu, [NotNull] PipelineNodeLinkView linkView)
         {
-            menu.Items.Add(linkView.NodeLink.Name).Enabled = false;
+            menu.Items.Add(linkView.Title).Enabled = false;
             menu.Items.Add("-");
 
             var decorator = new ConnectionHighlightDecorator
@@ -101,7 +101,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 {
                     var link = connection.Start.Equals(linkView) ? connection.End : connection.Start;
 
-                    string name = $"{link.NodeView.Name} - {link.NodeLink.Name}";
+                    string name = $"{link.NodeView.Name} - {link.Title}";
                     var item = connectionsMenu.DropDownItems.Add(name);
 
                     item.MouseEnter += (sender, args) =>

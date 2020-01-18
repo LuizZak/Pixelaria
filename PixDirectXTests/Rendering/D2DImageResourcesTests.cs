@@ -22,7 +22,6 @@
 
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PixDirectX.Rendering;
 using PixDirectX.Rendering.DirectX;
 using PixRendering;
 using SharpDX.Direct2D1;
@@ -40,132 +39,6 @@ namespace PixDirectXTests.Rendering
         private WicBitmap _bitmap;
         private Direct2DWicBitmapRenderManager _renderer;
         private Factory _factory;
-
-        [TestMethod]
-        public void TestAddImageResource()
-        {
-            var bitmap = new Bitmap(4, 4);
-            var sut = new ImageResources();
-
-            sut.AddImageResource(_renderer.RenderingState, bitmap, "test");
-
-            Assert.IsNotNull(sut.BitmapForResource("test"));
-        }
-
-        [TestMethod]
-        public void TestAddImageResourceReturn()
-        {
-            var bitmap = new Bitmap(4, 8);
-            var sut = new ImageResources();
-
-            var resource = sut.AddImageResource(_renderer.RenderingState, bitmap, "test");
-
-            Assert.AreEqual("test", resource.ResourceName);
-            Assert.AreEqual(4, resource.Size.Width);
-            Assert.AreEqual(8, resource.Size.Height);
-        }
-        
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void TestAddImageResourceDuplicatedResourceNameException()
-        {
-            var bitmap = new Bitmap(4, 4);
-            var sut = new ImageResources();
-            sut.AddImageResource(_renderer.RenderingState, bitmap, "test");
-
-            // Bang!
-            sut.AddImageResource(_renderer.RenderingState, bitmap, "test");
-        }
-
-        [TestMethod]
-        public void TestGetImageResource()
-        {
-            var bitmap = new Bitmap(4, 8);
-            var sut = new ImageResources();
-            sut.AddImageResource(_renderer.RenderingState, bitmap, "test");
-
-            var resource = sut.GetImageResource("test");
-
-            Assert.IsNotNull(resource);
-            Assert.AreEqual("test", resource.Value.ResourceName);
-            Assert.AreEqual(4, resource.Value.Size.Width);
-            Assert.AreEqual(8, resource.Value.Size.Height);
-        }
-
-        [TestMethod]
-        public void TestGetImageResourceWithNonExistantImage()
-        {
-            var sut = new ImageResources();
-
-            var resource = sut.GetImageResource("test");
-
-            Assert.IsNull(resource);
-        }
-
-        [TestMethod]
-        public void TestRemoveAllImageResources()
-        {
-            var bitmap = new Bitmap(4, 8);
-            var sut = new ImageResources();
-            sut.AddImageResource(_renderer.RenderingState, bitmap, "test 1");
-            sut.AddImageResource(_renderer.RenderingState, bitmap, "test 2");
-
-            sut.RemoveAllImageResources();
-
-            Assert.IsNull(sut.GetImageResource("test 1"));
-            Assert.IsNull(sut.GetImageResource("test 2"));
-        }
-
-        [TestMethod]
-        public void TestRemoveImageResource()
-        {
-            var bitmap = new Bitmap(4, 8);
-            var sut = new ImageResources();
-            sut.AddImageResource(_renderer.RenderingState, bitmap, "test 1");
-            sut.AddImageResource(_renderer.RenderingState, bitmap, "test 2");
-
-            sut.RemoveImageResource("test 1");
-
-            Assert.IsNull(sut.GetImageResource("test 1"));
-            Assert.IsNotNull(sut.GetImageResource("test 2"));
-        }
-
-        [TestMethod]
-        public void TestBitmapForResourceImageResource()
-        {
-            var bitmap = new Bitmap(4, 8);
-            var sut = new ImageResources();
-            var resource = sut.AddImageResource(_renderer.RenderingState, bitmap, "test 1");
-            
-            Assert.IsNotNull(sut.BitmapForResource(resource));
-            Assert.IsNull(sut.BitmapForResource(new ImageResource("non-existant", 0, 0)));
-        }
-
-        [TestMethod]
-        public void TestBitmapForResourceString()
-        {
-            var bitmap = new Bitmap(4, 8);
-            var sut = new ImageResources();
-            sut.AddImageResource(_renderer.RenderingState, bitmap, "test 1");
-            
-            Assert.IsNotNull(sut.BitmapForResource("test 1"));
-            Assert.IsNull(sut.BitmapForResource("non-existant"));
-        }
-
-        [TestMethod]
-        public void TestDispose()
-        {
-            var bitmap = new Bitmap(4, 8);
-            var sut = new ImageResources();
-            sut.AddImageResource(_renderer.RenderingState, bitmap, "test 1");
-            var d2DBitmap = sut.BitmapForResource("test 1");
-
-            sut.Dispose();
-            
-            Assert.IsNotNull(d2DBitmap);
-            Assert.IsTrue(d2DBitmap.IsDisposed);
-            Assert.IsNull(sut.BitmapForResource("test 1"));
-        }
 
         [TestInitialize]
         public void TestInitialize()
@@ -189,6 +62,137 @@ namespace PixDirectXTests.Rendering
             _renderer.Dispose();
             _bitmap.Dispose();
             _factory.Dispose();
+        }
+
+        private ImageResources CreateSut()
+        {
+            return new ImageResources(new StaticDirect2DRenderingStateProvider((IDirect2DRenderingState) _renderer.RenderingState));
+        }
+
+        [TestMethod]
+        public void TestAddImageResource()
+        {
+            var bitmap = new Bitmap(4, 4);
+            var sut = CreateSut();
+
+            sut.AddImageResource(_renderer.RenderingState, bitmap, "test");
+
+            Assert.IsNotNull(sut.BitmapForResource("test"));
+        }
+
+        [TestMethod]
+        public void TestAddImageResourceReturn()
+        {
+            var bitmap = new Bitmap(4, 8);
+            var sut = CreateSut();
+
+            var resource = sut.AddImageResource(_renderer.RenderingState, bitmap, "test");
+
+            Assert.AreEqual("test", resource.ResourceName);
+            Assert.AreEqual(4, resource.Size.Width);
+            Assert.AreEqual(8, resource.Size.Height);
+        }
+        
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void TestAddImageResourceDuplicatedResourceNameException()
+        {
+            var bitmap = new Bitmap(4, 4);
+            var sut = CreateSut();
+            sut.AddImageResource(_renderer.RenderingState, bitmap, "test");
+
+            // Bang!
+            sut.AddImageResource(_renderer.RenderingState, bitmap, "test");
+        }
+
+        [TestMethod]
+        public void TestGetImageResource()
+        {
+            var bitmap = new Bitmap(4, 8);
+            var sut = CreateSut();
+            sut.AddImageResource(_renderer.RenderingState, bitmap, "test");
+
+            var resource = sut.GetImageResource("test");
+
+            Assert.IsNotNull(resource);
+            Assert.AreEqual("test", resource.Value.ResourceName);
+            Assert.AreEqual(4, resource.Value.Size.Width);
+            Assert.AreEqual(8, resource.Value.Size.Height);
+        }
+
+        [TestMethod]
+        public void TestGetImageResourceWithNonExistentImage()
+        {
+            var sut = CreateSut();
+
+            var resource = sut.GetImageResource("test");
+
+            Assert.IsNull(resource);
+        }
+
+        [TestMethod]
+        public void TestRemoveAllImageResources()
+        {
+            var bitmap = new Bitmap(4, 8);
+            var sut = CreateSut();
+            sut.AddImageResource(_renderer.RenderingState, bitmap, "test 1");
+            sut.AddImageResource(_renderer.RenderingState, bitmap, "test 2");
+
+            sut.RemoveAllImageResources();
+
+            Assert.IsNull(sut.GetImageResource("test 1"));
+            Assert.IsNull(sut.GetImageResource("test 2"));
+        }
+
+        [TestMethod]
+        public void TestRemoveImageResource()
+        {
+            var bitmap = new Bitmap(4, 8);
+            var sut = CreateSut();
+            sut.AddImageResource(_renderer.RenderingState, bitmap, "test 1");
+            sut.AddImageResource(_renderer.RenderingState, bitmap, "test 2");
+
+            sut.RemoveImageResource("test 1");
+
+            Assert.IsNull(sut.GetImageResource("test 1"));
+            Assert.IsNotNull(sut.GetImageResource("test 2"));
+        }
+
+        [TestMethod]
+        public void TestBitmapForResourceImageResource()
+        {
+            var bitmap = new Bitmap(4, 8);
+            var sut = CreateSut();
+            var resource = sut.AddImageResource(_renderer.RenderingState, bitmap, "test 1");
+            
+            Assert.IsNotNull(sut.BitmapForResource(resource));
+            Assert.IsNull(sut.BitmapForResource(new ImageResource("non-existent", 0, 0)));
+        }
+
+        [TestMethod]
+        public void TestBitmapForResourceString()
+        {
+            var bitmap = new Bitmap(4, 8);
+            var sut = CreateSut();
+            sut.AddImageResource(_renderer.RenderingState, bitmap, "test 1");
+            
+            Assert.IsNotNull(sut.BitmapForResource("test 1"));
+            Assert.IsNull(sut.BitmapForResource("non-existent"));
+        }
+
+        [TestMethod]
+        public void TestDispose()
+        {
+            var bitmap = new Bitmap(4, 8);
+            var sut = CreateSut();
+            sut.AddImageResource(_renderer.RenderingState, bitmap, "test 1");
+            var d2DBitmap = sut.BitmapForResource("test 1");
+
+            sut.Dispose();
+            
+            Assert.IsNotNull(d2DBitmap);
+            Assert.IsTrue(d2DBitmap.IsDisposed);
+            Assert.IsNull(sut.BitmapForResource("test 1"));
         }
     }
 }

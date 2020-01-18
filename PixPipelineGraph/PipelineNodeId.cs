@@ -29,7 +29,7 @@ namespace PixPipelineGraph
     /// <summary>
     /// Represents a unique identifier for a <see cref="T:PixPipelineGraph.PipelineNode" /> on a graph.
     /// </summary>
-    [DebuggerDisplay("{Id}")]
+    [DebuggerDisplay("{" + nameof(Id) + "}")]
     public readonly struct PipelineNodeId : IEquatable<PipelineNodeId>
     {
         public Guid Id { get; }

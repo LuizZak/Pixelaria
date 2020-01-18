@@ -20,14 +20,31 @@
     base directory of this project.
 */
 
+using System;
+using JetBrains.Annotations;
+
 namespace PixPipelineGraph
 {
     /// <summary>
     /// Describes a connection between a pipeline input and output
     /// </summary>
-    public interface IPipelineConnection
+    public interface IPipelineConnection: IEquatable<IPipelineConnection>
     {
         PipelineOutput Start { get; }
         PipelineInput End { get; }
+
+        /// <summary>
+        /// Gets a value specifying whether this connection is active.
+        ///
+        /// Calling <see cref="PipelineGraph.Disconnect(IPipelineConnection)"/> with this connection while this value is
+        /// <c>false</c> will result in a no-op.
+        /// </summary>
+        bool Connected { get; }
+
+        /// <summary>
+        /// Gets specific metadata for this pipeline connection
+        /// </summary>
+        [CanBeNull]
+        IPipelineMetadata GetMetadata();
     }
 }

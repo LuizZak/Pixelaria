@@ -22,12 +22,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using FastBitmapLib;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PixCore.Geometry;
-using PixDirectX.Rendering;
 using PixDirectX.Rendering.DirectX;
 using PixRendering;
 using PixSnapshot;
@@ -37,8 +34,6 @@ using PixUI.Rendering;
 using PixUI.Visitor;
 using SharpDX.WIC;
 using Bitmap = System.Drawing.Bitmap;
-using Point = System.Drawing.Point;
-using Rectangle = System.Drawing.Rectangle;
 
 namespace PixUITests.TestUtils
 {
@@ -76,6 +71,70 @@ namespace PixUITests.TestUtils
                 suffix,
                 tolerance ?? Tolerance);
         }
+
+        // TODO: Collapse this implementation with GenerateBitmap bellow
+        public static void SnapshotTest([NotNull] BaseView baseView, [NotNull] TestContext context, [NotNull] Action<IImageResourceManager> testSetup, string suffix = "", float? tolerance = null, bool? recordMode = null)
+        {
+            // Create a temporary Direct3D rendering context and render the view on it
+            const BitmapCreateCacheOption bitmapCreateCacheOption = BitmapCreateCacheOption.CacheOnDemand;
+            var pixelFormat = PixelFormat.Format32bppPBGRA;
+
+            int width = (int)Math.Round(baseView.Width);
+            int height = (int)Math.Round(baseView.Height);
+
+            using (var imgFactory = new ImagingFactory())
+            using (var wicBitmap = new SharpDX.WIC.Bitmap(imgFactory, width, height, pixelFormat, bitmapCreateCacheOption))
+            using (var factory = new SharpDX.Direct2D1.Factory())
+            using (var renderLoop = new Direct2DWicBitmapRenderManager(wicBitmap, factory))
+            using (var renderer = new TestDirect2DRenderManager())
+            {
+                ControlView.TextLayoutRenderer = renderer;
+
+                var last = LabelView.defaultTextSizeProvider;
+                LabelView.defaultTextSizeProvider = renderer.TextSizeProvider;
+
+                renderLoop.Initialize();
+                renderer.Initialize(renderLoop.D2DRenderState, new FullClippingRegion());
+
+                renderLoop.RenderSingleFrame(state =>
+                {
+                    testSetup(renderer.ImageResources);
+
+                    var visitor = new ViewRenderingVisitor();
+
+                    var renderContext = new ControlRenderingContext(
+                        new WrappedDirect2DRenderer((IDirect2DRenderingState)state, (ImageResources)renderer.ImageResources), state, renderer.ClippingRegion,
+                        renderer.TextMetricsProvider, renderer.ImageResources, renderer);
+                    var traverser = new BaseViewTraverser<ControlRenderingContext>(renderContext, visitor);
+
+                    traverser.Visit(baseView);
+                });
+
+                LabelView.defaultTextSizeProvider = last;
+
+                var bitmap = new Bitmap(wicBitmap.Size.Width, wicBitmap.Size.Height,
+                    System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+                using (var wicBitmapLock = wicBitmap.Lock(BitmapLockFlags.Read))
+                using (var bitmapLock = bitmap.FastLock())
+                {
+                    unchecked
+                    {
+                        const int bytesPerPixel = 4; // ARGB
+                        ulong length = (ulong)(wicBitmap.Size.Width * wicBitmap.Size.Height * bytesPerPixel);
+                        FastBitmap.memcpy(bitmapLock.Scan0, wicBitmapLock.Data.DataPointer, length);
+                    }
+                }
+
+                BitmapSnapshotTesting.Snapshot<BitmapSnapshot, Bitmap>(
+                    bitmap,
+                    new MsTestAdapter(typeof(BaseViewSnapshot)),
+                    new MsTestContextAdapter(context),
+                    recordMode ?? RecordMode,
+                    suffix,
+                    tolerance ?? Tolerance);
+            }
+        }
         
         public Bitmap GenerateBitmap(BaseViewSnapshotTest test)
         {
@@ -103,7 +162,7 @@ namespace PixUITests.TestUtils
 
                 test.Resources?.Register(renderLoop.D2DRenderState, renderer.ImageResources);
 
-                renderer.Initialize(renderLoop.D2DRenderState, new FullClipping());
+                renderer.Initialize(renderLoop.D2DRenderState, new FullClippingRegion());
 
                 renderLoop.RenderSingleFrame(state =>
                 {
@@ -134,44 +193,6 @@ namespace PixUITests.TestUtils
                 }
 
                 return bitmap;
-            }
-        }
-        
-        private class FullClipping : IClippingRegion
-        {
-            public RectangleF[] RedrawRegionRectangles(Size size)
-            {
-                return new[] { new RectangleF(PointF.Empty, size) };
-            }
-
-            public bool IsVisibleInClippingRegion(Rectangle rectangle)
-            {
-                return true;
-            }
-
-            public bool IsVisibleInClippingRegion(Point point)
-            {
-                return true;
-            }
-
-            public bool IsVisibleInClippingRegion(AABB aabb)
-            {
-                return true;
-            }
-
-            public bool IsVisibleInClippingRegion(Vector point)
-            {
-                return true;
-            }
-
-            public bool IsVisibleInClippingRegion(AABB aabb, ISpatialReference reference)
-            {
-                return true;
-            }
-
-            public bool IsVisibleInClippingRegion(Vector point, ISpatialReference reference)
-            {
-                return true;
             }
         }
     }

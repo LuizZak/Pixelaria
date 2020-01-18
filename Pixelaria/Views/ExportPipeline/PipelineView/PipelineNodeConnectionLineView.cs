@@ -23,8 +23,7 @@
 using System;
 using System.Drawing;
 using PixCore.Geometry;
-using Pixelaria.ExportPipeline;
-
+using PixPipelineGraph;
 using PixUI;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView
@@ -36,9 +35,9 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
     {
         public PipelineNodeLinkView Start { get; private set; }
         public PipelineNodeLinkView End { get; private set; }
-        public IPipelineLinkConnection Connection { get; private set; }
+        public IPipelineConnection Connection { get; private set; }
 
-        public static PipelineNodeConnectionLineView Create(PipelineNodeLinkView start, PipelineNodeLinkView end, IPipelineLinkConnection connection)
+        public static PipelineNodeConnectionLineView Create(PipelineNodeLinkView start, PipelineNodeLinkView end, IPipelineConnection connection)
         {
             var instance = new PipelineNodeConnectionLineView();
 
@@ -73,8 +72,8 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             var center1 = Start.ConvertTo(Start.Bounds.Center, this);
             var center2 = End.ConvertTo(End.Bounds.Center, this);
 
-            bool startToRight = Start.NodeLink is IPipelineOutput;
-            bool endToRight = End.NodeLink is IPipelineOutput;
+            bool startToRight = Start is PipelineNodeOutputLinkView;
+            bool endToRight = End is PipelineNodeOutputLinkView;
 
             float maxSep = Math.Min(75, Math.Abs(center1.Distance(center2)));
 

@@ -221,7 +221,7 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
 
         /*
         [TestMethod]
-        public void TestCreateEntagledGraph()
+        public void TestCreateEntangledGraph()
         {
             // Creates a graph that looks kinda line this:
             //

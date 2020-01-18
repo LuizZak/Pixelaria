@@ -26,9 +26,8 @@ using System.Windows.Forms;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixCore.Text;
-using PixDirectX.Rendering;
 using PixRendering;
-using PixUI.Utils.Layouting;
+using PixUI.Utils.Layout;
 
 namespace PixUI.Controls
 {
@@ -320,16 +319,24 @@ namespace PixUI.Controls
         private AABB BoundsForText()
         {
             var bounds = Bounds.Inset(TextInset);
+            var imageBounds = BoundsForImage();
 
-            if (!Image.HasValue)
+            if (imageBounds.Validity != AABB.State.Valid)
                 return bounds;
 
-            var image = Image.Value;
-            var imgBounds = BoundsForImage(image);
-
-            bounds = bounds.Inset(new InsetBounds(imgBounds.Right, 0, 0, 0));
+            bounds = bounds.Inset(new InsetBounds(imageBounds.Right, 0, 0, 0));
 
             return bounds;
+        }
+
+        private AABB BoundsForImage()
+        {
+            if (ManagedImage != null)
+                return BoundsForImage(ManagedImage);
+            if (Image.HasValue)
+                return BoundsForImage(Image.Value);
+
+            return AABB.Invalid;
         }
 
         private AABB BoundsForImage(ImageResource image)
@@ -348,7 +355,7 @@ namespace PixUI.Controls
             var bounds = Bounds.Inset(ImageInset);
 
             bitmapBounds = bitmapBounds.OffsetBy(bounds.Minimum.X, 0);
-            bitmapBounds = LayoutingHelper.CenterWithinContainer(bitmapBounds, bounds, LayoutDirection.Vertical);
+            bitmapBounds = LayoutHelper.CenterWithinContainer(bitmapBounds, bounds, LayoutDirection.Vertical);
 
             return bitmapBounds;
         }

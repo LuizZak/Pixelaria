@@ -30,8 +30,8 @@ using PixCore.Colors;
 using PixCore.Geometry;
 using PixUI;
 
-using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.PipelineView;
+using PixPipelineGraph;
 
 namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 {
@@ -387,12 +387,11 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 }
             }
 
-            private void UpdateLinkPreview([NotNull] PipelineNodeLinkView linkView, Vector mousePosition,
-                [NotNull] BezierPathView pathView)
+            private void UpdateLinkPreview([NotNull] PipelineNodeLinkView linkView, Vector mousePosition, [NotNull] BezierPathView pathView)
             {
                 pathView.ClearPath();
 
-                bool toRight = linkView.NodeLink is IPipelineOutput;
+                bool toRight = linkView is PipelineNodeOutputLinkView;
 
                 var pt1 = linkView.ConvertTo(linkView.Bounds.Center, _container.ContentsView);
                 var pt4 = _container.ContentsView.ConvertFrom(mousePosition, null);
@@ -408,8 +407,8 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 pathView.ClearPath();
                 connectView.ClearPath();
 
-                bool isStartToRight = linkView.NodeLink is IPipelineOutput;
-                bool isEndToRight = targetLinkView.NodeLink is IPipelineOutput;
+                bool isStartToRight = linkView is PipelineNodeOutputLinkView;
+                bool isEndToRight = targetLinkView is PipelineNodeOutputLinkView;
 
                 var pt1 = linkView.ConvertTo(linkView.Bounds.Center, _container.ContentsView);
                 var pt4 = targetLinkView.ConvertTo(targetLinkView.Bounds.Center, _container.ContentsView);
@@ -421,18 +420,15 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 connectView.AddRectangle(connectView.ConvertFrom(targetLinkView.Bounds, targetLinkView).Inflated(3, 3));
                 connectView.AddRectangle(connectView.ConvertFrom(targetLinkView.NodeView.GetTitleArea(), targetLinkView.NodeView).Inflated(3, 3));
 
-                if (targetLinkView.NodeLink.Node != null)
-                {
-                    labelView.Text = targetLinkView.NodeLink.Name;
+                labelView.Text = targetLinkView.Title;
 
-                    float xOffset = isEndToRight
-                        ? targetLinkView.Bounds.Width / 2 + 5
-                        : -targetLinkView.Bounds.Width / 2 - labelView.Bounds.Width - 5;
+                float xOffset = isEndToRight
+                    ? targetLinkView.Bounds.Width / 2 + 5
+                    : -targetLinkView.Bounds.Width / 2 - labelView.Bounds.Width - 5;
 
-                    labelView.Location =
-                        _container.ContentsView.ConvertFrom(targetLinkView.Bounds.Center, targetLinkView) +
-                        new Vector(xOffset, -labelView.Bounds.Height / 2);
-                }
+                labelView.Location =
+                    _container.ContentsView.ConvertFrom(targetLinkView.Bounds.Center, targetLinkView) +
+                    new Vector(xOffset, -labelView.Bounds.Height / 2);
             }
 
             /// <summary>
@@ -488,26 +484,27 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                     if (target == null)
                         continue;
 
-                    IPipelineInput start;
-                    IPipelineOutput end;
+                    PipelineInput? start;
+                    PipelineOutput? end;
 
                     // Figure out direction of connection
-                    if (linkView.NodeLink is IPipelineInput input && target.NodeLink is IPipelineOutput output)
+                    if (linkView is PipelineNodeInputLinkView input && target is PipelineNodeOutputLinkView output)
                     {
-                        start = input;
-                        end = output;
+                        start = input.InputId;
+                        end = output.OutputId;
                     }
-                    else if (linkView.NodeLink is IPipelineOutput pipelineOutput && target.NodeLink is IPipelineInput pipelineInput)
+                    else if (linkView is PipelineNodeOutputLinkView pipelineOutput && target is PipelineNodeInputLinkView pipelineInput)
                     {
-                        start = pipelineInput;
-                        end = pipelineOutput;
+                        start = pipelineInput.InputId;
+                        end = pipelineOutput.OutputId;
                     }
                     else
                     {
                         continue;
                     }
 
-                    _container.AddConnection(start, end);
+                    if (start.HasValue && end.HasValue)
+                        _container.AddConnection(start.Value, end.Value);
                 }
             }
 

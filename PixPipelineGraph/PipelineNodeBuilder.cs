@@ -28,13 +28,52 @@ namespace PixPipelineGraph
     /// <summary>
     /// Provides an interface to create pipeline nodes with.
     /// </summary>
-    public class PipelineNodeBuilder
+    public class PipelineNodeBuilder: IMetadataObjectBuilder
     {
+        private readonly PipelineNodeKind _nodeKind;
+        private readonly IPipelineGraphNodeProvider _nodeProvider;
         private readonly PipelineBuildStepCollection<PipelineNode> _stepCollection = new PipelineBuildStepCollection<PipelineNode>();
 
-        internal PipelineNodeBuilder()
+        internal PipelineNodeBuilder(IPipelineGraphNodeProvider nodeProvider, PipelineNodeKind nodeKind)
         {
-            
+            _nodeProvider = nodeProvider;
+            _nodeKind = nodeKind;
+        }
+
+        internal void SetKind(PipelineNodeKind nodeKind)
+        {
+            _stepCollection.AddClosureBuilderStep(node => node.NodeKind = nodeKind);
+        }
+
+        public void SetTitle(string title)
+        {
+            _stepCollection.AddClosureBuilderStep(node => node.Title = title);
+        }
+
+        /// <summary>
+        /// Sets a body for a given body ID
+        /// </summary>
+        public void SetBody(PipelineBodyId bodyId)
+        {
+            _stepCollection.AddClosureBuilderStep(node =>
+            {
+                var body = _nodeProvider.GetBody(bodyId);
+                if(body == null)
+                    throw new ArgumentException($"No pipeline body node found for body ID {bodyId}", nameof(bodyId));
+
+                node.Body = body;
+            });
+        }
+
+        /// <summary>
+        /// Sets a given pipeline body as the body accepted by the node.
+        /// </summary>
+        public void SetBody(PipelineBody body)
+        {
+            _stepCollection.AddClosureBuilderStep(node =>
+            {
+                node.Body = body;
+            });
         }
 
         public IPipelineLazyValue<PipelineInput> CreateInput([NotNull] string name, Action<PipelineInputBuilder> closure = null)
@@ -49,12 +88,17 @@ namespace PixPipelineGraph
 
                 var input = builder.Build(node, node.NextAvailableInputId(), name);
 
-                node.Inputs.Add(input);
+                node.InternalInputs.Add(input);
 
                 lazyInput.SetLazyValue(input.Id);
             });
 
             return lazyInput;
+        }
+
+        public IPipelineLazyValue<PipelineInput> CreateInput([NotNull] string name, Type type)
+        {
+            return CreateInput(name, builder => { builder.SetInputType(type); });
         }
 
         public IPipelineLazyValue<PipelineOutput> CreateOutput([NotNull] string name, Action<PipelineOutputBuilder> closure = null)
@@ -69,7 +113,7 @@ namespace PixPipelineGraph
 
                 var output = builder.Build(node, node.NextAvailableOutputId(), name);
 
-                node.Outputs.Add(output);
+                node.InternalOutputs.Add(output);
 
                 lazyOutput.SetLazyValue(output.Id);
             });
@@ -77,13 +121,40 @@ namespace PixPipelineGraph
             return lazyOutput;
         }
 
+        public IPipelineLazyValue<PipelineOutput> CreateOutput([NotNull] string name, Type type)
+        {
+            return CreateOutput(name, builder => { builder.SetOutputType(type); });
+        }
+
+        /// <summary>
+        /// Adds an entry for a metadata value for the created node.
+        /// </summary>
+        public void AddMetadataEntry(string key, object value)
+        {
+            _stepCollection.AddClosureBuilderStep(node =>
+            {
+                node.PipelineMetadata.SetValue(key, value);
+            });
+        }
+
         internal PipelineNode Build(PipelineNodeId id)
         {
-            var node = new PipelineNode(id);
+            var node = new PipelineNode(id)
+            {
+                NodeKind = _nodeKind
+            };
 
             _stepCollection.Apply(node);
 
             return node;
         }
+    }
+
+    public interface IMetadataObjectBuilder
+    {
+        /// <summary>
+        /// Adds an entry for a metadata value for the created node.
+        /// </summary>
+        void AddMetadataEntry(string key, object value);
     }
 }

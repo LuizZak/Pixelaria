@@ -32,22 +32,22 @@ namespace PixPipelineGraph
         /// <summary>
         /// The node this pipeline input is attached to
         /// </summary>
-        public PipelineNodeId PipelineNodeId { get; }
+        public PipelineNodeId NodeId { get; }
 
         /// <summary>
         /// The index from the list of node inputs this input id represents
         /// </summary>
         public int Index { get; }
 
-        internal PipelineInput(PipelineNodeId pipelineNodeId, int index)
+        public PipelineInput(PipelineNodeId nodeId, int index)
         {
             Index = index;
-            PipelineNodeId = pipelineNodeId;
+            NodeId = nodeId;
         }
 
         public bool Equals(PipelineInput other)
         {
-            return PipelineNodeId.Equals(other.PipelineNodeId) && Index == other.Index;
+            return NodeId.Equals(other.NodeId) && Index == other.Index;
         }
 
         public override bool Equals(object obj)
@@ -59,7 +59,7 @@ namespace PixPipelineGraph
         {
             unchecked
             {
-                return (PipelineNodeId.GetHashCode() * 397) ^ Index;
+                return (NodeId.GetHashCode() * 397) ^ Index;
             }
         }
 

@@ -23,10 +23,8 @@
 using System.Drawing;
 using System.Windows.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PixDirectX.Rendering;
 using PixDirectX.Rendering.DirectX;
 using Pixelaria.DXSupport;
-using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 using Pixelaria.Views.ExportPipeline.PipelineNodePanel;
@@ -70,10 +68,13 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineNodePanel
             _sut = new ExportPipelineNodesPanelManager(_container, renderManager, new TestInvalidateTarget(), _control.PipelineContainer, new PipelineNodeBitmapGenerator(_control));
             _sut.RegisterResizeEvent(_control);
 
-            var provider = new DefaultPipelineNodeSpecsProvider();
-            _sut.LoadCreatablePipelineNodes(provider.GetNodeSpecs());
-
             BaseViewSnapshot.ImagesConfig = PipelineControlConfigurator.RegisterIcons;
+        }
+
+        [TestCleanup]
+        public void TestCleanup()
+        {
+            BaseViewSnapshot.ImagesConfig = null;
         }
 
         [TestMethod]

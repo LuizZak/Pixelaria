@@ -25,10 +25,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using JetBrains.Annotations;
 using PixCore.Geometry;
-using PixDirectX.Rendering;
-using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 using Pixelaria.Views.ExportPipeline.PipelineView;
+using PixPipelineGraph;
 using PixRendering;
 using PixUI;
 using PixUI.Animation;
@@ -78,7 +77,7 @@ namespace Pixelaria.Views.ExportPipeline
         /// <summary>
         /// Gets or sets the sizer to apply to pipeline node views.
         /// </summary>
-        IPipelineNodeViewSizer PipelineNodeViewSizer { get; }
+        IPipelineNodeViewLayout PipelineNodeViewLayout { get; }
 
         /// <summary>
         /// Gets the animations manager that can be used to create animations.
@@ -138,6 +137,11 @@ namespace Pixelaria.Views.ExportPipeline
     internal interface IPipelineContainer
     {
         /// <summary>
+        /// Gets the pipeline graph for this container
+        /// </summary>
+        PipelineGraph PipelineGraph { get; }
+
+        /// <summary>
         /// Gets an array of all currently selected objects.
         /// </summary>
         [NotNull, ItemNotNull]
@@ -181,7 +185,7 @@ namespace Pixelaria.Views.ExportPipeline
         /// <summary>
         /// Gets an array of all nodes from this container
         /// </summary>
-        IPipelineNode[] Nodes { get; }
+        PipelineNodeId[] Nodes { get; }
 
         /// <summary>
         /// Called when a node has been added to this container
@@ -213,17 +217,12 @@ namespace Pixelaria.Views.ExportPipeline
         /// <summary>
         /// Selects a given pipeline node.
         /// </summary>
-        void SelectNode([NotNull] IPipelineNode node);
-
-        /// <summary>
-        /// Selects a given pipeline link.
-        /// </summary>
-        void SelectLink([NotNull] IPipelineNodeLink link);
+        void SelectNode(PipelineNodeId node);
 
         /// <summary>
         /// Selects a given pipeline connection.
         /// </summary>
-        void SelectConnection([NotNull] IPipelineLinkConnection link);
+        void SelectConnection([NotNull] IPipelineConnection link);
 
         /// <summary>
         /// De-selects all pipeline nodes.
@@ -257,7 +256,7 @@ namespace Pixelaria.Views.ExportPipeline
         /// <summary>
         /// Adds a connection to the first input/output that match on two pipeline nodes
         /// </summary>
-        void AddConnection([NotNull] IPipelineStep start, [NotNull] IPipelineNode end);
+        void AddConnection(PipelineNodeId start, PipelineNodeId end);
 
         /// <summary>
         /// Adds a connection between the two given pipeline links.
@@ -266,9 +265,15 @@ namespace Pixelaria.Views.ExportPipeline
         void AddConnection([NotNull] IPipelineInput input, [NotNull] IPipelineOutput output);
 
         /// <summary>
+        /// Adds a connection between the two given pipeline links.
+        /// The connection is not made if input.CanConnect(output) returns false.
+        /// </summary>
+        void AddConnection(PipelineInput input, PipelineOutput output);
+
+        /// <summary>
         /// Removes a connection from the container's model
         /// </summary>
-        void RemoveConnection([NotNull] IPipelineLinkConnection connection);
+        void RemoveConnection([NotNull] IPipelineConnection connection);
 
         /// <summary>
         /// Invalidates all connection line views connected to a given pipeline step
@@ -306,22 +311,28 @@ namespace Pixelaria.Views.ExportPipeline
         IEnumerable<PipelineNodeLinkView> GetLinksConnectedTo([NotNull] PipelineNodeLinkView source);
 
         /// <summary>
-        /// Retrieves the view that represents the given pipeline node within this container
+        /// Retrieves the view that represents the given pipeline node ID within this container
         /// </summary>
         [CanBeNull]
-        PipelineNodeView ViewForPipelineNode([NotNull] IPipelineNode node);
+        PipelineNodeView ViewForPipelineNode(PipelineNodeId nodeId);
 
         /// <summary>
-        /// Retrieves the view that represents the given pipeline node within this container
+        /// Retrieves the view that represents the given pipeline input within this container
         /// </summary>
         [CanBeNull]
-        PipelineNodeLinkView ViewForPipelineNodeLink([NotNull] IPipelineNodeLink node);
+        PipelineNodeLinkView ViewForPipelineInput(PipelineInput input);
+
+        /// <summary>
+        /// Retrieves the view that represents the given pipeline output within this container
+        /// </summary>
+        [CanBeNull]
+        PipelineNodeLinkView ViewForPipelineOutput(PipelineOutput output);
 
         /// <summary>
         /// Retrieves the view that represents the given pipeline connection
         /// </summary>
         [CanBeNull]
-        PipelineNodeConnectionLineView ViewForPipelineConnection([NotNull] IPipelineLinkConnection node);
+        PipelineNodeConnectionLineView ViewForPipelineConnection([NotNull] IPipelineConnection connection);
 
         /// <summary>
         /// Retrieves all combinations of link views between the two node views that are connected to one another.
@@ -329,7 +340,7 @@ namespace Pixelaria.Views.ExportPipeline
         /// Only return direct connections between the nodes.
         /// </summary>
         [NotNull]
-        (PipelineNodeLinkView from, PipelineNodeLinkView to)[] ConnectedLinkViewsBetween(
+        (PipelineNodeOutputLinkView from, PipelineNodeInputLinkView to)[] ConnectedLinkViewsBetween(
             [NotNull] PipelineNodeView from, [NotNull] PipelineNodeView to);
 
         /// <summary>

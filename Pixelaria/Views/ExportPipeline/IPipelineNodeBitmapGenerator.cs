@@ -20,9 +20,7 @@
     base directory of this project.
 */
 
-using System;
 using JetBrains.Annotations;
-using Pixelaria.ExportPipeline;
 using SharpDX.WIC;
 
 namespace Pixelaria.Views.ExportPipeline
@@ -36,21 +34,6 @@ namespace Pixelaria.Views.ExportPipeline
         /// Requests a bitmap for a given pipeline node instance.
         /// </summary>
         [NotNull]
-        Bitmap BitmapForPipelineNode([NotNull] IPipelineNode node);
-
-        /// <summary>
-        /// Requests a bitmap for a default-instantiated pipeline node of a given type.
-        /// </summary>
-        [NotNull]
-        Bitmap BitmapForPipelineNodeType<T>() where T: IPipelineNode, new();
-
-        /// <summary>
-        /// Requests a bitmap for a default-instantiated pipeline node of a given type.
-        ///
-        /// <see cref="type"/> must be a type that implements <see cref="IPipelineNode"/>, and must contain an empty constructor, otherwise an exception is thrown.
-        /// </summary>
-        /// <exception cref="ArgumentException">If <see cref="type"/> is not a type that implements <see cref="IPipelineNode"/> or does not feature a parameter-less constructor</exception>
-        [NotNull]
-        Bitmap BitmapForPipelineNodeType([NotNull] Type type);
+        Bitmap BitmapForPipelineNode([NotNull] PipelineNodeDescriptor node);
     }
 }

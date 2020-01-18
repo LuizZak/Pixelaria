@@ -26,17 +26,19 @@ namespace PixPipelineGraph
 {
     internal class PipelineConnection: IPipelineConnection
     {
+        internal PipelineMetadata Metadata = new PipelineMetadata();
         internal InternalPipelineOutput Output { get; }
         internal InternalPipelineInput Input { get; }
 
         public PipelineOutput Start => Output.Id;
         public PipelineInput End => Input.Id;
-
-
+        public bool Connected { get; set; }
+        
         internal PipelineConnection([NotNull] InternalPipelineOutput output, [NotNull] InternalPipelineInput input)
         {
             Input = input;
             Output = output;
+            Connected = true;
         }
 
         public override int GetHashCode()
@@ -45,6 +47,39 @@ namespace PixPipelineGraph
             {
                 return (Start.GetHashCode() * 397) ^ End.GetHashCode();
             }
+        }
+
+        public IPipelineMetadata GetMetadata()
+        {
+            return Metadata;
+        }
+
+        public bool Equals(IPipelineConnection other)
+        {
+            return other != null && Start.Equals(other.Start) && End.Equals(other.End);
+        }
+
+        protected bool Equals([NotNull] PipelineConnection other)
+        {
+            return Output.Equals(other.Output) && Input.Equals(other.Input);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((PipelineConnection) obj);
+        }
+
+        public static bool operator ==(PipelineConnection left, PipelineConnection right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(PipelineConnection left, PipelineConnection right)
+        {
+            return !Equals(left, right);
         }
     }
 }

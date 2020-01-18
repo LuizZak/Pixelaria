@@ -21,30 +21,27 @@
 */
 
 using System;
-using System.Collections.Generic;
 using JetBrains.Annotations;
 
 namespace PixPipelineGraph
 {
     internal class InternalPipelineInput: InternalPipelineNodeLink, IPipelineInput
     {
-        internal readonly List<Type> dataTypes = new List<Type>();
-
         /// <summary>
         /// Gets the node that owns this pipeline input
         /// </summary>
         internal PipelineNode Node { get; }
-        internal PipelineInput Id { get; }
+        public PipelineInput Id { get; }
 
-        public IReadOnlyList<Type> DataTypes => dataTypes;
+        public Type DataType { get; set; }
 
         /// <inheritdoc />
-        internal InternalPipelineInput([NotNull] PipelineNode node, PipelineInput id, [NotNull] string name, [NotNull] IEnumerable<Type> dataTypes)
-            : base(node.Id, name)
+        internal InternalPipelineInput([NotNull] PipelineNode node, PipelineInput id, [NotNull] string name, [NotNull] Type dataType)
+            : base(node.NodeId, name)
         {
             Node = node;
             Id = id;
-            this.dataTypes.AddRange(dataTypes);
+            DataType = dataType;
         }
     }
 }
