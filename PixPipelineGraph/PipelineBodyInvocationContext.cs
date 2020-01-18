@@ -49,6 +49,11 @@ namespace PixPipelineGraph
             return _lazyInputs.Any(i => i.PipelineInput.Index == index);
         }
 
+        public IObservable<object> GetAnyIndexedInput(int index)
+        {
+            return _lazyInputs.FirstOrDefault(i => i.PipelineInput.Index == index)?.Input.Observable?.ToErasedObservable();
+        }
+
         public IObservable<T> GetIndexedInput<T>(int index)
         {
             return _lazyInputs.FirstOrDefault(i => i.PipelineInput.Index == index)?.Input.Observable?.ToObservable<T>();
@@ -290,18 +295,21 @@ namespace PixPipelineGraph
 
     public class AnyObservable
     {
-        public static AnyObservable Empty = new AnyObservable(new object[0]);
+        public static AnyObservable Empty = new AnyObservable(new object[0], new IObservable<object>[0]);
 
         private readonly object[] _underlying;
+        private readonly IObservable<object>[] _underlyingErased;
 
-        private AnyObservable(object underlying)
+        private AnyObservable(object underlying, IObservable<object> underlyingErased)
         {
-            _underlying = new []{ underlying };
+            _underlying = new[] {underlying};
+            _underlyingErased = new[] {underlyingErased};
         }
 
-        private AnyObservable(object[] underlying)
+        private AnyObservable(object[] underlying, IObservable<object>[] underlyingErased)
         {
             _underlying = underlying;
+            _underlyingErased = underlyingErased;
         }
 
         public IObservable<T> ToObservable<T>()
@@ -328,19 +336,26 @@ namespace PixPipelineGraph
             return list.Concat();
         }
 
-        public static AnyObservable Combine([NotNull] AnyObservable first, [NotNull] AnyObservable second)
+        public IObservable<object> ToErasedObservable()
         {
-            return new AnyObservable(first._underlying.Concat(second._underlying).ToArray());
+            var list = _underlyingErased.ToList();
+
+            return list.Concat();
         }
 
-        public static AnyObservable FromObservable<T>(IObservable<T> observable)
+        public static AnyObservable Combine([NotNull] AnyObservable first, [NotNull] AnyObservable second)
         {
-            return new AnyObservable(observable);
+            return new AnyObservable(first._underlying.Concat(second._underlying).ToArray(), first._underlyingErased.Concat(second._underlyingErased).ToArray());
+        }
+
+        public static AnyObservable FromObservable<T>([NotNull] IObservable<T> observable)
+        {
+            return new AnyObservable(observable, observable.Select(o => (object)o));
         }
 
         public static AnyObservable FromObservables<T>([NotNull] IReadOnlyList<IObservable<T>> observables)
         {
-            return new AnyObservable(observables.Cast<object>().ToArray());
+            return new AnyObservable(observables.Cast<object>().ToArray(), observables.Select(o => o.Select(obj => (object)obj)).ToArray());
         }
 
         public class TypeMismatchException : Exception

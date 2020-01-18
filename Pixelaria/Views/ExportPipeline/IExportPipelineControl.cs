@@ -77,7 +77,7 @@ namespace Pixelaria.Views.ExportPipeline
         /// <summary>
         /// Gets or sets the sizer to apply to pipeline node views.
         /// </summary>
-        IPipelineNodeViewSizer PipelineNodeViewSizer { get; }
+        IPipelineNodeViewLayout PipelineNodeViewLayout { get; }
 
         /// <summary>
         /// Gets the animations manager that can be used to create animations.

@@ -38,6 +38,7 @@ namespace PixPipelineGraph
         {
             Input = input;
             Output = output;
+            Connected = true;
         }
 
         public override int GetHashCode()

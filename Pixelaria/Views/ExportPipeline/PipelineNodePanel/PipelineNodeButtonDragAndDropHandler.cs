@@ -227,19 +227,21 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
 
                 private readonly PipelineNodeView _nodeView;
 
-                public PipelineNodeDragRenderListener([NotNull] PipelineNodeDescriptor nodeDesc, [NotNull] IImageResourceProvider imageProvider, Matrix2D transformMatrix)
+                public PipelineNodeDragRenderListener([NotNull] PipelineNodeDescriptor nodeDesc, [NotNull] IImageResourceManager imageProvider, Matrix2D transformMatrix)
                 {
                     TransformMatrix = transformMatrix;
                     _nodeView = PipelineNodeView.Create(nodeDesc.CreateView());
                     _nodeView.Icon = IconForPipelineNodeKind(nodeDesc.NodeKind, imageProvider);
+                    if (nodeDesc.Icon != null)
+                        _nodeView.ManagedIcon = imageProvider.CreateManagedImageResource(nodeDesc.Icon);
 
-                    var nodeViewSizer = new DefaultPipelineNodeViewSizer();
-                    nodeViewSizer.AutoSize(_nodeView, LabelView.defaultTextSizeProvider);
+                    var nodeViewSizer = new DefaultPipelineNodeViewLayout();
+                    nodeViewSizer.Layout(_nodeView, LabelView.defaultTextSizeProvider);
                 }
 
                 public void Dispose()
                 {
-
+                    _nodeView.ManagedIcon?.Dispose();
                 }
 
                 public void RecreateState(IRenderLoopState state)

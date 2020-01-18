@@ -213,13 +213,13 @@ namespace Pixelaria.Views.ExportPipeline
 
         private void DrawIcon(AABB titleArea)
         {
-            if (_nodeView.Icon == null)
+            if (_nodeView.Icon == null && _nodeView.ManagedIcon == null)
                 return;
 
-            var icon = _nodeView.Icon.Value;
+            var iconSize = _nodeView.ManagedIcon?.Size ?? _nodeView.Icon.Value.Size;
 
-            float imgY = titleArea.Height / 2 - (float)icon.Height / 2;
-            var imgBounds = (AABB)new RectangleF(imgY, imgY, icon.Width, icon.Height);
+            float imgY = titleArea.Height / 2 - (float)iconSize.Height / 2;
+            var imgBounds = (AABB)new RectangleF(imgY, imgY, iconSize.Width, iconSize.Height);
 
             var mode = ImageInterpolationMode.Linear;
 
@@ -229,7 +229,14 @@ namespace Pixelaria.Views.ExportPipeline
                 mode = ImageInterpolationMode.NearestNeighbor;
             }
 
-            Renderer.DrawBitmap(icon, (RectangleF)imgBounds, 1, mode);
+            if (_nodeView.ManagedIcon != null)
+            {
+                Renderer.DrawBitmap(_nodeView.ManagedIcon, (RectangleF)imgBounds, 1, mode);
+            }
+            else if (_nodeView.Icon != null)
+            {
+                Renderer.DrawBitmap(_nodeView.Icon.Value, (RectangleF)imgBounds, 1, mode);
+            }
         }
 
         private void DrawNodeLinkView([NotNull] PipelineNodeLinkView link, [ItemNotNull, NotNull] IReadOnlyList<IRenderingDecorator> decorators)

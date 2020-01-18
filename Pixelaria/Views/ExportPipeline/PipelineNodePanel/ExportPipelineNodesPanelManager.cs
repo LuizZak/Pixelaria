@@ -302,6 +302,15 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
             return new Vector(_scrollViewControl.VisibleContentBounds.Width / 2 - 20, 40);
         }
 
+        [CanBeNull]
+        public IManagedImageResource IconForPipelineNode([NotNull] PipelineNodeDescriptor node)
+        {
+            if (node.Icon != null)
+                return _pipelineRenderManager.ImageResources.CreateManagedImageResource(node.Icon);
+
+            return null;
+        }
+
         /// <summary>
         /// Gets an image resource from a given image resources provider that matches the given pipeline node.
         /// 

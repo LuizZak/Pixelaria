@@ -55,9 +55,9 @@ namespace Pixelaria.Filters
         void ApplyToBitmap(Bitmap target);
 
         /// <summary>
-        /// Array of property infosfrom this <see cref="IFilter"/> that can be inspected and set using reflection.
+        /// Array of property infos from this <see cref="IFilter"/> that can be inspected and set using reflection.
         /// 
-        /// Used by export pipeline UI to streamling process of creating pipeline nodes based off of filters.
+        /// Used by export pipeline UI for streamlining process of creating pipeline nodes based off of filters.
         /// </summary>
         PropertyInfo[] InspectableProperties();
 

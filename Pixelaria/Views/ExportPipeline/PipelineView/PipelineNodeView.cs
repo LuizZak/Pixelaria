@@ -100,8 +100,23 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         /// renderer that is passed in this node view.
         /// 
         /// Set as null to specify no icon should be drawn.
+        ///
+        /// This property is overriden by <see cref="ManagedIcon"/>
         /// </summary>
         public ImageResource? Icon { get; set; }
+
+        /// <summary>
+        /// Gets or sets the resource for the icon to display besides this pipeline node's title.
+        /// 
+        /// The actual resource contents for the icon's image is dependent on the implementation of the
+        /// renderer that is passed in this node view.
+        /// 
+        /// Set as null to specify no icon should be drawn.
+        ///
+        /// This property overrides <see cref="Icon"/>.
+        /// </summary>
+        [CanBeNull]
+        public IManagedImageResource ManagedIcon { get; set; }
 
         /// <summary>
         /// Gets the node ID associated with this pipeline view.

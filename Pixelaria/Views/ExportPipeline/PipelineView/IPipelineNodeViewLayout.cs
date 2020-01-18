@@ -29,11 +29,11 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
     /// <summary>
     /// Interface for objects that can perform layouts on node views.
     /// </summary>
-    internal interface IPipelineNodeViewSizer
+    internal interface IPipelineNodeViewLayout
     {
         /// <summary>
-        /// Auto-sizes a given node view object.
+        /// Applies the inner layout of a given node view object.
         /// </summary>
-        void AutoSize([NotNull] PipelineNodeView nodeView, [NotNull] ITextSizeProvider sizeProvider);
+        void Layout([NotNull] PipelineNodeView nodeView, [NotNull] ITextSizeProvider sizeProvider);
     }
 }

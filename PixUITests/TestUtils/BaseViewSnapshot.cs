@@ -22,11 +22,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using FastBitmapLib;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PixCore.Geometry;
 using PixDirectX.Rendering.DirectX;
 using PixRendering;
 using PixSnapshot;
@@ -36,8 +34,6 @@ using PixUI.Rendering;
 using PixUI.Visitor;
 using SharpDX.WIC;
 using Bitmap = System.Drawing.Bitmap;
-using Point = System.Drawing.Point;
-using Rectangle = System.Drawing.Rectangle;
 
 namespace PixUITests.TestUtils
 {
@@ -98,7 +94,7 @@ namespace PixUITests.TestUtils
                 LabelView.defaultTextSizeProvider = renderer.TextSizeProvider;
 
                 renderLoop.Initialize();
-                renderer.Initialize(renderLoop.D2DRenderState, new FullClipping());
+                renderer.Initialize(renderLoop.D2DRenderState, new FullClippingRegion());
 
                 renderLoop.RenderSingleFrame(state =>
                 {
@@ -166,7 +162,7 @@ namespace PixUITests.TestUtils
 
                 test.Resources?.Register(renderLoop.D2DRenderState, renderer.ImageResources);
 
-                renderer.Initialize(renderLoop.D2DRenderState, new FullClipping());
+                renderer.Initialize(renderLoop.D2DRenderState, new FullClippingRegion());
 
                 renderLoop.RenderSingleFrame(state =>
                 {
@@ -197,44 +193,6 @@ namespace PixUITests.TestUtils
                 }
 
                 return bitmap;
-            }
-        }
-        
-        private class FullClipping : IClippingRegion
-        {
-            public RectangleF[] RedrawRegionRectangles(Size size)
-            {
-                return new[] { new RectangleF(PointF.Empty, size) };
-            }
-
-            public bool IsVisibleInClippingRegion(Rectangle rectangle)
-            {
-                return true;
-            }
-
-            public bool IsVisibleInClippingRegion(Point point)
-            {
-                return true;
-            }
-
-            public bool IsVisibleInClippingRegion(AABB aabb)
-            {
-                return true;
-            }
-
-            public bool IsVisibleInClippingRegion(Vector point)
-            {
-                return true;
-            }
-
-            public bool IsVisibleInClippingRegion(AABB aabb, ISpatialReference reference)
-            {
-                return true;
-            }
-
-            public bool IsVisibleInClippingRegion(Vector point, ISpatialReference reference)
-            {
-                return true;
             }
         }
     }

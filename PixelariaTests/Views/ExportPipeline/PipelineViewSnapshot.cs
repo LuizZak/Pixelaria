@@ -105,8 +105,8 @@ namespace PixelariaTests.Views.ExportPipeline
                         var labelViewSizer =
                             new D2DTextSizeProvider(new StaticDirect2DRenderingStateProvider(state));
 
-                        var sizer = new DefaultPipelineNodeViewSizer();
-                        sizer.AutoSize(nodeView, labelViewSizer);
+                        var sizer = new DefaultPipelineNodeViewLayout();
+                        sizer.Layout(nodeView, labelViewSizer);
                         break;
 
                     case PipelineNodeConnectionLineView connectionView:

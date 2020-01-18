@@ -648,9 +648,11 @@ namespace PixPipelineGraph
 
     public partial class PipelineGraph
     {
-        private void RemoveConnection(PipelineConnection connection)
+        private void RemoveConnection([NotNull] PipelineConnection connection)
         {
             ReportConnectionWillBeRemoved(connection);
+
+            connection.Connected = false;
 
             _connections.Remove(connection);
         }

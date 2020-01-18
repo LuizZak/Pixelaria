@@ -180,6 +180,7 @@ namespace Pixelaria.Views.ExportPipeline
 
             var view = PipelineNodeView.Create(nodeView);
             view.Icon = ExportPipelineNodesPanelManager.IconForPipelineNodeKind(descriptor.NodeKind, exportPipelineControl.ImageResources);
+            view.ManagedIcon = _panelManager.IconForPipelineNode(descriptor);
 
             // Rename bitmap preview steps w/ numbers so they are easily identifiable
             if (descriptor.NodeKind == PipelineNodeKinds.BitmapPreview)

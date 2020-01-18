@@ -119,7 +119,7 @@ namespace Pixelaria.Views.ExportPipeline
         /// <summary>
         /// Gets or sets the sizer to apply to pipeline node views.
         /// </summary>
-        public IPipelineNodeViewSizer PipelineNodeViewSizer { get; set; } = new DefaultPipelineNodeViewSizer();
+        public IPipelineNodeViewLayout PipelineNodeViewLayout { get; set; } = new DefaultPipelineNodeViewLayout();
         
         public ExportPipelineControl()
         {
@@ -1083,7 +1083,7 @@ namespace Pixelaria.Views.ExportPipeline
 
             public void AutoSizeNode(PipelineNodeView view)
             {
-                _control.PipelineNodeViewSizer.AutoSize(view, _control.TextSizeProvider);
+                _control.PipelineNodeViewLayout.Layout(view, _control.TextSizeProvider);
             }
 
             public void PerformAction(IExportPipelineAction action)
@@ -1185,47 +1185,6 @@ namespace Pixelaria.Views.ExportPipeline
     /// Delegate for <see cref="IPipelineContainer.NodeAdded"/>/<see cref="IPipelineContainer.NodeRemoved"/> events.
     /// </summary>
     internal delegate void PipelineNodeViewEventHandler(object sender, [NotNull] PipelineNodeViewEventArgs e);
-
-    /// <summary>
-    /// A subclass of <see cref="ClippingRegion"/> that reports a full clipping region as available on the UI.
-    /// </summary>
-    internal class FullClippingRegion : ClippingRegion
-    {
-        public override RectangleF[] RedrawRegionRectangles(Size size)
-        {
-            return new[] { new RectangleF(PointF.Empty, size) };
-        }
-
-        public override bool IsVisibleInClippingRegion(Rectangle rectangle)
-        {
-            return true;
-        }
-
-        public override bool IsVisibleInClippingRegion(Point point)
-        {
-            return true;
-        }
-
-        public override bool IsVisibleInClippingRegion(AABB aabb)
-        {
-            return true;
-        }
-
-        public override bool IsVisibleInClippingRegion(Vector point)
-        {
-            return true;
-        }
-
-        public override bool IsVisibleInClippingRegion(AABB aabb, ISpatialReference reference)
-        {
-            return true;
-        }
-
-        public override bool IsVisibleInClippingRegion(Vector point, ISpatialReference reference)
-        {
-            return true;
-        }
-    }
 
     internal class ConnectedLinksDecorator : AbstractRenderingDecorator
     {

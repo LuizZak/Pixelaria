@@ -35,7 +35,7 @@ using PixUI.Controls;
 namespace PixelariaTests.Views.ExportPipeline.PipelineView
 {
     [TestClass]
-    public class DefaultPipelineNodeViewSizerTests
+    public class DefaultPipelineNodeViewLayoutTests
     {
         public TestContext TestContext { get; set; }
 
@@ -51,7 +51,7 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
         [TestMethod]
         public void TestAutoSizeEmptyNode()
         {
-            var sut = new DefaultPipelineNodeViewSizer();
+            var sut = new DefaultPipelineNodeViewLayout();
 
             var gen = new PipelineStepGenerator("Pipeline Step");
             var node = gen.GetNodeView();
@@ -64,7 +64,7 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
         [TestMethod]
         public void TestAutoSizeEmptyNodeStretchesToFitTitle()
         {
-            var sut = new DefaultPipelineNodeViewSizer();
+            var sut = new DefaultPipelineNodeViewLayout();
 
             var gen = new PipelineStepGenerator("Long Pipeline Step name to test view stretching");
             var node = gen.GetNodeView();
@@ -77,7 +77,7 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
         [TestMethod]
         public void TestAutoSizeEmptyNodeWithImage()
         {
-            var sut = new DefaultPipelineNodeViewSizer();
+            var sut = new DefaultPipelineNodeViewLayout();
 
             var gen = new PipelineStepGenerator("Pipeline Step");
             var node = gen.GetNodeView();
@@ -89,9 +89,23 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
         }
 
         [TestMethod]
+        public void TestAutoSizeEmptyNodeWithManagedImage()
+        {
+            var sut = new DefaultPipelineNodeViewLayout();
+
+            var gen = new PipelineStepGenerator("Pipeline Step");
+            var node = gen.GetNodeView();
+
+            var nodeView = PipelineNodeView.Create(node);
+            TestDirect2DRenderManager.CreateTemporary(manager => nodeView.ManagedIcon = manager.ImageResources.CreateManagedImageResource(Pixelaria.Properties.Resources.anim_icon));
+
+            RunTest(nodeView, sut);
+        }
+
+        [TestMethod]
         public void TestAutoSizeNodeWithInput()
         {
-            var sut = new DefaultPipelineNodeViewSizer();
+            var sut = new DefaultPipelineNodeViewLayout();
 
             var gen = new PipelineStepGenerator("Pipeline Step");
             gen.AddInput("Input 1", typeof(object));
@@ -106,7 +120,7 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
         [TestMethod]
         public void TestAutoSizeNodeWithInputStretchesToFitLabel()
         {
-            var sut = new DefaultPipelineNodeViewSizer();
+            var sut = new DefaultPipelineNodeViewLayout();
 
             var gen = new PipelineStepGenerator("Pipeline Step");
             gen.AddInput("Input with large name to test view stretching", typeof(object));
@@ -121,7 +135,7 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
         [TestMethod]
         public void TestAutoSizeNodeWithOutput()
         {
-            var sut = new DefaultPipelineNodeViewSizer();
+            var sut = new DefaultPipelineNodeViewLayout();
 
             var gen = new PipelineStepGenerator("Pipeline Step");
             gen.AddOutput("Output 1", typeof(object));
@@ -136,7 +150,7 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
         [TestMethod]
         public void TestAutoSizeNodeWithOutputStretchesToFitLabel()
         {
-            var sut = new DefaultPipelineNodeViewSizer();
+            var sut = new DefaultPipelineNodeViewLayout();
 
             var gen = new PipelineStepGenerator("Pipeline Step");
             gen.AddOutput("Output 1 with large name to test view stretching", typeof(object));
@@ -151,7 +165,7 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
         [TestMethod]
         public void TestAutoSizeNodeWithInputAndOutput()
         {
-            var sut = new DefaultPipelineNodeViewSizer();
+            var sut = new DefaultPipelineNodeViewLayout();
 
             var gen = new PipelineStepGenerator("Pipeline Step");
             gen.AddInput("Input 1", typeof(object));
@@ -167,7 +181,7 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
         [TestMethod]
         public void TestAutoSizeNodeWithInputAndOutputStretchesToFitLabels()
         {
-            var sut = new DefaultPipelineNodeViewSizer();
+            var sut = new DefaultPipelineNodeViewLayout();
 
             var gen = new PipelineStepGenerator("Pipeline Step");
             gen.AddInput("Input with very long name", typeof(object));
@@ -183,7 +197,7 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
         [TestMethod]
         public void TestAutoSizeNodeWithDescription()
         {
-            var sut = new DefaultPipelineNodeViewSizer();
+            var sut = new DefaultPipelineNodeViewLayout();
 
             var gen = new PipelineStepGenerator("Pipeline Step");
             gen.SetBodyText("A description that is placed within the node's body");
@@ -197,7 +211,7 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
         [TestMethod]
         public void TestAutoSizeNodeWithDescriptionAndInput()
         {
-            var sut = new DefaultPipelineNodeViewSizer();
+            var sut = new DefaultPipelineNodeViewLayout();
 
             var gen = new PipelineStepGenerator("Pipeline Step");
             gen.AddInput("Input", typeof(object));
@@ -212,7 +226,7 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
         [TestMethod]
         public void TestAutoSizeNodeWithDescriptionAndInputAndOutput()
         {
-            var sut = new DefaultPipelineNodeViewSizer();
+            var sut = new DefaultPipelineNodeViewLayout();
 
             var gen = new PipelineStepGenerator("Pipeline Step");
             gen.AddInput("Input", typeof(object));
@@ -228,7 +242,7 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
         [TestMethod]
         public void TestAutoSizeNodeWithEditableInput()
         {
-            var sut = new DefaultPipelineNodeViewSizer();
+            var sut = new DefaultPipelineNodeViewLayout();
 
             var gen = new PipelineStepGenerator("Pipeline Step");
             gen.AddInput("Input", typeof(object));
@@ -240,11 +254,11 @@ namespace PixelariaTests.Views.ExportPipeline.PipelineView
             RunTest(nodeView, sut);
         }
 
-        private void RunTest([NotNull] PipelineNodeView view, [NotNull] IPipelineNodeViewSizer sut, bool? recordMode = null)
+        private void RunTest([NotNull] PipelineNodeView view, [NotNull] IPipelineNodeViewLayout sut, bool? recordMode = null)
         {
             var sizeProvider = new D2DTextSizeProvider();
 
-            sut.AutoSize(view, sizeProvider);
+            sut.Layout(view, sizeProvider);
 
             PipelineViewSnapshot.Snapshot(view, TestContext, recordMode);
         }

@@ -21,6 +21,7 @@
 */
 
 using System;
+using System.Drawing;
 using System.Linq;
 using JetBrains.Annotations;
 using PixCore.Geometry;
@@ -29,7 +30,7 @@ using PixUI.Utils.Layout;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView
 {
-    internal class DefaultPipelineNodeViewSizer : IPipelineNodeViewSizer
+    internal class DefaultPipelineNodeViewLayout : IPipelineNodeViewLayout
     {
         private readonly InsetBounds _nodeTitleInset = new InsetBounds(4, 0, 0, 4);
         private readonly InsetBounds _bodyTextInset = new InsetBounds(7, 0, 0, 7);
@@ -61,7 +62,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         /// </summary>
         private const float LinkInputEditFieldSize = 14;
         
-        public void AutoSize(PipelineNodeView nodeView, ITextSizeProvider sizeProvider)
+        public void Layout(PipelineNodeView nodeView, ITextSizeProvider sizeProvider)
         {
             // Get minimum width first
             const float minimumWidth = 80;
@@ -198,12 +199,22 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
 
             titleArea = titleArea.WithSize(titleArea.Width, Math.Max(25, titleArea.Height));
             
-            if (nodeView.Icon == null)
+            if (nodeView.Icon == null && nodeView.ManagedIcon == null)
                 return titleArea;
 
+            var imageArea = Size.Empty;
+            if (nodeView.ManagedIcon != null)
+            {
+                imageArea = nodeView.ManagedIcon.Size;
+            }
+            else if (nodeView.Icon != null)
+            {
+                imageArea = nodeView.Icon.Value.Size;
+            }
+
             // Deal with icon
-            float horizontalDisplace = nodeView.Icon.Value.Width + 4;
-            float totalTitleHeight = Math.Max(nodeView.Icon.Value.Height + 4, titleArea.Height);
+            float horizontalDisplace = imageArea.Width + 4;
+            float totalTitleHeight = Math.Max(imageArea.Height + 4, titleArea.Height);
 
             titleArea = titleArea.OffsetBy(horizontalDisplace, 0);
             titleArea = LayoutHelper.CenterWithinContainer(titleArea, AABB.FromRectangle(0, 0, titleArea.Width, totalTitleHeight), LayoutDirection.Vertical);

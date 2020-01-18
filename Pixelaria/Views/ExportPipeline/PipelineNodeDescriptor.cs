@@ -35,7 +35,10 @@ namespace Pixelaria.Views.ExportPipeline
 
         [CanBeNull]
         public Bitmap Icon { get; set; }
-        public string Title { get; set; }
+
+        public string Title { get; set; } = "";
+
+        [CanBeNull]
         public string BodyText { get; set; }
 
         public List<PipelineInputDescriptor> Inputs { get; } = new List<PipelineInputDescriptor>();

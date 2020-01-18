@@ -91,6 +91,14 @@ namespace PixPipelineGraph
         bool HasInputAtIndex(int index);
 
         /// <summary>
+        /// Gets an object at a given input index on this invocation context, with its type erased to <see cref="object"/>.
+        ///
+        /// This value may be <c>null</c>, in case the input was itself provided null, or not connected to an output.
+        /// </summary>
+        [CanBeNull]
+        IObservable<object> GetAnyIndexedInput(int index);
+
+        /// <summary>
         /// Gets an object at a given input index on this invocation context.
         ///
         /// This value may be <c>null</c>, in case the input was itself provided null, or not connected to an output.
