@@ -28,6 +28,7 @@ using System.Text;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixUI.Controls;
+using PixUI.LayoutSystem;
 
 namespace PixUI
 {
@@ -50,6 +51,43 @@ namespace PixUI
         private Matrix2D _localTransform;
 
         private readonly InternalLayoutEvents _layoutEvents;
+
+        internal ViewLayoutConstraintVariables LayoutVariables;
+
+        /// <summary>
+        /// If <c>true</c>, location and size values are translated into required
+        /// constraints that are not mutable.
+        ///
+        /// Setting this value to <c>false</c> allows location and size to be computed
+        /// based on the constraints attached to this view.
+        ///
+        /// Defaults to <c>true</c>.
+        /// </summary>
+        internal bool TranslateBoundsIntoConstraints = true;
+
+        /// <summary>
+        /// List of layout constraints active on this view.
+        ///
+        /// The constraints on this list may not be related to this view; subviews in
+        /// different branches of the view hierarchy create constraints on the first common
+        /// superview of their hierarchy.
+        /// </summary>
+        internal List<LayoutConstraint> LayoutConstraints = new List<LayoutConstraint>();
+
+        /// <summary>
+        /// List of layout constraints that affect this view.
+        ///
+        /// This list differs from <see cref="LayoutConstraints"/> in that this list contains
+        /// constraints that may be repeated across the view hierarchy (one for each related
+        /// anchor view), whereas <see cref="LayoutConstraints"/> is guaranteed to be unique
+        /// and only contains constraints from descendants of, or the contained view itself.
+        ///
+        /// Constraints from this list are removed when the view itself is removed from the
+        /// view hierarchy.
+        /// </summary>
+        internal List<LayoutConstraint> AffectingConstraints = new List<LayoutConstraint>();
+
+        internal LayoutAnchors Anchors => new LayoutAnchors(this);
 
         /// <summary>
         /// Gets the parent view, if any, of this base view.
@@ -83,7 +121,7 @@ namespace PixUI
         /// Gets or sets the center point of this view's <see cref="AABB"/> when projected
         /// on the parent view.
         /// 
-        /// If Parent == null, returns the AABB's center property on get, and
+        /// If <c>Parent == null</c>, returns the AABB's center property on get, and
         /// set is ignored.
         /// </summary>
         public Vector Center
@@ -277,6 +315,7 @@ namespace PixUI
             RecreateLocalTransformMatrix();
 
             _layoutEvents = new InternalLayoutEvents(this);
+            LayoutVariables = new ViewLayoutConstraintVariables(this);
         }
 
         /// <summary>
@@ -388,6 +427,11 @@ namespace PixUI
 
             child.Parent = null;
             children.Remove(child);
+
+            foreach (var constraint in child.AffectingConstraints)
+            {
+                constraint.RemoveConstraint();
+            }
         }
 
         /// <summary>
@@ -415,6 +459,33 @@ namespace PixUI
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Returns the first common ancestor between this and another view.
+        ///
+        /// In case the views are not located in the same hierarchy, <c>null</c>
+        /// is returned, instead.
+        ///
+        /// In case <see cref="other"/> is a reference to this view, <c>this</c>
+        /// is returned.
+        /// </summary>
+        [CanBeNull]
+        public BaseView CommonAncestor([NotNull] BaseView other)
+        {
+            if (ReferenceEquals(other, this))
+                return this;
+
+            var current = this;
+            while (current != null)
+            {
+                if (other.IsDescendentOf(current))
+                    return current;
+
+                current = current.Parent;
+            }
+
+            return null;
         }
 
         /// <summary>

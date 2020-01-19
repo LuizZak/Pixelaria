@@ -206,7 +206,7 @@ namespace PixUI.Controls
         /// Gets the content bounds of this control, which are the inner area of this control
         /// where content is effectively contained within. May be larger than this control's <see cref="BaseView.Bounds"/>.
         /// 
-        /// Scroll views and other controls may modify bounds to alter the interactible area
+        /// Scroll views and other controls may modify bounds to alter the interactive area
         /// of the control.
         /// </summary>
         public virtual AABB ContentBounds => Bounds;
