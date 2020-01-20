@@ -695,17 +695,17 @@ namespace PixDirectX.Rendering.DirectX
             DrawBitmap(image, (RectangleF)region, opacity, interpolationMode, tintColor);
         }
 
+        public void DrawBitmap(IManagedImageResource image, AABB region, float opacity, ImageInterpolationMode interpolationMode, Color? tintColor = null)
+        {
+            DrawBitmap(image, (RectangleF)region, opacity, interpolationMode, tintColor);
+        }
+
         public void DrawBitmap(IManagedImageResource image, RectangleF region, float opacity, ImageInterpolationMode interpolationMode, Color? tintColor = null)
         {
             var bitmap = CastBitmapOrFail(image);
             EnsureBitmapRenderTarget(bitmap);
 
             DrawBitmap(bitmap.bitmap, region, opacity, interpolationMode, tintColor);
-        }
-
-        public void DrawBitmap(IManagedImageResource image, AABB region, float opacity, ImageInterpolationMode interpolationMode, Color? tintColor = null)
-        {
-            DrawBitmap(image, (RectangleF)region, opacity, interpolationMode, tintColor);
         }
 
         private void DrawBitmap(SharpDX.Direct2D1.Bitmap bitmap, RectangleF region, float opacity, ImageInterpolationMode interpolationMode, Color? tintColor = null)
