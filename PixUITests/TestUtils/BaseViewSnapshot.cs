@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using FastBitmapLib;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -75,6 +76,8 @@ namespace PixUITests.TestUtils
         // TODO: Collapse this implementation with GenerateBitmap bellow
         public static void SnapshotTest([NotNull] BaseView baseView, [NotNull] TestContext context, [NotNull] Action<IImageResourceManager> testSetup, string suffix = "", float? tolerance = null, bool? recordMode = null)
         {
+            Debug.Assert(baseView.Width > 0 && baseView.Height > 0, "baseView.Width > 0 && baseView.Height > 0");
+
             // Create a temporary Direct3D rendering context and render the view on it
             const BitmapCreateCacheOption bitmapCreateCacheOption = BitmapCreateCacheOption.CacheOnDemand;
             var pixelFormat = PixelFormat.Format32bppPBGRA;
@@ -139,6 +142,8 @@ namespace PixUITests.TestUtils
         public Bitmap GenerateBitmap(BaseViewSnapshotTest test)
         {
             var view = test.BaseView;
+
+            Debug.Assert(view.Width > 0 && view.Height > 0, "baseView.Width > 0 && baseView.Height > 0");
 
             // Create a temporary Direct3D rendering context and render the view on it
             const BitmapCreateCacheOption bitmapCreateCacheOption = BitmapCreateCacheOption.CacheOnDemand;
