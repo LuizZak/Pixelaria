@@ -24,6 +24,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using PixCore.Geometry;
+using PixDirectX.Rendering;
 using PixRendering;
 
 namespace PixUI.Controls
@@ -37,7 +38,6 @@ namespace PixUI.Controls
         private ImageFitMode _imageFitMode;
         private ImageInterpolationMode _interpolationMode;
         private ImageResource? _imageResource;
-        private Color _imageTintColor;
 
         private int ImageWidth => Image?.Width ?? ImageResource?.Width ?? 0;
         private int ImageHeight => Image?.Height ?? ImageResource?.Height ?? 0;
@@ -111,21 +111,6 @@ namespace PixUI.Controls
         public bool AutoSize { get; set; }
 
         /// <summary>
-        /// A tint color to apply to the image.
-        ///
-        /// <see cref="Color.White"/> produces an image with no tint.
-        /// </summary>
-        public Color ImageTintColor
-        {
-            get => _imageTintColor;
-            set
-            {
-                _imageTintColor = value;
-                Invalidate();
-            }
-        }
-
-        /// <summary>
         /// Creates a new <see cref="ImageViewControl"/> with a specified <see cref="ImageResource"/>
         /// to render.
         /// </summary>
@@ -181,7 +166,7 @@ namespace PixUI.Controls
                 }
                 else
                 {
-                    context.Renderer.DrawBitmap(Image, (AABB)rect, 1, InterpolationMode, ImageTintColor);
+                    context.Renderer.DrawBitmap(Image, (AABB)rect, 1, InterpolationMode);
                 }
             }
             else if (ImageResource != null)
@@ -194,7 +179,7 @@ namespace PixUI.Controls
                 }
                 else
                 {
-                    context.Renderer.DrawBitmap(ImageResource.Value, (AABB)rect, 1, InterpolationMode, ImageTintColor);
+                    context.Renderer.DrawBitmap(ImageResource.Value, (AABB)rect, 1, InterpolationMode);
                 }
             }
         }

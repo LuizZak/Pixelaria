@@ -20,7 +20,6 @@
     base directory of this project.
 */
 
-using System.Drawing;
 using System.Windows.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixCore.Geometry;
@@ -69,24 +68,6 @@ namespace PixUITests.Controls
         public void TestImageFitModeTile()
         {
             RunFitModeTest(ImageFitMode.Tile, new Vector(512, 512));
-        }
-
-        [TestMethod]
-        public void TestImageTint()
-        {
-            // Arrange
-            var resources = new BaseViewSnapshotResources();
-            var image = resources.CreateImageResource("image", Resources.pxl_icon_256x256);
-
-            var sut = ImageViewControl.Create(image);
-            sut.AutoSize = true;
-            sut.Layout();
-
-            // Act
-            sut.ImageTintColor = Color.Red;
-
-            // Assert
-            BaseViewSnapshot.Snapshot(sut, TestContext, resources: resources);
         }
 
         private void RunFitModeTest(ImageFitMode fitMode, Vector? size = null)
