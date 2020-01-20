@@ -1,4 +1,4 @@
-/*
+﻿/*
     Pixelaria
     Copyright (C) 2013 Luiz Fernando Silva
 
@@ -41,6 +41,8 @@ namespace PixUI.Controls
 
         private int ImageWidth => Image?.Width ?? ImageResource?.Width ?? 0;
         private int ImageHeight => Image?.Height ?? ImageResource?.Height ?? 0;
+
+        internal override Vector IntrinsicSize => new Vector(ImageWidth, ImageHeight);
 
         /// <summary>
         /// Gets or sets the image resource to render on this image view.
