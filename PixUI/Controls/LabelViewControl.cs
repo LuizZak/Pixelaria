@@ -23,6 +23,7 @@
 using System;
 using System.Diagnostics;
 using JetBrains.Annotations;
+using PixCore.Geometry;
 using PixCore.Text;
 using PixRendering;
 using Font = System.Drawing.Font;
@@ -53,7 +54,9 @@ namespace PixUI.Controls
         /// whenever its properties are updated.
         /// </summary>
         public bool AutoResize { get; set; } = true;
-        
+
+        internal override Vector IntrinsicSize => _labelViewBacking?.CalculateSize(LabelView.defaultTextSizeProvider) ?? Vector.Zero;
+
         [NotNull]
         public Font TextFont
         {

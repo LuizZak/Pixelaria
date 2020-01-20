@@ -90,6 +90,14 @@ namespace PixUI
         internal LayoutAnchors Anchors => new LayoutAnchors(this);
 
         /// <summary>
+        /// Gets an intrinsic size for this view.
+        ///
+        /// When greater than zero, indicates the size this view will resize to via constraints
+        /// by default.
+        /// </summary>
+        internal virtual Vector IntrinsicSize => Vector.Zero;
+
+        /// <summary>
         /// Gets the parent view, if any, of this base view.
         /// 
         /// Area is relative to this base view's Location, if present.

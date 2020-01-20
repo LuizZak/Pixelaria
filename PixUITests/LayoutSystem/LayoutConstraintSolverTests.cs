@@ -82,5 +82,33 @@ namespace PixUITests.LayoutSystem
             Assert.AreEqual(130, label.Width);
             Assert.AreEqual(40, label.Height);
         }
+
+        [TestMethod]
+        public void TestSolveIntrinsicSize()
+        {
+            // Add a label view to an empty root view and check if its intrinsic size is properly constrained
+
+            // Arrange
+            var sut = new LayoutConstraintSolver();
+            var root = new BaseView
+            {
+                TranslateBoundsIntoConstraints = true,
+                Size = new Vector(300, 200)
+            };
+            var label = LabelViewControl.Create("This is a label");
+            label.TranslateBoundsIntoConstraints = false;
+            root.AddChild(label);
+            LayoutConstraint.Create(label.Anchors.Top, root.Anchors.Top, constant: 25);
+            LayoutConstraint.Create(label.Anchors.Left, root.Anchors.Left, constant: 25);
+            
+            // Act
+            sut.Solve(root);
+
+            // Assert
+            Assert.AreEqual(25, label.X);
+            Assert.AreEqual(25, label.Y);
+            Assert.AreEqual(label.IntrinsicSize.X, label.Width);
+            Assert.AreEqual(label.IntrinsicSize.Y, label.Height);
+        }
     }
 }

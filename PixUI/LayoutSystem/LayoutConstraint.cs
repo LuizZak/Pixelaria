@@ -24,6 +24,7 @@ using System;
 using System.Linq.Expressions;
 using Cassowary;
 using JetBrains.Annotations;
+using PixCore.Geometry;
 
 namespace PixUI.LayoutSystem
 {
@@ -40,6 +41,8 @@ namespace PixUI.LayoutSystem
         internal readonly ClVariable Height;
         internal readonly ClVariable Right;
         internal readonly ClVariable Bottom;
+        internal readonly ClVariable IntrinsicWidth;
+        internal readonly ClVariable IntrinsicHeight;
 
         public ViewLayoutConstraintVariables([NotNull] BaseView view)
         {
@@ -52,47 +55,71 @@ namespace PixUI.LayoutSystem
             Height = new ClVariable($"{name}_height", view.Height);
             Right = new ClVariable($"{name}_right", view.Bounds.Right);
             Bottom = new ClVariable($"{name}_right", view.Bounds.Bottom);
+            IntrinsicWidth = new ClVariable($"{name}_intrinsicWidth", view.IntrinsicSize.X);
+            IntrinsicHeight = new ClVariable($"{name}_intrinsicHeight", view.IntrinsicSize.Y);
         }
 
         public void AddVariables([NotNull] ClSimplexSolver solver, LayoutAnchorOrientationFlags orientation)
         {
+            var hasIntrinsicSize = _view.IntrinsicSize != Vector.Zero;
+
             if (orientation.HasFlag(LayoutAnchorOrientationFlags.Horizontal))
             {
                 if (_view.TranslateBoundsIntoConstraints)
                 {
-                    solver.AddStay(Left);
-                    solver.AddStay(Width);
+                    solver.AddStay(Left, ClStrength.Medium);
+                    solver.AddStay(Width, ClStrength.Medium);
+                }
+                if (hasIntrinsicSize)
+                {
+                    solver.AddStay(IntrinsicWidth, ClStrength.Medium);
                 }
 
-                solver.BeginEdit(Left, Width)
+                solver.BeginEdit(Left, Width, IntrinsicWidth)
                     .SuggestValue(Left, _view.X)
                     .SuggestValue(Width, _view.Width)
+                    .SuggestValue(IntrinsicWidth, _view.IntrinsicSize.X)
                     .EndEdit();
             }
             if (orientation.HasFlag(LayoutAnchorOrientationFlags.Vertical))
             {
                 if (_view.TranslateBoundsIntoConstraints)
                 {
-                    solver.AddStay(Top);
-                    solver.AddStay(Height);
+                    solver.AddStay(Top, ClStrength.Medium);
+                    solver.AddStay(Height, ClStrength.Medium);
+                }
+                if (hasIntrinsicSize)
+                {
+                    solver.AddStay(IntrinsicHeight, ClStrength.Medium);
                 }
 
-                solver.BeginEdit(Top, Height)
+                solver.BeginEdit(Top, Height, IntrinsicHeight)
                     .SuggestValue(Top, _view.Y)
                     .SuggestValue(Height, _view.Height)
+                    .SuggestValue(IntrinsicHeight, _view.IntrinsicSize.Y)
                     .EndEdit();
             }
         }
 
         public void BuildConstraints([NotNull] ClSimplexSolver solver, LayoutAnchorOrientationFlags orientation)
         {
+            var hasIntrinsicSize = _view.IntrinsicSize != Vector.Zero;
+            
             if (orientation.HasFlag(LayoutAnchorOrientationFlags.Horizontal))
             {
                 solver.AddConstraint(new ClLinearEquation(Cl.Plus(new ClLinearExpression(Width), Left), new ClLinearExpression(Right), ClStrength.Required));
+                if (hasIntrinsicSize)
+                {
+                    solver.AddConstraint(Width, IntrinsicWidth, (d, d1) => d == d1, ClStrength.Weak);
+                }
             }
             if (orientation.HasFlag(LayoutAnchorOrientationFlags.Vertical))
             {
                 solver.AddConstraint(new ClLinearEquation(Cl.Plus(new ClLinearExpression(Height), Top), new ClLinearExpression(Bottom), ClStrength.Required));
+                if (hasIntrinsicSize)
+                {
+                    solver.AddConstraint(Height, IntrinsicHeight, (d, d1) => d == d1, ClStrength.Weak);
+                }
             }
         }
 
@@ -110,6 +137,21 @@ namespace PixUI.LayoutSystem
         private static string GetUniqueName([NotNull] BaseView view)
         {
             return $"{view}_{view.GetHashCode()}";
+        }
+
+        private Expression<Func<double, bool>> GetSingleExpression(LayoutRelationship constraintRelatedBy, double constant)
+        {
+            switch (constraintRelatedBy)
+            {
+                case LayoutRelationship.Equal:
+                    return source => source == constant;
+                case LayoutRelationship.GreaterThanOrEqual:
+                    return source => source >= constant;
+                case LayoutRelationship.LessThanOrEqual:
+                    return source => source <= constant;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(constraintRelatedBy), constraintRelatedBy, null);
+            }
         }
     }
 
