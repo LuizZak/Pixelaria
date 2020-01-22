@@ -270,7 +270,7 @@ namespace PixUI.LayoutSystem
                 //
                 // Without this relative container offset, multiplicative constraints
                 // would multiply the absolute view locations, resulting in views
-                // that broke their parent view's bounds.
+                // that potentially break their parent view's bounds.
 
                 var secondExpression =
                     new ClLinearExpression(SecondAnchor.Variable())
