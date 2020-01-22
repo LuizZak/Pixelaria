@@ -828,6 +828,64 @@ namespace PixUI
             
         }
 
+        #region Content compression / hugging priority
+
+        internal void SetContentCompressionResistance(LayoutAnchorOrientationFlags orientation, int strength)
+        {
+            if (orientation.HasFlag(LayoutAnchorOrientationFlags.Horizontal))
+            {
+                LayoutVariables.HorizontalCompressResistance = strength;
+            }
+            if (orientation.HasFlag(LayoutAnchorOrientationFlags.Vertical))
+            {
+                LayoutVariables.VerticalCompressResistance = strength;
+            }
+        }
+
+        internal int ContentCompressionResistance(LayoutAnchorOrientationFlags orientation)
+        {
+            if (orientation == LayoutAnchorOrientationFlags.Horizontal)
+            {
+                return LayoutVariables.HorizontalCompressResistance;
+            }
+            if (orientation == LayoutAnchorOrientationFlags.Vertical)
+            {
+                return LayoutVariables.VerticalCompressResistance;
+            }
+
+            throw new ArgumentOutOfRangeException(nameof(orientation), 
+                @"Cannot return compression resistance value for a union of two orientations. Provide only Horizontal or Vertical as parameter.");
+        }
+
+        internal void SetContentHuggingPriority(LayoutAnchorOrientationFlags orientation, int strength)
+        {
+            if (orientation.HasFlag(LayoutAnchorOrientationFlags.Horizontal))
+            {
+                LayoutVariables.HorizontalHuggingPriority = strength;
+            }
+            if (orientation.HasFlag(LayoutAnchorOrientationFlags.Vertical))
+            {
+                LayoutVariables.VerticalHuggingPriority = strength;
+            }
+        }
+
+        internal int ContentHuggingPriority(LayoutAnchorOrientationFlags orientation)
+        {
+            if (orientation == LayoutAnchorOrientationFlags.Horizontal)
+            {
+                return LayoutVariables.HorizontalHuggingPriority;
+            }
+            if (orientation == LayoutAnchorOrientationFlags.Vertical)
+            {
+                return LayoutVariables.VerticalHuggingPriority;
+            }
+
+            throw new ArgumentOutOfRangeException(nameof(orientation), 
+                @"Cannot return hugging priority value for a union of two orientations. Provide only Horizontal or Vertical as parameter.");
+        }
+
+        #endregion
+
         #region Redraw Region Management
 
         /// <summary>

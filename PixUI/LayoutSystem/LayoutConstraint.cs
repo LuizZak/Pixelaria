@@ -1,4 +1,4 @@
-﻿/*
+/*
     Pixelaria
     Copyright (C) 2013 Luiz Fernando Silva
 
@@ -43,6 +43,11 @@ namespace PixUI.LayoutSystem
         internal readonly ClVariable Bottom;
         internal readonly ClVariable IntrinsicWidth;
         internal readonly ClVariable IntrinsicHeight;
+
+        internal int HorizontalCompressResistance = 100;
+        internal int VerticalCompressResistance = 100;
+        internal int HorizontalHuggingPriority = 50;
+        internal int VerticalHuggingPriority = 50;
 
         public ViewLayoutConstraintVariables([NotNull] BaseView view)
         {
@@ -110,7 +115,10 @@ namespace PixUI.LayoutSystem
                 solver.AddConstraint(new ClLinearEquation(Cl.Plus(new ClLinearExpression(Width), Left), new ClLinearExpression(Right), ClStrength.Required));
                 if (hasIntrinsicSize)
                 {
-                    solver.AddConstraint(Width, IntrinsicWidth, (d, d1) => d == d1, ClStrength.Weak);
+                    // Compression resistance
+                    solver.AddConstraint(Width, IntrinsicWidth, (d, d1) => d >= d1, LayoutConstraintHelpers.StrengthFromPriority(HorizontalCompressResistance));
+                    // Content hugging priority
+                    solver.AddConstraint(Width, IntrinsicWidth, (d, d1) => d <= d1, LayoutConstraintHelpers.StrengthFromPriority(HorizontalHuggingPriority));
                 }
             }
             if (orientation.HasFlag(LayoutAnchorOrientationFlags.Vertical))
@@ -118,7 +126,10 @@ namespace PixUI.LayoutSystem
                 solver.AddConstraint(new ClLinearEquation(Cl.Plus(new ClLinearExpression(Height), Top), new ClLinearExpression(Bottom), ClStrength.Required));
                 if (hasIntrinsicSize)
                 {
-                    solver.AddConstraint(Height, IntrinsicHeight, (d, d1) => d == d1, ClStrength.Weak);
+                    // Compression resistance
+                    solver.AddConstraint(Height, IntrinsicHeight, (d, d1) => d >= d1, LayoutConstraintHelpers.StrengthFromPriority(VerticalCompressResistance));
+                    // Content hugging priority
+                    solver.AddConstraint(Height, IntrinsicHeight, (d, d1) => d <= d1, LayoutConstraintHelpers.StrengthFromPriority(VerticalHuggingPriority));
                 }
             }
         }
