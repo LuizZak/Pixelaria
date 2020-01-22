@@ -1,4 +1,4 @@
-/*
+﻿/*
     Pixelaria
     Copyright (C) 2013 Luiz Fernando Silva
 
@@ -68,6 +68,8 @@ namespace PixUI.LayoutSystem
         {
             var hasIntrinsicSize = _view.IntrinsicSize != Vector.Zero;
 
+            var location = _view.ConvertTo(Vector.Zero, null);
+
             if (orientation.HasFlag(LayoutAnchorOrientationFlags.Horizontal))
             {
                 if (_view.TranslateBoundsIntoConstraints)
@@ -81,7 +83,7 @@ namespace PixUI.LayoutSystem
                 }
 
                 solver.BeginEdit(Left, Width, IntrinsicWidth)
-                    .SuggestValue(Left, _view.X)
+                    .SuggestValue(Left, location.X)
                     .SuggestValue(Width, _view.Width)
                     .SuggestValue(IntrinsicWidth, _view.IntrinsicSize.X)
                     .EndEdit();
@@ -99,7 +101,7 @@ namespace PixUI.LayoutSystem
                 }
 
                 solver.BeginEdit(Top, Height, IntrinsicHeight)
-                    .SuggestValue(Top, _view.Y)
+                    .SuggestValue(Top, location.Y)
                     .SuggestValue(Height, _view.Height)
                     .SuggestValue(IntrinsicHeight, _view.IntrinsicSize.Y)
                     .EndEdit();
@@ -139,8 +141,14 @@ namespace PixUI.LayoutSystem
             if (_view.TranslateBoundsIntoConstraints)
                 return;
 
-            _view.X = (float) Left.Value;
-            _view.Y = (float) Top.Value;
+            var location = new Vector((float)Left.Value, (float)Top.Value);
+            if (_view.Parent != null)
+            {
+                location = _view.Parent.ConvertFrom(location, null);
+            }
+
+            _view.X = location.X;
+            _view.Y = location.Y;
             _view.Width = (float) Width.Value;
             _view.Height = (float) Height.Value;
         }
@@ -148,21 +156,6 @@ namespace PixUI.LayoutSystem
         private static string GetUniqueName([NotNull] BaseView view)
         {
             return $"{view}_{view.GetHashCode()}";
-        }
-
-        private Expression<Func<double, bool>> GetSingleExpression(LayoutRelationship constraintRelatedBy, double constant)
-        {
-            switch (constraintRelatedBy)
-            {
-                case LayoutRelationship.Equal:
-                    return source => source == constant;
-                case LayoutRelationship.GreaterThanOrEqual:
-                    return source => source >= constant;
-                case LayoutRelationship.LessThanOrEqual:
-                    return source => source <= constant;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(constraintRelatedBy), constraintRelatedBy, null);
-            }
         }
     }
 
@@ -264,17 +257,48 @@ namespace PixUI.LayoutSystem
 
             if (SecondAnchor != null)
             {
-                var secondVar = SecondAnchor.Variable();
+                // Create an expression of the form:
+                //
+                // first [==|<=|>=] (second - containerLocation) * multiplier + containerLocation + offset
+                //
+                // The container is a reference to the earliest common ancestor
+                // of the two views connected, and is used to apply proper multiplication
+                // of the constraints.
+                // For width/height constraints, containerLocation is zero, for left/right
+                // containerLocation is containerView.layout.left, and for top/bottom
+                // containerLocation is containerView.layout.top.
+                //
+                // Without this relative container offset, multiplicative constraints
+                // would multiply the absolute view locations, resulting in views
+                // that broke their parent view's bounds.
 
-                solver.AddConstraint(firstVar, secondVar, GetExpression(Relationship, Multiplier, Constant), Priority);
+                var secondExpression =
+                    new ClLinearExpression(SecondAnchor.Variable())
+                        .Minus(SecondAnchor.RelativeExpression(Container))
+                        .Times(Multiplier)
+                        .Plus(SecondAnchor.RelativeExpression(Container))
+                        .Plus(new ClLinearExpression(Constant));
+
+                ClConstraint constraint;
+
+                if (Relationship == LayoutRelationship.Equal)
+                {
+                    constraint = new ClLinearEquation(new ClLinearExpression(firstVar), secondExpression);
+                }
+                else
+                {
+                    constraint = new ClLinearInequality(new ClLinearExpression(firstVar), OperatorForRelationship(Relationship), secondExpression);
+                }
+
+                solver.AddConstraint(constraint);
             }
             else
             {
-                solver.AddConstraint(firstVar, GetSingleExpression(Relationship, Multiplier, Constant), Priority);
+                solver.AddConstraint(firstVar, GetSingleExpression(Relationship, Constant), Priority);
             }
         }
 
-        private Expression<Func<double, bool>> GetSingleExpression(LayoutRelationship constraintRelatedBy, double multiplier, double constant)
+        private Expression<Func<double, bool>> GetSingleExpression(LayoutRelationship constraintRelatedBy, double constant)
         {
             switch (constraintRelatedBy)
             {
@@ -289,34 +313,17 @@ namespace PixUI.LayoutSystem
             }
         }
 
-        private Expression<Func<double, double, bool>> GetExpression(LayoutRelationship constraintRelatedBy, double constraintMultiplier, double constraintConstant)
+        private static Cl.Operator OperatorForRelationship(LayoutRelationship relationship)
         {
-            switch (constraintRelatedBy)
+            switch (relationship)
             {
-                case LayoutRelationship.Equal:
-                    return EqualsExpression(constraintMultiplier, constraintConstant);
                 case LayoutRelationship.GreaterThanOrEqual:
-                    return GreaterThanExpression(constraintMultiplier, constraintConstant);
+                    return Cl.Operator.GreaterThanOrEqualTo;
                 case LayoutRelationship.LessThanOrEqual:
-                    return LessThanExpression(constraintMultiplier, constraintConstant);
+                    return Cl.Operator.LessThanOrEqualTo;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(constraintRelatedBy), constraintRelatedBy, null);
+                    throw new ArgumentOutOfRangeException(nameof(relationship), relationship, null);
             }
-        }
-
-        private static Expression<Func<double, double, bool>> GreaterThanExpression(double multiplier, double constant)
-        {
-            return (source, target) => source >= target * multiplier + constant;
-        }
-
-        private static Expression<Func<double, double, bool>> LessThanExpression(double multiplier, double constant)
-        {
-            return (source, target) => source <= target * multiplier + constant;
-        }
-
-        private static Expression<Func<double, double, bool>> EqualsExpression(double multiplier, double constant)
-        {
-            return (source, target) => source == target * multiplier + constant;
         }
 
         public static LayoutConstraint Create([NotNull] LayoutAnchor firstAnchor, LayoutRelationship relationship = LayoutRelationship.Equal, ClStrength priority = null, float constant = 0, float multiplier = 1)

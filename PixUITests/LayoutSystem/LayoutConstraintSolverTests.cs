@@ -52,7 +52,8 @@ namespace PixUITests.LayoutSystem
             var root = new BaseView
             {
                 TranslateBoundsIntoConstraints = true, 
-                Size = new Vector(300, 200)
+                Size = new Vector(300, 200),
+                Location = new Vector(20, 20)
             };
             var button = ButtonControl.Create();
             var label = LabelViewControl.Create("This is a label");
@@ -93,7 +94,8 @@ namespace PixUITests.LayoutSystem
             var root = new BaseView
             {
                 TranslateBoundsIntoConstraints = true,
-                Size = new Vector(300, 200)
+                Size = new Vector(300, 200),
+                Location = new Vector(20, 20)
             };
             var label = LabelViewControl.Create("This is a label");
             label.TranslateBoundsIntoConstraints = false;

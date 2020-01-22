@@ -83,6 +83,27 @@ namespace PixUI.LayoutSystem
                     throw new ArgumentOutOfRangeException();
             }
         }
+
+        internal ClLinearExpression RelativeExpression(BaseView relativeView)
+        {
+            switch (AnchorKind)
+            {
+                case LayoutAnchorKind.Left:
+                    return new ClLinearExpression(relativeView.LayoutVariables.Left);
+                case LayoutAnchorKind.Top:
+                    return new ClLinearExpression(relativeView.LayoutVariables.Top);
+                case LayoutAnchorKind.Right:
+                    return new ClLinearExpression(relativeView.LayoutVariables.Left);
+                case LayoutAnchorKind.Bottom:
+                    return new ClLinearExpression(relativeView.LayoutVariables.Bottom);
+                case LayoutAnchorKind.Width:
+                    return new ClLinearExpression(0);
+                case LayoutAnchorKind.Height:
+                    return new ClLinearExpression(0);
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
     }
 
     /// <summary>
