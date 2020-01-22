@@ -261,9 +261,9 @@ namespace PixUI.LayoutSystem
                 //
                 // first [==|<=|>=] (second - containerLocation) * multiplier + containerLocation + offset
                 //
-                // The container is a reference to the earliest common ancestor
-                // of the two views connected, and is used to apply proper multiplication
-                // of the constraints.
+                // The container is a reference to the direct parent of the second anchor's view,
+                // or the second anchor's view itself in case it has no parents, and is used to
+                // apply proper multiplication of the constraints.
                 // For width/height constraints, containerLocation is zero, for left/right
                 // containerLocation is containerView.layout.left, and for top/bottom
                 // containerLocation is containerView.layout.top.
@@ -271,13 +271,31 @@ namespace PixUI.LayoutSystem
                 // Without this relative container offset, multiplicative constraints
                 // would multiply the absolute view locations, resulting in views
                 // that potentially break their parent view's bounds.
+                //
+                //
+                // For non multiplicative constraints (where multiplier == 1), a simpler solution
+                // is used:
+                //
+                // first [==|<=|>=] second + offset
+                //
 
-                var secondExpression =
-                    new ClLinearExpression(SecondAnchor.Variable())
-                        .Minus(SecondAnchor.RelativeExpression(Container))
-                        .Times(Multiplier)
-                        .Plus(SecondAnchor.RelativeExpression(Container))
+                var container = SecondAnchor.Target.Parent ?? SecondAnchor.Target;
+
+                ClLinearExpression secondExpression;
+
+                if (Math.Abs(Multiplier - 1) < float.Epsilon)
+                {
+                    secondExpression = new ClLinearExpression(SecondAnchor.Variable())
                         .Plus(new ClLinearExpression(Constant));
+                }
+                else
+                {
+                    secondExpression = new ClLinearExpression(SecondAnchor.Variable())
+                        .Minus(SecondAnchor.RelativeExpression(container))
+                        .Times(Multiplier)
+                        .Plus(SecondAnchor.RelativeExpression(container))
+                        .Plus(new ClLinearExpression(Constant));
+                }
 
                 ClConstraint constraint;
 
