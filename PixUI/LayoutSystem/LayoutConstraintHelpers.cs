@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using System;
 using Cassowary;
 
 namespace PixUI.LayoutSystem
@@ -30,19 +31,28 @@ namespace PixUI.LayoutSystem
         /// Returns a <see cref="ClStrength"/> based on a priority value ranging
         /// from [0 - 1000].
         ///
-        /// A value of 1000 always converts to <see cref="ClStrength.Required"/>.
+        /// A value of 1000 always converts to <see cref="ClStrength.Required"/>,
+        /// 750 to <see cref="ClStrength.Strong"/>, 500 to <see cref="ClStrength.Medium"/>,
+        /// and 250 <see cref="ClStrength.Weak"/>. Values in between return priorities
+        /// in between, accordingly, growing in linear fashion.
         /// </summary>
         /// <param name="priority">A value ranging from 0 through 1000</param>
         public static ClStrength StrengthFromPriority(int priority)
         {
             if (priority >= 1000)
                 return ClStrength.Required;
+            if (priority == 750)
+                return ClStrength.Strong;
+            if (priority == 500)
+                return ClStrength.Medium;
+            if (priority == 250)
+                return ClStrength.Weak;
 
-            int w1 = priority / 100;
-            int w2 = priority / 10 % 10;
-            int w3 = priority % 10;
+            double upper = Math.Min(1, Math.Max(0, (priority - 500) / 250.0));
+            double mid = Math.Min(1, Math.Max(0, (priority - 250) / 250.0 % 1));
+            double lower = Math.Min(1, Math.Max(0, priority / 250.0 % 1));
 
-            return new ClStrength("custom", w1 / 10.0f, w2 / 10.0f, w3 / 10.0f);
+            return new ClStrength("custom", upper, mid, lower);
         }
     }
 }
