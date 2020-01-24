@@ -102,8 +102,7 @@ namespace PixelariaTests.Views.ExportPipeline
                 switch (baseView)
                 {
                     case PipelineNodeView nodeView:
-                        var labelViewSizer =
-                            new D2DTextSizeProvider(new StaticDirect2DRenderingStateProvider(state));
+                        var labelViewSizer = new D2DTextSizeProvider();
 
                         var sizer = new DefaultPipelineNodeViewLayout();
                         sizer.Layout(nodeView, labelViewSizer);

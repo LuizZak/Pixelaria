@@ -34,19 +34,11 @@ namespace PixDirectX.Rendering.DirectX
     public class D2DTextSizeProvider : ITextSizeProvider
     {
         [CanBeNull]
-        private readonly IDirect2DRenderingStateProvider _renderingStateProvider;
-
-        [CanBeNull]
         private readonly Factory _directWriteFactory;
 
         public D2DTextSizeProvider()
         {
             _directWriteFactory = new Factory();
-        }
-
-        public D2DTextSizeProvider(IDirect2DRenderingStateProvider renderingStateProvider)
-        {
-            _renderingStateProvider = renderingStateProvider;
         }
 
         public SizeF CalculateTextSize(string text, Font font)
@@ -61,28 +53,14 @@ namespace PixDirectX.Rendering.DirectX
 
         public SizeF CalculateTextSize(IAttributedText text, string font, float fontSize)
         {
-            Factory factory;
-            if(_renderingStateProvider != null)
-            {
-                var renderState = _renderingStateProvider.GetLatestValidRenderingState();
-                if (renderState == null)
-                    return SizeF.Empty;
-
-                factory = renderState.DirectWriteFactory;
-            }
-            else
-            {
-                factory = _directWriteFactory;
-            }
-
-            var format = new TextFormat(factory, font, fontSize)
+            var format = new TextFormat(_directWriteFactory, font, fontSize)
             {
                 TextAlignment = TextAlignment.Leading,
                 ParagraphAlignment = ParagraphAlignment.Center
             };
 
             using (var textFormat = format)
-            using (var textLayout = new TextLayout(factory, text.String, textFormat, float.PositiveInfinity, float.PositiveInfinity))
+            using (var textLayout = new TextLayout(_directWriteFactory, text.String, textFormat, float.PositiveInfinity, float.PositiveInfinity))
             {
                 foreach (var textSegment in text.GetTextSegments())
                 {
