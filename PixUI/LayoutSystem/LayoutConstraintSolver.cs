@@ -42,11 +42,16 @@ namespace PixUI.LayoutSystem
                 constraintList.AffectedViews.Add(baseView.LayoutVariables);
 
                 constraintList.HorizontalConstraints.AddRange(
-                    baseView.LayoutConstraints.Where(lc => lc.FirstAnchor.Orientation == LayoutAnchorOrientationFlags.Horizontal)
+                    baseView
+                        .LayoutConstraints
+                        .Where(lc => lc.IsEnabled)
+                        .Where(lc => lc.FirstAnchor.Orientation == LayoutAnchorOrientationFlags.Horizontal)
                 );
 
                 constraintList.VerticalConstraints.AddRange(
-                    baseView.LayoutConstraints.Where(lc => lc.FirstAnchor.Orientation == LayoutAnchorOrientationFlags.Vertical)
+                    baseView.LayoutConstraints
+                        .Where(lc => lc.IsEnabled)
+                        .Where(lc => lc.FirstAnchor.Orientation == LayoutAnchorOrientationFlags.Vertical)
                 );
             });
 

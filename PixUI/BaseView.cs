@@ -52,6 +52,8 @@ namespace PixUI
 
         private readonly InternalLayoutEvents _layoutEvents;
 
+        protected bool needsLayout;
+
         internal ViewLayoutConstraintVariables LayoutVariables;
 
         /// <summary>
@@ -165,6 +167,7 @@ namespace PixUI
             {
                 InvalidateFullBounds();
                 _location = value;
+                SetNeedsLayout();
                 RecreateLocalTransformMatrix();
                 InvalidateFullBounds();
             }
@@ -186,6 +189,7 @@ namespace PixUI
 
                 Invalidate();
                 _size = value;
+                SetNeedsLayout();
                 OnResize();
                 _layoutEvents.DidResize();
                 Invalidate();
@@ -376,6 +380,45 @@ namespace PixUI
             Location = aabb.Minimum;
             Size = aabb.Size;
         }
+
+        #region Layout
+
+        /// <summary>
+        /// Method called whenever the <see cref="Size"/> property of this view is updated.
+        /// </summary>
+        protected virtual void OnResize()
+        {
+            Layout();
+        }
+
+        /// <summary>
+        /// Called by <see cref="BaseView"/> when it's size has changed to request re-layouting.
+        /// Can also be called by clients to force a re-layout of this control.
+        /// 
+        /// Avoid making any changes to <see cref="Size"/> on this method as to not trigger an infinite
+        /// recursion.
+        /// 
+        /// Note: Always call <c>base.Layout()</c> when overriding this method.
+        /// </summary>
+        public virtual void Layout()
+        {
+            needsLayout = false;
+        }
+
+        /// <summary>
+        /// Marks this view as requiring a re-layout during the next available layout cycle.
+        ///
+        /// Marking a view as needing a layout also marks all ancestor views as needing layout
+        /// as well.
+        /// </summary>
+        public virtual void SetNeedsLayout()
+        {
+            needsLayout = true;
+
+            Parent?.SetNeedsLayout();
+        }
+
+        #endregion
 
         /// <summary>
         /// Adds a base view as the child of this base view.
@@ -818,14 +861,6 @@ namespace PixUI
             }
 
             return bounds;
-        }
-
-        /// <summary>
-        /// Method called whenever the <see cref="Size"/> property of this view is updated.
-        /// </summary>
-        protected virtual void OnResize()
-        {
-            
         }
 
         #region Content compression / hugging priority

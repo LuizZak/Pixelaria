@@ -268,13 +268,6 @@ namespace PixUI.Controls
             DisposeBag.Dispose();
         }
 
-        protected override void OnResize()
-        {
-            base.OnResize();
-
-            Layout();
-        }
-
         protected virtual void OnChangedState(ControlViewState newState)
         {
 
@@ -437,24 +430,6 @@ namespace PixUI.Controls
                 _stateManager.SetIsFirstResponder(false);
             }
         }
-
-        #region Layout
-
-        /// <summary>
-        /// Called by <see cref="ControlView"/> when it's size has changed to request re-layouting.
-        /// Can also be called by clients to force a re-layout of this control.
-        /// 
-        /// Avoid making any changes to <see cref="BaseView.Size"/> on this method as to not trigger an infinite
-        /// recursion.
-        /// 
-        /// Note: Always call <c>base.Layout()</c> when overriding this method.
-        /// </summary>
-        public virtual void Layout()
-        {
-
-        }
-
-        #endregion
 
         /// <summary>
         /// Adds a mouse event recognizer that is capable of handling mouse events

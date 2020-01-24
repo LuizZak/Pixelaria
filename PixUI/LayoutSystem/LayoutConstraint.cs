@@ -210,11 +210,6 @@ namespace PixUI.LayoutSystem
         /// </summary>
         public LayoutRelationship Relationship { get; }
 
-        internal LayoutConstraint([NotNull] LayoutAnchor anchor, LayoutRelationship relationship, [NotNull] ClStrength priority) : this(anchor, null, relationship, priority)
-        {
-            
-        }
-
         internal LayoutConstraint([NotNull] LayoutAnchor firstAnchor, [CanBeNull] LayoutAnchor secondAnchor, LayoutRelationship relationship, [NotNull] ClStrength priority)
         {
             if (secondAnchor != null)
@@ -246,6 +241,9 @@ namespace PixUI.LayoutSystem
             Container?.LayoutConstraints.Remove(this);
             FirstAnchor.Target.AffectingConstraints.Remove(this);
             SecondAnchor?.Target.AffectingConstraints.Remove(this);
+
+            FirstAnchor.Target.SetNeedsLayout();
+            SecondAnchor?.Target.SetNeedsLayout();
         }
 
         internal void BuildConstraints([NotNull] ClSimplexSolver solver)
@@ -374,6 +372,9 @@ namespace PixUI.LayoutSystem
                 firstAnchor.Target.LayoutConstraints.Add(constraint);
                 constraint.Container = firstAnchor.Target;
             }
+            
+            firstAnchor.Target.SetNeedsLayout();
+            secondAnchor?.Target.SetNeedsLayout();
 
             return constraint;
         }
