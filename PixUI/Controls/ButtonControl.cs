@@ -101,11 +101,7 @@ namespace PixUI.Controls
         public HorizontalTextAlignment HorizontalTextAlignment
         {
             get => _label.HorizontalTextAlignment;
-            set
-            {
-                _label.HorizontalTextAlignment = value;
-                Invalidate();
-            }
+            set => _label.HorizontalTextAlignment = value;
         }
 
         /// <summary>
@@ -114,11 +110,7 @@ namespace PixUI.Controls
         public VerticalTextAlignment VerticalTextAlignment
         {
             get => _label.VerticalTextAlignment;
-            set
-            {
-                _label.VerticalTextAlignment = value;
-                Invalidate();
-            }
+            set => _label.VerticalTextAlignment = value;
         }
 
         /// <summary>
