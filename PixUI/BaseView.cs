@@ -165,6 +165,9 @@ namespace PixUI
             get => _location;
             set
             {
+                if (_location == value)
+                    return;
+
                 InvalidateFullBounds();
                 _location = value;
                 SetNeedsLayout();

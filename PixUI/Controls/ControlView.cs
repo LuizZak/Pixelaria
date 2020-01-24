@@ -40,6 +40,7 @@ namespace PixUI.Controls
     /// </summary>
     public class ControlView : SelfRenderingBaseView, IMouseEventHandler, IDisposable
     {
+        private bool _interactionEnabled = true;
         private bool _mouseDown;
 
         /// <summary>
@@ -87,8 +88,6 @@ namespace PixUI.Controls
         /// to put subscriptions' <see cref="IDisposable"/> returns into.
         /// </summary>
         protected readonly CompositeDisposable DisposeBag = new CompositeDisposable();
-
-        private bool _interactionEnabled = true;
 
         public override bool Visible
         {
