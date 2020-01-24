@@ -146,6 +146,7 @@ namespace PixUI.Controls
             InteractionEnabled = false;
             _labelViewBacking.BoundsInvalidated += (sender, args) =>
             {
+                SetNeedsLayout();
                 CalculateBounds();
                 Invalidate();
             };
