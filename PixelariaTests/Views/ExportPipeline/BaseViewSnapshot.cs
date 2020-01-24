@@ -21,11 +21,9 @@
 */
 
 using System;
-using System.Drawing;
 using FastBitmapLib;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PixCore.Geometry;
 using PixDirectX.Rendering.DirectX;
 using PixRendering;
 using PixSnapshot;
@@ -83,7 +81,7 @@ namespace PixelariaTests.Views.ExportPipeline
             var pixelFormat = PixelFormat.Format32bppPBGRA;
 
             int width = (int) Math.Round(view.Width);
-            int height = (int)Math.Round(view.Height);
+            int height = (int) Math.Round(view.Height);
 
             using (var imgFactory = new ImagingFactory())
             using (var wicBitmap = new SharpDX.WIC.Bitmap(imgFactory, width, height, pixelFormat, bitmapCreateCacheOption))
@@ -101,7 +99,7 @@ namespace PixelariaTests.Views.ExportPipeline
                 ImagesConfig?.Invoke(renderer.ImageResources, renderLoop.RenderingState);
                 ImagesConfig = null; // Always erase after each snapshot to make sure we don't accidentally carry over resources across snapshot tests
 
-                renderer.Initialize(renderLoop.D2DRenderState, new FullClipping());
+                renderer.Initialize(renderLoop.D2DRenderState, new FullClippingRegion());
 
                 renderLoop.RenderSingleFrame(state =>
                 {
@@ -132,49 +130,6 @@ namespace PixelariaTests.Views.ExportPipeline
                 }
 
                 return bitmap;
-            }
-        }
-        
-        private class FullClipping : IClippingRegion
-        {
-            public RectangleF[] RedrawRegionRectangles(Size size)
-            {
-                return new[] { new RectangleF(PointF.Empty, size) };
-            }
-
-            public RectangleF TotalRedrawRegion(Size size)
-            {
-                return new RectangleF(0, 0, size.Width, size.Height);
-            }
-
-            public bool IsVisibleInClippingRegion(Rectangle rectangle)
-            {
-                return true;
-            }
-
-            public bool IsVisibleInClippingRegion(Point point)
-            {
-                return true;
-            }
-
-            public bool IsVisibleInClippingRegion(AABB aabb)
-            {
-                return true;
-            }
-
-            public bool IsVisibleInClippingRegion(Vector point)
-            {
-                return true;
-            }
-
-            public bool IsVisibleInClippingRegion(AABB aabb, ISpatialReference reference)
-            {
-                return true;
-            }
-
-            public bool IsVisibleInClippingRegion(Vector point, ISpatialReference reference)
-            {
-                return true;
             }
         }
     }

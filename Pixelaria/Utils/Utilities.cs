@@ -87,29 +87,29 @@ namespace Pixelaria.Utils
         }
 
         /// <summary>
-        /// Returns a formated sting that contains the most significant magnitude
+        /// Returns a formatted sting that contains the most significant magnitude
         /// representation of the given number of bytes
         /// </summary>
         /// <param name="bytes">The number of bytes</param>
-        /// <returns>A formated string with the byte count converted to the most significant magnitude</returns>
+        /// <returns>A formatted string with the byte count converted to the most significant magnitude</returns>
         [Pure]
         public static string FormatByteSize(long bytes)
         {
             int magnitude = 0;
-            string[] sulfixes = { "b", "kb", "mb", "gb", "tb", "pt", "eb", "zb", "yb" };
+            string[] suffixes = { "b", "kb", "mb", "gb", "tb", "pt", "eb", "zb", "yb" };
 
             float b = bytes;
 
             while (b > 1024)
             {
-                if (magnitude == sulfixes.Length - 1)
+                if (magnitude == suffixes.Length - 1)
                     break;
 
                 b /= 1024;
                 magnitude++;
             }
 
-            return Math.Round(b * 100) / 100 + sulfixes[magnitude];
+            return Math.Round(b * 100) / 100 + suffixes[magnitude];
         }
 
         /// <summary>
@@ -134,33 +134,6 @@ namespace Pixelaria.Utils
             return true;
         }
         
-        /// <summary>
-        /// Transforms a given list of Frames into a list of Bitmaps.
-        /// The list of bitmaps will be equivalent to taking the Frame.GetComposedBitmap() of each frame
-        /// </summary>
-        /// <param name="frameList">A list of frames to transform into bitmaps</param>
-        /// <returns>The given list of frames, turned into a list of bitmaps</returns>
-        public static List<Bitmap> ToBitmapList(this List<IFrame> frameList)
-        {
-            return new List<Bitmap>(
-                                from frame in frameList
-                                select frame.GetComposedBitmap()
-                                );
-        }
-
-        /// <summary>
-        /// Transforms a given array of Frames into a array of Bitmaps.
-        /// The array of bitmaps will be equivalent to taking the Frame.GetComposedBitmap() of each frame
-        /// </summary>
-        /// <param name="frames">An array of frames to transform into bitmaps</param>
-        /// <returns>The given array of frames, turned into a array of bitmaps</returns>
-        public static Bitmap[] ToBitmapArray(this IFrame[] frames)
-        {
-            return (from frame in frames
-                    select frame.GetComposedBitmap()
-                    ).ToArray();
-        }
-
         /// <summary>
         /// Finds the control that is currently focused under the given control.
         /// If no other control is focused, the passed control is returned
@@ -237,11 +210,9 @@ namespace Pixelaria.Utils
         /// 
         /// SampleCase          -> Sample Case
         /// PerformHTTPRequest  -> Perform HTTP Request
-        /// AnotherSample       -> Anoter Sample
+        /// AnotherSample       -> Another Sample
         /// 
         /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
         [NotNull]
         public static string DePascalCase([NotNull] string name)
         {

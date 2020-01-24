@@ -20,34 +20,20 @@
     base directory of this project.
 */
 
+using System;
 using System.Drawing;
 using JetBrains.Annotations;
 
 using PixUI;
-
-using Pixelaria.ExportPipeline;
+using PixPipelineGraph;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineView
 {
     /// <summary>
     /// A view for a link of a pipeline step view
     /// </summary>
-    internal sealed class PipelineNodeLinkView : BaseView
+    internal abstract class PipelineNodeLinkView : BaseView
     {
-        /// <summary>
-        /// A static pipeline output connected to this node link, if available.
-        /// 
-        /// Is set to null and replaced by any other output that is connected to
-        /// this input.
-        /// </summary>
-        [CanBeNull]
-        public IStaticPipelineOutput FixedOutput { get; set; }
-
-        /// <summary>
-        /// The connection this link references on its parent step view
-        /// </summary>
-        public IPipelineNodeLink NodeLink { get; }
-
         /// <summary>
         /// Gets the parent step view for this link view
         /// </summary>
@@ -55,24 +41,22 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         public PipelineNodeView NodeView => (PipelineNodeView)Parent;
 
         /// <summary>
+        /// Gets the title for this node
+        /// </summary>
+        public string Title { get; }
+
+        /// <summary>
         /// Gets a label displayed alongside this node link view on the parent
         /// node view's body
         /// </summary>
         public LabelView LinkLabel { get; } = new LabelView();
 
-        public static PipelineNodeLinkView Create([NotNull] IPipelineNodeLink nodeLink)
+        protected PipelineNodeLinkView(string title)
         {
-            var view = new PipelineNodeLinkView(nodeLink);
-            view.Initialize();
-            return view;
+            Title = title;
         }
 
-        private PipelineNodeLinkView([NotNull] IPipelineNodeLink nodeLink)
-        {
-            NodeLink = nodeLink;
-        }
-
-        private void Initialize()
+        protected void Initialize()
         {
             LinkLabel.StrokeWidth = 0;
             LinkLabel.TextColor = Color.Black;
@@ -92,7 +76,74 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         /// </summary>
         public void UpdateDisplay()
         {
-            LinkLabel.Text = NodeLink.Name;
+            LinkLabel.Text = Title;
+        }
+    }
+
+    /// <summary>
+    /// A view for an input link of a pipeline step view
+    /// </summary>
+    internal sealed class PipelineNodeInputLinkView : PipelineNodeLinkView
+    {
+        /// <summary>
+        /// Gets the ID of this node input.
+        /// 
+        /// If <c>null</c>, indicates this view is not associated with a node.
+        /// </summary>
+        public PipelineInput? InputId { get; }
+
+        /// <summary>
+        /// Gets the input type for this input link view
+        /// </summary>
+        public Type InputType { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether the input link associated with this view is editable
+        /// </summary>
+        public bool IsInputEditable { get; set; }
+
+        public static PipelineNodeInputLinkView Create([NotNull] IPipelineInput input)
+        {
+            var view = new PipelineNodeInputLinkView(input, input.DataType);
+            view.Initialize();
+            return view;
+        }
+
+        private PipelineNodeInputLinkView([NotNull] IPipelineInput input, [NotNull] Type inputType) : base(input.Name)
+        {
+            InputId = input.Id;
+            InputType = inputType;
+        }
+    }
+
+    /// <summary>
+    /// A view for an output link of a pipeline step view
+    /// </summary>
+    internal sealed class PipelineNodeOutputLinkView : PipelineNodeLinkView
+    {
+        /// <summary>
+        /// Gets or sets the ID of this node output.
+        /// 
+        /// If <c>null</c>, indicates this view is not associated with a node.
+        /// </summary>
+        public PipelineOutput? OutputId { get; }
+
+        /// <summary>
+        /// Gets the output type for this output link view
+        /// </summary>
+        public Type OutputType { get; }
+
+        public static PipelineNodeOutputLinkView Create([NotNull] IPipelineOutput output)
+        {
+            var view = new PipelineNodeOutputLinkView(output, output.DataType);
+            view.Initialize();
+            return view;
+        }
+
+        private PipelineNodeOutputLinkView([NotNull] IPipelineOutput output, [NotNull] Type outputType) : base(output.Name)
+        {
+            OutputId = output.Id;
+            OutputType = outputType;
         }
     }
 }

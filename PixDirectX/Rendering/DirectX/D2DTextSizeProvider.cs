@@ -22,6 +22,7 @@
 
 
 using System.Drawing;
+using JetBrains.Annotations;
 using PixCore.Text;
 using PixCore.Text.Attributes;
 using PixRendering;
@@ -32,11 +33,12 @@ namespace PixDirectX.Rendering.DirectX
 {
     public class D2DTextSizeProvider : ITextSizeProvider
     {
-        private readonly IDirect2DRenderingStateProvider _renderingStateProvider;
+        [CanBeNull]
+        private readonly Factory _directWriteFactory;
 
-        public D2DTextSizeProvider(IDirect2DRenderingStateProvider renderingStateProvider)
+        public D2DTextSizeProvider()
         {
-            _renderingStateProvider = renderingStateProvider;
+            _directWriteFactory = new Factory();
         }
 
         public SizeF CalculateTextSize(string text, Font font)
@@ -51,18 +53,14 @@ namespace PixDirectX.Rendering.DirectX
 
         public SizeF CalculateTextSize(IAttributedText text, string font, float fontSize)
         {
-            var renderState = _renderingStateProvider.GetLatestValidRenderingState();
-            if (renderState == null)
-                return SizeF.Empty;
-
-            var format = new TextFormat(renderState.DirectWriteFactory, font, fontSize)
+            var format = new TextFormat(_directWriteFactory, font, fontSize)
             {
                 TextAlignment = TextAlignment.Leading,
                 ParagraphAlignment = ParagraphAlignment.Center
             };
 
             using (var textFormat = format)
-            using (var textLayout = new TextLayout(renderState.DirectWriteFactory, text.String, textFormat, float.PositiveInfinity, float.PositiveInfinity))
+            using (var textLayout = new TextLayout(_directWriteFactory, text.String, textFormat, float.PositiveInfinity, float.PositiveInfinity))
             {
                 foreach (var textSegment in text.GetTextSegments())
                 {

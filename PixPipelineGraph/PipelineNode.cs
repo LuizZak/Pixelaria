@@ -27,25 +27,37 @@ namespace PixPipelineGraph
     /// <summary>
     /// Represents a pipeline node
     /// </summary>
-    internal class PipelineNode
+    internal class PipelineNode : IPipelineNodeView
     {
-        internal PipelineNodeId Id { get; set; }
-        internal List<InternalPipelineInput> Inputs = new List<InternalPipelineInput>();
-        internal List<InternalPipelineOutput> Outputs = new List<InternalPipelineOutput>();
+        public PipelineNodeKind NodeKind { get; set; }
+        public string Title { get; set; }
+        public PipelineNodeId NodeId { get; set; }
 
-        internal PipelineNode(PipelineNodeId id)
+        public IReadOnlyList<IPipelineInput> Inputs => InternalInputs;
+        public IReadOnlyList<IPipelineOutput> Outputs => InternalOutputs;
+
+        public PipelineBodyId BodyId => Body.Id;
+
+        internal List<InternalPipelineInput> InternalInputs = new List<InternalPipelineInput>();
+        internal List<InternalPipelineOutput> InternalOutputs = new List<InternalPipelineOutput>();
+
+        internal PipelineBody Body { get; set; }
+
+        public IPipelineMetadata PipelineMetadata { get; set; } = new PipelineMetadata();
+
+        internal PipelineNode(PipelineNodeId nodeId)
         {
-            Id = id;
+            NodeId = nodeId;
         }
 
         internal PipelineInput NextAvailableInputId()
         {
-            return new PipelineInput(Id, Inputs.Count);
+            return new PipelineInput(NodeId, InternalInputs.Count);
         }
 
         internal PipelineOutput NextAvailableOutputId()
         {
-            return new PipelineOutput(Id, Outputs.Count);
+            return new PipelineOutput(NodeId, InternalOutputs.Count);
         }
     }
 }

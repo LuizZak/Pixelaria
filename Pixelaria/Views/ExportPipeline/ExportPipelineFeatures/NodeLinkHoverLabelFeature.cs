@@ -33,7 +33,6 @@ using PixCore.Text;
 using PixCore.Text.Attributes;
 using PixUI;
 
-using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using PixRendering;
 using PixUI.Controls;
@@ -111,39 +110,24 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
         private void DisplayLabelForLink([NotNull] PipelineNodeLinkView linkView)
         {
-            Type[] types;
-            if (linkView.NodeLink is IPipelineOutput output)
+            Type type = null;
+            if (linkView is PipelineNodeOutputLinkView outputLink && outputLink.OutputId.HasValue)
             {
-                types = new[] { output.DataType };
+                var output = Control.PipelineContainer.PipelineGraph.GetOutput(outputLink.OutputId.Value);
+                if (output != null)
+                    type = output.DataType;
             }
-            else if (linkView.NodeLink is IPipelineInput input)
+            else if (linkView is PipelineNodeInputLinkView inputLink && inputLink.InputId.HasValue)
             {
-                types = input.DataTypes;
-            }
-            else
-            {
-                types = new Type[0];
+                var input = Control.PipelineContainer.PipelineGraph.GetInput(inputLink.InputId.Value);
+                if (input != null)
+                    type = input.DataType;
             }
 
             var labelText = new AttributedText();
 
-            // Construct accepted types string
-            var typeListText = new AttributedText();
-
-            foreach (var type in types)
-            {
-                var typeText = new AttributedText(NameForType(type), new ForegroundColorAttribute(ColorForType(type)));
-
-                if (typeListText.Length > 0)
-                {
-                    typeListText += ", ";
-                }
-
-                typeListText += typeText;
-            }
-
             // Assign label text
-            bool isOutput = linkView.NodeLink is IPipelineOutput;
+            bool isOutput = linkView is PipelineNodeOutputLinkView;
 
             labelText.Append(isOutput ? "output:" : "input:",
                 new ITextAttribute[]
@@ -153,12 +137,15 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 });
 
             labelText.Append("\n");
-            labelText.Append(linkView.NodeLink.Name);
+            labelText.Append(linkView.Title);
 
-            if (types.Length > 0)
+            if (type != null)
             {
+                // Construct accepted types string
+                var typeText = new AttributedText(NameForType(type), new ForegroundColorAttribute(ColorForType(type)));
+
                 labelText.Append(": ");
-                labelText.Append(typeListText);
+                labelText.Append(typeText);
             }
 
             // Append connection count, if available

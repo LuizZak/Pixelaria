@@ -69,7 +69,7 @@ namespace PixelariaTests.Data.Persistence
 
             Assert.IsNotNull(loadedBundle);
 
-            UtilsTests.AssertBundlesEqual(bundle, loadedBundle,
+            UtilitiesTests.AssertBundlesEqual(bundle, loadedBundle,
                 "After persisting a file to a stream and loading it back up again, the bundles must be equal");
 
             var preCopy = stream.GetBuffer().ToArray(); // Copy buffer for later comparing
@@ -82,7 +82,7 @@ namespace PixelariaTests.Data.Persistence
             
             Assert.IsNotNull(loadedBundle);
 
-            UtilsTests.AssertBundlesEqual(bundle, loadedBundle,
+            UtilitiesTests.AssertBundlesEqual(bundle, loadedBundle,
                 "After persisting a file to a stream and loading it back up again, the bundles must be equal");
 
             // Verify all frame images are not ReadOnly
@@ -123,7 +123,7 @@ namespace PixelariaTests.Data.Persistence
 
             Assert.IsNotNull(newBundle);
 
-            UtilsTests.AssertBundlesEqual(originalBundle, newBundle,
+            UtilitiesTests.AssertBundlesEqual(originalBundle, newBundle,
                 "After persisting a new (>= v8) file to disk and loading it back up again, the bundles must be equal");
 
             // Test old file format loading
@@ -132,7 +132,7 @@ namespace PixelariaTests.Data.Persistence
 
             Assert.IsNotNull(newBundle);
 
-            UtilsTests.AssertBundlesEqual(v8Bundle, newBundle,
+            UtilitiesTests.AssertBundlesEqual(v8Bundle, newBundle,
                 "After loading a legacy (< v8) file to disk and loading it back up again, the bundles must be equal");
 
             // Now load the bundle using the LoadFileFromDisk
@@ -140,7 +140,7 @@ namespace PixelariaTests.Data.Persistence
 
             Assert.IsNotNull(newBundle);
 
-            UtilsTests.AssertBundlesEqual(v8Bundle, newBundle,
+            UtilitiesTests.AssertBundlesEqual(v8Bundle, newBundle,
                 "After loading a legacy (< v8) file to disk and loading it back up again, the bundles must be equal");
 
             // Verify all frame images are not ReadOnly

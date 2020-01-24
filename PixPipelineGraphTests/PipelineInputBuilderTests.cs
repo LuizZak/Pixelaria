@@ -37,14 +37,11 @@ namespace PixPipelineGraphTests
             var unitUnderTest = CreatePipelineInputBuilder();
 
             // Act
-            unitUnderTest.AddInputType(typeof(string));
-            unitUnderTest.AddInputType(typeof(int));
+            unitUnderTest.SetInputType(typeof(string));
 
             // Assert
             var result = RunBuild(unitUnderTest, "input");
-            Assert.IsTrue(result.DataTypes.Contains(typeof(string)));
-            Assert.IsTrue(result.DataTypes.Contains(typeof(int)));
-            Assert.AreEqual(result.DataTypes.Count, 2);
+            Assert.IsTrue(result.DataType == typeof(string));
             Assert.AreEqual(result.Name, "input");
         }
 

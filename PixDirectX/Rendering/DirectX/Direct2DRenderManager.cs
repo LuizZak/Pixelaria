@@ -94,9 +94,9 @@ namespace PixDirectX.Rendering.DirectX
 
         public Direct2DRenderManager()
         {
-            _imageResources = new ImageResources();
+            _imageResources = new ImageResources(this);
             _textMetrics = new TextMetrics(this);
-            _textSizeProvider = new D2DTextSizeProvider(this);
+            _textSizeProvider = new D2DTextSizeProvider();
         }
 
         ~Direct2DRenderManager()
@@ -612,6 +612,7 @@ namespace PixDirectX.Rendering.DirectX
         {
             _state.D2DRenderTarget.FillRectangle(area.ToRawRectangleF(), BrushForFill());
         }
+
         public void FillRoundedArea(AABB area, float radiusX, float radiusY)
         {
             var roundedRect = new RoundedRectangle
@@ -698,8 +699,9 @@ namespace PixDirectX.Rendering.DirectX
         public void DrawBitmap(IManagedImageResource image, RectangleF region, float opacity, ImageInterpolationMode interpolationMode, Color? tintColor = null)
         {
             var bitmap = CastBitmapOrFail(image);
+            EnsureBitmapRenderTarget(bitmap);
 
-            DrawBitmap(bitmap.Bitmap, region, opacity, interpolationMode, tintColor);
+            DrawBitmap(bitmap.bitmap, region, opacity, interpolationMode, tintColor);
         }
 
         public void DrawBitmap(IManagedImageResource image, AABB region, float opacity, ImageInterpolationMode interpolationMode, Color? tintColor = null)
@@ -727,6 +729,18 @@ namespace PixDirectX.Rendering.DirectX
             }
         }
 
+        private void EnsureBitmapRenderTarget([NotNull] DirectXBitmap bitmap)
+        {
+            if (bitmap.renderTarget == _state.D2DRenderTarget)
+                return;
+
+            Debug.WriteLine("Attempted to render DirectXBitmap in a different RenderTarget w/ WrappedDirect2DRenderer. Re-creating bitmap with current RenderTarget and continuing...");
+
+            bitmap.renderTarget = _state.D2DRenderTarget;
+            bitmap.bitmap.Dispose();
+            bitmap.bitmap = Direct2DRenderManager.CreateSharpDxBitmap(_state.D2DRenderTarget, bitmap.original);
+        }
+
         private static BitmapInterpolationMode ToBitmapInterpolation(ImageInterpolationMode imageInterpolationMode)
         {
             switch (imageInterpolationMode)
@@ -739,6 +753,7 @@ namespace PixDirectX.Rendering.DirectX
                     return BitmapInterpolationMode.Linear;
             }
         }
+
         private static InterpolationMode ToInterpolation(ImageInterpolationMode imageInterpolationMode)
         {
             switch (imageInterpolationMode)
@@ -891,7 +906,7 @@ namespace PixDirectX.Rendering.DirectX
         public IBrush CreateBitmapBrush(IManagedImageResource image)
         {
             var bitmap = CastBitmapOrFail(image);
-            return new InternalBitmapBrush(bitmap.Bitmap);
+            return new InternalBitmapBrush(bitmap.bitmap);
         }
 
         #endregion

@@ -39,12 +39,12 @@ namespace PixRendering
         /// <summary>
         /// Creates a managed image resource for rendering in ad-hoc fashion in a compatible <see cref="IRenderer"/> interface.
         /// </summary>
-        IManagedImageResource CreateManagedImageResource([NotNull] IRenderLoopState state, [NotNull] Bitmap bitmap);
+        IManagedImageResource CreateManagedImageResource([NotNull] Bitmap bitmap);
 
         /// <summary>
         /// Updates a managed image resource.
         /// </summary>
-        void UpdateManagedImageResource([NotNull] IRenderLoopState state, [NotNull] ref IManagedImageResource managedImage, [NotNull] Bitmap bitmap);
+        void UpdateManagedImageResource([NotNull] ref IManagedImageResource managedImage, [NotNull] Bitmap bitmap);
 
         void RemoveImageResource([NotNull] string resourceName);
 

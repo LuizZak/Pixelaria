@@ -27,7 +27,7 @@ using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixCore.Text;
 using PixRendering;
-using PixUI.Utils.Layouting;
+using PixUI.Utils.Layout;
 
 namespace PixUI.Controls
 {
@@ -41,8 +41,6 @@ namespace PixUI.Controls
         /// </summary>
         private readonly LabelViewControl _label = LabelViewControl.Create();
         
-        private ButtonState _state = ButtonState.Normal;
-
         private ImageResource? _image;
         private IManagedImageResource _managedImage;
         private InsetBounds _textInset;
@@ -53,7 +51,6 @@ namespace PixUI.Controls
         private Color _highlightColor = Color.LightGray;
         private Color _selectedColor = Color.Gray;
 
-        private bool _mouseDown;
         private ButtonColorMode _colorMode;
 
         /// <summary>
@@ -99,30 +96,12 @@ namespace PixUI.Controls
         }
 
         /// <summary>
-        /// Gets the current button state
-        /// </summary>
-        public ButtonState State
-        {
-            get => _state;
-            private set
-            {
-                _state = value;
-                UpdateColors();
-                Invalidate();
-            }
-        }
-
-        /// <summary>
         /// Gets or sets the horizontal text alignment for the control's contents
         /// </summary>
         public HorizontalTextAlignment HorizontalTextAlignment
         {
             get => _label.HorizontalTextAlignment;
-            set
-            {
-                _label.HorizontalTextAlignment = value;
-                Invalidate();
-            }
+            set => _label.HorizontalTextAlignment = value;
         }
 
         /// <summary>
@@ -131,11 +110,7 @@ namespace PixUI.Controls
         public VerticalTextAlignment VerticalTextAlignment
         {
             get => _label.VerticalTextAlignment;
-            set
-            {
-                _label.VerticalTextAlignment = value;
-                Invalidate();
-            }
+            set => _label.VerticalTextAlignment = value;
         }
 
         /// <summary>
@@ -281,6 +256,7 @@ namespace PixUI.Controls
 
         protected void Initialize()
         {
+            MouseDownSelected = true;
             CornerRadius = 3;
 
             _label.Text = "Button";
@@ -319,16 +295,24 @@ namespace PixUI.Controls
         private AABB BoundsForText()
         {
             var bounds = Bounds.Inset(TextInset);
+            var imageBounds = BoundsForImage();
 
-            if (!Image.HasValue)
+            if (imageBounds.Validity != AABB.State.Valid)
                 return bounds;
 
-            var image = Image.Value;
-            var imgBounds = BoundsForImage(image);
-
-            bounds = bounds.Inset(new InsetBounds(imgBounds.Right, 0, 0, 0));
+            bounds = bounds.Inset(new InsetBounds(imageBounds.Right, 0, 0, 0));
 
             return bounds;
+        }
+
+        private AABB BoundsForImage()
+        {
+            if (ManagedImage != null)
+                return BoundsForImage(ManagedImage);
+            if (Image.HasValue)
+                return BoundsForImage(Image.Value);
+
+            return AABB.Invalid;
         }
 
         private AABB BoundsForImage(ImageResource image)
@@ -347,9 +331,17 @@ namespace PixUI.Controls
             var bounds = Bounds.Inset(ImageInset);
 
             bitmapBounds = bitmapBounds.OffsetBy(bounds.Minimum.X, 0);
-            bitmapBounds = LayoutingHelper.CenterWithinContainer(bitmapBounds, bounds, LayoutDirection.Vertical);
+            bitmapBounds = LayoutHelper.CenterWithinContainer(bitmapBounds, bounds, LayoutDirection.Vertical);
 
             return bitmapBounds;
+        }
+
+        protected override void OnChangedState(ControlViewState newState)
+        {
+            base.OnChangedState(newState);
+
+            UpdateColors();
+            Invalidate();
         }
 
         public override void OnMouseClick(MouseEventArgs e)
@@ -359,78 +351,36 @@ namespace PixUI.Controls
             Clicked?.Invoke(this, EventArgs.Empty);
         }
 
-        public override void OnMouseEnter()
-        {
-            base.OnMouseEnter();
-
-            State = ButtonState.Highlight;
-        }
-
-        public override void OnMouseDown(MouseEventArgs e)
-        {
-            base.OnMouseDown(e);
-
-            State = ButtonState.Selected;
-
-            _mouseDown = true;
-        }
-
-        public override void OnMouseMove(MouseEventArgs e)
-        {
-            base.OnMouseMove(e);
-
-            if (_mouseDown)
-            {
-                State = Bounds.Contains(e.Location) ? ButtonState.Selected : ButtonState.Highlight;
-            }
-        }
-
-        public override void OnMouseUp(MouseEventArgs e)
-        {
-            base.OnMouseUp(e);
-
-            State = ButtonState.Highlight;
-
-            _mouseDown = false;
-        }
-
-        public override void OnMouseLeave()
-        {
-            base.OnMouseLeave();
-
-            State = ButtonState.Normal;
-        }
-
         private void UpdateColors()
         {
             if (ColorMode == ButtonColorMode.Default)
             {
                 _bitmapTintColor = Color.White;
 
-                switch (_state)
+                switch (CurrentState)
                 {
-                    case ButtonState.Normal:
+                    case ControlViewState.Normal:
                         BackColor = NormalColor;
                         break;
-                    case ButtonState.Selected:
+                    case ControlViewState.Selected:
                         BackColor = SelectedColor;
                         break;
-                    case ButtonState.Highlight:
+                    case ControlViewState.Highlighted:
                         BackColor = HighlightColor;
                         break;
                 }
             }
             else if (ColorMode == ButtonColorMode.TintImage)
             {
-                switch (_state)
+                switch (CurrentState)
                 {
-                    case ButtonState.Normal:
+                    case ControlViewState.Normal:
                         _bitmapTintColor = NormalColor;
                         break;
-                    case ButtonState.Selected:
+                    case ControlViewState.Selected:
                         _bitmapTintColor = SelectedColor;
                         break;
-                    case ButtonState.Highlight:
+                    case ControlViewState.Highlighted:
                         _bitmapTintColor = HighlightColor;
                         break;
                 }
@@ -445,16 +395,6 @@ namespace PixUI.Controls
             Invalidate();
         }
         
-        /// <summary>
-        /// Describes possible button states
-        /// </summary>
-        public enum ButtonState
-        {
-            Normal,
-            Highlight,
-            Selected
-        }
-
         /// <summary>
         /// Describes the image color mode for this button
         /// </summary>

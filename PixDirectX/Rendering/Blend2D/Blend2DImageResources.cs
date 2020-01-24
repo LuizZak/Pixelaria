@@ -53,14 +53,14 @@ namespace PixDirectX.Rendering.Blend2D
             return res;
         }
 
-        public IManagedImageResource CreateManagedImageResource(IRenderLoopState renderLoopState, Bitmap bitmap)
+        public IManagedImageResource CreateManagedImageResource(Bitmap bitmap)
         {
             var blImage = CreateBLImage(bitmap);
 
             return new Blend2DBitmap(blImage);
         }
 
-        public void UpdateManagedImageResource(IRenderLoopState renderLoopState, ref IManagedImageResource managedImage, Bitmap bitmap)
+        public void UpdateManagedImageResource(ref IManagedImageResource managedImage, Bitmap bitmap)
         {
             if (!(managedImage is Blend2DBitmap dxBitmap))
                 throw new ArgumentException($"Expected bitmap to be of type ${typeof(Blend2DBitmap)}");

@@ -42,13 +42,13 @@ namespace PixelariaTests.Data
             var bundle2 = bundle1.Clone();
 
             Assert.AreEqual(bundle1, bundle2, "After a Clone() operation, both Bundles must be equal");
-            UtilsTests.AssertBundlesEqual(bundle1, bundle2, "Bundle equality failed to detect similar bundles");
+            UtilitiesTests.AssertBundlesEqual(bundle1, bundle2, "Bundle equality failed to detect similar bundles");
 
             // Modify the new bundle
             bundle2.RemoveAnimationFromAnimationSheet(bundle2.Animations[0], bundle2.AnimationSheets[0]);
 
             Assert.AreNotEqual(bundle1, bundle2, "Equal bundles after a Clone() operation must not be equal after a successful call to RemoveAnimationFromAnimationSheet()");
-            UtilsTests.AssertBundlesAreNotEqual(bundle1, bundle2, "Bundle equality failed to detect bundles that are different");
+            UtilitiesTests.AssertBundlesAreNotEqual(bundle1, bundle2, "Bundle equality failed to detect bundles that are different");
         }
 
         [TestMethod]

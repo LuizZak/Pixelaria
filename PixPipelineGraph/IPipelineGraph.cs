@@ -71,6 +71,13 @@ namespace PixPipelineGraph
         bool AreConnected(PipelineOutput output, PipelineInput input);
 
         /// <summary>
+        /// Returns if a node is directly connected to another node either via inputs or outputs.
+        /// 
+        /// Used to detect cycles before they can be made.
+        /// </summary>
+        bool AreDirectlyConnected(PipelineNodeId node, PipelineNodeId target);
+
+        /// <summary>
         /// Returns a list of all ingoing and outgoing connections for a given pipeline node on this graph
         /// </summary>
         /// <exception cref="ArgumentException">If <see cref="node"/> is a reference an nonexistent node ID</exception>
@@ -99,6 +106,22 @@ namespace PixPipelineGraph
         /// </summary>
         /// <exception cref="ArgumentException">If <see cref="input"/> consists of a reference an nonexistent node ID</exception>
         IReadOnlyList<IPipelineConnection> ConnectionsTowardsInput(PipelineInput input);
+
+        /// <summary>
+        /// Returns the pipeline metadata for a given node ID.
+        ///
+        /// May return null, in case the node is not present in this graph.
+        /// </summary>
+        [CanBeNull]
+        IPipelineMetadata MetadataForNode(PipelineNodeId nodeId);
+
+        /// <summary>
+        /// Gets a view for the given pipeline node id.
+        ///
+        /// May return null, in case the node is not present in this graph.
+        /// </summary>
+        [CanBeNull]
+        IPipelineNodeView GetViewForPipelineNode(PipelineNodeId nodeId);
     }
 
     public static class PipelineGraphExtensions
@@ -136,8 +159,8 @@ namespace PixPipelineGraph
                 {
                     foreach (var connection in graph.ConnectionsTowardsInput(input))
                     {
-                        if (!visited.Contains(connection.Start.PipelineNodeId))
-                            queue.Enqueue(connection.Start.PipelineNodeId);
+                        if (!visited.Contains(connection.Start.NodeId))
+                            queue.Enqueue(connection.Start.NodeId);
                     }
                 }
             }
@@ -173,5 +196,17 @@ namespace PixPipelineGraph
 
             return connected;
         }
+    }
+
+    /// <summary>
+    /// Simple interface that is used on objects that validate whether connections
+    /// between nodes can be made.
+    /// </summary>
+    public interface IPipelineConnectionDelegate
+    {
+        /// <summary>
+        /// Returns whether a connection between the given input and output nodes can be made.
+        /// </summary>
+        bool CanConnect([NotNull] IPipelineInput input, [NotNull] IPipelineOutput output, [NotNull] IPipelineGraph graph);
     }
 }
