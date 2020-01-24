@@ -40,6 +40,8 @@ namespace PixUI.Controls
     /// </summary>
     public class ControlView : SelfRenderingBaseView, IMouseEventHandler, IDisposable
     {
+        private bool _mouseDown;
+
         /// <summary>
         /// A global text layout renderer.
         /// </summary>
@@ -103,6 +105,12 @@ namespace PixUI.Controls
         /// and exits this control with the mouse.
         /// </summary>
         public bool MouseOverHighlight { get; set; } = true;
+
+        /// <summary>
+        /// If true, <see cref="Selected"/> is automatically toggled on and off whenever the user presses
+        /// down on this control with the mouse.
+        /// </summary>
+        public bool MouseDownSelected { get; set; } = false;
 
         /// <summary>
         /// Event fired when this control view has successfully become the first responder
@@ -349,16 +357,33 @@ namespace PixUI.Controls
 
         public virtual void OnMouseDown(MouseEventArgs e)
         {
+            if (MouseDownSelected)
+            {
+                _mouseDown = true;
+                Selected = true;
+            }
+
             _reactive.MouseDownSubject.OnNext(e);
         }
 
         public virtual void OnMouseMove(MouseEventArgs e)
         {
+            if (MouseDownSelected && _mouseDown)
+            {
+                Selected = Contains(e.Location);
+            }
+
             _reactive.MouseMoveSubject.OnNext(e);
         }
 
         public virtual void OnMouseUp(MouseEventArgs e)
         {
+            if (MouseDownSelected)
+            {
+                _mouseDown = false;
+                Selected = false;
+            }
+
             _reactive.MouseUpSubject.OnNext(e);
         }
 
