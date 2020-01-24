@@ -40,7 +40,7 @@ namespace PixUITests.Controls
         {
             ControlView.UiDispatcher = Dispatcher.CurrentDispatcher;
 
-            //BaseViewSnapshot.RecordMode = true;
+            // BaseViewSnapshot.RecordMode = true;
         }
 
         #region Rendering
