@@ -149,7 +149,7 @@ namespace PixUITests.Text
 
             sut.MoveRight();
 
-            Assert.AreEqual(new Caret(3), sut.Caret);
+            Assert.AreEqual(new Caret(2), sut.Caret);
         }
 
         [TestMethod]
@@ -161,7 +161,7 @@ namespace PixUITests.Text
 
             sut.MoveRight();
 
-            Assert.AreEqual(new Caret(1), sut.Caret);
+            Assert.AreEqual(new Caret(2), sut.Caret);
         }
 
         [TestMethod]
@@ -200,7 +200,7 @@ namespace PixUITests.Text
 
             sut.MoveLeft();
 
-            Assert.AreEqual(new Caret(2), sut.Caret);
+            Assert.AreEqual(new Caret(1), sut.Caret);
         }
 
         [TestMethod]
@@ -212,7 +212,7 @@ namespace PixUITests.Text
 
             sut.MoveLeft();
 
-            Assert.AreEqual(new Caret(0), sut.Caret);
+            Assert.AreEqual(new Caret(1), sut.Caret);
         }
 
         [TestMethod]

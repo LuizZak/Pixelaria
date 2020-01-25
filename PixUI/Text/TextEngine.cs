@@ -180,7 +180,14 @@ namespace PixUI.Text
             if (Caret.Start == TextBuffer.TextLength)
                 return;
 
-            SetCaret(new TextRange(Caret.Location + 1, 0));
+            if (Caret.Length > 0)
+            {
+                SetCaret(new TextRange(Caret.End, 0));
+            }
+            else
+            {
+                SetCaret(new TextRange(Caret.Location + 1, 0));
+            }
         }
 
         /// <summary>
@@ -191,7 +198,14 @@ namespace PixUI.Text
             if (Caret.Start == 0)
                 return;
 
-            SetCaret(new TextRange(Caret.Location - 1, 0));
+            if (Caret.Length > 0)
+            {
+                SetCaret(new TextRange(Caret.Start, 0));
+            }
+            else
+            {
+                SetCaret(new TextRange(Caret.Location - 1, 0));
+            }
         }
 
         /// <summary>
@@ -994,7 +1008,7 @@ namespace PixUI.Text
         public int Start => TextRange.Start;
 
         /// <summary>
-        /// Start of text range this caret covers
+        /// End of text range this caret covers
         /// </summary>
         public int End => TextRange.End;
 

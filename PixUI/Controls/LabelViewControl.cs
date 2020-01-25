@@ -74,13 +74,12 @@ namespace PixUI.Controls
             get => _labelViewBacking.Text;
             set
             {
-                if(AutoResize)
-                    Invalidate();
+                if (AutoResize)
+                    Layout();
 
                 _labelViewBacking.Text = value;
 
                 ResetTextFormat();
-                Invalidate();
             }
         }
 
