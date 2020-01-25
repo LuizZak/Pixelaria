@@ -64,75 +64,55 @@ namespace PixUI.LayoutSystem
             IntrinsicHeight = new ClVariable($"{name}_intrinsicHeight", view.IntrinsicSize.Y);
         }
 
-        public void AddVariables([NotNull] ClSimplexSolver solver, LayoutAnchorOrientationFlags orientation)
+        public void AddVariables([NotNull] ClSimplexSolver solver)
         {
             var hasIntrinsicSize = _view.IntrinsicSize != Vector.Zero;
 
             var location = _view.ConvertTo(Vector.Zero, null);
 
-            if (orientation.HasFlag(LayoutAnchorOrientationFlags.Horizontal))
+            if (_view.TranslateBoundsIntoConstraints)
             {
-                if (_view.TranslateBoundsIntoConstraints)
-                {
-                    solver.AddStay(Left, ClStrength.Medium);
-                    solver.AddStay(Width, ClStrength.Medium);
-                }
-                if (hasIntrinsicSize)
-                {
-                    solver.AddStay(IntrinsicWidth, ClStrength.Medium);
-                }
-
-                solver.BeginEdit(Left, Width, IntrinsicWidth)
-                    .SuggestValue(Left, location.X)
-                    .SuggestValue(Width, _view.Width)
-                    .SuggestValue(IntrinsicWidth, _view.IntrinsicSize.X)
-                    .EndEdit();
+                solver.AddStay(Left, ClStrength.Medium);
+                solver.AddStay(Width, ClStrength.Medium);
+                solver.AddStay(Top, ClStrength.Medium);
+                solver.AddStay(Height, ClStrength.Medium);
             }
-            if (orientation.HasFlag(LayoutAnchorOrientationFlags.Vertical))
+            if (hasIntrinsicSize)
             {
-                if (_view.TranslateBoundsIntoConstraints)
-                {
-                    solver.AddStay(Top, ClStrength.Medium);
-                    solver.AddStay(Height, ClStrength.Medium);
-                }
-                if (hasIntrinsicSize)
-                {
-                    solver.AddStay(IntrinsicHeight, ClStrength.Medium);
-                }
-
-                solver.BeginEdit(Top, Height, IntrinsicHeight)
-                    .SuggestValue(Top, location.Y)
-                    .SuggestValue(Height, _view.Height)
-                    .SuggestValue(IntrinsicHeight, _view.IntrinsicSize.Y)
-                    .EndEdit();
+                solver.AddStay(IntrinsicWidth, ClStrength.Medium);
+                solver.AddStay(IntrinsicHeight, ClStrength.Medium);
             }
+
+            solver.BeginEdit(Left, Width, IntrinsicWidth)
+                .SuggestValue(Left, location.X)
+                .SuggestValue(Width, _view.Width)
+                .SuggestValue(IntrinsicWidth, _view.IntrinsicSize.X)
+                .EndEdit();
+
+            solver.BeginEdit(Top, Height, IntrinsicHeight)
+                .SuggestValue(Top, location.Y)
+                .SuggestValue(Height, _view.Height)
+                .SuggestValue(IntrinsicHeight, _view.IntrinsicSize.Y)
+                .EndEdit();
         }
 
-        public void BuildConstraints([NotNull] ClSimplexSolver solver, LayoutAnchorOrientationFlags orientation)
+        public void BuildConstraints([NotNull] ClSimplexSolver solver)
         {
             var hasIntrinsicSize = _view.IntrinsicSize != Vector.Zero;
-            
-            if (orientation.HasFlag(LayoutAnchorOrientationFlags.Horizontal))
+
+            solver.AddConstraint(new ClLinearEquation(new ClLinearExpression(Width).Plus(Left), new ClLinearExpression(Right), ClStrength.Required));
+            solver.AddConstraint(new ClLinearEquation(new ClLinearExpression(Height).Plus(Top), new ClLinearExpression(Bottom), ClStrength.Required));
+
+            if (hasIntrinsicSize)
             {
-                solver.AddConstraint(new ClLinearEquation(Cl.Plus(new ClLinearExpression(Width), Left), new ClLinearExpression(Right), ClStrength.Required));
-                if (hasIntrinsicSize)
-                {
-                    // Compression resistance
-                    solver.AddConstraint(Width, IntrinsicWidth, (d, d1) => d >= d1, LayoutConstraintHelpers.StrengthFromPriority(HorizontalCompressResistance));
-                    // Content hugging priority
-                    solver.AddConstraint(Width, IntrinsicWidth, (d, d1) => d <= d1, LayoutConstraintHelpers.StrengthFromPriority(HorizontalHuggingPriority));
-                }
-            }
-            if (orientation.HasFlag(LayoutAnchorOrientationFlags.Vertical))
-            {
-                solver.AddConstraint(new ClLinearEquation(Cl.Plus(new ClLinearExpression(Height), Top), new ClLinearExpression(Bottom), ClStrength.Required));
-                if (hasIntrinsicSize)
-                {
-                    // Compression resistance
-                    solver.AddConstraint(Height, IntrinsicHeight, (d, d1) => d >= d1, LayoutConstraintHelpers.StrengthFromPriority(VerticalCompressResistance));
-                    // Content hugging priority
-                    solver.AddConstraint(Height, IntrinsicHeight, (d, d1) => d <= d1, LayoutConstraintHelpers.StrengthFromPriority(VerticalHuggingPriority));
-                }
+                // Compression resistance
+                solver.AddConstraint(Width, IntrinsicWidth, (d, d1) => d >= d1, LayoutConstraintHelpers.StrengthFromPriority(HorizontalCompressResistance));
+                // Content hugging priority
+                solver.AddConstraint(Width, IntrinsicWidth, (d, d1) => d <= d1, LayoutConstraintHelpers.StrengthFromPriority(HorizontalHuggingPriority));
+                // Compression resistance
+                solver.AddConstraint(Height, IntrinsicHeight, (d, d1) => d >= d1, LayoutConstraintHelpers.StrengthFromPriority(VerticalCompressResistance));
+                // Content hugging priority
+                solver.AddConstraint(Height, IntrinsicHeight, (d, d1) => d <= d1, LayoutConstraintHelpers.StrengthFromPriority(VerticalHuggingPriority));
             }
         }
 
@@ -217,11 +197,6 @@ namespace PixUI.LayoutSystem
                 if (ReferenceEquals(firstAnchor.Target, secondAnchor.Target))
                 {
                     throw new ArgumentException($"Cannot create constraints that relate a view to itself: ${firstAnchor.Variable().Name} and ${secondAnchor.Variable().Name}");
-                }
-
-                if (firstAnchor.Orientation != secondAnchor.Orientation)
-                {
-                    throw new ArgumentException($"Cannot relate constraint anchors of different orientations: ${firstAnchor.Variable().Name} and ${secondAnchor.Variable().Name}");
                 }
             }
 

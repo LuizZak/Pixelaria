@@ -26,7 +26,6 @@ using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixCore.Text;
 using PixDirectX.Rendering.DirectX;
-using PixDirectX.Rendering.Gdi;
 using PixRendering;
 
 namespace PixUI

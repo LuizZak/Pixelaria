@@ -41,17 +41,9 @@ namespace PixUI.LayoutSystem
             {
                 constraintList.AffectedViews.Add(baseView.LayoutVariables);
 
-                constraintList.HorizontalConstraints.AddRange(
-                    baseView
-                        .LayoutConstraints
-                        .Where(lc => lc.IsEnabled)
-                        .Where(lc => lc.FirstAnchor.Orientation == LayoutAnchorOrientationFlags.Horizontal)
-                );
-
-                constraintList.VerticalConstraints.AddRange(
+                constraintList.Constraints.AddRange(
                     baseView.LayoutConstraints
                         .Where(lc => lc.IsEnabled)
-                        .Where(lc => lc.FirstAnchor.Orientation == LayoutAnchorOrientationFlags.Vertical)
                 );
             });
 
@@ -60,8 +52,7 @@ namespace PixUI.LayoutSystem
 
             traverser.Visit(view);
 
-            Solve(result.HorizontalConstraints, result.AffectedViews, LayoutAnchorOrientationFlags.Horizontal);
-            Solve(result.VerticalConstraints, result.AffectedViews, LayoutAnchorOrientationFlags.Vertical);
+            Solve(result.Constraints, result.AffectedViews);
 
             foreach (var affectedViewVariables in result.AffectedViews)
             {
@@ -69,14 +60,14 @@ namespace PixUI.LayoutSystem
             }
         }
 
-        private static void Solve([NotNull] IEnumerable<LayoutConstraint> constraints, [NotNull] IEnumerable<ViewLayoutConstraintVariables> affectedViews, LayoutAnchorOrientationFlags orientation)
+        private static void Solve([NotNull] IEnumerable<LayoutConstraint> constraints, [NotNull] IEnumerable<ViewLayoutConstraintVariables> affectedViews)
         {
             var solver = new ClSimplexSolver();
 
             foreach (var affectedView in affectedViews)
             {
-                affectedView.AddVariables(solver, orientation);
-                affectedView.BuildConstraints(solver, orientation);
+                affectedView.AddVariables(solver);
+                affectedView.BuildConstraints(solver);
             }
 
             foreach (var constraint in constraints)
@@ -99,8 +90,7 @@ namespace PixUI.LayoutSystem
         {
             public readonly List<ViewLayoutConstraintVariables> AffectedViews = new List<ViewLayoutConstraintVariables>();
 
-            public readonly List<LayoutConstraint> HorizontalConstraints = new List<LayoutConstraint>();
-            public readonly List<LayoutConstraint> VerticalConstraints = new List<LayoutConstraint>();
+            public readonly List<LayoutConstraint> Constraints = new List<LayoutConstraint>();
         }
     }
 }
