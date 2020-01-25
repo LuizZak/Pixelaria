@@ -44,10 +44,10 @@ namespace PixUI.LayoutSystem
         internal readonly ClVariable IntrinsicWidth;
         internal readonly ClVariable IntrinsicHeight;
 
-        internal int HorizontalCompressResistance = 100;
-        internal int VerticalCompressResistance = 100;
-        internal int HorizontalHuggingPriority = 50;
-        internal int VerticalHuggingPriority = 50;
+        internal int HorizontalCompressResistance = 750;
+        internal int VerticalCompressResistance = 750;
+        internal int HorizontalHuggingPriority = 150;
+        internal int VerticalHuggingPriority = 150;
 
         public ViewLayoutConstraintVariables([NotNull] BaseView view)
         {
