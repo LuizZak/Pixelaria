@@ -195,13 +195,8 @@ namespace PixUI.Text
         /// </summary>
         public void MoveLeft()
         {
-            if (Caret.Start == 0)
+            if (Caret.End == 0)
             {
-                if (Caret.Length > 0)
-                {
-                    SetCaret(0);
-                }
-
                 return;
             }
 
@@ -220,7 +215,7 @@ namespace PixUI.Text
         /// </summary>
         public void MoveToStart()
         {
-            if (Caret.Start == 0)
+            if (Caret.End == 0)
                 return;
 
             SetCaret(new TextRange(0, 0));

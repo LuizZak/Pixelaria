@@ -275,6 +275,18 @@ namespace PixUITests.Text
             Assert.AreEqual(new Caret(0), sut.Caret);
         }
 
+        [TestMethod]
+        public void MoveToStartWithSelectionAtStart()
+        {
+            var buffer = new TextBuffer("123");
+            var sut = new TextEngine(buffer);
+            sut.SetCaret(new TextRange(0, 2));
+
+            sut.MoveToStart();
+
+            Assert.AreEqual(new Caret(0), sut.Caret);
+        }
+
         #endregion
 
         #region Selection Move
