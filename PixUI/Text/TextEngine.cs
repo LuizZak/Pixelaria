@@ -182,11 +182,11 @@ namespace PixUI.Text
 
             if (Caret.Length > 0)
             {
-                SetCaret(new TextRange(Caret.End, 0));
+                SetCaret(Caret.End);
             }
             else
             {
-                SetCaret(new TextRange(Caret.Location + 1, 0));
+                SetCaret(Caret.Location + 1);
             }
         }
 
@@ -202,11 +202,11 @@ namespace PixUI.Text
 
             if (Caret.Length > 0)
             {
-                SetCaret(new TextRange(Caret.Start, 0));
+                SetCaret(Caret.Start);
             }
             else
             {
-                SetCaret(new TextRange(Caret.Location - 1, 0));
+                SetCaret(Caret.Location - 1);
             }
         }
 
@@ -218,7 +218,7 @@ namespace PixUI.Text
             if (Caret.End == 0)
                 return;
 
-            SetCaret(new TextRange(0, 0));
+            SetCaret(0);
         }
 
         /// <summary>
@@ -229,7 +229,7 @@ namespace PixUI.Text
             if (Caret.Start == TextBuffer.TextLength)
                 return;
 
-            SetCaret(new TextRange(TextBuffer.TextLength, 0));
+            SetCaret(TextBuffer.TextLength);
         }
 
         /// <summary>
