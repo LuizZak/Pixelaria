@@ -196,7 +196,14 @@ namespace PixUI.Text
         public void MoveLeft()
         {
             if (Caret.Start == 0)
+            {
+                if (Caret.Length > 0)
+                {
+                    SetCaret(0);
+                }
+
                 return;
+            }
 
             if (Caret.Length > 0)
             {
@@ -286,7 +293,7 @@ namespace PixUI.Text
         /// </summary>
         public void SelectLeft()
         {
-            if (Caret.Start == 0)
+            if (Caret.Location == 0)
                 return;
 
             MoveCaretSelecting(Caret.Location - 1);

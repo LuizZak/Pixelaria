@@ -845,7 +845,7 @@ namespace PixUI.Controls
         {
             if (State != DragMouseEventState.MousePressed && State != DragMouseEventState.MouseMoved)
                 return;
-
+            
             MousePosition = ConvertFromScreen(e.Location);
 
             State = DragMouseEventState.MouseMoved;

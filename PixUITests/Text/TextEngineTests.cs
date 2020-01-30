@@ -216,6 +216,18 @@ namespace PixUITests.Text
         }
 
         [TestMethod]
+        public void TestMoveLeftWithSelectionWithCaretAtStart()
+        {
+            var buffer = new TextBuffer("123");
+            var sut = new TextEngine(buffer);
+            sut.SetCaret(new Caret(new TextRange(0, 2), CaretPosition.Start));
+
+            sut.MoveLeft();
+
+            Assert.AreEqual(new Caret(0), sut.Caret);
+        }
+
+        [TestMethod]
         public void TestMoveToEnd()
         {
             var buffer = new TextBuffer("123");
@@ -461,6 +473,19 @@ namespace PixUITests.Text
             sut.MoveCaretSelecting(0);
 
             Assert.AreEqual(new Caret(new TextRange(0, 1), CaretPosition.Start), sut.Caret);
+        }
+
+        [TestMethod]
+        public void TestSelectLeftWithFullSelectionRangeWithCaretAtEnd()
+        {
+            var buffer = new TextBuffer("123");
+            var sut = new TextEngine(buffer);
+
+            sut.SetCaret(new TextRange(0, 3), CaretPosition.End);
+
+            sut.SelectLeft();
+
+            Assert.AreEqual(new Caret(new TextRange(0, 2), CaretPosition.End), sut.Caret);
         }
 
         [TestMethod]
