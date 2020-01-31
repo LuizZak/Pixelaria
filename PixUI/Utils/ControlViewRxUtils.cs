@@ -34,7 +34,7 @@ namespace PixUI.Utils
     public static class ControlViewRxUtils
     {
         /// <summary>
-        /// Returns a signal that alterns between true and false as the user presses/releases the mouse
+        /// Returns a signal that alternates between true and false as the user presses/releases the mouse
         /// on the control.
         /// 
         /// This observable only signals when the next <see cref="ControlView.IReactive.MouseDown"/> or
@@ -73,7 +73,7 @@ namespace PixUI.Utils
         /// The observable is non-terminating, and will remain subscribed until the subscription to itself is
         /// disposed.
         /// </summary>
-        /// <param name="reactive">ControlView reactive bindings object.</param>
+        /// <param name="reactive"><see cref="ControlView"/> reactive bindings object.</param>
         /// <param name="delay">Initial delay before start rapid-firing.</param>
         /// <param name="interval">The interval between each subsequence repeat event</param>
         public static IObservable<MouseEventArgs> MouseDownRepeating([NotNull] this ControlView.IReactive reactive, TimeSpan delay, TimeSpan interval)
@@ -112,9 +112,9 @@ namespace PixUI.Utils
         }
 
         /// <summary>
-        /// A version of "WithLatestFrom" with a more tradicional and predictable behavior.
+        /// A version of "WithLatestFrom" with a more traditional and predictable behavior.
         /// </summary>
-        public static IObservable<TResult> PxlWithLatestFrom<TLeft, TRight, TResult>(this IObservable<TLeft> source, IObservable<TRight> other, [NotNull] Func<TLeft, TRight, TResult> resultSelector)
+        public static IObservable<TResult> PxlWithLatestFrom<TLeft, TRight, TResult>([NotNull] this IObservable<TLeft> source, IObservable<TRight> other, [NotNull] Func<TLeft, TRight, TResult> resultSelector)
         {
             return
                 source.Publish(os =>

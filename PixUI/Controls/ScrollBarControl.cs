@@ -180,12 +180,12 @@ namespace PixUI.Controls
             var mouseDrag = new DragMouseEventRecognizer();
             _scrollBarArea.AddMouseRecognizer(mouseDrag);
 
-            mouseDrag.DragMouseEvent += OnMouseDragOnDragMouseEvent;
+            mouseDrag.DragMouseEvent += OnMouseDragEvent;
 
             SetupScrollBarColors();
         }
 
-        private void OnMouseDragOnDragMouseEvent(object sender, [NotNull] DragMouseEventRecognizer.DragMouseEventArgs args)
+        private void OnMouseDragEvent(object sender, [NotNull] DragMouseEventRecognizer.DragMouseEventArgs args)
         {
             switch (args.State)
             {

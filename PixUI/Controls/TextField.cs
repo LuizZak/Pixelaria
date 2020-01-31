@@ -30,7 +30,6 @@ using JetBrains.Annotations;
 using PixCore.Colors;
 using PixCore.Geometry;
 using PixCore.Text;
-using PixDirectX.Rendering;
 using PixRendering;
 using PixUI.Text;
 using Color = System.Drawing.Color;
@@ -239,6 +238,7 @@ namespace PixUI.Controls
 
             TextChanged?.Invoke(this, new TextFieldTextChangedEventArgs(Text));
 
+            ScrollLabel();
             UpdatePlaceholderVisibility();
         }
 
@@ -735,17 +735,29 @@ namespace PixUI.Controls
         private void ScrollLabel()
         {
             var loc = LocationForOffset(_textEngine.Caret.Location);
-            
-            var locInContainer = _labelContainer.ConvertFrom(loc, this);
-            if (_labelContainer.Contains(locInContainer))
-                return;
 
             var labelOffset = _label.Location;
 
-            if (locInContainer.X > _labelContainer.Width)
-                labelOffset = labelOffset - new Vector(locInContainer.X - _labelContainer.Width, 0);
-            else if (locInContainer.X < 0)
-                labelOffset = labelOffset - new Vector(locInContainer.X, 0);
+            if (_label.Bounds.Width > _labelContainer.Bounds.Width)
+            {
+                if (labelOffset.X + _label.Bounds.Width < _labelContainer.Bounds.Width)
+                {
+                    labelOffset = new Vector(_labelContainer.Bounds.Width - _label.Bounds.Width, labelOffset.Y);
+                }
+            }
+            else
+            {
+                labelOffset = new Vector(0, labelOffset.Y);
+            }
+
+            var locInContainer = _labelContainer.ConvertFrom(loc, this);
+            if (!_labelContainer.Contains(locInContainer))
+            {
+                if (locInContainer.X > _labelContainer.Width)
+                    labelOffset -= new Vector(locInContainer.X - _labelContainer.Width, 0);
+                else if (locInContainer.X < 0)
+                    labelOffset -= new Vector(locInContainer.X, 0);
+            }
 
             _label.Location = labelOffset;
         }

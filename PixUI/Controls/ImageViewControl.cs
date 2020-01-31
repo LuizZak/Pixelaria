@@ -24,7 +24,6 @@ using System.Drawing;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using PixCore.Geometry;
-using PixDirectX.Rendering;
 using PixRendering;
 
 namespace PixUI.Controls
@@ -41,6 +40,8 @@ namespace PixUI.Controls
 
         private int ImageWidth => Image?.Width ?? ImageResource?.Width ?? 0;
         private int ImageHeight => Image?.Height ?? ImageResource?.Height ?? 0;
+
+        internal override Vector IntrinsicSize => new Vector(ImageWidth, ImageHeight);
 
         /// <summary>
         /// Gets or sets the image resource to render on this image view.

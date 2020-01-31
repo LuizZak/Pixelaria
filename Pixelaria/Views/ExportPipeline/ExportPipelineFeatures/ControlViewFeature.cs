@@ -25,7 +25,6 @@ using System.Windows.Forms;
 
 using JetBrains.Annotations;
 using PixCore.Geometry;
-using PixDirectX.Rendering;
 using PixRendering;
 using PixUI.Controls;
 using PixUI.Rendering;
@@ -122,6 +121,9 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
         public void Render(IRenderListenerParameters parameters)
         {
+            // Apply layout events first
+            BaseControl.Layout();
+
             var context = new ControlRenderingContext(parameters);
 
             // Create a renderer visitor for the root UI element we got

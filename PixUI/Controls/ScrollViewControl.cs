@@ -244,7 +244,7 @@ namespace PixUI.Controls
             if (e.Delta == 0)
                 return;
 
-            // Scroll contents a fixed ammount
+            // Scroll contents a fixed amount
             IncrementContentOffset(new Vector(0, Math.Sign(e.Delta) * 50));
         }
         

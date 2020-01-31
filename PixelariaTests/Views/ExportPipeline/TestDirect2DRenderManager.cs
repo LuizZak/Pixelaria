@@ -60,6 +60,8 @@ namespace PixelariaTests.Views.ExportPipeline
                 renderer.Initialize(renderLoop.D2DRenderState, new FullClippingRegion());
 
                 closure(renderer);
+
+                LabelView.defaultTextSizeProvider = last;
             }
         }
     }

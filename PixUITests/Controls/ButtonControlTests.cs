@@ -113,10 +113,12 @@ namespace PixUITests.Controls
             button.HorizontalTextAlignment = HorizontalTextAlignment.Center;
             button.VerticalTextAlignment = VerticalTextAlignment.Center;
 
-            BaseViewSnapshot.SnapshotTest(button, TestContext, imageResources =>
+            TestDirect2DRenderManager.CreateTemporary(renderManager =>
             {
-                button.ManagedImage = imageResources.CreateManagedImageResource(bitmap);
+                button.ManagedImage = renderManager.ImageResources.CreateManagedImageResource(bitmap);
             });
+
+            BaseViewSnapshot.Snapshot(button, TestContext);
         }
 
         public TestContext TestContext { get; set; }

@@ -23,13 +23,14 @@
 using System.Linq;
 using JetBrains.Annotations;
 using PixCore.Geometry;
+using PixUI.LayoutSystem;
 
 namespace PixUI.Controls
 {
     /// <summary>
     /// A root control view that is used as the base hierarchy of control elements-aware objects.
     /// 
-    /// Exposes methods for working with first responder status of controls.
+    /// Exposes methods for working with first responder status of controls as well as layout capabilities.
     /// </summary>
     public class RootControlView : BaseView
     {
@@ -74,6 +75,17 @@ namespace PixUI.Controls
             base.Invalidate(region, reference);
 
             InvalidateRegionDelegate?.DidInvalidate(region, reference);
+        }
+
+        public override void Layout()
+        {
+            if (needsLayout)
+            {
+                var constraintSolver = new LayoutConstraintSolver();
+                constraintSolver.Solve(this);
+            }
+
+            base.Layout();
         }
 
         /// <summary>
