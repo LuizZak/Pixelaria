@@ -741,9 +741,9 @@ namespace PixUI.Controls
 
             if (_label.Bounds.Width > _labelContainer.Bounds.Width)
             {
-                if (labelOffset.X + _label.Bounds.Width < _labelContainer.Bounds.Right)
+                if (labelOffset.X + _label.Bounds.Width < _labelContainer.Bounds.Width)
                 {
-                    labelOffset = new Vector(_labelContainer.Bounds.Right - _label.Bounds.Width, labelOffset.Y);
+                    labelOffset = new Vector(_labelContainer.Bounds.Width - _label.Bounds.Width, labelOffset.Y);
                 }
             }
             else
