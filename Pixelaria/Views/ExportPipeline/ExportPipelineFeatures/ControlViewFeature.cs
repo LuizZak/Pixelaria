@@ -25,7 +25,6 @@ using System.Windows.Forms;
 
 using JetBrains.Annotations;
 using PixCore.Geometry;
-using PixDirectX.Rendering;
 using PixRendering;
 using PixUI.Controls;
 using PixUI.Rendering;

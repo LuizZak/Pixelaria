@@ -23,7 +23,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixPipelineGraph;
 using System;
-using System.Linq;
 
 namespace PixPipelineGraphTests
 {
