@@ -39,7 +39,11 @@ namespace PixUI.LayoutSystem
         {
             var visitor = new BaseViewVisitor<LayoutConstraintTraversalResult>((constraintList, baseView) =>
             {
-                constraintList.AffectedViews.Add(baseView.LayoutVariables);
+                // No need to add layout variables for views not affected by any constraints
+                if (!baseView.TranslateBoundsIntoConstraints || baseView.AffectingConstraints.Count > 0)
+                {
+                    constraintList.AffectedViews.Add(baseView.LayoutVariables);
+                }
 
                 constraintList.Constraints.AddRange(
                     baseView.LayoutConstraints
