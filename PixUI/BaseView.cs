@@ -52,7 +52,7 @@ namespace PixUI
 
         private readonly InternalLayoutEvents _layoutEvents;
 
-        protected bool needsLayout;
+        protected bool needsLayout = true;
 
         internal ViewLayoutConstraintVariables LayoutVariables;
 

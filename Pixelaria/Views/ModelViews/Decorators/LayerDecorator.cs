@@ -25,7 +25,6 @@ using System.Drawing.Imaging;
 using FastBitmapLib;
 using PixCore.Imaging;
 using Pixelaria.Controllers.LayerControlling;
-using Pixelaria.Data;
 using Pixelaria.Filters;
 using Pixelaria.Views.Controls;
 using Pixelaria.Views.Controls.LayerControls;
@@ -38,11 +37,6 @@ namespace Pixelaria.Views.ModelViews.Decorators
     public class LayerDecorator : PictureBoxDecorator
     {
         /// <summary>
-        /// The statuses for the layers being rendered on this layer decorator
-        /// </summary>
-        private LayerStatus[] _layerStatuses;
-
-        /// <summary>
         /// The layer controller used to fetch information about the layers
         /// </summary>
         private readonly LayerController _layerController;
@@ -50,11 +44,7 @@ namespace Pixelaria.Views.ModelViews.Decorators
         /// <summary>
         /// Gets or sets the layer statuses for the layers to be rendered on this layer decorator
         /// </summary>
-        public LayerStatus[] LayerStatuses
-        {
-            get => _layerStatuses;
-            set => _layerStatuses = value;
-        }
+        public LayerStatus[] LayerStatuses { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the LayerDecorator class
@@ -91,16 +81,16 @@ namespace Pixelaria.Views.ModelViews.Decorators
         {
             base.DecorateMainBitmap(bitmap);
 
-            if (!_layerStatuses[_layerController.ActiveLayerIndex].Visible)
+            if (!LayerStatuses[_layerController.ActiveLayerIndex].Visible)
             {
                 FastBitmap.ClearBitmap(bitmap, Color.Transparent);
             }
             // Transparent layer
-            else if (_layerStatuses[_layerController.ActiveLayerIndex].Transparency < 1)
+            else if (LayerStatuses[_layerController.ActiveLayerIndex].Transparency < 1)
             {
-                TransparencyFilter filter = new TransparencyFilter
+                var filter = new TransparencyFilter
                 {
-                    Transparency = _layerStatuses[_layerController.ActiveLayerIndex].Transparency
+                    Transparency = LayerStatuses[_layerController.ActiveLayerIndex].Transparency
                 };
 
                 filter.ApplyToBitmap(bitmap);
@@ -125,18 +115,18 @@ namespace Pixelaria.Views.ModelViews.Decorators
         private void ApplyOnBitmap(Bitmap bitmap, LayerSide side)
         {
             // Iterate through and render each layer up to the current layer
-            IFrameLayer[] layers = _layerController.FrameLayers;
+            var layers = _layerController.FrameLayers;
 
             int min = (side == LayerSide.BottomLayers ? 0 : _layerController.ActiveLayerIndex + 1);
             int max = (side == LayerSide.BottomLayers ? _layerController.ActiveLayerIndex : layers.Length);
 
             for (int i = min; i < max; i++)
             {
-                if (_layerStatuses[i].Visible && _layerStatuses[i].Transparency > 0)
+                if (LayerStatuses[i].Visible && LayerStatuses[i].Transparency > 0)
                 {
                     var layerBitmap = layers[i].LayerBitmap;
 
-                    if (_layerStatuses[i].Transparency >= 1)
+                    if (LayerStatuses[i].Transparency >= 1)
                     {
                         ImageUtilities.FlattenBitmaps(bitmap, layerBitmap, false);
                     }
@@ -146,7 +136,7 @@ namespace Pixelaria.Views.ModelViews.Decorators
                         {
                             var cm = new ColorMatrix
                             {
-                                Matrix33 = _layerStatuses[i].Transparency
+                                Matrix33 = LayerStatuses[i].Transparency
                             };
 
                             var attributes = new ImageAttributes();

@@ -31,7 +31,7 @@ namespace PixUITests.Controls.ContextMenu
         [TestMethod]
         public void TestIndexWithNoDropDownItem()
         {
-            var sut = new ContextMenuItem();
+            var sut = new ContextMenuItem("title");
 
             Assert.AreEqual(sut.Index, -1);
         }
@@ -39,9 +39,9 @@ namespace PixUITests.Controls.ContextMenu
         [TestMethod]
         public void TestIndex()
         {
-            var parent = new ContextMenuDropDownItem();
-            var child1 = new ContextMenuItem();
-            var sut = new ContextMenuItem();
+            var parent = new ContextMenuDropDownItem("title");
+            var child1 = new ContextMenuItem("title");
+            var sut = new ContextMenuItem("title");
             parent.DropDownItems.Add(child1);
             parent.DropDownItems.Add(sut);
 

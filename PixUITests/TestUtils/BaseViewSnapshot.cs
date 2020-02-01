@@ -83,6 +83,9 @@ namespace PixUITests.TestUtils
             int width = (int) Math.Round(view.Width);
             int height = (int) Math.Round(view.Height);
 
+            if (width == 0 || height == 0)
+                throw new InvalidOperationException("Attempted to snapshot test view with 0 width or height");
+
             using (var imgFactory = new ImagingFactory())
             using (var wicBitmap = new SharpDX.WIC.Bitmap(imgFactory, width, height, pixelFormat, bitmapCreateCacheOption))
             using (var factory = new SharpDX.Direct2D1.Factory())

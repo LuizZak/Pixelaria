@@ -1121,6 +1121,16 @@ namespace PixDirectX.Rendering.DirectX
                 _startLocation = point;
             }
 
+            public void MoveTo(float x, float y)
+            {
+                MoveTo(new Vector(x, y));
+            }
+
+            public void LineTo(float x, float y)
+            {
+                LineTo(new Vector(x, y));
+            }
+
             public void BezierTo(Vector anchor1, Vector anchor2, Vector endPoint)
             {
                 EnsureBeginFigure();

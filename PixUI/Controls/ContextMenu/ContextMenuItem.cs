@@ -21,6 +21,7 @@
 */
 
 using JetBrains.Annotations;
+using PixRendering;
 
 namespace PixUI.Controls.ContextMenu
 {
@@ -30,7 +31,28 @@ namespace PixUI.Controls.ContextMenu
     public class ContextMenuItem
     {
         /// <summary>
-        /// The drop down item that contains this menu item
+        /// Gets or sets the display name for this context menu item
+        /// </summary>
+        [NotNull]
+        public string Name { get; set; }
+
+        /// <summary>
+        /// The image displayed alongside this drop down item
+        /// </summary>
+        public ImageResource? Image { get; set; }
+
+        /// <summary>
+        /// The managed image to render alongside this drop down item.
+        ///
+        /// Overrides the value configured in <see cref="Image"/>.
+        /// </summary>
+        [CanBeNull]
+        public IManagedImageResource ManagedImage { get; set; }
+
+        /// <summary>
+        /// The drop down item that contains this menu item.
+        ///
+        /// May be null, in case this context menu item has no parent.
         /// </summary>
         [CanBeNull]
         public ContextMenuDropDownItem DropDownItem { get; internal set; }
@@ -41,5 +63,22 @@ namespace PixUI.Controls.ContextMenu
         /// If this item is not added to a parent, -1 is returned.
         /// </summary>
         public int Index => DropDownItem?.DropDownItems.IndexOf(this) ?? -1;
+
+        public ContextMenuItem([NotNull] string value)
+        {
+            Name = value;
+        }
+
+        public ContextMenuItem([NotNull] string value, ImageResource image)
+        {
+            Name = value;
+            Image = image;
+        }
+
+        public ContextMenuItem([NotNull] string value, IManagedImageResource managedImage)
+        {
+            Name = value;
+            ManagedImage = managedImage;
+        }
     }
 }

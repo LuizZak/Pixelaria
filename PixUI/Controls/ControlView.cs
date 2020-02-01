@@ -100,8 +100,10 @@ namespace PixUI.Controls
         }
 
         /// <summary>
-        /// If true, <see cref="Highlighted"/> is automatically toggled on and off whenever the user enters
-        /// and exits this control with the mouse.
+        /// If <c>true</c>, <see cref="Highlighted"/> is automatically toggled on and off whenever the
+        /// user enters and exits this control with the mouse.
+        ///
+        /// Defaults to <c>true</c>.
         /// </summary>
         public bool MouseOverHighlight { get; set; } = true;
 

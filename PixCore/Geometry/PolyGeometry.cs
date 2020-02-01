@@ -32,7 +32,7 @@ using PolyList = System.Collections.Generic.List<System.Collections.Generic.List
 namespace PixCore.Geometry
 {
     /// <summary>
-    /// Represents an arbitrary geometric object.
+    /// Represents an arbitrary geometric object composed of paths which themselves are composed of straight lines.
     /// </summary>
     public class PolyGeometry
     {

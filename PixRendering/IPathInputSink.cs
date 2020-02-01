@@ -41,10 +41,22 @@ namespace PixRendering
         void MoveTo(Vector point);
 
         /// <summary>
+        /// Moves the pen position to a given point without performing a drawing operation.
+        /// </summary>
+        void MoveTo(float x, float y);
+
+        /// <summary>
         /// Draws a line from the current pen position to the given point.
         /// </summary>
         /// <param name="point">Point to add the line to, starting from the current pen position.</param>
         void LineTo(Vector point);
+
+        /// <summary>
+        /// Draws a line from the current pen position to the given point.
+        /// </summary>
+        /// <param name="x">X coordinate of point to add the line to, starting from the current pen position.</param>
+        /// <param name="y">Y coordinate of point to add the line to, starting from the current pen position.</param>
+        void LineTo(float x, float y);
 
         /// <summary>
         /// Adds a cubic bezier path from the current pen position, through the two anchors, ending at a given point.

@@ -48,12 +48,23 @@ namespace PixUI.Controls
         private HorizontalTextAlignment _horizontalTextAlignment = HorizontalTextAlignment.Leading;
         private VerticalTextAlignment _verticalTextAlignment = VerticalTextAlignment.Near;
         private TextWordWrap _textWordWrap = TextWordWrap.None;
+        private bool _autoResize = true;
 
         /// <summary>
         /// Whether to automatically resize this label view's bounds
         /// whenever its properties are updated.
         /// </summary>
-        public bool AutoResize { get; set; } = true;
+        public bool AutoResize
+        {
+            get => _autoResize;
+            set
+            {
+                _autoResize = value;
+
+                if (_autoResize)
+                    CalculateBounds();
+            }
+        }
 
         internal override Vector IntrinsicSize => _labelViewBacking?.CalculateSize(LabelView.defaultTextSizeProvider) ?? Vector.Zero;
 
@@ -161,6 +172,14 @@ namespace PixUI.Controls
             _textLayout = null;
 
             base.Dispose(disposing);
+        }
+
+        /// <summary>
+        /// Forces this <see cref="LabelViewControl"/> to resize itself to fit its text.
+        /// </summary>
+        public void AutoSize()
+        {
+            CalculateBounds();
         }
 
         private void CalculateBounds()

@@ -20,32 +20,41 @@
     base directory of this project.
 */
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using JetBrains.Annotations;
+using PixRendering;
 
 namespace PixUI.Controls.ContextMenu
 {
     /// <summary>
     /// An item for a <see cref="ContextMenuControl"/> which is capable of containing
-    /// more subitems itself.
+    /// more sub-items itself.
     /// </summary>
     public class ContextMenuDropDownItem : ContextMenuItem
     {
-        /// <summary>
-        /// Gets or sets the display name for this context menu item
-        /// </summary>
-        public string Name { get; set; }
-        
         /// <summary>
         /// Gets the collection of sub-items on this context menu item
         /// </summary>
         public ContextMenuItemCollection DropDownItems { get; }
 
-        public ContextMenuDropDownItem()
+        public ContextMenuDropDownItem([NotNull] string name) : base(name)
         {
             DropDownItems = new ContextMenuItemCollection(this);
         }
-        
+
+        public ContextMenuDropDownItem([NotNull] string name, ImageResource image) : base(name, image)
+        {
+            DropDownItems = new ContextMenuItemCollection(this);
+        }
+
+        public ContextMenuDropDownItem([NotNull] string name, IManagedImageResource managedImage) : base(name, managedImage)
+        {
+            DropDownItems = new ContextMenuItemCollection(this);
+        }
+
         protected void ItemsCollectionChanged()
         {
             
@@ -85,11 +94,42 @@ namespace PixUI.Controls.ContextMenu
 
             public void Add(ContextMenuItem dropDownItem)
             {
+                Debug.Assert(dropDownItem != null);
+
+                CheckRecursive(dropDownItem);
+
                 _items.Add(dropDownItem);
-                if (dropDownItem != null)
-                    dropDownItem.DropDownItem = _dropDownItem;
+
+                dropDownItem.DropDownItem = _dropDownItem;
 
                 _dropDownItem.ItemsCollectionChanged();
+            }
+
+            public ContextMenuDropDownItem Add([NotNull] string title)
+            {
+                var item = new ContextMenuDropDownItem(title);
+
+                Add(item);
+
+                return item;
+            }
+
+            public ContextMenuDropDownItem Add([NotNull] string title, ImageResource image)
+            {
+                var item = new ContextMenuDropDownItem(title, image);
+
+                Add(item);
+
+                return item;
+            }
+
+            public ContextMenuDropDownItem Add([NotNull] string title, IManagedImageResource managedImage)
+            {
+                var item = new ContextMenuDropDownItem(title, managedImage);
+
+                Add(item);
+
+                return item;
             }
 
             public void Clear()
@@ -110,7 +150,7 @@ namespace PixUI.Controls.ContextMenu
 
             public bool Remove(ContextMenuItem dropDownItem)
             {
-                var removed = _items.Remove(dropDownItem);
+                bool removed = _items.Remove(dropDownItem);
 
                 _dropDownItem.ItemsCollectionChanged();
 
@@ -124,12 +164,30 @@ namespace PixUI.Controls.ContextMenu
 
             public void Insert(int index, ContextMenuItem item)
             {
+                Debug.Assert(item != null);
+
+                CheckRecursive(item);
+
                 _items.Insert(index, item);
+
+                _dropDownItem.ItemsCollectionChanged();
             }
 
             public void RemoveAt(int index)
             {
                 _items.RemoveAt(index);
+            }
+
+            private void CheckRecursive(ContextMenuItem item)
+            {
+                var current = item;
+                while (current != null)
+                {
+                    if (current == _dropDownItem)
+                        throw new InvalidOperationException("Cannot add drop down item as a child of itself or of one of its children");
+
+                    current = current.DropDownItem;
+                }
             }
         }
     }

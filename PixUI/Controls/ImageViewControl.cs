@@ -128,7 +128,7 @@ namespace PixUI.Controls
         /// Creates a new <see cref="ImageViewControl"/> with a specified <see cref="IManagedImageResource"/>
         /// to render.
         /// </summary>
-        public static ImageViewControl Create(IManagedImageResource image)
+        public static ImageViewControl Create([CanBeNull] IManagedImageResource image)
         {
             var imageControl = new ImageViewControl
             {
