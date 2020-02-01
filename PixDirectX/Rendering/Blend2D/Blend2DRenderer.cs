@@ -751,12 +751,15 @@ namespace PixDirectX.Rendering.Blend2D
 
             public void AddRectangle(AABB rectangle)
             {
-                _path.AddRectangle(rectangle.ToBLRect());
+                _path.LineTo(rectangle.Right, rectangle.Top);
+                _path.LineTo(rectangle.Right, rectangle.Bottom);
+                _path.LineTo(rectangle.Left, rectangle.Bottom);
             }
 
             public void EndFigure(bool closePath)
             {
-                
+                if (closePath)
+                    _path.Close();
             }
         }
 
