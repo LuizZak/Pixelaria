@@ -434,11 +434,28 @@ namespace PixPipelineGraph
         /// <inheritdoc />
         public bool AreConnected(PipelineNodeId node1, PipelineNodeId node2)
         {
-            if (node1 == node2)
-                return false;
+            bool connected = false;
 
-            return _connections.Any(conn => conn.Input.Node.NodeId == node1 && conn.Output.Node.NodeId == node2 ||
-                                            conn.Input.Node.NodeId == node2 && conn.Output.Node.NodeId == node1);
+            // Try target -> node cycle first
+            this.TraverseInputs(node1, n =>
+            {
+                if (n == node2)
+                    connected = true;
+                return !connected;
+            });
+
+            if (connected)
+                return true;
+
+            // Now try again just to see if we're not connected from node -> target instead
+            this.TraverseInputs(node2, n =>
+            {
+                if (n == node1)
+                    connected = true;
+                return !connected;
+            });
+
+            return connected;
         }
 
         /// <inheritdoc />
@@ -450,28 +467,8 @@ namespace PixPipelineGraph
         /// <inheritdoc />
         public bool AreDirectlyConnected(PipelineNodeId node, PipelineNodeId target)
         {
-            bool connected = false;
-            
-            // Try target -> node cycle first
-            this.TraverseInputs(node, n =>
-            {
-                if (n == target)
-                    connected = true;
-                return !connected;
-            });
-
-            if (connected)
-                return true;
-
-            // Now try again just to see if we're not connected from node -> target instead
-            this.TraverseInputs(target, n =>
-            {
-                if (n == node)
-                    connected = true;
-                return !connected;
-            });
-
-            return connected;
+            return _connections.Any(c =>
+                c.Start.NodeId == node && c.End.NodeId == target || c.End.NodeId == node && c.Start.NodeId == target);
         }
 
         /// <inheritdoc />
