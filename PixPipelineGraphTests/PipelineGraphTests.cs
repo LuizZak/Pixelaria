@@ -134,6 +134,19 @@ namespace PixPipelineGraphTests
         }
 
         [TestMethod]
+        public void TestAreConnectedDetectsIndirectConnection()
+        {
+            var sut = CreatePipelineGraph();
+            var node1 = sut.CreateNode(builder => { builder.CreateOutput("output"); });
+            var node2 = sut.CreateNode(builder => { builder.CreateInput("input"); builder.CreateOutput("output"); });
+            var node3 = sut.CreateNode(builder => { builder.CreateInput("input"); });
+            sut.Connect(sut.OutputsForNode(node1)[0], sut.InputsForNode(node2)[0]);
+            sut.Connect(sut.OutputsForNode(node2)[0], sut.InputsForNode(node3)[0]);
+
+            Assert.IsTrue(sut.AreConnected(node1, node3));
+        }
+
+        [TestMethod]
         public void TestAreConnectedByLinks()
         {
             var sut = CreatePipelineGraph();
@@ -142,6 +155,19 @@ namespace PixPipelineGraphTests
             sut.Connect(sut.OutputsForNode(node1)[0], sut.InputsForNode(node2)[0]);
 
             Assert.IsTrue(sut.AreConnected(sut.OutputsForNode(node1)[0], sut.InputsForNode(node2)[0]));
+        }
+
+        [TestMethod]
+        public void TestAreDirectlyConnected()
+        {
+            var sut = CreatePipelineGraph();
+            var node1 = sut.CreateNode(builder => { builder.CreateOutput("output"); });
+            var node2 = sut.CreateNode(builder => { builder.CreateInput("input"); builder.CreateOutput("output"); });
+            var node3 = sut.CreateNode(builder => { builder.CreateInput("input"); });
+            sut.Connect(sut.OutputsForNode(node1)[0], sut.InputsForNode(node2)[0]);
+            sut.Connect(sut.OutputsForNode(node2)[0], sut.InputsForNode(node3)[0]);
+
+            Assert.IsFalse(sut.AreDirectlyConnected(node1, node3));
         }
 
         [TestMethod]
