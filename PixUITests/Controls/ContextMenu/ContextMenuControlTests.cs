@@ -65,7 +65,7 @@ namespace PixUITests.Controls.ContextMenu
             sut.Layout();
             sut.AutoSize();
 
-            BaseViewSnapshot.Snapshot(sut, TestContext, recordMode: true);
+            BaseViewSnapshot.Snapshot(sut, TestContext);
         }
 
         [TestMethod]
@@ -90,7 +90,7 @@ namespace PixUITests.Controls.ContextMenu
             var bounds = sut.BoundsForItem(item.DropDownItems[1]);
             sut.HitTestControl(bounds.Center).Highlighted = true;
 
-            BaseViewSnapshot.Snapshot(sut, TestContext, recordMode: true);
+            BaseViewSnapshot.Snapshot(sut, TestContext);
         }
 
         public TestContext TestContext { get; set; }
