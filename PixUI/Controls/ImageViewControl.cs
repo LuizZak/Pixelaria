@@ -41,6 +41,8 @@ namespace PixUI.Controls
         private int ImageWidth => Image?.Width ?? ImageResource?.Width ?? 0;
         private int ImageHeight => Image?.Height ?? ImageResource?.Height ?? 0;
 
+        internal override Vector IntrinsicSize => new Vector(ImageWidth, ImageHeight);
+
         /// <summary>
         /// Gets or sets the image resource to render on this image view.
         ///
@@ -126,7 +128,7 @@ namespace PixUI.Controls
         /// Creates a new <see cref="ImageViewControl"/> with a specified <see cref="IManagedImageResource"/>
         /// to render.
         /// </summary>
-        public static ImageViewControl Create(IManagedImageResource image)
+        public static ImageViewControl Create([CanBeNull] IManagedImageResource image)
         {
             var imageControl = new ImageViewControl
             {

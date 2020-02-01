@@ -180,7 +180,14 @@ namespace PixUI.Text
             if (Caret.Start == TextBuffer.TextLength)
                 return;
 
-            SetCaret(new TextRange(Caret.Location + 1, 0));
+            if (Caret.Length > 0)
+            {
+                SetCaret(Caret.End);
+            }
+            else
+            {
+                SetCaret(Caret.Location + 1);
+            }
         }
 
         /// <summary>
@@ -188,10 +195,19 @@ namespace PixUI.Text
         /// </summary>
         public void MoveLeft()
         {
-            if (Caret.Start == 0)
+            if (Caret.End == 0)
+            {
                 return;
+            }
 
-            SetCaret(new TextRange(Caret.Location - 1, 0));
+            if (Caret.Length > 0)
+            {
+                SetCaret(Caret.Start);
+            }
+            else
+            {
+                SetCaret(Caret.Location - 1);
+            }
         }
 
         /// <summary>
@@ -199,10 +215,10 @@ namespace PixUI.Text
         /// </summary>
         public void MoveToStart()
         {
-            if (Caret.Start == 0)
+            if (Caret.End == 0)
                 return;
 
-            SetCaret(new TextRange(0, 0));
+            SetCaret(0);
         }
 
         /// <summary>
@@ -213,7 +229,7 @@ namespace PixUI.Text
             if (Caret.Start == TextBuffer.TextLength)
                 return;
 
-            SetCaret(new TextRange(TextBuffer.TextLength, 0));
+            SetCaret(TextBuffer.TextLength);
         }
 
         /// <summary>
@@ -272,7 +288,7 @@ namespace PixUI.Text
         /// </summary>
         public void SelectLeft()
         {
-            if (Caret.Start == 0)
+            if (Caret.Location == 0)
                 return;
 
             MoveCaretSelecting(Caret.Location - 1);
@@ -994,7 +1010,7 @@ namespace PixUI.Text
         public int Start => TextRange.Start;
 
         /// <summary>
-        /// Start of text range this caret covers
+        /// End of text range this caret covers
         /// </summary>
         public int End => TextRange.End;
 

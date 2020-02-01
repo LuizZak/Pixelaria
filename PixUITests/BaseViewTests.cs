@@ -135,6 +135,26 @@ namespace PixUITests
         }
 
         [TestMethod]
+        public void TestCommonAncestor()
+        {
+            var parent = new BaseView();
+            var child1 = new BaseView();
+            var child2 = new BaseView();
+            var subChild1 = new BaseView();
+            var unrelated = new BaseView();
+            parent.AddChild(child1);
+            parent.AddChild(child2);
+            child1.AddChild(subChild1);
+
+            Assert.AreEqual(child1.CommonAncestor(child2), parent);
+            Assert.AreEqual(subChild1.CommonAncestor(child2), parent);
+            Assert.AreEqual(child2.CommonAncestor(subChild1), parent);
+            Assert.AreEqual(parent.CommonAncestor(child1), parent);
+            Assert.AreEqual(parent.CommonAncestor(parent), parent);
+            Assert.IsNull(child1.CommonAncestor(unrelated));
+        }
+
+        [TestMethod]
         public void TestAddChildRecursiveHierarchyVerification()
         {
             var root = new BaseView();

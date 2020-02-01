@@ -23,6 +23,7 @@
 using System;
 using System.Diagnostics;
 using JetBrains.Annotations;
+using PixCore.Geometry;
 using PixCore.Text;
 using PixRendering;
 using Font = System.Drawing.Font;
@@ -47,13 +48,26 @@ namespace PixUI.Controls
         private HorizontalTextAlignment _horizontalTextAlignment = HorizontalTextAlignment.Leading;
         private VerticalTextAlignment _verticalTextAlignment = VerticalTextAlignment.Near;
         private TextWordWrap _textWordWrap = TextWordWrap.None;
+        private bool _autoResize = true;
 
         /// <summary>
         /// Whether to automatically resize this label view's bounds
         /// whenever its properties are updated.
         /// </summary>
-        public bool AutoResize { get; set; } = true;
-        
+        public bool AutoResize
+        {
+            get => _autoResize;
+            set
+            {
+                _autoResize = value;
+
+                if (_autoResize)
+                    CalculateBounds();
+            }
+        }
+
+        internal override Vector IntrinsicSize => _labelViewBacking?.CalculateSize(LabelView.defaultTextSizeProvider) ?? Vector.Zero;
+
         [NotNull]
         public Font TextFont
         {
@@ -142,6 +156,7 @@ namespace PixUI.Controls
             InteractionEnabled = false;
             _labelViewBacking.BoundsInvalidated += (sender, args) =>
             {
+                SetNeedsLayout();
                 CalculateBounds();
                 Invalidate();
             };
@@ -157,6 +172,14 @@ namespace PixUI.Controls
             _textLayout = null;
 
             base.Dispose(disposing);
+        }
+
+        /// <summary>
+        /// Forces this <see cref="LabelViewControl"/> to resize itself to fit its text.
+        /// </summary>
+        public void AutoSize()
+        {
+            CalculateBounds();
         }
 
         private void CalculateBounds()

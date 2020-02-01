@@ -28,6 +28,7 @@ using System.Text;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixUI.Controls;
+using PixUI.LayoutSystem;
 
 namespace PixUI
 {
@@ -50,6 +51,53 @@ namespace PixUI
         private Matrix2D _localTransform;
 
         private readonly InternalLayoutEvents _layoutEvents;
+
+        protected bool needsLayout = true;
+
+        internal ViewLayoutConstraintVariables LayoutVariables;
+
+        /// <summary>
+        /// If <c>true</c>, location and size values are translated into required
+        /// constraints that are not mutable.
+        ///
+        /// Setting this value to <c>false</c> allows location and size to be computed
+        /// based on the constraints attached to this view.
+        ///
+        /// Defaults to <c>true</c>.
+        /// </summary>
+        internal bool TranslateBoundsIntoConstraints = true;
+
+        /// <summary>
+        /// List of layout constraints active on this view.
+        ///
+        /// The constraints on this list may not be related to this view; subviews in
+        /// different branches of the view hierarchy create constraints on the first common
+        /// superview of their hierarchy.
+        /// </summary>
+        internal List<LayoutConstraint> LayoutConstraints = new List<LayoutConstraint>();
+
+        /// <summary>
+        /// List of layout constraints that affect this view.
+        ///
+        /// This list differs from <see cref="LayoutConstraints"/> in that this list contains
+        /// constraints that may be repeated across the view hierarchy (one for each related
+        /// anchor view), whereas <see cref="LayoutConstraints"/> is guaranteed to be unique
+        /// and only contains constraints from descendants of, or the contained view itself.
+        ///
+        /// Constraints from this list are removed when the view itself is removed from the
+        /// view hierarchy.
+        /// </summary>
+        internal List<LayoutConstraint> AffectingConstraints = new List<LayoutConstraint>();
+
+        internal LayoutAnchors Anchors => new LayoutAnchors(this);
+
+        /// <summary>
+        /// Gets an intrinsic size for this view.
+        ///
+        /// When greater than zero, indicates the size this view will resize to via constraints
+        /// by default.
+        /// </summary>
+        internal virtual Vector IntrinsicSize => Vector.Zero;
 
         /// <summary>
         /// Gets the parent view, if any, of this base view.
@@ -83,7 +131,7 @@ namespace PixUI
         /// Gets or sets the center point of this view's <see cref="AABB"/> when projected
         /// on the parent view.
         /// 
-        /// If Parent == null, returns the AABB's center property on get, and
+        /// If <c>Parent == null</c>, returns the AABB's center property on get, and
         /// set is ignored.
         /// </summary>
         public Vector Center
@@ -122,6 +170,7 @@ namespace PixUI
 
                 InvalidateFullBounds();
                 _location = value;
+                SetNeedsLayout();
                 RecreateLocalTransformMatrix();
                 InvalidateFullBounds();
             }
@@ -143,6 +192,7 @@ namespace PixUI
 
                 Invalidate();
                 _size = value;
+                SetNeedsLayout();
                 OnResize();
                 _layoutEvents.DidResize();
                 Invalidate();
@@ -280,6 +330,7 @@ namespace PixUI
             RecreateLocalTransformMatrix();
 
             _layoutEvents = new InternalLayoutEvents(this);
+            LayoutVariables = new ViewLayoutConstraintVariables(this);
         }
 
         /// <summary>
@@ -332,6 +383,45 @@ namespace PixUI
             Location = aabb.Minimum;
             Size = aabb.Size;
         }
+
+        #region Layout
+
+        /// <summary>
+        /// Method called whenever the <see cref="Size"/> property of this view is updated.
+        /// </summary>
+        protected virtual void OnResize()
+        {
+            Layout();
+        }
+
+        /// <summary>
+        /// Called by <see cref="BaseView"/> when it's size has changed to request re-layouting.
+        /// Can also be called by clients to force a re-layout of this control.
+        /// 
+        /// Avoid making any changes to <see cref="Size"/> on this method as to not trigger an infinite
+        /// recursion.
+        /// 
+        /// Note: Always call <c>base.Layout()</c> when overriding this method.
+        /// </summary>
+        public virtual void Layout()
+        {
+            needsLayout = false;
+        }
+
+        /// <summary>
+        /// Marks this view as requiring a re-layout during the next available layout cycle.
+        ///
+        /// Marking a view as needing a layout also marks all ancestor views as needing layout
+        /// as well.
+        /// </summary>
+        public virtual void SetNeedsLayout()
+        {
+            needsLayout = true;
+
+            Parent?.SetNeedsLayout();
+        }
+
+        #endregion
 
         /// <summary>
         /// Adds a base view as the child of this base view.
@@ -391,6 +481,11 @@ namespace PixUI
 
             child.Parent = null;
             children.Remove(child);
+
+            foreach (var constraint in child.AffectingConstraints)
+            {
+                constraint.RemoveConstraint();
+            }
         }
 
         /// <summary>
@@ -418,6 +513,33 @@ namespace PixUI
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Returns the first common ancestor between this and another view.
+        ///
+        /// In case the views are not located in the same hierarchy, <c>null</c>
+        /// is returned, instead.
+        ///
+        /// In case <see cref="other"/> is a reference to this view, <c>this</c>
+        /// is returned.
+        /// </summary>
+        [CanBeNull]
+        public BaseView CommonAncestor([NotNull] BaseView other)
+        {
+            if (ReferenceEquals(other, this))
+                return this;
+
+            var current = this;
+            while (current != null)
+            {
+                if (other.IsDescendentOf(current))
+                    return current;
+
+                current = current.Parent;
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -744,13 +866,63 @@ namespace PixUI
             return bounds;
         }
 
-        /// <summary>
-        /// Method called whenever the <see cref="Size"/> property of this view is updated.
-        /// </summary>
-        protected virtual void OnResize()
+        #region Content compression / hugging priority
+
+        internal void SetContentCompressionResistance(LayoutAnchorOrientationFlags orientation, int strength)
         {
-            
+            if (orientation.HasFlag(LayoutAnchorOrientationFlags.Horizontal))
+            {
+                LayoutVariables.HorizontalCompressResistance = strength;
+            }
+            if (orientation.HasFlag(LayoutAnchorOrientationFlags.Vertical))
+            {
+                LayoutVariables.VerticalCompressResistance = strength;
+            }
         }
+
+        internal int ContentCompressionResistance(LayoutAnchorOrientationFlags orientation)
+        {
+            if (orientation == LayoutAnchorOrientationFlags.Horizontal)
+            {
+                return LayoutVariables.HorizontalCompressResistance;
+            }
+            if (orientation == LayoutAnchorOrientationFlags.Vertical)
+            {
+                return LayoutVariables.VerticalCompressResistance;
+            }
+
+            throw new ArgumentOutOfRangeException(nameof(orientation), 
+                @"Cannot return compression resistance value for a union of two orientations. Provide only Horizontal or Vertical as parameter.");
+        }
+
+        internal void SetContentHuggingPriority(LayoutAnchorOrientationFlags orientation, int strength)
+        {
+            if (orientation.HasFlag(LayoutAnchorOrientationFlags.Horizontal))
+            {
+                LayoutVariables.HorizontalHuggingPriority = strength;
+            }
+            if (orientation.HasFlag(LayoutAnchorOrientationFlags.Vertical))
+            {
+                LayoutVariables.VerticalHuggingPriority = strength;
+            }
+        }
+
+        internal int ContentHuggingPriority(LayoutAnchorOrientationFlags orientation)
+        {
+            if (orientation == LayoutAnchorOrientationFlags.Horizontal)
+            {
+                return LayoutVariables.HorizontalHuggingPriority;
+            }
+            if (orientation == LayoutAnchorOrientationFlags.Vertical)
+            {
+                return LayoutVariables.VerticalHuggingPriority;
+            }
+
+            throw new ArgumentOutOfRangeException(nameof(orientation), 
+                @"Cannot return hugging priority value for a union of two orientations. Provide only Horizontal or Vertical as parameter.");
+        }
+
+        #endregion
 
         #region Redraw Region Management
 

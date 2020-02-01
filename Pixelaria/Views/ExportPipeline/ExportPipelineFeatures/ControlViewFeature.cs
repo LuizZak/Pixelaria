@@ -121,6 +121,9 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
         public void Render(IRenderListenerParameters parameters)
         {
+            // Apply layout events first
+            BaseControl.Layout();
+
             var context = new ControlRenderingContext(parameters);
 
             // Create a renderer visitor for the root UI element we got

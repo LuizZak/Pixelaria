@@ -100,8 +100,10 @@ namespace PixUI.Controls
         }
 
         /// <summary>
-        /// If true, <see cref="Highlighted"/> is automatically toggled on and off whenever the user enters
-        /// and exits this control with the mouse.
+        /// If <c>true</c>, <see cref="Highlighted"/> is automatically toggled on and off whenever the
+        /// user enters and exits this control with the mouse.
+        ///
+        /// Defaults to <c>true</c>.
         /// </summary>
         public bool MouseOverHighlight { get; set; } = true;
 
@@ -213,7 +215,7 @@ namespace PixUI.Controls
         /// Gets the content bounds of this control, which are the inner area of this control
         /// where content is effectively contained within. May be larger than this control's <see cref="BaseView.Bounds"/>.
         /// 
-        /// Scroll views and other controls may modify bounds to alter the interactible area
+        /// Scroll views and other controls may modify bounds to alter the interactive area
         /// of the control.
         /// </summary>
         public virtual AABB ContentBounds => Bounds;
@@ -273,13 +275,6 @@ namespace PixUI.Controls
                 return;
             
             DisposeBag.Dispose();
-        }
-
-        protected override void OnResize()
-        {
-            base.OnResize();
-
-            Layout();
         }
 
         protected virtual void OnChangedState(ControlViewState newState)
@@ -461,24 +456,6 @@ namespace PixUI.Controls
                 _stateManager.SetIsFirstResponder(false);
             }
         }
-
-        #region Layout
-
-        /// <summary>
-        /// Called by <see cref="ControlView"/> when it's size has changed to request re-layouting.
-        /// Can also be called by clients to force a re-layout of this control.
-        /// 
-        /// Avoid making any changes to <see cref="BaseView.Size"/> on this method as to not trigger an infinite
-        /// recursion.
-        /// 
-        /// Note: Always call <c>base.Layout()</c> when overriding this method.
-        /// </summary>
-        public virtual void Layout()
-        {
-
-        }
-
-        #endregion
 
         /// <summary>
         /// Adds a mouse event recognizer that is capable of handling mouse events
@@ -870,7 +847,7 @@ namespace PixUI.Controls
         {
             if (State != DragMouseEventState.MousePressed && State != DragMouseEventState.MouseMoved)
                 return;
-
+            
             MousePosition = ConvertFromScreen(e.Location);
 
             State = DragMouseEventState.MouseMoved;

@@ -70,7 +70,7 @@ namespace PixRendering
         /// </summary>
         void StrokeGeometry([NotNull] PolyGeometry geometry, float strokeWidth = 1);
         /// <summary>
-        /// Strokes a path geometry object with the current stroke brush.
+        /// Strokes a path geometry created with <see cref="CreatePath"/> with the current stroke brush.
         /// </summary>
         void StrokePath([NotNull] IPathGeometry path, float strokeWidth = 1);
 
@@ -103,7 +103,7 @@ namespace PixRendering
         /// </summary>
         void FillGeometry([NotNull] PolyGeometry geometry);
         /// <summary>
-        /// Fills a path geometry with the current fill brush.
+        /// Fills a path geometry created with <see cref="CreatePath"/> with the current fill brush.
         /// </summary>
         void FillPath([NotNull] IPathGeometry path);
 

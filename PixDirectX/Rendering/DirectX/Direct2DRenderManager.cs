@@ -696,17 +696,17 @@ namespace PixDirectX.Rendering.DirectX
             DrawBitmap(image, (RectangleF)region, opacity, interpolationMode, tintColor);
         }
 
+        public void DrawBitmap(IManagedImageResource image, AABB region, float opacity, ImageInterpolationMode interpolationMode, Color? tintColor = null)
+        {
+            DrawBitmap(image, (RectangleF)region, opacity, interpolationMode, tintColor);
+        }
+
         public void DrawBitmap(IManagedImageResource image, RectangleF region, float opacity, ImageInterpolationMode interpolationMode, Color? tintColor = null)
         {
             var bitmap = CastBitmapOrFail(image);
             EnsureBitmapRenderTarget(bitmap);
 
             DrawBitmap(bitmap.bitmap, region, opacity, interpolationMode, tintColor);
-        }
-
-        public void DrawBitmap(IManagedImageResource image, AABB region, float opacity, ImageInterpolationMode interpolationMode, Color? tintColor = null)
-        {
-            DrawBitmap(image, (RectangleF)region, opacity, interpolationMode, tintColor);
         }
 
         private void DrawBitmap(SharpDX.Direct2D1.Bitmap bitmap, RectangleF region, float opacity, ImageInterpolationMode interpolationMode, Color? tintColor = null)
@@ -1120,6 +1120,16 @@ namespace PixDirectX.Rendering.DirectX
 
                 _geometrySink.AddLine(point.ToRawVector2());
                 _startLocation = point;
+            }
+
+            public void MoveTo(float x, float y)
+            {
+                MoveTo(new Vector(x, y));
+            }
+
+            public void LineTo(float x, float y)
+            {
+                LineTo(new Vector(x, y));
             }
 
             public void BezierTo(Vector anchor1, Vector anchor2, Vector endPoint)

@@ -20,7 +20,6 @@
     base directory of this project.
 */
 
-
 using System.Drawing;
 using JetBrains.Annotations;
 using PixCore.Text;
