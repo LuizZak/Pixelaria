@@ -48,9 +48,9 @@ namespace PixUI.LayoutSystem
             });
 
             var result = new LayoutConstraintTraversalResult();
-            var traverser = new BaseViewTraverser<LayoutConstraintTraversalResult>(result, visitor);
+            var traveler = new BaseViewTraveler<LayoutConstraintTraversalResult>(result, visitor);
 
-            traverser.Visit(view);
+            traveler.Visit(view);
 
             Solve(result.Constraints, result.AffectedViews);
 

@@ -734,6 +734,16 @@ namespace PixDirectX.Rendering.Blend2D
                 _path.LineTo(point.X, point.Y);
             }
 
+            public void MoveTo(float x, float y)
+            {
+                MoveTo(new Vector(x, y));
+            }
+
+            public void LineTo(float x, float y)
+            {
+                LineTo(new Vector(x, y));
+            }
+
             public void BezierTo(Vector anchor1, Vector anchor2, Vector endPoint)
             {
                 _path.CubicTo(anchor1.X, anchor1.Y, anchor2.X, anchor2.Y, endPoint.X, endPoint.Y);
