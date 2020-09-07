@@ -91,14 +91,14 @@ namespace Pixelaria.Views.Controls
         [Browsable(true)]
         [Category("Action")]
         [Description("Occurs whenever the user selects to add a new keyframe")]
-        public event KeyframeEventHandler KeyframeAdded;
+        public event KeyframeEventHandler WillAddKeyframe;
         /// <summary>
         /// Event fired when a new keyframe is removed by the user
         /// </summary>
         [Browsable(true)]
         [Category("Action")]
-        [Description("Occurs whenever the user selects to remove a new keyframe")]
-        public event KeyframeEventHandler KeyframeRemoved;
+        [Description("Occurs whenever the user selects to remove a keyframe")]
+        public event KeyframeEventHandler WillRemoveKeyframe;
 
         public ITimeline Timeline
         {
@@ -205,10 +205,10 @@ namespace Pixelaria.Views.Controls
             {
                 _contextMenu.Items.Add("Remove Keyframe").Click += (sender, args) =>
                 {
-                    if (KeyframeRemoved != null)
+                    if (WillRemoveKeyframe != null)
                     {
                         var ev = new TimelineControlKeyframeEventArgs(frame);
-                        KeyframeRemoved.Invoke(this, ev);
+                        WillRemoveKeyframe.Invoke(this, ev);
 
                         if (ev.Cancel)
                             return;
@@ -222,10 +222,10 @@ namespace Pixelaria.Views.Controls
             {
                 _contextMenu.Items.Add("Add Keyframe").Click += (sender, args) =>
                 {
-                    if (KeyframeAdded != null)
+                    if (WillAddKeyframe != null)
                     {
                         var ev = new TimelineControlKeyframeEventArgs(frame);
-                        KeyframeAdded.Invoke(this, ev);
+                        WillAddKeyframe.Invoke(this, ev);
 
                         if (ev.Cancel)
                             return;

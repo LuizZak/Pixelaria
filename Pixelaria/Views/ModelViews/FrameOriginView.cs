@@ -61,8 +61,8 @@ namespace Pixelaria.Views.ModelViews
 
             timelineControl.Timeline = _timeline;
             timelineControl.FrameChanged += TimelineScrubControlOnFrameChanged;
-            timelineControl.KeyframeAdded += TimelineControlOnKeyframeAdded;
-            timelineControl.KeyframeRemoved += TimelineControlOnKeyframeRemoved;
+            timelineControl.WillAddKeyframe += TimelineControlOnWillAddKeyframe;
+            timelineControl.WillRemoveKeyframe += TimelineControlOnWillRemoveKeyframe;
 
             zpb_framePreview.HookToControl(this);
 
@@ -87,12 +87,12 @@ namespace Pixelaria.Views.ModelViews
             LoadFrame(e.NewFrame);
         }
 
-        private void TimelineControlOnKeyframeAdded(object sender, TimelineControlKeyframeEventArgs e)
+        private void TimelineControlOnWillAddKeyframe(object sender, TimelineControlKeyframeEventArgs e)
         {
             zpb_framePreview.Invalidate();
         }
 
-        private void TimelineControlOnKeyframeRemoved(object sender, TimelineControlKeyframeEventArgs e)
+        private void TimelineControlOnWillRemoveKeyframe(object sender, TimelineControlKeyframeEventArgs e)
         {
             zpb_framePreview.Invalidate();
         }
