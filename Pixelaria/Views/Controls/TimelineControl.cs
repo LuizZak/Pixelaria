@@ -295,7 +295,7 @@ namespace Pixelaria.Views.Controls
                     e.Graphics.FillRectangle(brush, currentFrameRect);
                 }
 
-                if (frame % 5 == 0)
+                if (frame == 0 || (frame + 1) % 5 == 0)
                 {
                     string frameString = (frame + 1).ToString();
                     e.Graphics.DrawString(frameString, font, Brushes.DimGray, x, 0);
