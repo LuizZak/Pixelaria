@@ -35,18 +35,18 @@ namespace Pixelaria.Timeline
         private int _frameCount = 1;
 
         /// <summary>
-        /// Event fired when a new keyframe is added by the user
+        /// Event fired when a new keyframe is added
         /// </summary>
         [Browsable(true)]
         [Category("Action")]
-        [Description("Occurs whenever the user selects to add a new keyframe")]
+        [Description("Occurs whenever a new keyframe is added")]
         public event ITimeline.KeyframeEventHandler KeyframeAdded;
         /// <summary>
-        /// Event fired when a keyframe is removed by the user
+        /// Event fired when a keyframe is removed
         /// </summary>
         [Browsable(true)]
         [Category("Action")]
-        [Description("Occurs whenever the user selects to remove a keyframe")]
+        [Description("Occurs whenever a keyframe is removed")]
         public event ITimeline.KeyframeEventHandler KeyframeRemoved;
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace Pixelaria.Timeline
         /// </summary>
         [Browsable(true)]
         [Category("Action")]
-        [Description("Occurs whenever the user changes the value of a keyframe")]
+        [Description("Occurs whenever the the value of a keyframe changes")]
         public event ITimeline.KeyframeValueChangedEventHandler KeyframeValueChanged;
 
         public int FrameCount

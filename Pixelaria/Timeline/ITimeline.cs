@@ -34,18 +34,18 @@ namespace Pixelaria.Timeline
         /// <param name="e">The event arguments for the event</param>
         delegate void KeyframeEventHandler(object sender, TimelineKeyframeEventArgs e);
         /// <summary>
-        /// Event fired when a new keyframe is added by the user
+        /// Event fired when a new keyframe is added
         /// </summary> 
         [Browsable(true)]
         [Category("Action")]
-        [Description("Occurs whenever the user selects to add a new keyframe")]
+        [Description("Occurs whenever a new keyframe is added")]
         event KeyframeEventHandler KeyframeAdded;
         /// <summary>
-        /// Event fired when a keyframe is removed by the user
+        /// Event fired when a keyframe is removed
         /// </summary>
         [Browsable(true)]
         [Category("Action")]
-        [Description("Occurs whenever the user selects to remove a keyframe")]
+        [Description("Occurs whenever a keyframe iss removed")]
         event KeyframeEventHandler KeyframeRemoved;
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace Pixelaria.Timeline
         /// </summary>
         [Browsable(true)]
         [Category("Action")]
-        [Description("Occurs whenever the user changes the value of a keyframe")]
+        [Description("Occurs whenever the the value of a keyframe changes")]
         event KeyframeValueChangedEventHandler KeyframeValueChanged;
 
         int FrameCount { get; }
