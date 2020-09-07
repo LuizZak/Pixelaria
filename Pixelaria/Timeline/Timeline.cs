@@ -21,6 +21,7 @@
 */
 
 using System;
+using System.ComponentModel;
 using System.Linq;
 
 namespace Pixelaria.Timeline
@@ -32,6 +33,29 @@ namespace Pixelaria.Timeline
     {
         private readonly IKeyframeSource _keyframeSource;
         private int _frameCount = 1;
+
+        /// <summary>
+        /// Event fired when a new keyframe is added by the user
+        /// </summary>
+        [Browsable(true)]
+        [Category("Action")]
+        [Description("Occurs whenever the user selects to add a new keyframe")]
+        public event ITimeline.KeyframeEventHandler KeyframeAdded;
+        /// <summary>
+        /// Event fired when a keyframe is removed by the user
+        /// </summary>
+        [Browsable(true)]
+        [Category("Action")]
+        [Description("Occurs whenever the user selects to remove a keyframe")]
+        public event ITimeline.KeyframeEventHandler KeyframeRemoved;
+
+        /// <summary>
+        /// Event fired when a keyframe's value has changed
+        /// </summary>
+        [Browsable(true)]
+        [Category("Action")]
+        [Description("Occurs whenever the user changes the value of a keyframe")]
+        public event ITimeline.KeyframeValueChangedEventHandler KeyframeValueChanged;
 
         public int FrameCount
         {
@@ -55,6 +79,7 @@ namespace Pixelaria.Timeline
         public void SetKeyframeValue(int frame, object value)
         {
             _keyframeSource.SetKeyframeValue(frame, value ?? LayerController.DefaultKeyframeValue());
+            KeyframeValueChanged?.Invoke(this, new TimelineKeyframeValueChangeEventArgs(frame, value));
         }
 
         public void AddKeyframe(int frame, object value = null)
@@ -75,11 +100,14 @@ namespace Pixelaria.Timeline
             }
 
             _keyframeSource.AddKeyframe(frame, value);
+            KeyframeAdded?.Invoke(this, new TimelineKeyframeEventArgs(frame));
+            KeyframeValueChanged?.Invoke(this, new TimelineKeyframeValueChangeEventArgs(frame, value));
         }
 
         public void RemoveKeyframe(int frame)
         {
             _keyframeSource.RemoveKeyframe(frame);
+            KeyframeRemoved?.Invoke(this, new TimelineKeyframeEventArgs(frame));
         }
 
         public Keyframe? KeyframeForFrame(int frame)
@@ -182,7 +210,7 @@ namespace Pixelaria.Timeline
             return (null, null);
         }
 
-        public struct KeyframeRange
+        public readonly struct KeyframeRange
         {
             public int Frame { get; }
             public int Span { get; }

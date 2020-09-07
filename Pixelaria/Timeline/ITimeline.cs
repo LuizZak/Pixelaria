@@ -20,10 +20,48 @@
     base directory of this project.
 */
 
+using System;
+using System.ComponentModel;
+
 namespace Pixelaria.Timeline
 {
     public interface ITimeline
     {
+        /// <summary>
+        /// Event handler for keyframe-related events
+        /// </summary>
+        /// <param name="sender">The object that fired this event</param>
+        /// <param name="e">The event arguments for the event</param>
+        delegate void KeyframeEventHandler(object sender, TimelineKeyframeEventArgs e);
+        /// <summary>
+        /// Event fired when a new keyframe is added by the user
+        /// </summary> 
+        [Browsable(true)]
+        [Category("Action")]
+        [Description("Occurs whenever the user selects to add a new keyframe")]
+        event KeyframeEventHandler KeyframeAdded;
+        /// <summary>
+        /// Event fired when a keyframe is removed by the user
+        /// </summary>
+        [Browsable(true)]
+        [Category("Action")]
+        [Description("Occurs whenever the user selects to remove a keyframe")]
+        event KeyframeEventHandler KeyframeRemoved;
+
+        /// <summary>
+        /// Event handler for events related to keyframe value changes
+        /// </summary>
+        /// <param name="sender">The object that fired this event</param>
+        /// <param name="e">The event arguments for the event</param>
+        delegate void KeyframeValueChangedEventHandler(object sender, TimelineKeyframeValueChangeEventArgs e);
+        /// <summary>
+        /// Event fired when a keyframe's value has changed
+        /// </summary>
+        [Browsable(true)]
+        [Category("Action")]
+        [Description("Occurs whenever the user changes the value of a keyframe")]
+        event KeyframeValueChangedEventHandler KeyframeValueChanged;
+
         int FrameCount { get; }
         ITimelineLayerController LayerController { get; }
         KeyframePosition RelationshipToFrame(int frame);
@@ -48,5 +86,27 @@ namespace Pixelaria.Timeline
         /// instead.
         /// </summary>
         (object, object) KeyframeValuesBetween(int frame);
+    }
+
+    public class TimelineKeyframeEventArgs : EventArgs
+    {
+        public int FrameIndex { get; }
+
+        public TimelineKeyframeEventArgs(int frameIndex)
+        {
+            FrameIndex = frameIndex;
+        }
+    }
+
+    public class TimelineKeyframeValueChangeEventArgs : EventArgs
+    {
+        public int FrameIndex { get; }
+        public object Value { get; }
+
+        public TimelineKeyframeValueChangeEventArgs(int frameIndex, object value)
+        {
+            FrameIndex = frameIndex;
+            Value = value;
+        }
     }
 }

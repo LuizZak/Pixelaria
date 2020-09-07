@@ -87,12 +87,12 @@ namespace Pixelaria.Views.ModelViews
             LoadFrame(e.NewFrame);
         }
 
-        private void TimelineControlOnKeyframeAdded(object sender, TimelineKeyframeEventArgs e)
+        private void TimelineControlOnKeyframeAdded(object sender, TimelineControlKeyframeEventArgs e)
         {
             zpb_framePreview.Invalidate();
         }
 
-        private void TimelineControlOnKeyframeRemoved(object sender, TimelineKeyframeEventArgs e)
+        private void TimelineControlOnKeyframeRemoved(object sender, TimelineControlKeyframeEventArgs e)
         {
             zpb_framePreview.Invalidate();
         }

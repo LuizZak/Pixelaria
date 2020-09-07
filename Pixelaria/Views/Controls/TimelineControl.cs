@@ -84,7 +84,7 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         /// <param name="sender">The object that fired this event</param>
         /// <param name="e">The event arguments for the event</param>
-        public delegate void KeyframeEventHandler(object sender, TimelineKeyframeEventArgs e);
+        public delegate void KeyframeEventHandler(object sender, TimelineControlKeyframeEventArgs e);
         /// <summary>
         /// Event fired when a new keyframe is added by the user
         /// </summary>
@@ -105,8 +105,22 @@ namespace Pixelaria.Views.Controls
             get => _timeline;
             set
             {
+                if (_timeline != null)
+                {
+                    _timeline.KeyframeAdded -= TimelineOnKeyframeAdded;
+                    _timeline.KeyframeRemoved -= TimelineOnKeyframeAdded;
+                    _timeline.KeyframeValueChanged -= TimelineOnKeyframeValueChanged;
+                }
+
                 _timeline = value;
                 Invalidate();
+
+                if (_timeline != null)
+                {
+                    _timeline.KeyframeAdded += TimelineOnKeyframeAdded;
+                    _timeline.KeyframeRemoved += TimelineOnKeyframeRemoved;
+                    _timeline.KeyframeValueChanged += TimelineOnKeyframeValueChanged;
+                }
             }
         }
 
@@ -122,6 +136,21 @@ namespace Pixelaria.Views.Controls
             SetStyle(ControlStyles.OptimizedDoubleBuffer |
                      ControlStyles.AllPaintingInWmPaint |
                      ControlStyles.UserPaint, true);
+        }
+
+        private void TimelineOnKeyframeAdded(object sender, TimelineKeyframeEventArgs e)
+        {
+            Invalidate();
+        }
+
+        private void TimelineOnKeyframeRemoved(object sender, TimelineKeyframeEventArgs e)
+        {
+            Invalidate();
+        }
+
+        private void TimelineOnKeyframeValueChanged(object sender, TimelineKeyframeValueChangeEventArgs e)
+        {
+            Invalidate();
         }
 
         private int FrameOnX(float x)
@@ -178,7 +207,7 @@ namespace Pixelaria.Views.Controls
                 {
                     if (KeyframeRemoved != null)
                     {
-                        var ev = new TimelineKeyframeEventArgs(frame);
+                        var ev = new TimelineControlKeyframeEventArgs(frame);
                         KeyframeRemoved.Invoke(this, ev);
 
                         if (ev.Cancel)
@@ -195,7 +224,7 @@ namespace Pixelaria.Views.Controls
                 {
                     if (KeyframeAdded != null)
                     {
-                        var ev = new TimelineKeyframeEventArgs(frame);
+                        var ev = new TimelineControlKeyframeEventArgs(frame);
                         KeyframeAdded.Invoke(this, ev);
 
                         if (ev.Cancel)
@@ -405,7 +434,7 @@ namespace Pixelaria.Views.Controls
         }
     }
 
-    public class TimelineKeyframeEventArgs : EventArgs
+    public class TimelineControlKeyframeEventArgs : EventArgs
     {
         public int FrameIndex { get; }
 
@@ -414,7 +443,7 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         public bool Cancel { get; set; }
 
-        public TimelineKeyframeEventArgs(int frameIndex)
+        public TimelineControlKeyframeEventArgs(int frameIndex)
         {
             FrameIndex = frameIndex;
         }
