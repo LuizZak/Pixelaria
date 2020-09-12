@@ -188,7 +188,7 @@ namespace Pixelaria.Algorithms.PaintOperations
 
         /// <summary>
         /// Moves the pencil tip to point to a specific spot, drawing between the last and new positions.
-        /// If the operation has not been started by calling <see cref="BasicContinuousPaintOperation.StartOpertaion"/>, an exception is thrown
+        /// If the operation has not been started by calling <see cref="BasicContinuousPaintOperation.StartOperation"/>, an exception is thrown
         /// </summary>
         /// <param name="x">The position to move the pencil tip to</param>
         /// <param name="y">The position to move the pencil tip to</param>
@@ -337,18 +337,18 @@ namespace Pixelaria.Algorithms.PaintOperations
         /// <summary>
         /// Starts this pencil paint operation
         /// </summary>
-        public override void StartOpertaion()
+        public override void StartOperation()
         {
-            StartOpertaion(true);
+            StartOperation(true);
         }
 
         /// <summary>
-        /// Starts this pencil paint operation, specifying whethe to accumulate the alpha of the pixels
+        /// Starts this pencil paint operation, specifying whether to accumulate the alpha of the pixels
         /// </summary>
-        /// <param name="accumulateAlpha">Whether to accumulate the trasparency of the pixels as the pencil draws over them repeatedly</param>
-        public void StartOpertaion(bool accumulateAlpha)
+        /// <param name="accumulateAlpha">Whether to accumulate the transparency of the pixels as the pencil draws over them repeatedly</param>
+        public void StartOperation(bool accumulateAlpha)
         {
-            base.StartOpertaion();
+            base.StartOperation();
 
             if (useFastBitmap)
             {
@@ -398,9 +398,9 @@ namespace Pixelaria.Algorithms.PaintOperations
         }
 
         /// <summary>
-        /// Invokes a speicifed plot function for each pixel that passes through on the speicfied line
+        /// Invokes a specified plot function for each pixel that passes through on the specified line
         /// </summary>
-        /// <param name="plotFunction">The fuction to call to plot the lines</param>
+        /// <param name="plotFunction">The function to call to plot the lines</param>
         /// <param name="startPoint">The start point for the line</param>
         /// <param name="endPoint">The end point of the line</param>
         /// <param name="size">The size of the line to plot</param>

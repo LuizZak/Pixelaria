@@ -48,7 +48,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// </summary>
         public PencilPaintTool()
         {
-            undoDecription = "Pencil";
+            undoDescription = "Pencil";
         }
 
         /// <summary>

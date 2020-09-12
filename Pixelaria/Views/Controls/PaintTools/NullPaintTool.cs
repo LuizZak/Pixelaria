@@ -101,13 +101,13 @@ namespace Pixelaria.Views.Controls.PaintTools
         public void MouseUp(MouseEventArgs e) { }
 
         /// <summary>
-        /// Called to notify this PaintOperaiton that the mouse left the image area
+        /// Called to notify this PaintOperation that the mouse left the image area
         /// </summary>
         /// <param name="e">The event args for this event</param>
         public void MouseLeave(EventArgs e) { }
 
         /// <summary>
-        /// Called to notify this PaintOperaiton that the mouse entered the image area
+        /// Called to notify this PaintOperation that the mouse entered the image area
         /// </summary>
         /// <param name="e">The event args for this event</param>
         public void MouseEnter(EventArgs e) { }

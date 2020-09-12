@@ -76,7 +76,7 @@ namespace Pixelaria.Views.Controls.PaintTools
 
             pencilOperation.ColorBlender = this;
 
-            undoDecription = "Eraser";
+            undoDescription = "Eraser";
 
             // Initialize the operation cursor
             var cursorMemoryStream = new MemoryStream(Properties.Resources.eraser_cursor);

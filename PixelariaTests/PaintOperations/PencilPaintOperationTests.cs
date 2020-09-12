@@ -67,7 +67,7 @@ namespace PixelariaTests.PaintOperations
             operation.TargetBitmap = target2;
 
             // Check OperationStarted property
-            operation.StartOpertaion();
+            operation.StartOperation();
             Assert.IsTrue(operation.OperationStarted, "After a call to StartOperation(), an operation's OperationStarted property should return true");
 
             operation.FinishOperation();
@@ -85,7 +85,7 @@ namespace PixelariaTests.PaintOperations
 
             var operation = new PencilPaintOperation(target) { Color = Color.Black };
 
-            operation.StartOpertaion();
+            operation.StartOperation();
 
             operation.MoveTo(5, 5);
             operation.DrawTo(10, 10);
@@ -119,7 +119,7 @@ namespace PixelariaTests.PaintOperations
 
             var operation = new PencilPaintOperation(target) { Color = Color.Black, Size = 5 };
 
-            operation.StartOpertaion();
+            operation.StartOperation();
 
             Assert.IsTrue(operation.OperationStarted, "After a call to StartOperation(), an operation's OperationStarted property should return true");
 
@@ -157,7 +157,7 @@ namespace PixelariaTests.PaintOperations
 
             var operation = new PencilPaintOperation(target) { Color = Color.Black };
 
-            operation.StartOpertaion();
+            operation.StartOperation();
 
             operation.MoveTo(-20, 40);
             operation.DrawTo(40, -20);
@@ -192,7 +192,7 @@ namespace PixelariaTests.PaintOperations
                 CompositingMode = CompositingMode.SourceOver
             };
 
-            operation.StartOpertaion();
+            operation.StartOperation();
 
             operation.PlotPixel(5, 5);
 
@@ -226,7 +226,7 @@ namespace PixelariaTests.PaintOperations
                 CompositingMode = CompositingMode.SourceOver
             };
 
-            operation.StartOpertaion();
+            operation.StartOperation();
 
             operation.MoveTo(5, 5);
             operation.DrawTo(5, 5);
@@ -260,7 +260,7 @@ namespace PixelariaTests.PaintOperations
                 CompositingMode = CompositingMode.SourceCopy
             };
 
-            operation.StartOpertaion();
+            operation.StartOperation();
 
             operation.MoveTo(5, 5);
             operation.DrawTo(10, 10);
@@ -297,7 +297,7 @@ namespace PixelariaTests.PaintOperations
                 CompositingMode = CompositingMode.SourceOver
             };
 
-            operation.StartOpertaion();
+            operation.StartOperation();
 
             operation.MoveTo(5, 5);
             operation.DrawTo(10, 10);
@@ -335,7 +335,7 @@ namespace PixelariaTests.PaintOperations
                 CompositingMode = CompositingMode.SourceOver
             };
 
-            operation.StartOpertaion(false);
+            operation.StartOperation(false);
 
             operation.MoveTo(5, 5);
             operation.DrawTo(10, 10);
@@ -370,7 +370,7 @@ namespace PixelariaTests.PaintOperations
 
             var operation = new PencilPaintOperation(target) { Color = Color.FromArgb(127, 0, 0, 0), Size = 5, CompositingMode = CompositingMode.SourceOver };
 
-            operation.StartOpertaion();
+            operation.StartOperation();
 
             Assert.IsTrue(operation.OperationStarted, "After a call to StartOperation(), an operation's OperationStarted property should return true");
 
@@ -418,7 +418,7 @@ namespace PixelariaTests.PaintOperations
             };
 
             // Perform the operation
-            operation.StartOpertaion();
+            operation.StartOperation();
 
             operation.MoveTo(5, 5);
             operation.DrawTo(10, 10);
@@ -458,7 +458,7 @@ namespace PixelariaTests.PaintOperations
             var generator = new PlottingPaintUndoGenerator(target, "Pencil");
             var operation = new PencilPaintOperation(target) { Color = Color.Black, Notifier = generator };
 
-            operation.StartOpertaion();
+            operation.StartOperation();
 
             operation.MoveTo(5, 5);
             operation.DrawTo(10, 10);
@@ -497,7 +497,7 @@ namespace PixelariaTests.PaintOperations
             var generator = new PlottingPaintUndoGenerator(target, "Pencil");
             var operation = new PencilPaintOperation(target) { Color = Color.Black, Notifier = generator, Size = 5 };
 
-            operation.StartOpertaion();
+            operation.StartOperation();
 
             operation.MoveTo(5, 5);
             operation.DrawTo(10, 10);
@@ -537,7 +537,7 @@ namespace PixelariaTests.PaintOperations
                 Notifier = generator
             };
 
-            operation.StartOpertaion();
+            operation.StartOperation();
 
             operation.MoveTo(5, 5);
             operation.DrawTo(10, 10);
@@ -577,7 +577,7 @@ namespace PixelariaTests.PaintOperations
                 Notifier = generator
             };
 
-            operation.StartOpertaion();
+            operation.StartOperation();
 
             operation.MoveTo(5, 5);
             operation.DrawTo(10, 10);
@@ -617,7 +617,7 @@ namespace PixelariaTests.PaintOperations
                 Notifier = generator
             };
 
-            operation.StartOpertaion(false);
+            operation.StartOperation(false);
 
             operation.MoveTo(5, 5);
             operation.DrawTo(10, 10);
@@ -658,7 +658,7 @@ namespace PixelariaTests.PaintOperations
                 Notifier = generator
             };
 
-            operation.StartOpertaion();
+            operation.StartOperation();
 
             operation.MoveTo(5, 5);
             operation.DrawTo(10, 10);
@@ -697,7 +697,7 @@ namespace PixelariaTests.PaintOperations
             var generator = new PlottingPaintUndoGenerator(target, "Pencil");
             var operation = new PencilPaintOperation(target) { Color = Color.Black, Notifier = generator };
 
-            operation.StartOpertaion();
+            operation.StartOperation();
 
             operation.MoveTo(5, 5);
             operation.DrawTo(10, 10);
@@ -735,7 +735,7 @@ namespace PixelariaTests.PaintOperations
             var generator = new PlottingPaintUndoGenerator(target, "Pencil");
             var operation = new PencilPaintOperation(target) { Color = Color.Black, Notifier = generator, Size = 5 };
 
-            operation.StartOpertaion();
+            operation.StartOperation();
 
             operation.MoveTo(5, 5);
             operation.DrawTo(10, 10);
@@ -777,7 +777,7 @@ namespace PixelariaTests.PaintOperations
                 Notifier = generator
             };
 
-            operation.StartOpertaion();
+            operation.StartOperation();
 
             operation.MoveTo(5, 5);
             operation.DrawTo(10, 10);
@@ -819,7 +819,7 @@ namespace PixelariaTests.PaintOperations
                 Notifier = generator
             };
 
-            operation.StartOpertaion();
+            operation.StartOperation();
 
             operation.MoveTo(5, 5);
             operation.DrawTo(10, 10);
@@ -861,7 +861,7 @@ namespace PixelariaTests.PaintOperations
                 Notifier = generator
             };
 
-            operation.StartOpertaion(false);
+            operation.StartOperation(false);
 
             operation.MoveTo(5, 5);
             operation.DrawTo(10, 10);
@@ -904,7 +904,7 @@ namespace PixelariaTests.PaintOperations
                 Notifier = generator
             };
 
-            operation.StartOpertaion();
+            operation.StartOperation();
 
             operation.MoveTo(5, 5);
             operation.DrawTo(10, 10);
@@ -951,7 +951,7 @@ namespace PixelariaTests.PaintOperations
                 Notifier = generator
             };
 
-            operation.StartOpertaion();
+            operation.StartOperation();
 
             operation.MoveTo(5, 5);
             operation.DrawTo(10, 10);
@@ -992,7 +992,7 @@ namespace PixelariaTests.PaintOperations
             var bitmap = new Bitmap(64, 64);
             var paintOperation = new PencilPaintOperation(bitmap);
 
-            paintOperation.StartOpertaion();
+            paintOperation.StartOperation();
 
             paintOperation.DrawTo(5, 5);
 

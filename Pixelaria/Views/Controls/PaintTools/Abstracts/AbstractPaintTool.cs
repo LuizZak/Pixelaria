@@ -149,13 +149,13 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         public virtual void MouseUp(MouseEventArgs e) { }
 
         /// <summary>
-        /// Called to notify this PaintOperaiton that the mouse left the image area
+        /// Called to notify this PaintOperation that the mouse left the image area
         /// </summary>
         /// <param name="e">The event args for this event</param>
         public virtual void MouseLeave(EventArgs e) { }
 
         /// <summary>
-        /// Called to notify this PaintOperaiton that the mouse entered the image area
+        /// Called to notify this PaintOperation that the mouse entered the image area
         /// </summary>
         /// <param name="e">The event args for this event</param>
         public virtual void MouseEnter(EventArgs e) { }
@@ -312,9 +312,9 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// </summary>
         SecondColor,
         /// <summary>
-        /// Indiferent, let the implementer decide the color
+        /// Indifferent, let the implementer decide the color
         /// </summary>
-        Indiferent
+        Indifferent
     }
 
     /// <summary>

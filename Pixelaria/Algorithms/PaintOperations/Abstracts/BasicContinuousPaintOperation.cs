@@ -65,7 +65,7 @@ namespace Pixelaria.Algorithms.PaintOperations.Abstracts
         public bool OperationStarted => operationStarted;
 
         /// <summary>
-        /// Intiailzies a new instance of the BasicContinuousPaintOperation class, with a target bitmap for the operation
+        /// Initializes a new instance of the BasicContinuousPaintOperation class, with a target bitmap for the operation
         /// </summary>
         /// <param name="targetBitmap">The bitmap to perform the operations on</param>
         public BasicContinuousPaintOperation(Bitmap targetBitmap)
@@ -76,7 +76,7 @@ namespace Pixelaria.Algorithms.PaintOperations.Abstracts
         /// <summary>
         /// Starts this continuous paint operation
         /// </summary>
-        public virtual void StartOpertaion()
+        public virtual void StartOperation()
         {
             operationStarted = true;
         }

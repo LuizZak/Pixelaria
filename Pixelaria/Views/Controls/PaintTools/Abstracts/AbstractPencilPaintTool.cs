@@ -26,7 +26,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-using JetBrains.Annotations;
 using Pixelaria.Algorithms.PaintOperations;
 
 namespace Pixelaria.Views.Controls.PaintTools.Abstracts
@@ -52,7 +51,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         protected int penId;
 
         /// <summary>
-        /// The last position of the mouse in relatice control coordinates
+        /// The last position of the mouse in relative control coordinates
         /// </summary>
         protected Point lastMousePosition;
 
@@ -94,7 +93,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// <summary>
         /// The string to use as a description for the undo operation
         /// </summary>
-        protected string undoDecription;
+        protected string undoDescription;
 
         /// <summary>
         /// The underlying paint operation that is affecting the bitmap
@@ -241,7 +240,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// Initializes this Paint Tool
         /// </summary>
         /// <param name="targetPictureBox">The picture box to initialize the paint tool on</param>
-        public override void Initialize([NotNull] PaintingOperationsPictureBox targetPictureBox)
+        public override void Initialize(PaintingOperationsPictureBox targetPictureBox)
         {
             base.Initialize(targetPictureBox);
 
@@ -307,7 +306,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// Called to notify this PaintTool that the mouse is being held down
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public override void MouseDown([NotNull] MouseEventArgs e)
+        public override void MouseDown(MouseEventArgs e)
         {
             PencilPoint = e.Location;
 
@@ -334,7 +333,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
                 case MouseButtons.Middle:
                     mouseDown = true;
 
-                    ColorPickAtPoint(absolutePencil, ColorIndex.Indiferent);
+                    ColorPickAtPoint(absolutePencil, ColorIndex.Indifferent);
                     break;
             }
         }
@@ -343,7 +342,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// Called to notify this PaintTool that the mouse is being moved
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public override void MouseMove([NotNull] MouseEventArgs e)
+        public override void MouseMove(MouseEventArgs e)
         {
             PencilPoint = e.Location;
 
@@ -360,7 +359,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
                 {
                     if (pencil != pencilLast)
                     {
-                        ColorPickAtPoint(pencil, ColorIndex.Indiferent);
+                        ColorPickAtPoint(pencil, ColorIndex.Indifferent);
                     }
                 }
 
@@ -372,7 +371,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// Called to notify this PaintTool that the mouse is being released
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public override void MouseUp([NotNull] MouseEventArgs e)
+        public override void MouseUp(MouseEventArgs e)
         {
             if (e.Button != MouseButtons.Middle)
             {
@@ -383,7 +382,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         }
 
         /// <summary>
-        /// Called to notify this PaintOperaiton that the mouse left the image area
+        /// Called to notify this PaintOperation that the mouse left the image area
         /// </summary>
         /// <param name="e">The event args for this event</param>
         public override void MouseLeave(EventArgs e)
@@ -393,7 +392,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         }
 
         /// <summary>
-        /// Called to notify this PaintOperaiton that the mouse entered the image area
+        /// Called to notify this PaintOperation that the mouse entered the image area
         /// </summary>
         /// <param name="e">The event args for this event</param>
         public override void MouseEnter(EventArgs e)
@@ -420,10 +419,10 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
             pencilOperation.CompositingMode = CompositingMode;
 
             Debug.Assert(internalPictureBox.Bitmap != null, "pictureBox != null");
-            undoGenerator = new PlottingPaintUndoGenerator(internalPictureBox.Bitmap, undoDecription);
+            undoGenerator = new PlottingPaintUndoGenerator(internalPictureBox.Bitmap, undoDescription);
             pencilOperation.Notifier = undoGenerator;
 
-            pencilOperation.StartOpertaion(accumulateAlpha);
+            pencilOperation.StartOperation(accumulateAlpha);
 
             pencilOperation.MoveTo(point.X, point.Y);
             DrawPencil(point, null);
@@ -498,7 +497,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
             {
                 pencilOperation.TargetBitmap = bitmap;
 
-                pencilOperation.StartOpertaion(accumulateAlpha);
+                pencilOperation.StartOperation(accumulateAlpha);
 
                 pencilOperation.MoveTo(point.X, point.Y);
                 pencilOperation.DrawTo(point.X, point.Y);

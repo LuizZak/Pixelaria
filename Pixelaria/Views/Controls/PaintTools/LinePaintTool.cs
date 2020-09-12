@@ -83,7 +83,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         public CompositingMode CompositingMode { get; set; }
 
         /// <summary>
-        /// Initialies a new instance of the LinePaintTool class, setting the two drawing colors
+        /// Initializes a new instance of the LinePaintTool class, setting the two drawing colors
         /// for the paint operation
         /// </summary>
         /// <param name="firstColor">The first color for the paint operation</param>
@@ -100,7 +100,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// Initializes this Paint Tool
         /// </summary>
         /// <param name="targetPictureBox">The picture box to initialize the paint operation on</param>
-        public override void Initialize([NotNull] PaintingOperationsPictureBox targetPictureBox)
+        public override void Initialize(PaintingOperationsPictureBox targetPictureBox)
         {
             base.Initialize(targetPictureBox);
 
@@ -265,7 +265,7 @@ namespace Pixelaria.Views.Controls.PaintTools
                 Size = size
             };
 
-            operation.StartOpertaion(false);
+            operation.StartOperation(false);
             operation.DrawTo(secondPoint.X, secondPoint.Y);
             operation.FinishOperation();
 

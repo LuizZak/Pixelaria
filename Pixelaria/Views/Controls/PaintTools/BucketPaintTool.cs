@@ -137,12 +137,12 @@ namespace Pixelaria.Views.Controls.PaintTools
 
                 if (WithinBounds(point))
                 {
-                    PerformBucketOperaiton(color, point);
+                    PerformBucketOperation(color, point);
                 }
             }
             else if (e.Button == MouseButtons.Middle)
             {
-                ColorPickAtPoint(point, ColorIndex.Indiferent);
+                ColorPickAtPoint(point, ColorIndex.Indifferent);
             }
         }
 
@@ -163,7 +163,7 @@ namespace Pixelaria.Views.Controls.PaintTools
 
                 if (mouse != mouseLast && WithinBounds(mouse))
                 {
-                    ColorPickAtPoint(mouse, ColorIndex.Indiferent);
+                    ColorPickAtPoint(mouse, ColorIndex.Indifferent);
                 }
             }
 
@@ -175,14 +175,14 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// </summary>
         /// <param name="color">The color of the fill operation</param>
         /// <param name="point">The point to start the fill operation at</param>
-        public void PerformBucketOperaiton(Color color, Point point)
+        public void PerformBucketOperation(Color color, Point point)
         {
             var internalPictureBox = pictureBox;
 
             if (internalPictureBox?.Bitmap == null)
                 return;
 
-            var undoTask = PerformBucketOperaiton(internalPictureBox.Bitmap, color, point, compositingMode, true);
+            var undoTask = PerformBucketOperation(internalPictureBox.Bitmap, color, point, compositingMode, true);
 
             if (undoTask != null)
             {
@@ -204,7 +204,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <param name="createUndo">Whether to create and return an undo task</param>
         /// <returns>The undo task associated with this operation, or null, if createUndo is false or if the operation failed</returns>
         [CanBeNull]
-        public static unsafe IUndoTask PerformBucketOperaiton([NotNull] Bitmap targetBitmap, Color color, Point point, CompositingMode compMode, bool createUndo)
+        public static unsafe IUndoTask PerformBucketOperation([NotNull] Bitmap targetBitmap, Color color, Point point, CompositingMode compMode, bool createUndo)
         {
             // Start the fill operation by getting the color under the user's mouse
             var pColor = targetBitmap.GetPixel(point.X, point.Y);

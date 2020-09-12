@@ -135,7 +135,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             ToolCursor = new Cursor(cursorMemoryStream);
             cursorMemoryStream.Dispose();
 
-            undoDecription = "Spray";
+            undoDescription = "Spray";
         }
 
         /// <summary>
