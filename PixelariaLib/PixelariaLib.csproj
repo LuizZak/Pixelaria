@@ -1,0 +1,236 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{3D72AEC0-1423-42B9-9653-7BBCB4672246}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>PixelariaLib</RootNamespace>
+    <AssemblyName>PixelariaLib</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="FastBitmapLib, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\FastBitmapLib.2.0.0\lib\net452\FastBitmapLib.dll</HintPath>
+    </Reference>
+    <Reference Include="JetBrains.Annotations, Version=2019.1.3.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
+      <HintPath>..\packages\JetBrains.Annotations.2019.1.3\lib\net20\JetBrains.Annotations.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Drawing.Design" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="YamlDotNet, Version=7.0.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e, processorArchitecture=MSIL">
+      <HintPath>..\packages\YamlDotNet.7.0.0\lib\net45\YamlDotNet.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Algorithms\FrameOperations\FrameOperation.cs" />
+    <Compile Include="Algorithms\FrameOperations\FrameOperations.cs" />
+    <Compile Include="Algorithms\ITexturePacker.cs" />
+    <Compile Include="Algorithms\Packers\DefaultTexturePacker.cs" />
+    <Compile Include="Controllers\DataControllers\AnimationController.cs" />
+    <Compile Include="Controllers\DataControllers\AnimationMetadata.cs" />
+    <Compile Include="Controllers\DataControllers\AnimationSheetController.cs" />
+    <Compile Include="Controllers\DataControllers\AnimationSheetMetadata.cs" />
+    <Compile Include="Controllers\DataControllers\BundleController.cs" />
+    <Compile Include="Controllers\DataControllers\FrameController.cs" />
+    <Compile Include="Controllers\DataControllers\IAnimationId.cs" />
+    <Compile Include="Controllers\DataControllers\IAnimationSheetId.cs" />
+    <Compile Include="Controllers\DataControllers\IFrameId.cs" />
+    <Compile Include="Controllers\DataControllers\LayerMetadata.cs" />
+    <Compile Include="Controllers\Exporters\DefaultSheetExporter.cs" />
+    <Compile Include="Controllers\Exporters\ExporterController.cs" />
+    <Compile Include="Controllers\Exporters\IBundleExporter.cs" />
+    <Compile Include="Controllers\Exporters\IExporterController.cs" />
+    <Compile Include="Controllers\Exporters\ISheetExporter.cs" />
+    <Compile Include="Controllers\Exporters\Pixelaria\PixelariaExporter.cs" />
+    <Compile Include="Controllers\Exporters\Unity\UnityExporter.cs" />
+    <Compile Include="Controllers\Importers\AnimationPngImporter.cs" />
+    <Compile Include="Controllers\Importers\IAnimationImporter.cs" />
+    <Compile Include="Controllers\LayerControlling\LayerController.cs" />
+    <Compile Include="Controllers\Validators\IAnimationSheetValidator.cs" />
+    <Compile Include="Controllers\Validators\IAnimationValidator.cs" />
+    <Compile Include="Data\Animation.cs" />
+    <Compile Include="Data\AnimationSheet.cs" />
+    <Compile Include="Data\Bundle.cs" />
+    <Compile Include="Data\Exports\BundleSheetExport.cs" />
+    <Compile Include="Data\Exports\FrameBoundsMap.cs" />
+    <Compile Include="Data\Exports\TextureAtlas.cs" />
+    <Compile Include="Data\Exports\TextureAtlasInformation.cs" />
+    <Compile Include="Data\Factories\FrameFactory.cs" />
+    <Compile Include="Data\Frame.cs" />
+    <Compile Include="Data\IAnimation.cs" />
+    <Compile Include="Data\IAnimationProvider.cs" />
+    <Compile Include="Data\IDObject.cs" />
+    <Compile Include="Data\IFrame.cs" />
+    <Compile Include="Data\Persistence\GenericFile.cs" />
+    <Compile Include="Data\Persistence\GenericFileBlock.cs" />
+    <Compile Include="Data\Persistence\PersistenceHelper.cs" />
+    <Compile Include="Data\Persistence\PixelariaFile.cs" />
+    <Compile Include="Data\Persistence\PixelariaFileBlocks\AnimationBlock.cs" />
+    <Compile Include="Data\Persistence\PixelariaFileBlocks\AnimationHeaderBlock.cs" />
+    <Compile Include="Data\Persistence\PixelariaFileBlocks\AnimationSheetBlock.cs" />
+    <Compile Include="Data\Persistence\PixelariaFileBlocks\ExporterNameBlock.cs" />
+    <Compile Include="Data\Persistence\PixelariaFileBlocks\ExporterSettingsBlock.cs" />
+    <Compile Include="Data\Persistence\PixelariaFileBlocks\FileBlock.cs" />
+    <Compile Include="Data\Persistence\PixelariaFileBlocks\FrameBlock.cs" />
+    <Compile Include="Data\Persistence\PixelariaFileBlocks\ProjectTreeBlock.cs" />
+    <Compile Include="Data\Persistence\PixelariaSaverLoader.cs" />
+    <Compile Include="Data\Persistence\ProjectTreeBlocks\NodeBlock.cs" />
+    <Compile Include="Data\ProjectTree.cs" />
+    <Compile Include="Filters\FadeFilter.cs" />
+    <Compile Include="Filters\HSLFilter.cs" />
+    <Compile Include="Filters\IFilter.cs" />
+    <Compile Include="Filters\OffsetFilter.cs" />
+    <Compile Include="Filters\RotationFilter.cs" />
+    <Compile Include="Filters\ScaleFilter.cs" />
+    <Compile Include="Filters\StrokeFilter.cs" />
+    <Compile Include="Filters\TransparencyFilter.cs" />
+    <Compile Include="Localization\AnimationMessages.Designer.cs">
+      <DependentUpon>AnimationMessages.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Utils\AhslColor.cs" />
+    <Compile Include="Utils\AsyncHelpers.cs" />
+    <Compile Include="Utils\ImageUtilities.cs" />
+    <Compile Include="Utils\ListUtils.cs" />
+    <Compile Include="Utils\Logging.cs" />
+    <Compile Include="Utils\Settings.cs" />
+    <Compile Include="Utils\UnsafeNativeMethods.cs" />
+    <Compile Include="Utils\Utilities.cs" />
+    <Compile Include="Views\Controls\AssistedNumericUpDown.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\AssistedNumericUpDown.Designer.cs">
+      <DependentUpon>AssistedNumericUpDown.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\ColorControls\ColorPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\ColorControls\ColorPicker.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\ColorControls\ColorPicker.Designer.cs">
+      <DependentUpon>ColorPicker.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\ColorControls\ColorPickerDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\ColorControls\ColorPickerDialog.Designer.cs">
+      <DependentUpon>ColorPickerDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\ColorControls\ColorSlider.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\ColorControls\ColorSlider.Designer.cs">
+      <DependentUpon>ColorSlider.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\ColorControls\ColorSwatchControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\ColorControls\ColorSwatchControl.Designer.cs">
+      <DependentUpon>ColorSwatchControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\CPictureBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\LabeledPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\RearrangeableListView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\RearrangeableTreeView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\TimelineControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\TinyColorSlider.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\ZoomablePictureBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\color_picker.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Localization\AnimationMessages.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>AnimationMessages.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\Controls\AssistedNumericUpDown.resx">
+      <DependentUpon>AssistedNumericUpDown.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\Controls\ColorControls\ColorPicker.resx">
+      <DependentUpon>ColorPicker.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\Controls\ColorControls\ColorPickerDialog.resx">
+      <DependentUpon>ColorPickerDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\Controls\ColorControls\ColorSlider.resx">
+      <DependentUpon>ColorSlider.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\Controls\ColorControls\ColorSwatchControl.resx">
+      <DependentUpon>ColorSwatchControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\Controls\TinyColorSlider.resx">
+      <DependentUpon>TinyColorSlider.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\checkers_pattern.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

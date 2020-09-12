@@ -25,12 +25,12 @@ using System.Drawing;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using Pixelaria.Controllers;
-using Pixelaria.Controllers.DataControllers;
 
 using Pixelaria.Filters;
 
 using Pixelaria.Views.Controls;
 using Pixelaria.Views.Controls.Filters;
+using PixelariaLib.Controllers.DataControllers;
 
 namespace Pixelaria.Views.ModelViews
 {

@@ -28,10 +28,10 @@ using System.Windows.Forms;
 using JetBrains.Annotations;
 
 using Pixelaria.Controllers;
-using Pixelaria.Controllers.Importers;
-using Pixelaria.Data;
 using Pixelaria.Views.Controls;
 using Pixelaria.Views.Controls.PaintTools;
+using PixelariaLib.Controllers.Importers;
+using PixelariaLib.Data;
 
 namespace Pixelaria.Views.ModelViews
 {

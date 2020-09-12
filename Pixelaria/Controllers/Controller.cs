@@ -32,15 +32,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using JetBrains.Annotations;
-using Pixelaria.Controllers.DataControllers;
-using Pixelaria.Controllers.Exporters;
-using Pixelaria.Controllers.Importers;
 using Pixelaria.Controllers.Validators;
-
-using Pixelaria.Data;
-using Pixelaria.Data.Exports;
-using Pixelaria.Data.Factories;
-using Pixelaria.Data.Persistence;
 
 using Pixelaria.Properties;
 
@@ -50,6 +42,14 @@ using Pixelaria.Views.ModelViews;
 
 using Pixelaria.Utils;
 using Pixelaria.Views.SettingsViews;
+using PixelariaLib.Controllers.DataControllers;
+using PixelariaLib.Controllers.Exporters;
+using PixelariaLib.Controllers.Importers;
+using PixelariaLib.Controllers.Validators;
+using PixelariaLib.Data;
+using PixelariaLib.Data.Exports;
+using PixelariaLib.Data.Factories;
+using PixelariaLib.Data.Persistence;
 using Settings = Pixelaria.Utils.Settings;
 
 namespace Pixelaria.Controllers

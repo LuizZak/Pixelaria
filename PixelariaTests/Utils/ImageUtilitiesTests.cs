@@ -24,7 +24,7 @@ using System;
 using System.Drawing;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Pixelaria.Utils;
+using PixelariaLib.Utils;
 
 namespace PixelariaTests.Utils
 {

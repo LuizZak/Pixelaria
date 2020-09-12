@@ -88,14 +88,14 @@ namespace Pixelaria.Views.Controls.Filters
             // 
             // cs_factor
             // 
-            this.cs_factor.ActiveColor = new Pixelaria.Utils.AhslColor(1F, 0F, 0F, 1F);
+            this.cs_factor.ActiveColor = new PixelariaLib.Utils.AhslColor(1F, 0F, 0F, 1F);
             this.cs_factor.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cs_factor.ColorComponent = Pixelaria.Views.Controls.ColorControls.ColorSliderComponent.Custom;
             this.cs_factor.CurrentValue = 1F;
             this.cs_factor.CustomColorTitle = "Factor";
-            this.cs_factor.CustomEndColor = new Pixelaria.Utils.AhslColor(1F, 0F, 0F, 1F);
-            this.cs_factor.CustomStartColor = new Pixelaria.Utils.AhslColor(0F, 0F, 0F, 1F);
+            this.cs_factor.CustomEndColor = new PixelariaLib.Utils.AhslColor(1F, 0F, 0F, 1F);
+            this.cs_factor.CustomStartColor = new PixelariaLib.Utils.AhslColor(0F, 0F, 0F, 1F);
             this.cs_factor.Location = new System.Drawing.Point(49, 33);
             this.cs_factor.Name = "cs_factor";
             this.cs_factor.Size = new System.Drawing.Size(388, 38);

@@ -119,13 +119,13 @@ namespace Pixelaria.Views.Controls.Filters
             // 
             // cs_transparency
             // 
-            this.cs_transparency.ActiveColor = new Pixelaria.Utils.AhslColor(1F, 0F, 0F, 0F);
+            this.cs_transparency.ActiveColor = new PixelariaLib.Utils.AhslColor(1F, 0F, 0F, 0F);
             this.cs_transparency.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cs_transparency.CurrentValue = 1F;
             this.cs_transparency.CustomColorTitle = "Custom";
-            this.cs_transparency.CustomEndColor = new Pixelaria.Utils.AhslColor(1F, 0F, 0F, 1F);
-            this.cs_transparency.CustomStartColor = new Pixelaria.Utils.AhslColor(1F, 0F, 0F, 0F);
+            this.cs_transparency.CustomEndColor = new PixelariaLib.Utils.AhslColor(1F, 0F, 0F, 1F);
+            this.cs_transparency.CustomStartColor = new PixelariaLib.Utils.AhslColor(1F, 0F, 0F, 0F);
             this.cs_transparency.Location = new System.Drawing.Point(1, 0);
             this.cs_transparency.Name = "cs_transparency";
             this.cs_transparency.Size = new System.Drawing.Size(479, 38);

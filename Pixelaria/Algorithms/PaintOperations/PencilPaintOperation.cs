@@ -28,7 +28,7 @@ using JetBrains.Annotations;
 using Pixelaria.Algorithms.PaintOperations.Abstracts;
 using Pixelaria.Algorithms.PaintOperations.Interfaces;
 using Pixelaria.Algorithms.PaintOperations.UndoTasks;
-using Pixelaria.Utils;
+using PixelariaLib.Utils;
 
 namespace Pixelaria.Algorithms.PaintOperations
 {
@@ -71,7 +71,7 @@ namespace Pixelaria.Algorithms.PaintOperations
         }
 
         /// <summary>
-        /// Gets a value specifying whether the opration is currently accumulating the alpha transparency of the pixels it is affecting.
+        /// Gets a value specifying whether the operation is currently accumulating the alpha transparency of the pixels it is affecting.
         /// Having this true means the paint operation accumulates the alpha of pixels it has already drawn over, and having it false means it only affects
         /// pixels it has not been rendered on still
         /// </summary>
@@ -197,12 +197,12 @@ namespace Pixelaria.Algorithms.PaintOperations
         {
             if (!operationStarted)
             {
-                throw new InvalidOperationException("The StartOperation() method must be caled prior to this method");
+                throw new InvalidOperationException("The StartOperation() method must be called prior to this method");
             }
 
             var newPencilTip = new Point(x, y);
 
-            // Temporarely switch to the fast bitmap for faster plotting
+            // Temporarily switch to the fast bitmap for faster plotting
             bool oldUseFastBitmap = useFastBitmap;
             if (!useFastBitmap)
             {

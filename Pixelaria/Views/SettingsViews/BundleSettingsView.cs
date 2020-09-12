@@ -27,8 +27,8 @@ using System.Linq;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using Pixelaria.Controllers;
-using Pixelaria.Controllers.Exporters;
-using Pixelaria.Data;
+using PixelariaLib.Controllers.Exporters;
+using PixelariaLib.Data;
 
 namespace Pixelaria.Views.SettingsViews
 {

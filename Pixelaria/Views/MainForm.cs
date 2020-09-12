@@ -31,13 +31,13 @@ using System.Reflection;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using Pixelaria.Controllers;
-using Pixelaria.Controllers.DataControllers;
-using Pixelaria.Controllers.Exporters;
-using Pixelaria.Data;
 using Pixelaria.Properties;
 using Pixelaria.Views.ModelViews;
 using Pixelaria.Views.SettingsViews;
 using Pixelaria.Views.Controls;
+using PixelariaLib.Controllers.DataControllers;
+using PixelariaLib.Controllers.Exporters;
+using PixelariaLib.Data;
 
 namespace Pixelaria.Views
 {

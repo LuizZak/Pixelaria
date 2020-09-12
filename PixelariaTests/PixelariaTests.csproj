@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\PixelariaLib\PixelariaLib.csproj" />
     <ProjectReference Include="..\Pixelaria\Pixelaria.csproj" />
   </ItemGroup>
 

@@ -24,8 +24,8 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using JetBrains.Annotations;
-using Pixelaria.Data;
 using Pixelaria.Views.Controls;
+using PixelariaLib.Data;
 
 namespace Pixelaria.Views.ModelViews
 {

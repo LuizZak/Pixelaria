@@ -166,29 +166,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Algorithms\FrameOperations\FrameOperation.cs" />
-    <Compile Include="Algorithms\FrameOperations\FrameOperations.cs" />
-    <Compile Include="Algorithms\ITexturePacker.cs" />
-    <Compile Include="Algorithms\Packers\DefaultTexturePacker.cs" />
-    <Compile Include="Controllers\DataControllers\AnimationController.cs" />
-    <Compile Include="Controllers\DataControllers\AnimationMetadata.cs" />
-    <Compile Include="Controllers\DataControllers\AnimationSheetController.cs" />
-    <Compile Include="Controllers\DataControllers\AnimationSheetMetadata.cs" />
-    <Compile Include="Controllers\DataControllers\BundleController.cs" />
-    <Compile Include="Controllers\DataControllers\FrameController.cs" />
-    <Compile Include="Controllers\DataControllers\IAnimationId.cs" />
-    <Compile Include="Controllers\DataControllers\IAnimationSheetId.cs" />
-    <Compile Include="Controllers\DataControllers\IFrameId.cs" />
-    <Compile Include="Controllers\DataControllers\LayerMetadata.cs" />
-    <Compile Include="Controllers\Exporters\DefaultSheetExporter.cs" />
-    <Compile Include="Controllers\Exporters\ExporterController.cs" />
-    <Compile Include="Controllers\Exporters\IExporterController.cs" />
-    <Compile Include="Controllers\Exporters\ISheetExporter.cs" />
     <Compile Include="Controllers\IInterfaceStateProvider.cs" />
-    <Compile Include="Data\Persistence\PixelariaFileBlocks\ExporterSettingsBlock.cs" />
-    <Compile Include="Utils\AsyncHelpers.cs" />
-    <Compile Include="Controllers\Exporters\Unity\UnityExporter.cs" />
-    <Compile Include="Data\Exports\FrameBoundsMap.cs" />
     <Compile Include="Algorithms\PaintOperations\IColorBlender.cs" />
     <Compile Include="Algorithms\PaintOperations\Interfaces\IColoredPaintOperation.cs" />
     <Compile Include="Algorithms\PaintOperations\Interfaces\ICompositingPaintOperation.cs" />
@@ -202,14 +180,7 @@
     <Compile Include="Algorithms\PaintOperations\PencilPaintOperation.cs" />
     <Compile Include="Algorithms\PaintOperations\UndoTasks\PerPixelUndoTask.cs" />
     <Compile Include="Controllers\FiltersController.cs" />
-    <Compile Include="Controllers\LayerControlling\LayerController.cs" />
     <Compile Include="Data\FrameRenderer.cs" />
-    <Compile Include="Data\IAnimation.cs" />
-    <Compile Include="Data\IAnimationProvider.cs" />
-    <Compile Include="Data\Persistence\GenericFile.cs" />
-    <Compile Include="Data\Persistence\PersistenceHelper.cs" />
-    <Compile Include="Data\Persistence\PixelariaFile.cs" />
-    <Compile Include="Data\Persistence\PixelariaFileBlocks\ExporterNameBlock.cs" />
     <Compile Include="Utils\Logging.cs" />
     <Compile Include="Utils\UnsafeNativeMethods.cs" />
     <Compile Include="Views\Controls\ColorControls\ColorPickerDialog.cs">
@@ -240,33 +211,10 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Views\ModelViews\Decorators\LayerDecorator.cs" />
-    <Compile Include="Data\Animation.cs" />
-    <Compile Include="Data\Bundle.cs" />
-    <Compile Include="Data\AnimationSheet.cs" />
     <Compile Include="Data\Clipboard\DataClipboard.cs" />
-    <Compile Include="Data\Exports\BundleSheetExport.cs" />
-    <Compile Include="Data\Exports\TextureAtlas.cs" />
-    <Compile Include="Data\Exports\TextureAtlasInformation.cs" />
-    <Compile Include="Data\Factories\FrameFactory.cs" />
-    <Compile Include="Data\Frame.cs" />
-    <Compile Include="Data\IDObject.cs" />
-    <Compile Include="Data\IFrame.cs" />
-    <Compile Include="Data\Persistence\PixelariaFileBlocks\AnimationBlock.cs" />
-    <Compile Include="Data\Persistence\PixelariaFileBlocks\AnimationHeaderBlock.cs" />
-    <Compile Include="Data\Persistence\PixelariaFileBlocks\AnimationSheetBlock.cs" />
-    <Compile Include="Data\Persistence\GenericFileBlock.cs" />
-    <Compile Include="Data\Persistence\PixelariaFileBlocks\FileBlock.cs" />
-    <Compile Include="Data\Persistence\PixelariaFileBlocks\FrameBlock.cs" />
-    <Compile Include="Data\Persistence\PixelariaFileBlocks\ProjectTreeBlock.cs" />
-    <Compile Include="Data\Persistence\PixelariaSaverLoader.cs" />
-    <Compile Include="Data\Persistence\ProjectTreeBlocks\NodeBlock.cs" />
     <Compile Include="Data\ProjectTree.cs" />
     <Compile Include="Data\Undo\UndoSystem.cs" />
     <Compile Include="Controllers\Validators\DefaultValidator.cs" />
-    <Compile Include="Controllers\Validators\IAnimationSheetValidator.cs" />
-    <Compile Include="Controllers\Validators\IAnimationValidator.cs" />
-    <Compile Include="Controllers\Exporters\Pixelaria\PixelariaExporter.cs" />
-    <Compile Include="Controllers\Exporters\IBundleExporter.cs" />
     <Compile Include="Filters\FadeFilter.cs" />
     <Compile Include="Filters\FilterStore.cs" />
     <Compile Include="Filters\HSLFilter.cs" />
@@ -276,8 +224,6 @@
     <Compile Include="Filters\ScaleFilter.cs" />
     <Compile Include="Filters\StrokeFilter.cs" />
     <Compile Include="Filters\TransparencyFilter.cs" />
-    <Compile Include="Controllers\Importers\AnimationPngImporter.cs" />
-    <Compile Include="Controllers\Importers\IAnimationImporter.cs" />
     <Compile Include="Localization\AnimationMessages.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -288,18 +234,14 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Utils\ImageUtilities.cs" />
-    <Compile Include="Utils\ListUtils.cs" />
     <Compile Include="Utils\RecentFileList.cs" />
     <Compile Include="Utils\Settings.cs" />
-    <Compile Include="Utils\Utilities.cs" />
     <Compile Include="Views\Controls\AssistedNumericUpDown.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Views\Controls\AssistedNumericUpDown.Designer.cs">
       <DependentUpon>AssistedNumericUpDown.cs</DependentUpon>
     </Compile>
-    <Compile Include="Utils\AhslColor.cs" />
     <Compile Include="Views\Controls\LabeledPanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -554,6 +496,7 @@
     <EmbeddedResource Include="Localization\AnimationMessages.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>AnimationMessages.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\Controls\AssistedNumericUpDown.resx">
       <DependentUpon>AssistedNumericUpDown.cs</DependentUpon>
@@ -885,7 +828,12 @@
     <None Include="Resources\action_delete1.png" />
     <None Include="Resources\pxl_icon_256x256.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\PixelariaLib\PixelariaLib.csproj">
+      <Project>{3d72aec0-1423-42b9-9653-7bbcb4672246}</Project>
+      <Name>PixelariaLib</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>nuget restore "$(SolutionPath)"</PreBuildEvent>

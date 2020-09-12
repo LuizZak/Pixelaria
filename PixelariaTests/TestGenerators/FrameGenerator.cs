@@ -25,9 +25,9 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using FastBitmapLib;
 using JetBrains.Annotations;
-using Pixelaria.Controllers.DataControllers;
-using Pixelaria.Data;
-using Pixelaria.Data.Factories;
+using PixelariaLib.Controllers.DataControllers;
+using PixelariaLib.Data;
+using PixelariaLib.Data.Factories;
 
 namespace PixelariaTests.TestGenerators
 {

@@ -23,8 +23,8 @@
 using System;
 using System.Windows.Forms;
 using JetBrains.Annotations;
-using Pixelaria.Controllers.Exporters;
 using Pixelaria.Views.ModelViews;
+using PixelariaLib.Controllers.Exporters;
 
 namespace Pixelaria.Views.SettingsViews
 {
@@ -98,7 +98,7 @@ namespace Pixelaria.Views.SettingsViews
         //
         // Ok button click
         //
-        private void btn_ok_Click(object sender, System.EventArgs e)
+        private void btn_ok_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.OK;
             ApplyChangesAndClose();
@@ -107,7 +107,7 @@ namespace Pixelaria.Views.SettingsViews
         //
         // Cancel button click
         //
-        private void btn_cancel_Click(object sender, System.EventArgs e)
+        private void btn_cancel_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.Cancel;
             DiscardChangesAndClose();
@@ -116,7 +116,7 @@ namespace Pixelaria.Views.SettingsViews
         //
         // Apply button click
         //
-        private void btn_apply_Click(object sender, System.EventArgs e)
+        private void btn_apply_Click(object sender, EventArgs e)
         {
             ApplyChanges();
         }

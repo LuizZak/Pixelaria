@@ -26,10 +26,10 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using JetBrains.Annotations;
-using Pixelaria.Data;
 using Pixelaria.Properties;
-using Pixelaria.Utils;
 using Pixelaria.Views.Controls.ColorControls;
+using PixelariaLib.Data;
+using PixelariaLib.Utils;
 
 namespace Pixelaria.Views.Controls.LayerControls
 {
@@ -271,7 +271,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// <summary>
         /// Delegate for the LayerNameEdited event
         /// </summary>
-        public delegate void LayerControlNameEditedEventHandler(object sender, LayerRenameEventargs e);
+        public delegate void LayerControlNameEditedEventHandler(object sender, LayerRenameEventArgs e);
         /// <summary>
         /// Occurs whenever the user finishes editing the display name for a layer
         /// </summary>
@@ -403,7 +403,7 @@ namespace Pixelaria.Views.Controls.LayerControls
             // Do not fire any change notification if the label has not changed
             if (commit && txt_layerNameEditBox.Text != lbl_layerName.Text)
             {
-                LayerNameEdited?.Invoke(this, new LayerRenameEventargs(txt_layerNameEditBox.Text));
+                LayerNameEdited?.Invoke(this, new LayerRenameEventArgs(txt_layerNameEditBox.Text));
             }
 
             _editingName = false;
@@ -686,16 +686,16 @@ namespace Pixelaria.Views.Controls.LayerControls
     }
 
     /// <summary>
-    /// Represents the event arguments for the LayercontrolNameEditedEvent event
+    /// Represents the event arguments for the LayerControlNameEditedEvent event
     /// </summary>
-    public class LayerRenameEventargs : EventArgs
+    public class LayerRenameEventArgs : EventArgs
     {
         /// <summary>
         /// Gets the new name of the layer
         /// </summary>
         public string NewName { get; }
 
-        public LayerRenameEventargs(string newName)
+        public LayerRenameEventArgs(string newName)
         {
             NewName = newName;
         }
@@ -745,7 +745,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// </summary>
         Up,
         /// <summary>
-        /// Specifies that the direction dragged was downards
+        /// Specifies that the direction dragged was downwards
         /// </summary>
         Down
     }

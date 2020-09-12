@@ -23,7 +23,8 @@
 using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
-using Pixelaria.Data;
+using PixelariaLib.Controllers.Validators;
+using PixelariaLib.Data;
 
 namespace Pixelaria.Controllers.Validators
 {
@@ -51,7 +52,7 @@ namespace Pixelaria.Controllers.Validators
         /// If the validation fails, an error string is returned, if it succeeds, an empty string is returned.
         /// </summary>
         /// <param name="name">The Animation name to validate</param>
-        /// <param name="anim">The Animation that the field is comming from</param>
+        /// <param name="anim">The Animation that the field is coming from</param>
         /// <returns>The result of the validation. An empty string if the field is valid, or an error message if it's invalid.</returns>
         public string ValidateAnimationName([NotNull] string name, Animation anim = null)
         {

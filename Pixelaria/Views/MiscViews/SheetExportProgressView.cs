@@ -25,9 +25,9 @@ using System;
 using System.Threading;
 using System.Windows.Forms;
 using JetBrains.Annotations;
-using Pixelaria.Controllers.Exporters;
-using Pixelaria.Data;
-using Pixelaria.Data.Exports;
+using PixelariaLib.Controllers.Exporters;
+using PixelariaLib.Data;
+using PixelariaLib.Data.Exports;
 
 namespace Pixelaria.Views.MiscViews
 {

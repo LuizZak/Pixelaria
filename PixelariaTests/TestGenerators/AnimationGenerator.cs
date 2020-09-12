@@ -20,8 +20,8 @@
     base directory of this project.
 */
 
-using Pixelaria.Controllers.DataControllers;
-using Pixelaria.Data;
+using PixelariaLib.Controllers.DataControllers;
+using PixelariaLib.Data;
 
 namespace PixelariaTests.TestGenerators
 {

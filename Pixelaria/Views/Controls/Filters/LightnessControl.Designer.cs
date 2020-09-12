@@ -57,14 +57,14 @@
             // 
             // cs_lightness
             // 
-            this.cs_lightness.ActiveColor = new Pixelaria.Utils.AhslColor(1F, 0F, 0F, 1F);
+            this.cs_lightness.ActiveColor = new PixelariaLib.Utils.AhslColor(1F, 0F, 0F, 1F);
             this.cs_lightness.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cs_lightness.ColorComponent = Pixelaria.Views.Controls.ColorControls.ColorSliderComponent.Lightness;
             this.cs_lightness.CurrentValue = 1F;
             this.cs_lightness.CustomColorTitle = "Custom";
-            this.cs_lightness.CustomEndColor = new Pixelaria.Utils.AhslColor(1F, 0F, 0F, 1F);
-            this.cs_lightness.CustomStartColor = new Pixelaria.Utils.AhslColor(1F, 0F, 0F, 0F);
+            this.cs_lightness.CustomEndColor = new PixelariaLib.Utils.AhslColor(1F, 0F, 0F, 1F);
+            this.cs_lightness.CustomStartColor = new PixelariaLib.Utils.AhslColor(1F, 0F, 0F, 0F);
             this.cs_lightness.Location = new System.Drawing.Point(1, 1);
             this.cs_lightness.Name = "cs_lightness";
             this.cs_lightness.Size = new System.Drawing.Size(535, 38);

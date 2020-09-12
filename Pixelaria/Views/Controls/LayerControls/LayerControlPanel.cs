@@ -26,8 +26,8 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using JetBrains.Annotations;
-using Pixelaria.Controllers.LayerControlling;
-using Pixelaria.Data;
+using PixelariaLib.Controllers.LayerControlling;
+using PixelariaLib.Data;
 
 namespace Pixelaria.Views.Controls.LayerControls
 {
@@ -52,7 +52,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         private bool _movingControls;
 
         /// <summary>
-        /// Whether to ignore layer stauts change events comming from the LayerControls
+        /// Whether to ignore layer status change events coming from the LayerControls
         /// </summary>
         private bool _ignoreLayerStatusEvents;
 
@@ -599,7 +599,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         // 
         // Layer Name Edited event handler
         // 
-        private void OnLayerNameEdited(object sender, LayerRenameEventargs e)
+        private void OnLayerNameEdited(object sender, LayerRenameEventArgs e)
         {
             var control = sender as LayerControl;
             if (control == null)

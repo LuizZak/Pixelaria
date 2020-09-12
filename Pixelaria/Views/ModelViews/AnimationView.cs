@@ -31,19 +31,18 @@ using System.Reactive;
 using System.Reactive.Subjects;
 using System.Windows.Forms;
 using JetBrains.Annotations;
-using Pixelaria.Algorithms.FrameOperations;
+using PixelariaLib.Algorithms.FrameOperations;
 using Pixelaria.Controllers;
-using Pixelaria.Controllers.DataControllers;
-using Pixelaria.Data;
 using Pixelaria.Data.Clipboard;
 using Pixelaria.Data.Undo;
 
 using Pixelaria.Filters;
 
-using Pixelaria.Utils;
-
 using Pixelaria.Views.Controls;
 using Pixelaria.Views.MiscViews;
+using PixelariaLib.Controllers.DataControllers;
+using PixelariaLib.Data;
+using PixelariaLib.Utils;
 
 namespace Pixelaria.Views.ModelViews
 {
@@ -695,7 +694,7 @@ namespace Pixelaria.Views.ModelViews
             // Create an undo task
             var amu = new AnimationModifyUndoTask(ViewAnimation);
 
-            foreach (var index in affectedFrameIndices)
+            foreach (int index in affectedFrameIndices)
             {
                 var controller = ViewAnimation.GetFrameController(ViewAnimation.GetFrameAtIndex(index));
 

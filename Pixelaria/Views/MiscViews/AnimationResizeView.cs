@@ -23,8 +23,8 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using Pixelaria.Controllers.DataControllers;
-using Pixelaria.Data;
+using PixelariaLib.Controllers.DataControllers;
+using PixelariaLib.Data;
 
 namespace Pixelaria.Views.MiscViews
 {

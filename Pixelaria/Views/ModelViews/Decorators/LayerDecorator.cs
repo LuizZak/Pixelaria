@@ -23,12 +23,12 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using FastBitmapLib;
-using Pixelaria.Controllers.LayerControlling;
-using Pixelaria.Data;
 using Pixelaria.Filters;
-using Pixelaria.Utils;
 using Pixelaria.Views.Controls;
 using Pixelaria.Views.Controls.LayerControls;
+using PixelariaLib.Controllers.LayerControlling;
+using PixelariaLib.Data;
+using PixelariaLib.Utils;
 
 namespace Pixelaria.Views.ModelViews.Decorators
 {

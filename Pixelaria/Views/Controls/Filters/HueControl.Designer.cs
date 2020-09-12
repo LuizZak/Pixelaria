@@ -45,14 +45,14 @@
             // 
             // cs_hue
             // 
-            this.cs_hue.ActiveColor = new Pixelaria.Utils.AhslColor(1F, 0F, 1F, 0.5F);
+            this.cs_hue.ActiveColor = new PixelariaLib.Utils.AhslColor(1F, 0F, 1F, 0.5F);
             this.cs_hue.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cs_hue.ColorComponent = Pixelaria.Views.Controls.ColorControls.ColorSliderComponent.Hue;
             this.cs_hue.CurrentValue = 0F;
             this.cs_hue.CustomColorTitle = "Custom";
-            this.cs_hue.CustomEndColor = new Pixelaria.Utils.AhslColor(1F, 0F, 0F, 1F);
-            this.cs_hue.CustomStartColor = new Pixelaria.Utils.AhslColor(1F, 0F, 0F, 0F);
+            this.cs_hue.CustomEndColor = new PixelariaLib.Utils.AhslColor(1F, 0F, 0F, 1F);
+            this.cs_hue.CustomStartColor = new PixelariaLib.Utils.AhslColor(1F, 0F, 0F, 0F);
             this.cs_hue.Location = new System.Drawing.Point(1, 1);
             this.cs_hue.Name = "cs_hue";
             this.cs_hue.Size = new System.Drawing.Size(532, 38);

@@ -20,7 +20,7 @@
     base directory of this project.
 */
 
-using Pixelaria.Data;
+using PixelariaLib.Data;
 
 namespace Pixelaria.Controllers
 {

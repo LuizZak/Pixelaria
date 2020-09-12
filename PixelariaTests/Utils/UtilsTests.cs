@@ -29,8 +29,8 @@ using System.Security.Cryptography;
 using FastBitmapLib;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Pixelaria.Data;
-using Pixelaria.Utils;
+using PixelariaLib.Data;
+using PixelariaLib.Utils;
 using PixelariaTests.TestGenerators;
 
 namespace PixelariaTests.Utils

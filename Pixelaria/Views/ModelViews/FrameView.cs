@@ -30,8 +30,6 @@ using FastBitmapLib;
 using JetBrains.Annotations;
 using Pixelaria.Algorithms.PaintOperations.Abstracts;
 using Pixelaria.Controllers;
-using Pixelaria.Controllers.DataControllers;
-using Pixelaria.Controllers.LayerControlling;
 using Pixelaria.Data;
 using Pixelaria.Data.Clipboard;
 using Pixelaria.Data.Undo;
@@ -46,6 +44,10 @@ using Pixelaria.Views.ModelViews.Decorators;
 
 using Pixelaria.Utils;
 using Pixelaria.Views.Controls.PaintTools.Abstracts;
+using PixelariaLib.Controllers.DataControllers;
+using PixelariaLib.Controllers.LayerControlling;
+using PixelariaLib.Data;
+using PixelariaLib.Utils;
 
 namespace Pixelaria.Views.ModelViews
 {

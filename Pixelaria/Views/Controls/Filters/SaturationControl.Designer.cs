@@ -71,14 +71,14 @@
             // 
             // cs_saturation
             // 
-            this.cs_saturation.ActiveColor = new Pixelaria.Utils.AhslColor(1F, 0F, 1F, 0.5F);
+            this.cs_saturation.ActiveColor = new PixelariaLib.Utils.AhslColor(1F, 0F, 1F, 0.5F);
             this.cs_saturation.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cs_saturation.ColorComponent = Pixelaria.Views.Controls.ColorControls.ColorSliderComponent.Saturation;
             this.cs_saturation.CurrentValue = 1F;
             this.cs_saturation.CustomColorTitle = "Custom";
-            this.cs_saturation.CustomEndColor = new Pixelaria.Utils.AhslColor(1F, 0F, 0F, 1F);
-            this.cs_saturation.CustomStartColor = new Pixelaria.Utils.AhslColor(1F, 0F, 0F, 0F);
+            this.cs_saturation.CustomEndColor = new PixelariaLib.Utils.AhslColor(1F, 0F, 0F, 1F);
+            this.cs_saturation.CustomStartColor = new PixelariaLib.Utils.AhslColor(1F, 0F, 0F, 0F);
             this.cs_saturation.Location = new System.Drawing.Point(1, 1);
             this.cs_saturation.Name = "cs_saturation";
             this.cs_saturation.Size = new System.Drawing.Size(532, 38);
