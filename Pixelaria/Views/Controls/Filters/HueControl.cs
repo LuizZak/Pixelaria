@@ -23,7 +23,7 @@
 using System;
 using System.Drawing;
 
-using Pixelaria.Filters;
+using PixelariaLib.Filters;
 
 namespace Pixelaria.Views.Controls.Filters
 {

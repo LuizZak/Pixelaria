@@ -70,9 +70,9 @@ namespace Pixelaria.Views.MiscViews
 
         /// <summary>
         /// Dictionary used to keep track of changes to sheet exports.
-        /// Used to invalidate only the treeview region related to a specific sheet
+        /// Used to invalidate only the tree view region related to a specific sheet
         /// </summary>
-        private Dictionary<int, float> _progressTrack = new Dictionary<int, float>(); 
+        private Dictionary<int, float> _progressTrack = new Dictionary<int, float>();
 
         /// <summary>
         /// Initializes a new instance of the BundleExportProgressView class
@@ -199,9 +199,9 @@ namespace Pixelaria.Views.MiscViews
             }
             
             var sheetArgs = args as SheetGenerationBundleExportProgressEventArgs;
-            if (sheetArgs?.Provider is AnimationSheet)
+            if (sheetArgs?.Provider is AnimationSheet sheet)
             {
-                InvalidateSheetNode((AnimationSheet)sheetArgs.Provider);
+                InvalidateSheetNode(sheet);
             }
             else
             {
@@ -301,7 +301,7 @@ namespace Pixelaria.Views.MiscViews
         }
 
         [CanBeNull]
-        private AnimationSheet SheetForNode([NotNull] TreeNode node)
+        private static AnimationSheet SheetForNode([NotNull] TreeNode node)
         {
             return node.Tag as AnimationSheet;
         }
@@ -318,7 +318,7 @@ namespace Pixelaria.Views.MiscViews
             return null;
         }
 
-        private float ProgressForSheet(AnimationSheet sheet)
+        private float ProgressForSheet([NotNull] AnimationSheet sheet)
         {
             return _exporter.ProgressForAnimationSheet(sheet);
         }

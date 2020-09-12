@@ -122,7 +122,7 @@ namespace PixelariaLib.Data
         /// <param name="width">The width of this frame</param>
         /// <param name="height">The height of this frame</param>
         /// <param name="initHash">Whether to initialize the frame's hash now</param>
-        /// <exception cref="InvalidOperationException">The Initialize funcion was already called</exception>
+        /// <exception cref="InvalidOperationException">The Initialize function was already called</exception>
         public void Initialize(Animation animation, int width, int height, bool initHash = true)
         {
             if (Initialized)
@@ -284,7 +284,7 @@ namespace PixelariaLib.Data
         }
 
         /// <summary>
-        /// Returns whether the current frame can copy the conents of the specified frame type
+        /// Returns whether the current frame can copy the contents of the specified frame type
         /// </summary>
         /// <typeparam name="TFrame">The type of frame to copy from</typeparam>
         public virtual bool CanCopyFromType<TFrame>() where TFrame : IFrame
@@ -305,7 +305,7 @@ namespace PixelariaLib.Data
             if (Hash == null || frame.Hash == null)
                 return false;
             
-            if (_shortHash != frame._shortHash) // Check short hash beforehands
+            if (_shortHash != frame._shortHash) // Check short hash before hands
                 return false;
             
             return UnsafeNativeMethods.memcmp(Hash, frame.Hash, Hash.Length) == 0;
@@ -407,7 +407,7 @@ namespace PixelariaLib.Data
         /// <summary>
         /// Returns the memory usage of this frame, in bytes
         /// </summary>
-        /// <param name="composed">Whether to calculte the memory usage after the frame has been composed into a single image</param>
+        /// <param name="composed">Whether to calculate the memory usage after the frame has been composed into a single image</param>
         /// <returns>Total memory usage, in bytes</returns>
         public long CalculateMemoryUsageInBytes(bool composed)
         {

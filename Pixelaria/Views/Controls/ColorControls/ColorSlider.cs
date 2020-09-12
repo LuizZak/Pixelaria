@@ -229,7 +229,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         }
 
         /// <summary>
-        /// Iniitalizes a new instance of the ColorSlider class
+        /// Initializes a new instance of the ColorSlider class
         /// </summary>
         public ColorSlider()
         {
@@ -256,7 +256,7 @@ namespace Pixelaria.Views.Controls.ColorControls
             if (!rect.Contains(e.Location))
                 return;
 
-            // Test agains the current knob position, if the mouse is over the knob, setup an offset so
+            // Test against the current knob position, if the mouse is over the knob, setup an offset so
             // the mouse drags relative to the current knob's position
             var knobBounds = GetKnobRectangleBounds();
             knobBounds.Inflate(4, 0);
@@ -406,14 +406,14 @@ namespace Pixelaria.Views.Controls.ColorControls
         //
         private void rtb_value_KeyDown(object sender, [NotNull] KeyEventArgs e)
         {
-                // Numeric keys above letters
-            if (!((e.KeyCode >= Keys.D0 && e.KeyCode <= Keys.D9) ||
+            // Numeric keys above letters
+            if (!(e.KeyCode >= Keys.D0 && e.KeyCode <= Keys.D9 ||
                 // Numpad
-                  (e.KeyCode >= Keys.NumPad0 && e.KeyCode <= Keys.NumPad9) ||
+                  e.KeyCode >= Keys.NumPad0 && e.KeyCode <= Keys.NumPad9 ||
                 // Backspace and delete
-                  (e.KeyCode == Keys.Back || e.KeyCode == Keys.Delete) ||
+                  e.KeyCode == Keys.Back || e.KeyCode == Keys.Delete ||
                 // Directional keys
-                  (e.KeyCode == Keys.Up || e.KeyCode == Keys.Down || e.KeyCode == Keys.Left || e.KeyCode == Keys.Right)))
+                  e.KeyCode == Keys.Up || e.KeyCode == Keys.Down || e.KeyCode == Keys.Left || e.KeyCode == Keys.Right))
             {
                 e.Handled = true;
                 e.SuppressKeyPress = true;
@@ -476,7 +476,7 @@ namespace Pixelaria.Views.Controls.ColorControls
             // Get the slider rectangle and move it to offset 0
             var rect = GetSliderRectangleBounds();
 
-            // Move the offset by the ammount the rectangle was moved too
+            // Move the offset by the amount the rectangle was moved too
             xOffset -= rect.X + rect.Height / 2;
 
             rect.X = 0;
@@ -513,7 +513,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// </summary>
         /// <returns>
         /// <para>
-        /// Avalue that represents the value of the component currently being manipulated by this
+        /// A value that represents the value of the component currently being manipulated by this
         /// ColorSlider on the current active color.
         /// </para>
         /// <para>
@@ -609,7 +609,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         /// ColorSlider on the current active color.
         /// </summary>
         /// <returns>
-        /// Avalue that represents the value of the component currently being manipulated by this
+        /// A value that represents the value of the component currently being manipulated by this
         /// ColorSlider on the current active color.
         /// </returns>
         private int GetColorComponentValueRaw()
@@ -1136,7 +1136,7 @@ namespace Pixelaria.Views.Controls.ColorControls
         Lightness,
         /// <summary>
         /// Specifies that the starting and ending color components are
-        /// custom-supplied using CustomStartColor and CustomEndColor propertie
+        /// custom-supplied using CustomStartColor and CustomEndColor properties
         /// </summary>
         Custom
     }

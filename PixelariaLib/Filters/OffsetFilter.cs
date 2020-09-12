@@ -28,9 +28,9 @@ using JetBrains.Annotations;
 namespace PixelariaLib.Filters
 {
     /// <summary>
-    /// Implements an Offseting filter
+    /// Implements an Offsetting filter
     /// </summary>
-    internal class OffsetFilter : IFilter
+    public class OffsetFilter : IFilter
     {
         /// <summary>
         /// Gets a value indicating whether this IFilter instance will modify any of the pixels
@@ -69,9 +69,9 @@ namespace PixelariaLib.Filters
         public bool WrapVertical { get; set; }
 
         /// <summary>
-        /// Applies this OffsetFilter to a Bitmap
+        /// Applies this <see cref="OffsetFilter"/> to a Bitmap
         /// </summary>
-        /// <param name="bitmap">The bitmap to apply this TransparencyFilter to</param>
+        /// <param name="bitmap">The bitmap to apply this <see cref="OffsetFilter"/> to</param>
         public void ApplyToBitmap(Bitmap bitmap)
         {
             if (!Modifying)
@@ -184,11 +184,12 @@ namespace PixelariaLib.Filters
 
         public bool Equals(IFilter filter)
         {
-            var other = filter as OffsetFilter;
-
-            return other != null && Math.Abs(OffsetX - other.OffsetX) < float.Epsilon &&
-                   Math.Abs(OffsetY - other.OffsetY) < float.Epsilon && WrapHorizontal == other.WrapHorizontal &&
-                   WrapVertical == other.WrapVertical && Version == other.Version;
+            return filter is OffsetFilter other 
+                   && Math.Abs(OffsetX - other.OffsetX) < float.Epsilon 
+                   && Math.Abs(OffsetY - other.OffsetY) < float.Epsilon 
+                   && WrapHorizontal == other.WrapHorizontal 
+                   && WrapVertical == other.WrapVertical 
+                   && Version == other.Version;
         }
     }
 }

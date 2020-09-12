@@ -108,7 +108,7 @@ namespace PixelariaLib.Data
         void CopyFrom<TFrame>(TFrame frame) where TFrame : IFrame;
 
         /// <summary>
-        /// Returns whether the current frame can copy the conents of the specified frame type
+        /// Returns whether the current frame can copy the contents of the specified frame type
         /// </summary>
         /// <typeparam name="TFrame">The type of frame to copy from</typeparam>
         bool CanCopyFromType<TFrame>() where TFrame : IFrame;

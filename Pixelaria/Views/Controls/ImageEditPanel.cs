@@ -359,9 +359,7 @@ namespace Pixelaria.Views.Controls
         /// <returns>Whether the current paint tool intercepted the undo task. When the return is true, no undo operation might be performed</returns>
         public bool InterceptUndo()
         {
-            var intercepter = CurrentPaintTool as IUndoIntercepterPaintTool;
-
-            return intercepter != null && intercepter.InterceptUndo();
+            return CurrentPaintTool is IUndoIntercepterPaintTool intercepter && intercepter.InterceptUndo();
         }
 
         /// <summary>
@@ -371,9 +369,7 @@ namespace Pixelaria.Views.Controls
         /// <returns>Whether the current paint tool intercepted the redo task. When the return is true, no redo operation might be performed</returns>
         public bool InterceptRedo()
         {
-            var intercepter = CurrentPaintTool as IUndoIntercepterPaintTool;
-
-            return intercepter != null && intercepter.InterceptRedo();
+            return CurrentPaintTool is IUndoIntercepterPaintTool intercepter && intercepter.InterceptRedo();
         }
     }
 

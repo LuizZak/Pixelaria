@@ -27,7 +27,7 @@ namespace PixelariaLib.Controllers.DataControllers
     /// <summary>
     /// Represents metadata for a frame's layer
     /// </summary>
-    public struct LayerMetadata
+    public readonly struct LayerMetadata
     {
         /// <summary>
         /// Gets the size of this layer on its containing frame

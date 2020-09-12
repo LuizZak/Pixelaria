@@ -23,17 +23,17 @@
 using System;
 using System.Drawing;
 using JetBrains.Annotations;
-using Pixelaria.Filters;
+using PixelariaLib.Filters;
 
 namespace Pixelaria.Views.Controls.Filters
 {
     /// <summary>
-    /// Represents a FilterControl that handles an OffsetFilter
+    /// Represents a FilterControl that handles an <see cref="OffsetFilter"/>
     /// </summary>
     internal partial class OffsetControl : FilterControl
     {
         /// <summary>
-        /// Initializes a new instance of the OffsetControl class
+        /// Initializes a new instance of the <see cref="OffsetControl"/> class
         /// </summary>
         public OffsetControl()
         {
@@ -41,7 +41,7 @@ namespace Pixelaria.Views.Controls.Filters
         }
 
         /// <summary>
-        /// Initializes this OffsetControl
+        /// Initializes this <see cref="OffsetControl"/>
         /// </summary>
         /// <param name="bitmap">The Bitmap to generate the visualization for</param>
         public override void Initialize([NotNull] Bitmap bitmap)

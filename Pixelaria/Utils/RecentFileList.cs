@@ -22,6 +22,7 @@
 
 using System.IO;
 using JetBrains.Annotations;
+using PixelariaLib.Utils;
 
 namespace Pixelaria.Utils
 {
@@ -90,7 +91,7 @@ namespace Pixelaria.Utils
             {
                 if (fullPath == _fileList[i] || i == _fileList.Length - 1)
                 {
-                    index = (i == _fileList.Length - 1 ? i : i - 1);
+                    index = i == _fileList.Length - 1 ? i : i - 1;
                     break;
                 }
             }

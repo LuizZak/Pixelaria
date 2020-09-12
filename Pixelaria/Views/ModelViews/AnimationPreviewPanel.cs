@@ -226,7 +226,7 @@ namespace Pixelaria.Views.ModelViews
         }
 
         /// <summary>
-        /// Automatically adjust the zoom to fit the whoe panel
+        /// Automatically adjust the zoom to fit the whole panel
         /// </summary>
         private void AutoAdjustZoom()
         {

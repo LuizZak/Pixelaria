@@ -61,7 +61,7 @@ namespace PixelariaLib.Data
         public int ID { get; set; }
         
         /// <summary>
-        /// Gets the number of frames of this Animaion
+        /// Gets the number of frames of this Animation
         /// </summary>
         public int FrameCount => Frames.Count;
 

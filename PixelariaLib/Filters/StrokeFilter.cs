@@ -32,7 +32,7 @@ namespace PixelariaLib.Filters
     /// <summary>
     /// Implements a stroke filter
     /// </summary>
-    internal class StrokeFilter : IFilter
+    public class StrokeFilter : IFilter
     {
         /// <summary>
         /// Gets a value indicating whether this IFilter instance will modify any of the pixels
@@ -71,7 +71,7 @@ namespace PixelariaLib.Filters
         public bool Smooth { get; set; }
 
         /// <summary>
-        /// Initializes a new instance of the StrokeFilter class
+        /// Initializes a new instance of the <see cref="StrokeFilter"/> class
         /// </summary>
         public StrokeFilter()
         {
@@ -82,9 +82,9 @@ namespace PixelariaLib.Filters
         }
 
         /// <summary>
-        /// Applies this OffsetFilter to a Bitmap
+        /// Applies this <see cref="StrokeFilter"/> to a Bitmap
         /// </summary>
-        /// <param name="bitmap">The bitmap to apply this TransparencyFilter to</param>
+        /// <param name="bitmap">The bitmap to apply this <see cref="StrokeFilter"/> to</param>
         public unsafe void ApplyToBitmap(Bitmap bitmap)
         {
             // 
@@ -218,10 +218,12 @@ namespace PixelariaLib.Filters
 
         public bool Equals(IFilter filter)
         {
-            var other = filter as StrokeFilter;
-
-            return other != null && StrokeColor == other.StrokeColor && StrokeRadius == other.StrokeRadius &&
-                   KnockoutImage == other.KnockoutImage && Smooth == other.Smooth && Version == other.Version;
+            return filter is StrokeFilter other 
+                   && StrokeColor == other.StrokeColor 
+                   && StrokeRadius == other.StrokeRadius 
+                   && KnockoutImage == other.KnockoutImage 
+                   && Smooth == other.Smooth 
+                   && Version == other.Version;
         }
     }
 }

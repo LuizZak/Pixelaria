@@ -76,7 +76,7 @@ namespace Pixelaria.Controllers.Validators
         /// If the validation fails, an error string is returned, if it succeeds, an empty string is returned.
         /// </summary>
         /// <param name="width">The Animation width to validate</param>
-        /// <param name="anim">The Animation that the field is comming from</param>
+        /// <param name="anim">The Animation that the field is coming from</param>
         /// <returns>The result of the validation. An empty string if the field is valid, or an error message if it's invalid. </returns>
         public string ValidateAnimationWidth(int width, Animation anim = null)
         {
@@ -91,7 +91,7 @@ namespace Pixelaria.Controllers.Validators
         /// If the validation fails, an error string is returned, if it succeeds, an empty string is returned.
         /// </summary>
         /// <param name="height">The Animation height to validate</param>
-        /// <param name="anim">The Animation that the field is comming from</param>
+        /// <param name="anim">The Animation that the field is coming from</param>
         /// <returns>The result of the validation. An empty string if the field is valid, or an error message if it's invalid. </returns>
         public string ValidateAnimationHeight(int height, Animation anim = null)
         {
@@ -106,7 +106,7 @@ namespace Pixelaria.Controllers.Validators
         /// If the validation fails, an error string is returned, if it succeeds, an empty string is returned.
         /// </summary>
         /// <param name="fps">The Animation fps to validate</param>
-        /// <param name="anim">The Animation that the field is comming from</param>
+        /// <param name="anim">The Animation that the field is coming from</param>
         /// <returns>The result of the validation. An empty string if the field is valid, or an error message if it's invalid. </returns>
         public string ValidateAnimationFPS(int fps, Animation anim = null)
         {
@@ -156,7 +156,7 @@ namespace Pixelaria.Controllers.Validators
             if (text.Trim() == "")
                 return "The file name cannot be empty.";
 
-            char[] invalid = Path.GetInvalidFileNameChars();
+            var invalid = Path.GetInvalidFileNameChars();
 
             foreach (char inv in invalid)
             {

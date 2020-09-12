@@ -31,7 +31,7 @@ namespace PixelariaLib.Filters
     /// <summary>
     /// Implements a Scaling filter
     /// </summary>
-    internal class ScaleFilter : IFilter
+    public class ScaleFilter : IFilter
     {
         /// <summary>
         /// Gets a value indicating whether this IFilter instance will modify any of the pixels
@@ -79,9 +79,9 @@ namespace PixelariaLib.Filters
         }
 
         /// <summary>
-        /// Applies this ScaleFilter to a Bitmap
+        /// Applies this <see cref="ScaleFilter"/> to a Bitmap
         /// </summary>
-        /// <param name="bitmap">The bitmap to apply this TransparencyFilter to</param>
+        /// <param name="bitmap">The bitmap to apply this <see cref="ScaleFilter"/> to</param>
         public void ApplyToBitmap(Bitmap bitmap)
         {
             if (!Modifying)
@@ -148,11 +148,12 @@ namespace PixelariaLib.Filters
 
         public bool Equals(IFilter filter)
         {
-            var other = filter as ScaleFilter;
-
-            return other != null && Math.Abs(ScaleX - other.ScaleX) < float.Epsilon &&
-                   Math.Abs(ScaleY - other.ScaleY) < float.Epsilon && Centered == other.Centered &&
-                   PixelQuality == other.PixelQuality && Version == other.Version;
+            return filter is ScaleFilter other 
+                   && Math.Abs(ScaleX - other.ScaleX) < float.Epsilon 
+                   && Math.Abs(ScaleY - other.ScaleY) < float.Epsilon 
+                   && Centered == other.Centered 
+                   && PixelQuality == other.PixelQuality 
+                   && Version == other.Version;
         }
     }
 }

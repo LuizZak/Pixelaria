@@ -34,7 +34,7 @@ namespace PixelariaLib.Controllers.Validators
         /// If the validation fails, an error string is returned, if it succeeds, an empty string is returned.
         /// </summary>
         /// <param name="name">The Animation name to validate</param>
-        /// <param name="anim">The Animation that the field is comming from</param>
+        /// <param name="anim">The Animation that the field is coming from</param>
         /// <returns>The result of the validation. An empty string if the field is valid, or an error message if it's invalid.</returns>
         string ValidateAnimationName(string name, Animation anim = null);
 
@@ -43,7 +43,7 @@ namespace PixelariaLib.Controllers.Validators
         /// If the validation fails, an error string is returned, if it succeeds, an empty string is returned.
         /// </summary>
         /// <param name="width">The Animation width to validate</param>
-        /// <param name="anim">The Animation that the field is comming from</param>
+        /// <param name="anim">The Animation that the field is coming from</param>
         /// <returns>The result of the validation. An empty string if the field is valid, or an error message if it's invalid. </returns>
         string ValidateAnimationWidth(int width, Animation anim = null);
 
@@ -52,7 +52,7 @@ namespace PixelariaLib.Controllers.Validators
         /// If the validation fails, an error string is returned, if it succeeds, an empty string is returned.
         /// </summary>
         /// <param name="height">The Animation height to validate</param>
-        /// <param name="anim">The Animation that the field is comming from</param>
+        /// <param name="anim">The Animation that the field is coming from</param>
         /// <returns>The result of the validation. An empty string if the field is valid, or an error message if it's invalid. </returns>
         string ValidateAnimationHeight(int height, Animation anim = null);
 
@@ -61,7 +61,7 @@ namespace PixelariaLib.Controllers.Validators
         /// If the validation fails, an error string is returned, if it succeeds, an empty string is returned.
         /// </summary>
         /// <param name="fps">The Animation fps to validate</param>
-        /// <param name="anim">The Animation that the field is comming from</param>
+        /// <param name="anim">The Animation that the field is coming from</param>
         /// <returns>The result of the validation. An empty string if the field is valid, or an error message if it's invalid. </returns>
         // ReSharper disable once InconsistentNaming
         string ValidateAnimationFPS(int fps, Animation anim = null);

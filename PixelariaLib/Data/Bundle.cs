@@ -454,7 +454,7 @@ namespace PixelariaLib.Data
         }
 
         /// <summary>
-        /// Duplicates the given animation sheet on this bundle. The duplicated sheet has its name sulfix
+        /// Duplicates the given animation sheet on this bundle. The duplicated sheet has its name suffix
         /// changed to avoid name conflicts. The animations on the sheet are also copied over
         /// </summary>
         /// <param name="sheet">The animation sheet to duplicate</param>
@@ -505,7 +505,7 @@ namespace PixelariaLib.Data
         }
 
         /// <summary>
-        /// Rearranges the index of an AnimationSheets in the sheets's current storing container
+        /// Rearranges the index of an AnimationSheets in the sheet's current storing container
         /// </summary>
         /// <param name="sheet">The sheet to rearrange</param>
         /// <param name="newIndex">The new index to place the sheet at</param>

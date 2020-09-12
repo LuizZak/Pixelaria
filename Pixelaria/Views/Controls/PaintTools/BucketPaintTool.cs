@@ -86,7 +86,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         }
 
         /// <summary>
-        /// Initialies a new instance of the BucketPaintTool class, setting the two drawing colors
+        /// Initializes a new instance of the BucketPaintTool class, setting the two drawing colors
         /// for the paint tool
         /// </summary>
         /// <param name="firstColor">The first color for the paint operation</param>
@@ -209,7 +209,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             // Start the fill operation by getting the color under the user's mouse
             var pColor = targetBitmap.GetPixel(point.X, point.Y);
             // Do a pre-blend of the color, if the composition mode is SourceOver
-            var newColor = (compMode == CompositingMode.SourceOver ? color.Blend(pColor) : color);
+            var newColor = compMode == CompositingMode.SourceOver ? color.Blend(pColor) : color;
 
             uint pColorI = unchecked((uint)pColor.ToArgb());
             uint newColorI = unchecked((uint)newColor.ToArgb());
@@ -245,24 +245,24 @@ namespace Pixelaria.Views.Controls.PaintTools
 
             stack.Push(((point.X << 16) | point.Y));
 
-            // Floodfill the bitmap
+            // Flood-fill the bitmap
             using (var fastBitmap = targetBitmap.FastLock())
             {
-                uint* scan0 = (uint*)fastBitmap.Scan0;
+                var scan0 = (uint*)fastBitmap.Scan0;
                 int strideWidth = fastBitmap.Stride;
 
-                // Do a floodfill using a vertical scanline algorithm
+                // Do a flood-fill using a vertical scan-line algorithm
                 while (stack.Count > 0)
                 {
                     int v = stack.Pop();
-                    int x = (v >> 16);
-                    int y = (v & 0xFFFF);
+                    int x = v >> 16;
+                    int y = v & 0xFFFF;
                     
                     // Expand horizontal area
                     minX = x < minX ? x : minX;
                     maxX = x > maxX ? x : maxX;
 
-                    var y1 = y;
+                    int y1 = y;
 
                     while (y1 >= 0 && *(scan0 + x + y1 * strideWidth) == pColorI) y1--;
 
@@ -288,7 +288,7 @@ namespace Pixelaria.Views.Controls.PaintTools
 
                             if (!spanLeft && pixel == pColorI)
                             {
-                                stack.Push((((x - 1) << 16) | y1));
+                                stack.Push(((x - 1) << 16) | y1);
 
                                 spanLeft = true;
                             }
@@ -304,7 +304,7 @@ namespace Pixelaria.Views.Controls.PaintTools
 
                             if (!spanRight && pixel == pColorI)
                             {
-                                stack.Push((((x + 1) << 16) | y1));
+                                stack.Push(((x + 1) << 16) | y1);
                                 spanRight = true;
                             }
                             else if (spanRight && pixel != pColorI)

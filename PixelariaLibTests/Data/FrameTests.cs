@@ -191,9 +191,9 @@ namespace PixelariaLibTests.Data
         /// <param name="name">The file name to use on the bitmap</param>
         public void RegisterResultBitmap([NotNull] Bitmap bitmap, string name)
         {
-            var folder = "TestsResults" + Path.DirectorySeparatorChar + "FrameTests";
-            var path = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory) + Path.DirectorySeparatorChar + folder;
-            var file = path + Path.DirectorySeparatorChar + name;
+            string folder = "TestsResults" + Path.DirectorySeparatorChar + "FrameTests";
+            string path = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory) + Path.DirectorySeparatorChar + folder;
+            string file = path + Path.DirectorySeparatorChar + name;
 
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
@@ -202,7 +202,7 @@ namespace PixelariaLibTests.Data
 
             // Also save a .txt file containing the hash
             var hashBytes = UtilsTests.GetHashForBitmap(bitmap);
-            var hashString = "";
+            string hashString = "";
             hashBytes.ToList().ForEach(b => hashString += (hashString.Length == 0 ? "" : ",") + "0x" + b.ToString("X2"));
             File.WriteAllText(file + ".txt", hashString);
         }
@@ -328,7 +328,7 @@ namespace PixelariaLibTests.Data
         }
 
         /// <summary>
-        /// Returns whether the current frame can copy the conents of the specified frame type
+        /// Returns whether the current frame can copy the contents of the specified frame type
         /// </summary>
         /// <typeparam name="TFrame">The type of frame to copy from</typeparam>
         public override bool CanCopyFromType<TFrame>()

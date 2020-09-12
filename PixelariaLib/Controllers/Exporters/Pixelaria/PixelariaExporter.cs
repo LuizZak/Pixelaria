@@ -202,7 +202,7 @@ namespace PixelariaLib.Controllers.Exporters.Pixelaria
         /// <summary>
         /// Bundles an exported BundleSheet and a path into one structure
         /// </summary>
-        private struct BundleSheetJson
+        private readonly struct BundleSheetJson
         {
             public readonly BundleSheetExport BundleSheet;
             public readonly string SheetName;

@@ -54,12 +54,12 @@ namespace PixelariaLibTests.Data
         [TestMethod]
         public void TestBundleAnimationFetchById()
         {
-            Bundle bundle = new Bundle("TestBundle");
+            var bundle = new Bundle("TestBundle");
             bundle.AddAnimation(AnimationGenerator.GenerateAnimation("TestAnimation1", 16, 16, 5, 0));
             bundle.AddAnimation(AnimationGenerator.GenerateAnimation("TestAnimation2", 16, 16, 5, 0));
 
-            Animation firstAnimation = bundle.Animations[0];
-            Animation secondAnimation = bundle.Animations[0];
+            var firstAnimation = bundle.Animations[0];
+            var secondAnimation = bundle.Animations[0];
             const int nonExistingId = 10;
 
             // Existing
@@ -76,12 +76,12 @@ namespace PixelariaLibTests.Data
         [TestMethod]
         public void TestBundleAnimationFetchByName()
         {
-            Bundle bundle = new Bundle("TestBundle");
+            var bundle = new Bundle("TestBundle");
             bundle.AddAnimation(AnimationGenerator.GenerateAnimation("TestAnimation1", 16, 16, 5, 0));
             bundle.AddAnimation(AnimationGenerator.GenerateAnimation("TestAnimation2", 16, 16, 5, 0));
 
-            Animation firstAnimation = bundle.Animations[0];
-            Animation secondAnimation = bundle.Animations[0];
+            var firstAnimation = bundle.Animations[0];
+            var secondAnimation = bundle.Animations[0];
             const string nonExistingName = "B4DF00D";
 
             // Existing
@@ -98,12 +98,12 @@ namespace PixelariaLibTests.Data
         [TestMethod]
         public void TestBundleAnimationSheetFetchById()
         {
-            Bundle bundle = new Bundle("TestBundle");
+            var bundle = new Bundle("TestBundle");
             bundle.AddAnimationSheet(AnimationSheetGenerator.GenerateAnimationSheet("TestSheet1", 5, 16, 16, 5, 0));
             bundle.AddAnimationSheet(AnimationSheetGenerator.GenerateAnimationSheet("TestSheet2", 5, 16, 16, 5, 0));
 
-            AnimationSheet firstSheet = bundle.AnimationSheets[0];
-            AnimationSheet secondSheet = bundle.AnimationSheets[0];
+            var firstSheet = bundle.AnimationSheets[0];
+            var secondSheet = bundle.AnimationSheets[0];
             const int nonExistingId = 10;
 
             // Existing
@@ -120,12 +120,12 @@ namespace PixelariaLibTests.Data
         [TestMethod]
         public void TestBundleAnimationSheetFetchByName()
         {
-            Bundle bundle = new Bundle("TestBundle");
+            var bundle = new Bundle("TestBundle");
             bundle.AddAnimationSheet(AnimationSheetGenerator.GenerateAnimationSheet("TestSheet1", 5, 16, 16, 5, 0));
             bundle.AddAnimationSheet(AnimationSheetGenerator.GenerateAnimationSheet("TestSheet2", 5, 16, 16, 5, 0));
 
-            AnimationSheet firstSheet = bundle.AnimationSheets[0];
-            AnimationSheet secondSheet = bundle.AnimationSheets[0];
+            var firstSheet = bundle.AnimationSheets[0];
+            var secondSheet = bundle.AnimationSheets[0];
             const string nonExistingName = "B4DF00D";
 
             // Existing
@@ -157,7 +157,7 @@ namespace PixelariaLibTests.Data
             controller.CreateFrame();
             var newFrame = bundle2.Animations.Last().Frames.Last();
 
-            // Test if the frame's ID matches the previos frame's ID + 1
+            // Test if the frame's ID matches the previous frame's ID + 1
             Assert.AreEqual(newFrame.ID, bundle2.Animations.Last()[bundle2.Animations.Last().FrameCount - 2].ID + 1,
                 "When adding an animation to a bundle, the frame ID index should be bumped up to match the highest frame ID available + 1");
         }

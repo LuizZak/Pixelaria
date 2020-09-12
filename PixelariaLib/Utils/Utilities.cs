@@ -48,13 +48,13 @@ namespace PixelariaLib.Utils
         /// <summary>
         /// Helper method used to create relative paths
         /// </summary>
-        /// <param name="filespec">The file path</param>
+        /// <param name="fileSpec">The file path</param>
         /// <param name="folder">The base folder to create the relative path</param>
-        /// <returns>A relative path between folder and filespec</returns>
+        /// <returns>A relative path between folder and fileSpec</returns>
         [System.Diagnostics.Contracts.Pure]
-        public static string GetRelativePath([NotNull] string filespec, string folder)
+        public static string GetRelativePath([NotNull] string fileSpec, string folder)
         {
-            var pathUri = new Uri(filespec);
+            var pathUri = new Uri(fileSpec);
             
             // Folders must end in a slash
             if (!folder.EndsWith(Path.DirectorySeparatorChar.ToString()))
@@ -85,29 +85,29 @@ namespace PixelariaLib.Utils
         }
 
         /// <summary>
-        /// Returns a formated sting that contains the most significant magnitude
+        /// Returns a formatted sting that contains the most significant magnitude
         /// representation of the given number of bytes
         /// </summary>
         /// <param name="bytes">The number of bytes</param>
-        /// <returns>A formated string with the byte count converted to the most significant magnitude</returns>
+        /// <returns>A formatted string with the byte count converted to the most significant magnitude</returns>
         [System.Diagnostics.Contracts.Pure]
         public static string FormatByteSize(long bytes)
         {
             int magnitude = 0;
-            string[] sulfixes = { "b", "kb", "mb", "gb", "tb", "pt", "eb", "zb", "yb" };
+            string[] suffixes = { "b", "kb", "mb", "gb", "tb", "pt", "eb", "zb", "yb" };
 
             float b = bytes;
 
             while (b > 1024)
             {
-                if (magnitude == sulfixes.Length - 1)
+                if (magnitude == suffixes.Length - 1)
                     break;
 
                 b /= 1024;
                 magnitude++;
             }
 
-            return Math.Round(b * 100) / 100 + sulfixes[magnitude];
+            return Math.Round(b * 100) / 100 + suffixes[magnitude];
         }
 
         /// <summary>
@@ -434,11 +434,11 @@ namespace PixelariaLib.Utils
         /// <returns>The smallest Rectangle object that encloses all points provided</returns>
         public static RectangleF GetRectangleArea([NotNull] IReadOnlyList<PointF> pointList)
         {
-            var minX = pointList[0].X;
-            var minY = pointList[0].Y;
+            float minX = pointList[0].X;
+            float minY = pointList[0].Y;
 
-            var maxX = pointList[0].X;
-            var maxY = pointList[0].Y;
+            float maxX = pointList[0].X;
+            float maxY = pointList[0].Y;
 
             foreach (var p in pointList)
             {

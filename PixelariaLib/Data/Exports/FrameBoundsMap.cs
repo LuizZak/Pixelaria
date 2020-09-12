@@ -223,7 +223,7 @@ namespace PixelariaLib.Data.Exports
         public bool SplitSharedSheetBoundsForFrame([NotNull] IFrame frame)
         {
             // Checks uniqueness of frame
-            var index = SheetIndexForFrame(frame);
+            int index = SheetIndexForFrame(frame);
             if (CountOfFramesAtSheetBoundsIndex(index) == 1)
                 return false;
 
@@ -240,7 +240,7 @@ namespace PixelariaLib.Data.Exports
         }
 
         /// <summary>
-        /// Returns whether this frame bounds map contains information pertaininig to a given frame
+        /// Returns whether this frame bounds map contains information pertaining to a given frame
         /// </summary>
         public bool ContainsFrame([NotNull] IFrame frame)
         {
@@ -285,7 +285,7 @@ namespace PixelariaLib.Data.Exports
         /// </summary>
         private void MoveIndex(int oldIndex, int newIndex)
         {
-            foreach (var key in _frameSheetBoundsMap.Keys.ToArray())
+            foreach (int key in _frameSheetBoundsMap.Keys.ToArray())
             {
                 if (_frameSheetBoundsMap[key] == oldIndex)
                 {
@@ -302,7 +302,7 @@ namespace PixelariaLib.Data.Exports
             // Ref-counting array
             var refs = _sheetBounds.Select(v => false).ToList();
 
-            foreach (var value in _frameSheetBoundsMap.Values)
+            foreach (int value in _frameSheetBoundsMap.Values)
             {
                 refs[value] = true;
             }

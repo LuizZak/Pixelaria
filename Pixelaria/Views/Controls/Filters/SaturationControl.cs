@@ -23,17 +23,17 @@
 using System;
 using System.Drawing;
 
-using Pixelaria.Filters;
+using PixelariaLib.Filters;
 
 namespace Pixelaria.Views.Controls.Filters
 {
     /// <summary>
-    /// Represents a FilterControl that handles a SaturationFilter
+    /// Represents a FilterControl that handles a <see cref="SaturationFilter"/>
     /// </summary>
     internal partial class SaturationControl : FilterControl
     {
         /// <summary>
-        /// Initializes a new instance of the SaturationControl class
+        /// Initializes a new instance of the <see cref="SaturationControl"/> class
         /// </summary>
         public SaturationControl()
         {
@@ -41,7 +41,7 @@ namespace Pixelaria.Views.Controls.Filters
         }
 
         /// <summary>
-        /// Initializes this TransparencyControl
+        /// Initializes this <see cref="SaturationControl"/>
         /// </summary>
         /// <param name="bitmap">The Bitmap to generate the visualization for</param>
         public override void Initialize(Bitmap bitmap)

@@ -57,7 +57,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         public int PixelCount => _pixelDictionary.Count;
 
         /// <summary>
-        /// Initializes a new isntance of the pixel history tracker
+        /// Initializes a new instance of the pixel history tracker
         /// </summary>
         /// <param name="keepOriginalUndos">
         ///     Whether to keep the first color of pixels that are being replaced. When replacing with this flag on, only the redo color is set, the original undo color being unmodified
@@ -128,7 +128,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         }
 
         /// <summary>
-        /// Registers a pixel on this PixelUndoTask without the existance of a similar pixel priorly.
+        /// Registers a pixel on this PixelUndoTask without the existence of a similar prior pixel.
         /// If the pixel already exists, its values are replaced according to the keepOriginalUndos flag
         /// </summary>
         /// <param name="x">The X coordinate of the pixel to store</param>
@@ -147,7 +147,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         /// <param name="y">The Y coordinate of the pixel to store</param>
         /// <param name="oldColor">The old color of the pixel</param>
         /// <param name="newColor">The new color of the pixel</param>
-        /// <param name="replaceExisting">Whether to allow relpacing existing pixels on the list</param>
+        /// <param name="replaceExisting">Whether to allow replacing existing pixels on the list</param>
         private void InternalRegisterPixel(int x, int y, uint oldColor, uint newColor, bool replaceExisting)
         {
             int pixelIndex = x + y * _width;
@@ -194,7 +194,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         public PixelUndo? PixelUndoForPixel(int x, int y)
         {
 
-            if (_pixelDictionary.TryGetValue(y * _width + x, out PixelUndo undo))
+            if (_pixelDictionary.TryGetValue(y * _width + x, out var undo))
             {
                 return undo;
             }
@@ -255,7 +255,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
 
                 unchecked
                 {
-                    var hashCode = PixelX;
+                    int hashCode = PixelX;
                     hashCode = (hashCode * 397) ^ PixelY;
                     hashCode = (hashCode * 397) ^ PixelIndex;
                     _hashCode = hashCode;
@@ -280,7 +280,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
             public override bool Equals(object obj)
             {
                 if (ReferenceEquals(null, obj)) return false;
-                return obj is PixelUndo && Equals((PixelUndo)obj);
+                return obj is PixelUndo other && Equals(other);
             }
 
             /// <summary>

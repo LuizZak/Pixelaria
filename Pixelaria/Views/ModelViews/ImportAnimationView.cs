@@ -69,7 +69,7 @@ namespace Pixelaria.Views.ModelViews
         private readonly AnimationSheet _parentSheet;
 
         /// <summary>
-        /// Intiializes a new instance of the ImportAnimationView class
+        /// Initializes a new instance of the ImportAnimationView class
         /// </summary>
         /// <param name="controller">The controller owning this form</param>
         /// <param name="parentSheet">Optional AnimationSheet that will own the newly created animation</param>
@@ -116,7 +116,7 @@ namespace Pixelaria.Views.ModelViews
             }
 
             // Animation name
-            var validation = _controller.AnimationValidator.ValidateAnimationName(txt_animationName.Text);
+            string validation = _controller.AnimationValidator.ValidateAnimationName(txt_animationName.Text);
             if (validation != "")
             {
                 txt_animationName.BackColor = Color.LightPink;

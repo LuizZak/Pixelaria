@@ -21,6 +21,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -42,11 +43,11 @@ using Pixelaria.Views.Controls.PaintTools.Interfaces;
 using Pixelaria.Views.MiscViews;
 using Pixelaria.Views.ModelViews.Decorators;
 
-using Pixelaria.Utils;
 using Pixelaria.Views.Controls.PaintTools.Abstracts;
 using PixelariaLib.Controllers.DataControllers;
 using PixelariaLib.Controllers.LayerControlling;
 using PixelariaLib.Data;
+using PixelariaLib.Filters;
 using PixelariaLib.Utils;
 
 namespace Pixelaria.Views.ModelViews
@@ -140,7 +141,7 @@ namespace Pixelaria.Views.ModelViews
         public static int BrushSize;
 
         /// <summary>
-        /// The settings to apply to the onion skin, saved accross form closings
+        /// The settings to apply to the onion skin, saved across form closings
         /// </summary>
         public static OnionSkinSettings GlobalOnionSkinSettings;
 
@@ -530,7 +531,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void RefreshTitleBar()
         {
-            var asterisk = modified ? "*" : "";
+            string asterisk = modified ? "*" : "";
             if (_animation != null)
             {
                 Text =
@@ -665,7 +666,7 @@ namespace Pixelaria.Views.ModelViews
         /// Moves to the given frame
         /// </summary>
         /// <param name="index">The frame to move the edit window to</param>
-        /// <returns>Whether the frame view sucessfully selected the provided frame</returns>
+        /// <returns>Whether the frame view successfully selected the provided frame</returns>
         private void SetFrameIndex(int index)
         {
             InternalRequestedNavigateToFrame?.Invoke(this, new FrameIndexEventArgs(index));
@@ -921,14 +922,14 @@ namespace Pixelaria.Views.ModelViews
         /// <param name="menuItem">The menu item to populate</param>
         /// <param name="presets">The list of filter presets to populate with</param>
         /// <param name="handler">The event handler to call on click</param>
-        /// <param name="tagMethod">A delegte for generating the ToolStripMenu tags</param>
-        private void PopulateMenuItem([NotNull] ToolStripMenuItem menuItem, [NotNull] FilterPreset[] presets, EventHandler handler, Func<FilterPreset, int, object> tagMethod)
+        /// <param name="tagMethod">A delegate for generating the ToolStripMenu tags</param>
+        private void PopulateMenuItem([NotNull] ToolStripDropDownItem menuItem, [NotNull] IReadOnlyList<FilterPreset> presets, EventHandler handler, Func<FilterPreset, int, object> tagMethod)
         {
             // Remove old filter items
             menuItem.DropDownItems.Clear();
             tsm_lastUsedFilterPresets.DropDownItems.Clear();
 
-            if (presets.Length == 0)
+            if (presets.Count == 0)
             {
                 var tsmEmptyItem = new ToolStripMenuItem("Empty") { Enabled = false };
 
@@ -936,7 +937,7 @@ namespace Pixelaria.Views.ModelViews
             }
 
             // Create and add all the new filter items
-            for (int i = 0; i < presets.Length; i++)
+            for (int i = 0; i < presets.Count; i++)
             {
                 var preset = presets[i];
                 var tsmPresetItem = new ToolStripMenuItem(preset.Name, tsm_filterPresets.Image)
@@ -1048,7 +1049,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void UpdateMouseLocationLabel()
         {
-            Point mouseP = iepb_frame.PictureBox.PointToClient(MousePosition);
+            var mouseP = iepb_frame.PictureBox.PointToClient(MousePosition);
 
             if (iepb_frame.PictureBox.MouseOverImage && iepb_frame.PictureBox.ClientRectangle.Contains(mouseP))
             {
@@ -1787,8 +1788,7 @@ namespace Pixelaria.Views.ModelViews
             if (_ignoreOnionSkinDepthComboboxEvent)
                 return;
 
-            var selectedItem = tscb_osFrameCount.SelectedItem as string;
-            if (selectedItem == null)
+            if (!(tscb_osFrameCount.SelectedItem is string selectedItem))
                 return;
 
             int depth = int.Parse(selectedItem);
@@ -1987,7 +1987,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         // Image Edit Panel interceptable mouse down
         // 
-        private void iepb_frame_interceptableMouseDown(object sender, [NotNull] PaintingOperatinsPictureBoxMouseEventArgs eventArgs)
+        private void iepb_frame_interceptableMouseDown(object sender, [NotNull] PaintingOperationsPictureBoxMouseEventArgs eventArgs)
         {
             // Select first visible layer under mouse point, if the user is hitting Left Click + Alt
             if (eventArgs.Button != MouseButtons.Left || ModifierKeys != Keys.Alt)
@@ -2032,7 +2032,7 @@ namespace Pixelaria.Views.ModelViews
             // Pick the color from the composed bitmap
             using(var composed = FrameRenderer.ComposeFrame(_viewFrameController, lcp_layers.LayerStatuses, !ModifierKeys.HasFlag(Keys.Control)))
             {
-                Color colorAt = composed.GetPixel(args.ImagePoint.X, args.ImagePoint.Y);
+                var colorAt = composed.GetPixel(args.ImagePoint.X, args.ImagePoint.Y);
 
                 ColorPickerColor colorIndex;
 
@@ -2092,7 +2092,7 @@ namespace Pixelaria.Views.ModelViews
         private class FrameViewLayerControllerBinder: IDisposable
         {
             /// <summary>
-            /// The frame view being binded
+            /// The frame view being bound
             /// </summary>
             private readonly FrameView _frameView;
 
@@ -2112,7 +2112,7 @@ namespace Pixelaria.Views.ModelViews
             private bool _generateUndos;
 
             /// <summary>
-            /// Initializes a new instance of the FrameViewLayercontrollerBinder class
+            /// Initializes a new instance of the FrameViewLayerControllerBinder class
             /// </summary>
             /// <param name="frameView">The frame view to bind</param>
             /// <param name="layerController">The layer controller to bind</param>

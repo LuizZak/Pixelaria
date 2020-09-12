@@ -32,7 +32,7 @@ namespace PixelariaLib.Filters
     /// <summary>
     /// Implements a Transparency filter
     /// </summary>
-    internal class TransparencyFilter : IFilter
+    public class TransparencyFilter : IFilter
     {
         /// <summary>
         /// Gets a value indicating whether this IFilter instance will modify any of the pixels
@@ -56,7 +56,7 @@ namespace PixelariaLib.Filters
         public float Transparency;
 
         /// <summary>
-        /// Initializes a new instance of the TransparencyFilter class
+        /// Initializes a new instance of the <see cref="TransparencyFilter"/> class
         /// </summary>
         public TransparencyFilter()
         {
@@ -64,13 +64,13 @@ namespace PixelariaLib.Filters
         }
 
         /// <summary>
-        /// Applies this TransparencyFilter to a Bitmap
+        /// Applies this <see cref="TransparencyFilter"/> to a Bitmap
         /// </summary>
-        /// <param name="bitmap">The bitmap to apply this TransparencyFilter to</param>
+        /// <param name="bitmap">The bitmap to apply this <see cref="TransparencyFilter"/> to</param>
         public unsafe void ApplyToBitmap(Bitmap bitmap)
         {
             // 
-            // !!!   ATENTION: UNSAFE POINTER HANDLING    !!!
+            // !!!   ATTENTION: UNSAFE POINTER HANDLING   !!!
             // !!! WATCH IT WHEN MESSING WITH THIS METHOD !!!
             // 
 
@@ -139,9 +139,9 @@ namespace PixelariaLib.Filters
 
         public bool Equals(IFilter filter)
         {
-            var other = filter as TransparencyFilter;
-
-            return other != null && Math.Abs(Transparency - other.Transparency) < float.Epsilon && Version == other.Version;
+            return filter is TransparencyFilter other 
+                   && Math.Abs(Transparency - other.Transparency) < float.Epsilon 
+                   && Version == other.Version;
         }
     }
 }

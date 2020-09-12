@@ -87,8 +87,8 @@ namespace Pixelaria.Views.Controls
         private void timer_Tick(object sender, EventArgs e)
         {
             // get node at mouse position
-            Point pt = PointToClient(MousePosition);
-            TreeNode node = GetNodeAt(pt);
+            var pt = PointToClient(MousePosition);
+            var node = GetNodeAt(pt);
 
             if (node == null) return;
 
@@ -133,7 +133,7 @@ namespace Pixelaria.Views.Controls
 
             SelectedNode = (TreeNode)e.Item;
 
-            TreeViewNodeDragEventArgs evArgs = new TreeViewNodeDragEventArgs(TreeViewNodeDragEventType.DragStart, TreeViewNodeDragEventBehavior.PlaceInside, (TreeNode)e.Item, null);
+            var evArgs = new TreeViewNodeDragEventArgs(TreeViewNodeDragEventType.DragStart, TreeViewNodeDragEventBehavior.PlaceInside, (TreeNode)e.Item, null);
 
             if(DragOperation != null)
             {
@@ -157,12 +157,12 @@ namespace Pixelaria.Views.Controls
             //// Create new bitmap
 
             // This bitmap will contain the tree node image to be dragged
-            Bitmap bmp = new Bitmap(_draggedNode.Bounds.Width + Indent, _draggedNode.Bounds.Height);
+            var bmp = new Bitmap(_draggedNode.Bounds.Width + Indent, _draggedNode.Bounds.Height);
 
-            SolidBrush brush = new SolidBrush(ForeColor);
+            var brush = new SolidBrush(ForeColor);
 
             // Get graphics from bitmap
-            Graphics gfx = Graphics.FromImage(bmp);
+            var gfx = Graphics.FromImage(bmp);
             gfx.SmoothingMode = SmoothingMode.HighQuality;
             gfx.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
@@ -189,7 +189,7 @@ namespace Pixelaria.Views.Controls
             _imageListDrag.Images.Add(bmp);
 
             // Get mouse position in client coordinates
-            Point p = PointToClient(MousePosition);
+            var p = PointToClient(MousePosition);
 
             // Compute delta between mouse position and node bounds
             int dx = p.X + Indent - _draggedNode.Bounds.Left;
@@ -234,9 +234,9 @@ namespace Pixelaria.Views.Controls
         // 
         // OnDragOver event handler. Updates the dragged node's ghost image's position
         // 
-        protected override void OnDragOver(DragEventArgs drgevent)
+        protected override void OnDragOver(DragEventArgs e)
         {
-            base.OnDragOver(drgevent);
+            base.OnDragOver(e);
 
             // Cancel if no node is being dragged
             if (_draggedNode == null)
@@ -246,19 +246,19 @@ namespace Pixelaria.Views.Controls
             var findForm = FindForm();
             if (findForm != null)
             {
-                Point formP = findForm.PointToClient(new Point(drgevent.X, drgevent.Y));
+                var formP = findForm.PointToClient(new Point(e.X, e.Y));
                 UnsafeNativeMethods.ImageList_DragMove(formP.X - Left, formP.Y - Top);
             }
 
             // Get actual drop node
-            TreeNode dropNode = GetNodeAt(PointToClient(new Point(drgevent.X, drgevent.Y)));
+            var dropNode = GetNodeAt(PointToClient(new Point(e.X, e.Y)));
             if (dropNode == null)
             {
-                drgevent.Effect = DragDropEffects.None;
+                e.Effect = DragDropEffects.None;
                 return;
             }
 
-            TreeViewNodeDragEventArgs evArgs = new TreeViewNodeDragEventArgs(TreeViewNodeDragEventType.DragOver, TreeViewNodeDragEventBehavior.PlaceInside, _draggedNode, dropNode);
+            var evArgs = new TreeViewNodeDragEventArgs(TreeViewNodeDragEventType.DragOver, TreeViewNodeDragEventBehavior.PlaceInside, _draggedNode, dropNode);
 
             if (DragOperation != null)
             {
@@ -267,8 +267,8 @@ namespace Pixelaria.Views.Controls
                 // Cancel the operation if the user specified so
                 if (evArgs.Cancel)
                 {
-                    drgevent.Effect = DragDropEffects.None;
-                    OnDragDrop(drgevent);
+                    e.Effect = DragDropEffects.None;
+                    OnDragDrop(e);
                     return;
                 }
                 if (!evArgs.Allow)
@@ -277,12 +277,12 @@ namespace Pixelaria.Views.Controls
                 }
             }
 
-            drgevent.Effect = DragDropEffects.Move;
+            e.Effect = DragDropEffects.Move;
 
-            // Dissalow the drag here
+            // Disallow the drag here
             if (!evArgs.Allow)
             {
-                drgevent.Effect = DragDropEffects.None;
+                e.Effect = DragDropEffects.None;
             }
 
             // if mouse is on a new node select it
@@ -295,10 +295,10 @@ namespace Pixelaria.Views.Controls
             }
 
             // Avoid that drop node is child of drag node 
-            TreeNode tmpNode = dropNode;
+            var tmpNode = dropNode;
             while (tmpNode.Parent != null)
             {
-                if (tmpNode.Parent == _draggedNode) drgevent.Effect = DragDropEffects.None;
+                if (tmpNode.Parent == _draggedNode) e.Effect = DragDropEffects.None;
                 tmpNode = tmpNode.Parent;
             }
         }
@@ -306,28 +306,28 @@ namespace Pixelaria.Views.Controls
         // 
         // OnGiveFeedback event handler. Occurs during a drag operation and updates the mouse cursor
         // 
-        protected override void OnGiveFeedback(GiveFeedbackEventArgs gfbevent)
+        protected override void OnGiveFeedback(GiveFeedbackEventArgs e)
         {
-            base.OnGiveFeedback(gfbevent);
+            base.OnGiveFeedback(e);
 
-            if (gfbevent.Effect == DragDropEffects.Move)
+            if (e.Effect == DragDropEffects.Move)
             {
                 // Show pointer cursor while dragging
-                gfbevent.UseDefaultCursors = false;
+                e.UseDefaultCursors = false;
                 Cursor = Cursors.Default;
             }
             else
             {
-                gfbevent.UseDefaultCursors = true;
+                e.UseDefaultCursors = true;
             }
         }
 
         // 
         // OnDragDrop event handler. Ends a node dragging
         // 
-        protected override void OnDragDrop(DragEventArgs drgevent)
+        protected override void OnDragDrop(DragEventArgs e)
         {
-            base.OnDragDrop(drgevent);
+            base.OnDragDrop(e);
 
             // Cancel if no node is being dragged
             if (_draggedNode == null)
@@ -336,7 +336,7 @@ namespace Pixelaria.Views.Controls
             // Unlock updates
             UnsafeNativeMethods.ImageList_DragLeave(Handle);
 
-            if (drgevent.Effect == DragDropEffects.None)
+            if (e.Effect == DragDropEffects.None)
             {
                 // Set drag node and temp drop node to null
                 _draggedNode = null;
@@ -348,10 +348,10 @@ namespace Pixelaria.Views.Controls
             }
 
             // Get drop node
-            TreeNode dropNode = GetNodeAt(PointToClient(new Point(drgevent.X, drgevent.Y)));
+            var dropNode = GetNodeAt(PointToClient(new Point(e.X, e.Y)));
 
             // Launch the feedback for the drag operation
-            TreeViewNodeDragEventArgs evArgs = new TreeViewNodeDragEventArgs(TreeViewNodeDragEventType.DragEnd, TreeViewNodeDragEventBehavior.PlaceInside, _draggedNode, dropNode);
+            var evArgs = new TreeViewNodeDragEventArgs(TreeViewNodeDragEventType.DragEnd, TreeViewNodeDragEventBehavior.PlaceInside, _draggedNode, dropNode);
 
             if (DragOperation != null)
             {
@@ -379,7 +379,7 @@ namespace Pixelaria.Views.Controls
                 if (evArgs.EventBehavior == TreeViewNodeDragEventBehavior.PlaceBeforeOrAfterAuto)
                 {
                     // Get drop node
-                    Point mouseP = PointToClient(MousePosition);
+                    var mouseP = PointToClient(MousePosition);
 
                     // Figure out whether the node should be added uder or over the pointed item by checking if the mouse is under or over the middle of the item
                     evArgs.EventBehavior = mouseP.Y > dropNode.Bounds.Y + dropNode.Bounds.Height / 2
@@ -457,12 +457,12 @@ namespace Pixelaria.Views.Controls
     public class TreeViewNodeDragEventArgs : EventArgs
     {
         /// <summary>
-        /// Creates a new instance of the TreeViewNodeDragEventArgs class
+        /// Creates a new instance of the <see cref="TreeViewNodeDragEventArgs"/> class
         /// </summary>
         /// <param name="eventType">The type for this event</param>
         /// <param name="eventBehavior">The behavior of this event</param>
         /// <param name="draggedNode">The node being dragged</param>
-        /// <param name="targetNode">The node that the dragged node was dropped at. If the value for the eventType is set to TreeViewNodeDragEventType.DragEnd, this field is automatically set to null.</param>
+        /// <param name="targetNode">The node that the dragged node was dropped at. If the value for the eventType is set to <see cref="TreeViewNodeDragEventType.DragEnd"/>, this field is automatically set to null.</param>
         public TreeViewNodeDragEventArgs(TreeViewNodeDragEventType eventType, TreeViewNodeDragEventBehavior eventBehavior, TreeNode draggedNode, TreeNode targetNode)
         {
             // The Cancel and Allow flags are set by the user and start with their default values
@@ -472,7 +472,7 @@ namespace Pixelaria.Views.Controls
             EventType = eventType;
             EventBehavior = eventBehavior;
             DraggedNode = draggedNode;
-            TargetNode = (eventType == TreeViewNodeDragEventType.DragStart ? null : targetNode);
+            TargetNode = eventType == TreeViewNodeDragEventType.DragStart ? null : targetNode;
         }
 
         /// <summary>
@@ -482,7 +482,7 @@ namespace Pixelaria.Views.Controls
 
         /// <summary>
         /// Gets or sets the behavior of this event.
-        /// This value will only be used when the EventType is TreeViewNodeDragEventType.DragEnd
+        /// This value will only be used when the EventType is <see cref="TreeViewNodeDragEventType.DragEnd"/>
         /// </summary>
         public TreeViewNodeDragEventBehavior EventBehavior { get; set; }
 
@@ -493,7 +493,7 @@ namespace Pixelaria.Views.Controls
 
         /// <summary>
         /// Gets the node that the dragged node was dropped at.
-        /// If the EventType is set to TreeViewNodeDragEventType.DragEnd, this
+        /// If the EventType is set to <see cref="TreeViewNodeDragEventType.DragEnd"/>, this
         /// value is null
         /// </summary>
         public TreeNode TargetNode { get; }
@@ -510,7 +510,7 @@ namespace Pixelaria.Views.Controls
     }
 
     /// <summary>
-    /// Specifies the type of a TreeViewNodeDragEventArgs event
+    /// Specifies the type of a <see cref="TreeViewNodeDragEventArgs"/> event
     /// </summary>
     public enum TreeViewNodeDragEventType
     {
@@ -527,7 +527,7 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         DragEnd,
         /// <summary>
-        /// Firead after a drag event has been successful
+        /// Fired after a drag event has been successful
         /// </summary>
         AfterDragEnd
     }

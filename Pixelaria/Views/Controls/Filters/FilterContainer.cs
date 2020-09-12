@@ -286,14 +286,14 @@ namespace Pixelaria.Views.Controls.Filters
             base.OnPaint(e);
 
             // Draw the dragging region
-            AhslColor lightColor = BackColor.ToAhsl();
-            AhslColor darkColor = BackColor.ToAhsl();
+            var lightColor = BackColor.ToAhsl();
+            var darkColor = BackColor.ToAhsl();
 
             lightColor = new AhslColor(lightColor.Alpha, lightColor.Hue, lightColor.Saturation, lightColor.Lightness + 6);
             darkColor = new AhslColor(darkColor.Alpha, darkColor.Hue, darkColor.Saturation, darkColor.Lightness - 19);
 
-            Pen lightPen = new Pen(lightColor.ToColor());
-            Pen darkPen = new Pen(darkColor.ToColor());
+            var lightPen = new Pen(lightColor.ToColor());
+            var darkPen = new Pen(darkColor.ToColor());
 
             // Draw the light stripes
             for (int x = 3; x <= 15; x += 3)

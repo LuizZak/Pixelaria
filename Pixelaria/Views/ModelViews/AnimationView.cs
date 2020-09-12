@@ -42,6 +42,7 @@ using Pixelaria.Views.Controls;
 using Pixelaria.Views.MiscViews;
 using PixelariaLib.Controllers.DataControllers;
 using PixelariaLib.Data;
+using PixelariaLib.Filters;
 using PixelariaLib.Utils;
 
 namespace Pixelaria.Views.ModelViews
@@ -187,7 +188,7 @@ namespace Pixelaria.Views.ModelViews
         }
 
         /// <summary>
-        /// Refreshs the title of this view
+        /// Refreshes the title of this view
         /// </summary>
         private void RefreshTitle()
         {
@@ -407,7 +408,7 @@ namespace Pixelaria.Views.ModelViews
         private bool ValidateFields()
         {
             // Animation name
-            var validation = _controller.AnimationValidator.ValidateAnimationName(txt_animName.Text, CurrentAnimation);
+            string validation = _controller.AnimationValidator.ValidateAnimationName(txt_animName.Text, CurrentAnimation);
             if (validation != "")
             {
                 txt_animName.BackColor = Color.LightPink;
@@ -420,7 +421,7 @@ namespace Pixelaria.Views.ModelViews
                 _nameValid = true;
             }
 
-            var valid = _nameValid;
+            bool valid = _nameValid;
 
             tsl_error.Visible = !valid;
             tsb_applyChangesAndClose.Enabled = valid;
@@ -494,8 +495,8 @@ namespace Pixelaria.Views.ModelViews
             }
 
             // Fetch the list of filters
-            string[] filterNames = FilterStore.Instance.FiltersList;
-            Image[] iconList = FilterStore.Instance.FilterIconList;
+            var filterNames = FilterStore.Instance.FiltersList;
+            var iconList = FilterStore.Instance.FilterIconList;
 
             // Create and add all the new filter items
             for (int i = 0; i < iconList.Length; i++)
@@ -742,7 +743,7 @@ namespace Pixelaria.Views.ModelViews
             // Create an undo task
             var amu = new AnimationModifyUndoTask(ViewAnimation);
 
-            foreach (var index in affectedFrameIndices)
+            foreach (int index in affectedFrameIndices)
             {
                 var controller = ViewAnimation.GetFrameController(ViewAnimation.GetFrameAtIndex(index));
 
@@ -1094,7 +1095,7 @@ namespace Pixelaria.Views.ModelViews
 
             var undoTask = new AnimationModifyUndoTask(ViewAnimation);
 
-            // Temporarely disable the panel while showing the form so we don't waste CPU
+            // Temporarily disable the panel while showing the form so we don't waste CPU
             animationPreviewPanel.Disable();
 
             // Get the currently selected frame
@@ -1218,13 +1219,13 @@ namespace Pixelaria.Views.ModelViews
 
             // Save the files
             var selectedFrames = GetSelectedFrames();
-            var padCount = ViewAnimation.FrameCount.ToString().Length;
+            int padCount = ViewAnimation.FrameCount.ToString().Length;
             foreach (var frame in selectedFrames)
             {
                 string fileName = Path.GetDirectoryName(path) + Path.DirectorySeparatorChar + Path.GetFileNameWithoutExtension(path);
 
                 var frameController = ViewAnimation.GetFrameController(frame);
-                var index = ViewAnimation.GetFrameIndex(frame);
+                int index = ViewAnimation.GetFrameIndex(frame);
 
                 if (selectedFrames.Count > 1)
                 {
@@ -1314,7 +1315,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         private void tsm_presetItem_Click(object sender, EventArgs e)
         {
-            var presetName = (string)((ToolStripMenuItem) sender).Tag;
+            string presetName = (string)((ToolStripMenuItem) sender).Tag;
 
             var preset = FilterStore.Instance.GetFilterPresetByName(presetName);
 
@@ -1903,7 +1904,7 @@ namespace Pixelaria.Views.ModelViews
             private readonly AnimationController _oldAnimation;
 
             /// <summary>
-            /// The derivated compound task
+            /// The derived compound task
             /// </summary>
             private IUndoTask _compoundTask;
 
@@ -2248,9 +2249,9 @@ namespace Pixelaria.Views.ModelViews
             }
 
             /// <summary>
-            /// Implements an aniation undo task that undoes/redoes the modification on the order of frames
+            /// Implements an animation undo task that undoes/redoes the modification on the order of frames
             /// </summary>
-            public class FrameReoderUndoTask : IUndoTask
+            public class FrameReorderUndoTask : IUndoTask
             {
                 /// <summary>
                 /// The animation to affect
@@ -2273,7 +2274,7 @@ namespace Pixelaria.Views.ModelViews
                 /// <param name="anim">The animation to affect</param>
                 /// <param name="oldIndex">The old (undo) index</param>
                 /// <param name="newIndex">The new (redo) index</param>
-                public FrameReoderUndoTask([NotNull] AnimationController anim, int oldIndex, int newIndex)
+                public FrameReorderUndoTask([NotNull] AnimationController anim, int oldIndex, int newIndex)
                 {
                     _animation = anim;
                     _oldIndex = oldIndex;
@@ -2310,7 +2311,7 @@ namespace Pixelaria.Views.ModelViews
                 /// <returns>A short string description of this UndoTask</returns>
                 public string GetDescription()
                 {
-                    return "Frame Reoder";
+                    return "Frame Reorder";
                 }
             }
 
@@ -2399,7 +2400,7 @@ namespace Pixelaria.Views.ModelViews
             /// </summary>
             Delete,
             /// <summary>
-            /// Specifies an Add Frames operaiton
+            /// Specifies an Add Frames operation
             /// </summary>
             Add
         }

@@ -128,7 +128,7 @@ namespace PixelariaLibTests.Utils
             try
             {
                 AssertBundlesEqual(lhs, rhs);
-                throw new AssertFailedException("Bundles are equal.");
+                throw new AssertFailedException(message ?? "Bundles are equal.");
             }
             catch (Exception e)
             {

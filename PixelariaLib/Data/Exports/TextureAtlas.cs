@@ -238,7 +238,7 @@ namespace PixelariaLib.Data.Exports
         /// </summary>
         public int ReuseCountForFrame([NotNull] IFrame frame)
         {
-            var index = _boundsMap.SheetIndexForFrame(frame);
+            int index = _boundsMap.SheetIndexForFrame(frame);
             return _boundsMap.CountOfFramesAtSheetBoundsIndex(index);
         }
 
@@ -271,7 +271,7 @@ namespace PixelariaLib.Data.Exports
         public int FrameCount => FrameList.Count;
 
         /// <summary>
-        /// The current frame bounds map for this texture altas, mapping frames to sheet rectangles that may be shared amongst frames
+        /// The current frame bounds map for this texture atlas, mapping frames to sheet rectangles that may be shared amongst frames
         /// </summary>
         private FrameBoundsMap _boundsMap;
 
@@ -281,7 +281,7 @@ namespace PixelariaLib.Data.Exports
         public List<IFrame> FrameList { get; }
         
         /// <summary>
-        /// Gets an array of unique rectangle bounds containeg within this texture atlas, ignoring duplicated frame bounds that where resued for similar frames.
+        /// Gets an array of unique rectangle bounds contained within this texture atlas, ignoring duplicated frame bounds that where reused for similar frames.
         /// The array is not ordered in any particular way.
         /// </summary>
         public Rectangle[] UniqueBounds => _boundsMap.SheetBounds;

@@ -204,7 +204,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         public LayerStatus LayerStatus => new LayerStatus(_layerVisible, _layerLocked, _transparency);
 
         /// <summary>
-        /// Gets the layer this layer control is binded to
+        /// Gets the layer this layer control is bound to
         /// </summary>
         public IFrameLayer Layer { get; }
 
@@ -290,7 +290,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// <summary>
         /// Occurs whenever the user collapses/expands the layer through the button on the layer's interface
         /// </summary>
-        public event EventHandler LayerCollapeChanged;
+        public event EventHandler LayerCollapseChanged;
 
         /// <summary>
         /// Initializes a new instance of the LayerControl class
@@ -426,7 +426,7 @@ namespace Pixelaria.Views.Controls.LayerControls
             // During a drag operation, draw a marquee around the control
             if(_draggingLayer || Selected)
             {
-                Pen p = new Pen(Color.Black)
+                var p = new Pen(Color.Black)
                 {
                     DashStyle = DashStyle.Dash,
                     DashPattern = new[] { 2f, 2f },
@@ -434,7 +434,7 @@ namespace Pixelaria.Views.Controls.LayerControls
                     Width = 1
                 };
 
-                Rectangle rec = new Rectangle(Point.Empty, new Size(Width - 1, Height - 1));
+                var rec = new Rectangle(Point.Empty, new Size(Width - 1, Height - 1));
                 e.Graphics.DrawRectangle(p, rec);
             }
         }
@@ -448,7 +448,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         {
             Collapsed = !Collapsed;
 
-            LayerCollapeChanged?.Invoke(this, EventArgs.Empty);
+            LayerCollapseChanged?.Invoke(this, EventArgs.Empty);
         }
 
         // 
@@ -704,7 +704,7 @@ namespace Pixelaria.Views.Controls.LayerControls
     /// <summary>
     /// Represents the display status of a layer on a layer control
     /// </summary>
-    public struct LayerStatus
+    public readonly struct LayerStatus
     {
         /// <summary>
         /// Whether the layer is visible

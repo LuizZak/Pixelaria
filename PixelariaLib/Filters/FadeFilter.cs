@@ -32,7 +32,7 @@ namespace PixelariaLib.Filters
     /// <summary>
     /// Implements a Fade filter
     /// </summary>
-    internal class FadeFilter : IFilter
+    public class FadeFilter : IFilter
     {
         /// <summary>
         /// Gets a value indicating whether this IFilter instance will modify any of the pixels
@@ -66,7 +66,7 @@ namespace PixelariaLib.Filters
         public bool FadeAlpha;
 
         /// <summary>
-        /// Initializes a new instance of the FadeFilter class
+        /// Initializes a new instance of the <see cref="FadeFilter"/> class
         /// </summary>
         public FadeFilter()
         {
@@ -76,13 +76,13 @@ namespace PixelariaLib.Filters
         }
 
         /// <summary>
-        /// Applies this FadeFilter to a Bitmap
+        /// Applies this <see cref="FadeFilter"/> to a Bitmap
         /// </summary>
-        /// <param name="bitmap">The bitmap to apply this FadeFilter to</param>
+        /// <param name="bitmap">The bitmap to apply this <see cref="FadeFilter"/> to</param>
         public unsafe void ApplyToBitmap(Bitmap bitmap)
         {
             // 
-            // !!!   ATENTION: UNSAFE POINTER HANDLING    !!!
+            // !!!   ATTENTION: UNSAFE POINTER HANDLING   !!!
             // !!! WATCH IT WHEN MESSING WITH THIS METHOD !!!
             // 
 
@@ -172,10 +172,11 @@ namespace PixelariaLib.Filters
 
         public bool Equals(IFilter filter)
         {
-            var other = filter as FadeFilter;
-
-            return other != null && Math.Abs(FadeFactor - other.FadeFactor) < float.Epsilon &&
-                   FadeColor == other.FadeColor && FadeAlpha == other.FadeAlpha && Version == other.Version;
+            return filter is FadeFilter other 
+                   && Math.Abs(FadeFactor - other.FadeFactor) < float.Epsilon 
+                   && FadeColor == other.FadeColor 
+                   && FadeAlpha == other.FadeAlpha 
+                   && Version == other.Version;
         }
     }
 }

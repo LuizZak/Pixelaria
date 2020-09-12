@@ -50,7 +50,7 @@ using PixelariaLib.Data;
 using PixelariaLib.Data.Exports;
 using PixelariaLib.Data.Factories;
 using PixelariaLib.Data.Persistence;
-using Settings = Pixelaria.Utils.Settings;
+using Settings = PixelariaLib.Utils.Settings;
 
 namespace Pixelaria.Controllers
 {
@@ -341,16 +341,16 @@ namespace Pixelaria.Controllers
         /// <param name="width">The width of the animation</param>
         /// <param name="height">The height of the animation</param>
         /// <param name="fps">The FPS for the animation</param>
-        /// <param name="frameskip">Whether the animation should frameskip</param>
+        /// <param name="frameSkip">Whether the animation should frame skip</param>
         /// <param name="openOnForm">Whether to open the newly added animation on the main form</param>
         /// <param name="parentSheet">Optional AnimationSheet that will own the newly created animation</param>
         /// <returns>The newly created animation</returns>
-        public Animation CreateAnimation(string name, int width, int height, int fps, bool frameskip, bool openOnForm,
+        public Animation CreateAnimation(string name, int width, int height, int fps, bool frameSkip, bool openOnForm,
             [CanBeNull] AnimationSheet parentSheet = null)
         {
             var anim = new Animation(name, width, height)
             {
-                PlaybackSettings = new AnimationPlaybackSettings { FPS = fps, FrameSkip = frameskip }
+                PlaybackSettings = new AnimationPlaybackSettings { FPS = fps, FrameSkip = frameSkip }
             };
 
             // Create a dummy frame
@@ -496,7 +496,7 @@ namespace Pixelaria.Controllers
         }
 
         /// <summary>
-        /// Removes the given AnimationSeet from the current bundle
+        /// Removes the given AnimationSheet from the current bundle
         /// </summary>
         /// <param name="sheet">The sheet to remove from the bundle</param>
         /// <param name="deleteAnimations">Whether to delete the nested animations as well. If set to false, the animations will be moved to the bundle's root</param>
@@ -546,7 +546,7 @@ namespace Pixelaria.Controllers
         }
 
         /// <summary>
-        /// Rearranges the index of an AnimationSheets in the sheets's current storing container
+        /// Rearranges the index of an AnimationSheets in the sheet's current storing container
         /// </summary>
         /// <param name="sheet">The sheet to rearrange</param>
         /// <param name="newIndex">The new index to place the sheet at</param>
@@ -690,7 +690,7 @@ namespace Pixelaria.Controllers
             // The bundle path must be valid
             try
             {
-                var fullPath = Path.GetFullPath(CurrentBundle.ExportPath);
+                string fullPath = Path.GetFullPath(CurrentBundle.ExportPath);
 
                 if (!Directory.Exists(fullPath))
                 {
@@ -711,10 +711,8 @@ namespace Pixelaria.Controllers
                     _mainForm.OpenBundleSettings(CurrentBundle);
                     return;
                 }
-                else
-                {
-                    return;
-                }
+
+                return;
             }
 
             var progressForm = new BundleExportProgressView(CurrentBundle, GetBundleExporter());
@@ -941,7 +939,7 @@ namespace Pixelaria.Controllers
         /// <summary>
         /// Returns the ImageFormat associated with a given file extension
         /// </summary>
-        /// <param name="extension">The extension of the file format, with or without the precending '.'</param>
+        /// <param name="extension">The extension of the file format, with or without the preceding '.'</param>
         /// <param name="defaultFormat">The default format, if the extension is not valid</param>
         /// <returns>The ImageFormat associated with a given file extension</returns>
         public ImageFormat ImageFormatForExtension(string extension, ImageFormat defaultFormat)
@@ -1181,7 +1179,7 @@ namespace Pixelaria.Controllers
         /// will then return always the most up-to-date data from the views.
         /// </summary>
         /// <param name="sheet">The animation sheet to wrap on the dynamic provider</param>
-        /// <param name="settings">An overrided set of export settings to use</param>
+        /// <param name="settings">An overriden set of export settings to use</param>
         /// <returns>An <see cref="IAnimationProvider"/> instance that provides still unsaved changes from animation views when the property <see cref="IAnimationProvider.GetAnimations"/> is called.</returns>
         public IAnimationProvider GetDynamicProviderForSheet(AnimationSheet sheet, AnimationExportSettings settings)
         {
@@ -1360,7 +1358,7 @@ namespace Pixelaria.Controllers
     public class AnimationEventArgs : EventArgs
     {
         /// <summary>
-        /// Gets the animation binded to this event
+        /// Gets the animation bound to this event
         /// </summary>
         public Animation Animation { get; }
 
@@ -1379,7 +1377,7 @@ namespace Pixelaria.Controllers
     public class AnimationSheetEventArgs : EventArgs
     {
         /// <summary>
-        /// Gets the animation sheet binded to this event
+        /// Gets the animation sheet bound to this event
         /// </summary>
         public AnimationSheet AnimationSheet { get; }
 

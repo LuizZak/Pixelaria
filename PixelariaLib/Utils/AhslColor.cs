@@ -240,12 +240,12 @@ namespace PixelariaLib.Utils
             return obj is AhslColor color && Equals(color);
         }
 
-        // Overrided GetHashCode
+        // Overriden GetHashCode
         public override int GetHashCode()
         {
             unchecked
             {
-                var hashCode = _floatAlpha.GetHashCode();
+                int hashCode = _floatAlpha.GetHashCode();
                 hashCode = (hashCode * 397) ^ _floatHue.GetHashCode();
                 hashCode = (hashCode * 397) ^ _floatSaturation.GetHashCode();
                 hashCode = (hashCode * 397) ^ _floatLightness.GetHashCode();
@@ -332,15 +332,15 @@ namespace PixelariaLib.Utils
             float h;
             float s;
             
-            if (Math.Abs(d) < Single.Epsilon)
+            if (Math.Abs(d) < float.Epsilon)
             {
                 h = 0;
             }
-            else if (Math.Abs(M - r) < Single.Epsilon)
+            else if (Math.Abs(M - r) < float.Epsilon)
             {
                 h = (((g - b) / d) % 6) * 60;
             }
-            else if (Math.Abs(M - g) < Single.Epsilon)
+            else if (Math.Abs(M - g) < float.Epsilon)
             {
                 h = ((b - r) / d + 2) * 60;
             }
@@ -356,7 +356,7 @@ namespace PixelariaLib.Utils
 
             var l = (M + m) / 2;
 
-            if (Math.Abs(d) < Single.Epsilon)
+            if (Math.Abs(d) < float.Epsilon)
             {
                 s = 0;
             }
@@ -392,11 +392,11 @@ namespace PixelariaLib.Utils
             {
                 return (1 - v) * min + v * max;
             }
-            
-            var a = Lerp(start.FloatAlpha, end.FloatAlpha, factor);
-            var r = Lerp(start.FloatRed, end.FloatRed, factor);
-            var g = Lerp(start.FloatGreen, end.FloatGreen, factor);
-            var b = Lerp(start.FloatBlue, end.FloatBlue, factor);
+
+            float a = Lerp(start.FloatAlpha, end.FloatAlpha, factor);
+            float r = Lerp(start.FloatRed, end.FloatRed, factor);
+            float g = Lerp(start.FloatGreen, end.FloatGreen, factor);
+            float b = Lerp(start.FloatBlue, end.FloatBlue, factor);
 
             return FromArgb(a, r, g, b);
         }
@@ -435,7 +435,7 @@ namespace PixelariaLib.Utils
         [Pure]
         public static int ArgbFromAhsl(float h, float s, float l, float alpha = 1, bool revertByteOrder = false)
         {
-            float[] components = FloatArgbFromAhsl(h, s, l, alpha, revertByteOrder);
+            var components = FloatArgbFromAhsl(h, s, l, alpha, revertByteOrder);
 
             return ((int)(components[0] * 255) << 24) | ((int)(components[1] * 255) << 16) | ((int)(components[2] * 255) << 8) | (int)(components[3] * 255);
         }
@@ -500,9 +500,9 @@ namespace PixelariaLib.Utils
 
             float m = l - C / 2;
 
-            r = r + m;
-            g = g + m;
-            b = b + m;
+            r += m;
+            g += m;
+            b += m;
 
             float[] colors = { 0, 0, 0, 0 };
 

@@ -106,7 +106,7 @@ namespace PixelariaLib.Utils
         /// <summary>
         /// Sets the given value on the values list
         /// </summary>
-        /// <param name="valueName">Thev value name to sabe</param>
+        /// <param name="valueName">The value name to save</param>
         /// <param name="value">The value to save</param>
         public void SetValue([NotNull] string valueName, string value)
         {
@@ -179,7 +179,7 @@ namespace PixelariaLib.Utils
                             currentPath = "";
                             string localPath = "";
                             // Use a parser to guarantee consistency
-                            MiniParser parser = new MiniParser(line);
+                            var parser = new MiniParser(line);
                             parser.Next(); // Skip the starting '['
                             parser.SkipWhiteSpace();
 
@@ -239,7 +239,7 @@ namespace PixelariaLib.Utils
                         else
                         {
                             // Parse the value
-                            MiniParser parser = new MiniParser(line);
+                            var parser = new MiniParser(line);
                             parser.SkipWhiteSpace();
 
                             try
@@ -295,7 +295,7 @@ namespace PixelariaLib.Utils
                 }
                 else
                 {
-                    string[] subPath = path.Split('\\');
+                    var subPath = path.Split('\\');
 
                     path = "";
 
@@ -345,7 +345,7 @@ namespace PixelariaLib.Utils
         /// <summary>
         /// Sets the given value on the values list
         /// </summary>
-        /// <param name="valueName">Thev value name to sabe</param>
+        /// <param name="valueName">The value name to save</param>
         /// <param name="value">The value to save</param>
         public void SetValue([NotNull] string valueName, string value)
         {
@@ -409,7 +409,7 @@ namespace PixelariaLib.Utils
                     return this;
 
                 SettingsNode returnNode = null;
-                string[] nodes = new string[1];
+                var nodes = new string[1];
 
                 if (path.IndexOf("\\", StringComparison.Ordinal) != -1)
                     nodes = path.Split('\\');
@@ -505,7 +505,7 @@ namespace PixelariaLib.Utils
             public void Clear()
             {
                 // Start by clearing all the children nodes
-                foreach (SettingsNode node in _subNodes)
+                foreach (var node in _subNodes)
                 {
                     node.Clear();
                 }
@@ -568,7 +568,7 @@ namespace PixelariaLib.Utils
 
                 var ident = new StringBuilder();
 
-                if (!((peek >= 65 && peek <= 90) || (peek >= 97 && peek <= 122)) && peek != '_')
+                if (!(peek >= 65 && peek <= 90 || peek >= 97 && peek <= 122) && peek != '_')
                 {
                     if (failSilently)
                         return null;
@@ -583,7 +583,7 @@ namespace PixelariaLib.Utils
                 {
                     peek = Peek();
 
-                    if (!((peek >= 65 && peek <= 90) || (peek >= 97 && peek <= 122) || (peek >= 48 && peek <= 57)) && peek != '_')
+                    if (!(peek >= 65 && peek <= 90 || peek >= 97 && peek <= 122 || peek >= 48 && peek <= 57) && peek != '_')
                     {
                         break;
                     }

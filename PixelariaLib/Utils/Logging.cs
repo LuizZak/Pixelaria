@@ -39,7 +39,7 @@ namespace PixelariaLib.Utils
         }
 
         /// <summary>
-        /// To allow indentation during logging, use a block that will ident and then auto-deident
+        /// To allow indentation during logging, use a block that will ident and then auto-deindent
         /// afterwards.
         /// </summary>
         public static void Indenting([NotNull] Action perform)
@@ -48,7 +48,7 @@ namespace PixelariaLib.Utils
         }
 
         /// <summary>
-        /// To allow indentation during logging, use a block that will ident and then auto-deident
+        /// To allow indentation during logging, use a block that will ident and then auto-deindent
         /// afterwards.
         /// </summary>
         public static void Indenting(string moduleName, [NotNull] Action perform)

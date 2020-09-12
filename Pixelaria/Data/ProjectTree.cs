@@ -57,23 +57,23 @@ namespace Pixelaria.Data
         /// <returns>A project tree that was created from the given bundle</returns>
         public static ProjectTree ProjectTreeFromBundle([NotNull] Bundle bundle)
         {
-            ProjectTree generatedTree = new ProjectTree();
+            var generatedTree = new ProjectTree();
 
             // Start with the Bundle tree node
-            BundleProjectTreeNode root = new BundleProjectTreeNode(bundle);
+            var root = new BundleProjectTreeNode(bundle);
 
             generatedTree._rootNode = root;
 
             // Fill in the animation sheets
             foreach (var sheet in bundle.AnimationSheets)
             {
-                AnimationSheetProjectTreeNode sheetNode = new AnimationSheetProjectTreeNode(sheet);
+                var sheetNode = new AnimationSheetProjectTreeNode(sheet);
                 root.AddChild(sheetNode);
 
                 // Now the animations contained within the sheet
                 foreach (var anim in sheet.Animations)
                 {
-                    AnimationProjectTreeNode animNode = new AnimationProjectTreeNode(anim);
+                    var animNode = new AnimationProjectTreeNode(anim);
                     sheetNode.AddChild(animNode);
                 }
             }
@@ -83,7 +83,7 @@ namespace Pixelaria.Data
             {
                 if (bundle.GetOwningAnimationSheet(anim) == null)
                 {
-                    AnimationProjectTreeNode animNode = new AnimationProjectTreeNode(anim);
+                    var animNode = new AnimationProjectTreeNode(anim);
                     root.AddChild(animNode);
                 }
             }

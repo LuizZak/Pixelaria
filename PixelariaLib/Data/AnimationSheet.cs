@@ -121,7 +121,7 @@ namespace PixelariaLib.Data
         /// Removes the given animation from this animation sheet
         /// </summary>
         /// <param name="animation">The animation to remove from this animation sheet</param>
-        /// <returns>Whether the animation was successfuly removed from this animation sheet</returns>
+        /// <returns>Whether the animation was successfully removed from this animation sheet</returns>
         public bool RemoveAnimation(Animation animation)
         {
             return _animations.RemoveReference(animation);
@@ -221,7 +221,7 @@ namespace PixelariaLib.Data
         /// Whether to favor image ratio over image area when composing the final exported atlas.
         /// Favoring ratio will output more square-ish images that may not be optimally spaced, while
         /// favoring area will result in the smallest possible images the algorithm can output, but
-        /// may result in alongated images along one of the axis.
+        /// may result in elongated images along one of the axis.
         /// </summary>
         public bool FavorRatioOverArea;
 
@@ -273,17 +273,17 @@ namespace PixelariaLib.Data
         public bool UsePaddingOnJson;
 
         /// <summary>
-        /// Whether to generate accompaning .json files for the animations on the sheet
+        /// Whether to generate accompanying .json files for the animations on the sheet
         /// </summary>
         public bool ExportJson;
 
         /// <summary>
-        /// Ammount of empty pixels to pad horizontally between frames
+        /// Amount of empty pixels to pad horizontally between frames
         /// </summary>
         public int XPadding;
 
         /// <summary>
-        /// Ammount of empty pixels to pad vertically between frames
+        /// Amount of empty pixels to pad vertically between frames
         /// </summary>
         public int YPadding;
 

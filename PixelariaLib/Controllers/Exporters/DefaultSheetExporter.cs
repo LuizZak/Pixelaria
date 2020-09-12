@@ -126,7 +126,7 @@ namespace PixelariaLib.Controllers.Exporters
         /// </summary>
         /// <param name="animation">The animation to generate the sprite strip image from</param>
         /// <returns>An image that represents the sequential sprite strip from the specified animation</returns>
-        public Image GenerateSpriteStrip([NotNull] AnimationController animation)
+        public Image GenerateSpriteStrip(AnimationController animation)
         {
             // If the frame count is 0, return an empty 1x1 image
             if (animation.FrameCount == 0)

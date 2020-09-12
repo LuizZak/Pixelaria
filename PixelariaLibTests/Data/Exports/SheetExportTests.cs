@@ -153,13 +153,13 @@ namespace PixelariaLibTests.Data.Exports
 
             var sheet = (JObject)JsonConvert.DeserializeObject(json);
             
-            var file = (string)sheet.SelectToken("sprite_image");
+            string file = (string)sheet.SelectToken("sprite_image");
             if (file == null)
                 return null;
 
             string path = Path.GetDirectoryName(sheetPath) + "\\" + Path.GetFileName(file);
 
-            byte[] bytes = File.ReadAllBytes(path);
+            var bytes = File.ReadAllBytes(path);
             Bitmap texture;
             using (var stream = new MemoryStream(bytes))
             {

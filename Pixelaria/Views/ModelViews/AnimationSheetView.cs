@@ -289,7 +289,7 @@ namespace Pixelaria.Views.ModelViews
             const bool alert = false;
 
             // Animation name
-            var validation = _controller.AnimationSheetValidator.ValidateAnimationSheetName(txt_sheetName.Text, CurrentSheet);
+            string validation = _controller.AnimationSheetValidator.ValidateAnimationSheetName(txt_sheetName.Text, CurrentSheet);
             if (validation != "")
             {
                 txt_sheetName.BackColor = Color.LightPink;
@@ -315,15 +315,16 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         public override void ApplyChanges()
         {
-            if(CurrentSheet == null || !ValidateFields())
+            var currentSheet = CurrentSheet;
+            if(currentSheet == null || !ValidateFields())
                 return;
 
-            CurrentSheet.Name = txt_sheetName.Text;
-            CurrentSheet.ExportSettings = RepopulateExportSettings();
+            currentSheet.Name = txt_sheetName.Text;
+            currentSheet.ExportSettings = RepopulateExportSettings();
 
-            _controller.UpdatedAnimationSheet(CurrentSheet);
+            _controller.UpdatedAnimationSheet(currentSheet);
 
-            Text = AnimationMessages.TextAnimationSheet + @" [" + CurrentSheet.Name + @"]";
+            Text = AnimationMessages.TextAnimationSheet + @" [" + currentSheet.Name + @"]";
             btn_apply.Enabled = false;
 
             base.ApplyChanges();
@@ -422,7 +423,8 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         public void GeneratePreview()
         {
-            if (CurrentSheet == null)
+            var currentSheet = CurrentSheet;
+            if (currentSheet == null)
                 return;
 
             _generatedWhileUnsaved = HasUnsavedAnimations();
@@ -430,7 +432,7 @@ namespace Pixelaria.Views.ModelViews
             RepopulateExportSettings();
             UpdateCountLabels();
 
-            if (CurrentSheet.Animations.Length <= 0)
+            if (currentSheet.Animations.Length <= 0)
             {
                 lbl_alertLabel.Text = AnimationMessages.TextNoAnimationInSheetToGeneratePreview;
                 pnl_alertPanel.Visible = true;
@@ -465,7 +467,7 @@ namespace Pixelaria.Views.ModelViews
             var sw = Stopwatch.StartNew();
 
             // Get a dynamic provider for better accuracy of animations to export
-            var provider = _controller.GetDynamicProviderForSheet(CurrentSheet, _exportSettings);
+            var provider = _controller.GetDynamicProviderForSheet(currentSheet, _exportSettings);
 
             // Export the bundle
             var t = _controller.GenerateBundleSheet(provider, cancellation.Token, Handler);
@@ -610,7 +612,7 @@ namespace Pixelaria.Views.ModelViews
                 ).ToList();
 
             // TODO: This is a work-around for removing frames from an animation without updating the preview, leading to a
-            // dangling frame that is still 'clickeable' on the sheet preview.
+            // dangling frame that is still 'clickable' on the sheet preview.
             if (framesPerAnimation.Count == 0)
                 return;
 

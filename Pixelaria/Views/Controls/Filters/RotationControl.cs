@@ -23,17 +23,17 @@
 using System;
 using System.Drawing;
 
-using Pixelaria.Filters;
+using PixelariaLib.Filters;
 
 namespace Pixelaria.Views.Controls.Filters
 {
     /// <summary>
-    /// Represents a FilterControl that handles a RotationFilter
+    /// Represents a FilterControl that handles a <see cref="RotationFilter"/>
     /// </summary>
     internal partial class RotationControl : FilterControl
     {
         /// <summary>
-        /// Initializes a new class of the RotationControl class
+        /// Initializes a new class of the <see cref="RotationControl"/> class
         /// </summary>
         public RotationControl()
         {
@@ -41,7 +41,7 @@ namespace Pixelaria.Views.Controls.Filters
         }
 
         /// <summary>
-        /// Initializes this RotationControl
+        /// Initializes this <see cref="RotationControl"/>
         /// </summary>
         /// <param name="bitmap">The Bitmap to generate the visualization for</param>
         public override void Initialize(Bitmap bitmap)

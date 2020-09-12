@@ -23,17 +23,17 @@
 using System;
 using System.Drawing;
 
-using Pixelaria.Filters;
+using PixelariaLib.Filters;
 
 namespace Pixelaria.Views.Controls.Filters
 {
     /// <summary>
-    /// Represents a FilterControl that handles a LightnessFilter
+    /// Represents a FilterControl that handles a <see cref="LightnessFilter"/>
     /// </summary>
     internal partial class LightnessControl : FilterControl
     {
         /// <summary>
-        /// Initializes a new instance of the LightnessControl class
+        /// Initializes a new instance of the <see cref="LightnessControl"/> class
         /// </summary>
         public LightnessControl()
         {
@@ -41,7 +41,7 @@ namespace Pixelaria.Views.Controls.Filters
         }
 
         /// <summary>
-        /// Initializes this TransparencyControl
+        /// Initializes this <see cref="LightnessControl"/>
         /// </summary>
         /// <param name="bitmap">The Bitmap to generate the visualization for</param>
         public override void Initialize(Bitmap bitmap)

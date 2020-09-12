@@ -23,11 +23,10 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using FastBitmapLib;
-using Pixelaria.Filters;
 using Pixelaria.Views.Controls;
 using Pixelaria.Views.Controls.LayerControls;
 using PixelariaLib.Controllers.LayerControlling;
-using PixelariaLib.Data;
+using PixelariaLib.Filters;
 using PixelariaLib.Utils;
 
 namespace Pixelaria.Views.ModelViews.Decorators
@@ -98,7 +97,7 @@ namespace Pixelaria.Views.ModelViews.Decorators
             // Transparent layer
             else if (_layerStatuses[_layerController.ActiveLayerIndex].Transparency < 1)
             {
-                TransparencyFilter filter = new TransparencyFilter
+                var filter = new TransparencyFilter
                 {
                     Transparency = _layerStatuses[_layerController.ActiveLayerIndex].Transparency
                 };
@@ -125,7 +124,7 @@ namespace Pixelaria.Views.ModelViews.Decorators
         private void ApplyOnBitmap(Bitmap bitmap, LayerSide side)
         {
             // Iterate through and render each layer up to the current layer
-            IFrameLayer[] layers = _layerController.FrameLayers;
+            var layers = _layerController.FrameLayers;
 
             int min = (side == LayerSide.BottomLayers ? 0 : _layerController.ActiveLayerIndex + 1);
             int max = (side == LayerSide.BottomLayers ? _layerController.ActiveLayerIndex : layers.Length);
@@ -142,14 +141,14 @@ namespace Pixelaria.Views.ModelViews.Decorators
                     }
                     else
                     {
-                        using(Graphics g = Graphics.FromImage(bitmap))
+                        using(var g = Graphics.FromImage(bitmap))
                         {
                             var cm = new ColorMatrix
                             {
                                 Matrix33 = _layerStatuses[i].Transparency
                             };
 
-                            ImageAttributes attributes = new ImageAttributes();
+                            var attributes = new ImageAttributes();
                             attributes.SetColorMatrix(cm, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
 
                             g.DrawImage(layerBitmap, new Rectangle(Point.Empty, layerBitmap.Size), 0, 0, layerBitmap.Width, layerBitmap.Height, GraphicsUnit.Pixel, attributes);

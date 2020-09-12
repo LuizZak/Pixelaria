@@ -48,7 +48,7 @@ namespace Pixelaria.Views.MiscViews
 
             if (message == "")
             {
-                lbl_message.Text = @"Some of the frames being pasted don't have a resolution that matchis this animation's. Please select the scaling options for these frames:";
+                lbl_message.Text = @"Some of the frames being pasted don't have a resolution that matches this animation's. Please select the scaling options for these frames:";
             }
 
             gb_animationSize.Visible = false;
@@ -74,7 +74,7 @@ namespace Pixelaria.Views.MiscViews
         // 
         private void btn_ok_Click(object sender, EventArgs e)
         {
-            // Animaiton resize method
+            // Animation resize method
             if (rb_animSize_keepOriginal.Checked)
             {
                 GeneratedSettings.AnimationDimensionMatchMethod = AnimationDimensionMatchMethod.KeepOriginal;
@@ -123,7 +123,7 @@ namespace Pixelaria.Views.MiscViews
     }
 
     /// <summary>
-    /// Enumerates which properties should be visible for selection on a FramesRescaleSettingsView
+    /// Enumerates which properties should be visible for selection on a <see cref="FramesRescaleSettingsView"/>
     /// </summary>
     [Flags]
     public enum FramesRescalingOptions

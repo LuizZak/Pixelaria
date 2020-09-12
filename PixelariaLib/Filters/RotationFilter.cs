@@ -31,7 +31,7 @@ namespace PixelariaLib.Filters
     /// <summary>
     /// Implements a Rotation filter
     /// </summary>
-    internal class RotationFilter : IFilter
+    public class RotationFilter : IFilter
     {
         /// <summary>
         /// Gets a value indicating whether this IFilter instance will modify any of the pixels
@@ -65,9 +65,9 @@ namespace PixelariaLib.Filters
         public bool PixelQuality { get; set; }
 
         /// <summary>
-        /// Applies this RotationFilter to a Bitmap
+        /// Applies this <see cref="RotationFilter"/> to a Bitmap
         /// </summary>
-        /// <param name="bitmap">The bitmap to apply this RotationFilter to</param>
+        /// <param name="bitmap">The bitmap to apply this <see cref="RotationFilter"/> to</param>
         public void ApplyToBitmap(Bitmap bitmap)
         {
             if (!Modifying)
@@ -132,11 +132,11 @@ namespace PixelariaLib.Filters
 
         public bool Equals(IFilter filter)
         {
-            var other = filter as RotationFilter;
-
-            return other != null && Math.Abs(Rotation - other.Rotation) < float.Epsilon &&
-                   RotateAroundCenter == other.RotateAroundCenter && PixelQuality == other.PixelQuality &&
-                   Version == other.Version;
+            return filter is RotationFilter other 
+                   && Math.Abs(Rotation - other.Rotation) < float.Epsilon
+                   && RotateAroundCenter == other.RotateAroundCenter 
+                   && PixelQuality == other.PixelQuality 
+                   && Version == other.Version;
         }
     }
 }

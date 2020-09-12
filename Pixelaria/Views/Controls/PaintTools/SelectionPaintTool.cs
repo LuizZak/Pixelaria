@@ -335,10 +335,9 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// </summary>
         public void Paste()
         {
-            var str = Clipboard.GetData("PNG") as Stream;
             Bitmap bit;
 
-            if (str != null)
+            if (Clipboard.GetData("PNG") is Stream str)
             {
                 bit = Image.FromStream(str) as Bitmap;
 
@@ -653,7 +652,7 @@ namespace Pixelaria.Views.Controls.PaintTools
 
         /// <summary>
         /// Forces this paint tool to intercept the undo operation, returning whether this Paint Tool has intercepted the undo operation successfully.
-        /// While intercpting an undo, a paint tool might perform actions of its own
+        /// While intercepting an undo, a paint tool might perform actions of its own
         /// </summary>
         /// <returns>Whether the current paint tool intercepted the undo task. When the return is true, no undo operation might be performed from an owning object</returns>
         public bool InterceptUndo()
@@ -683,8 +682,8 @@ namespace Pixelaria.Views.Controls.PaintTools
         }
 
         /// <summary>
-        /// Forces this paint tool to intercept the redo operation, returning whether this Paint Tool has intercepted the redooperation successfully.
-        /// While intercpting a redo, a paint tool might perform actions of its own
+        /// Forces this paint tool to intercept the redo operation, returning whether this Paint Tool has intercepted the redo operation successfully.
+        /// While intercepting a redo, a paint tool might perform actions of its own
         /// </summary>
         /// <returns>Whether the current paint tool intercepted the redo task. When the return is true, no redo operation might be performed from an owning object</returns>
         public bool InterceptRedo()
@@ -746,7 +745,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         }
 
         /// <summary>
-        /// Starts the selection operation witht he given area, bitmap and operation type
+        /// Starts the selection operation with he given area, bitmap and operation type
         /// </summary>
         /// <param name="area">The area to place the bitmap at</param>
         /// <param name="pasteBitmap">The bitmap to paste</param>

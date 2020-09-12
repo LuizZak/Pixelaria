@@ -24,17 +24,17 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 
-using Pixelaria.Filters;
+using PixelariaLib.Filters;
 
 namespace Pixelaria.Views.Controls.Filters
 {
     /// <summary>
-    /// Represents a FilterControl that handles an OffsetFilter
+    /// Represents a FilterControl that handles an <see cref="OffsetFilter"/>
     /// </summary>
     internal partial class StrokeControl : FilterControl
     {
         /// <summary>
-        /// Initializes a new instance of the StrokeControl class
+        /// Initializes a new instance of the <see cref="StrokeControl"/> class
         /// </summary>
         public StrokeControl()
         {
@@ -42,7 +42,7 @@ namespace Pixelaria.Views.Controls.Filters
         }
 
         /// <summary>
-        /// Initializes this StrokeControl
+        /// Initializes this <see cref="StrokeControl"/>
         /// </summary>
         /// <param name="bitmap">The Bitmap to generate the visualization for</param>
         public override void Initialize(Bitmap bitmap)
@@ -84,7 +84,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         private void cp_color_Click(object sender, EventArgs e)
         {
-            ColorDialog cd = new ColorDialog { AllowFullOpen = true };
+            var cd = new ColorDialog { AllowFullOpen = true };
 
             if (cd.ShowDialog(FindForm()) == DialogResult.OK)
             {

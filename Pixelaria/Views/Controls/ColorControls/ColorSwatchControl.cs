@@ -130,7 +130,7 @@ namespace Pixelaria.Views.Controls.ColorControls
 
             foreach (var color in _colorSwatch.Colors)
             {
-                Rectangle region = new Rectangle(x * _cellWidth, y * _cellHeight, _cellWidth, _cellHeight);
+                var region = new Rectangle(x * _cellWidth, y * _cellHeight, _cellWidth, _cellHeight);
 
                 if (e.ClipRectangle.IntersectsWith(region))
                 {
@@ -153,7 +153,7 @@ namespace Pixelaria.Views.Controls.ColorControls
             if (_mouseOver)
             {
                 // Draw the mouse cell
-                Rectangle cellRect = GetMouseCellArea();
+                var cellRect = GetMouseCellArea();
 
                 e.Graphics.DrawRectangle(Pens.White, cellRect);
             }
@@ -187,12 +187,12 @@ namespace Pixelaria.Views.Controls.ColorControls
             _mouseCellY = Math.Max(0, Math.Min((int)Math.Ceiling(_colorSwatch.ColorCount / (float)(_cellsPerRow)) - 1, e.Y / _cellHeight));
 
             // Invalidate the mouse region
-            Rectangle newCellRect = GetMouseCellArea();
+            var newCellRect = GetMouseCellArea();
 
             if (newCellRect != _lastMouseCellArea)
             {
-                Rectangle oldRec = _lastMouseCellArea;
-                Rectangle newRec = newCellRect;
+                var oldRec = _lastMouseCellArea;
+                var newRec = newCellRect;
 
                 oldRec.Inflate(2, 2);
                 newRec.Inflate(2, 2);
@@ -231,7 +231,7 @@ namespace Pixelaria.Views.Controls.ColorControls
 
             _mouseOver = false;
 
-            Rectangle newCellRect = GetMouseCellArea();
+            var newCellRect = GetMouseCellArea();
             newCellRect.Offset(-1, -1);
             newCellRect.Inflate(2, 2);
             Invalidate(newCellRect);

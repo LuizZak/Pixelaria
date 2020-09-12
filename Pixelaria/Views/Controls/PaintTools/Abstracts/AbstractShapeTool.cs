@@ -107,7 +107,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         }
 
         /// <summary>
-        /// Initialies a new instance of the BaseShapeTool class, setting the two drawing colors
+        /// Initializes a new instance of the BaseShapeTool class, setting the two drawing colors
         /// for the paint operation
         /// </summary>
         /// <param name="firstColor">The first color for the paint operation</param>
@@ -207,7 +207,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// Called to notify this PaintTool that the mouse is being released
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public override void MouseUp([NotNull] MouseEventArgs e)
+        public override void MouseUp(MouseEventArgs e)
         {
             var internalPictureBox = pictureBox;
             if (internalPictureBox == null)

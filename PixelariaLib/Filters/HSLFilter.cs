@@ -32,7 +32,7 @@ namespace PixelariaLib.Filters
     /// <summary>
     /// Implements a Hue alteration filter
     /// </summary>
-    internal class HueFilter : IFilter
+    public class HueFilter : IFilter
     {
         /// <summary>
         /// Gets a value indicating whether this IFilter instance will modify any of the pixels
@@ -61,13 +61,13 @@ namespace PixelariaLib.Filters
         public bool Relative;
 
         /// <summary>
-        /// Applies this HueFilter to a Bitmap
+        /// Applies this <see cref="HueFilter"/> to a Bitmap
         /// </summary>
-        /// <param name="bitmap">The bitmap to apply this HueFilter to</param>
+        /// <param name="bitmap">The bitmap to apply this <see cref="HueFilter"/> to</param>
         public unsafe void ApplyToBitmap(Bitmap bitmap)
         {
             // 
-            // !!!   ATENTION: UNSAFE POINTER HANDLING    !!!
+            // !!!   ATTENTION: UNSAFE POINTER HANDLING   !!!
             // !!! WATCH IT WHEN MESSING WITH THIS METHOD !!!
             // 
 
@@ -120,16 +120,17 @@ namespace PixelariaLib.Filters
 
         public bool Equals(IFilter filter)
         {
-            var other = filter as HueFilter;
-
-            return other != null && Hue == other.Hue && Relative == other.Relative && Version == other.Version;
+            return filter is HueFilter other 
+                   && Hue == other.Hue 
+                   && Relative == other.Relative 
+                   && Version == other.Version;
         }
     }
 
     /// <summary>
     /// Implements a Hue alteration filter
     /// </summary>
-    internal class SaturationFilter : IFilter
+    public class SaturationFilter : IFilter
     {
         /// <summary>
         /// Gets a value indicating whether this IFilter instance will modify any of the pixels
@@ -168,7 +169,7 @@ namespace PixelariaLib.Filters
         public bool Multiply;
 
         /// <summary>
-        /// Initializes a new instance of the SaturationFilter class
+        /// Initializes a new instance of the <see cref="SaturationFilter"/> class
         /// </summary>
         public SaturationFilter()
         {
@@ -179,13 +180,13 @@ namespace PixelariaLib.Filters
         }
 
         /// <summary>
-        /// Applies this SaturationFilter to a Bitmap
+        /// Applies this <see cref="SaturationFilter"/> to a Bitmap
         /// </summary>
-        /// <param name="bitmap">The bitmap to apply this SaturationFilter to</param>
+        /// <param name="bitmap">The bitmap to apply this <see cref="SaturationFilter"/> to</param>
         public unsafe void ApplyToBitmap(Bitmap bitmap)
         {
             // 
-            // !!!   ATENTION: UNSAFE POINTER HANDLING    !!!
+            // !!!   ATTENTION: UNSAFE POINTER HANDLING   !!!
             // !!! WATCH IT WHEN MESSING WITH THIS METHOD !!!
             // 
 
@@ -251,17 +252,19 @@ namespace PixelariaLib.Filters
 
         public bool Equals(IFilter filter)
         {
-            var other = filter as SaturationFilter;
-
-            return other != null && Saturation == other.Saturation && Relative == other.Relative &&
-                   KeepGrays == other.KeepGrays && Multiply == other.Multiply && Version == other.Version;
+            return filter is SaturationFilter other 
+                   && Saturation == other.Saturation 
+                   && Relative == other.Relative 
+                   && KeepGrays == other.KeepGrays 
+                   && Multiply == other.Multiply 
+                   && Version == other.Version;
         }
     }
 
     /// <summary>
     /// Implements a Lightness alteration filter
     /// </summary>
-    internal class LightnessFilter : IFilter
+    public class LightnessFilter : IFilter
     {
         /// <summary>
         /// Gets a value indicating whether this IFilter instance will modify any of the pixels
@@ -295,7 +298,7 @@ namespace PixelariaLib.Filters
         public bool Multiply;
 
         /// <summary>
-        /// Initializes a new instance of the LightnessFilter class
+        /// Initializes a new instance of the <see cref="LightnessFilter"/> class
         /// </summary>
         public LightnessFilter()
         {
@@ -305,13 +308,13 @@ namespace PixelariaLib.Filters
         }
 
         /// <summary>
-        /// Applies this LightnessFilter to a Bitmap
+        /// Applies this <see cref="LightnessFilter"/> to a Bitmap
         /// </summary>
-        /// <param name="bitmap">The bitmap to apply this LightnessFilter to</param>
+        /// <param name="bitmap">The bitmap to apply this <see cref="LightnessFilter"/> to</param>
         public unsafe void ApplyToBitmap(Bitmap bitmap)
         {
             // 
-            // !!!   ATENTION: UNSAFE POINTER HANDLING    !!!
+            // !!!   ATTENTION: UNSAFE POINTER HANDLING   !!!
             // !!! WATCH IT WHEN MESSING WITH THIS METHOD !!!
             // 
 
@@ -374,10 +377,11 @@ namespace PixelariaLib.Filters
 
         public bool Equals(IFilter filter)
         {
-            var other = filter as LightnessFilter;
-
-            return other != null && Lightness == other.Lightness && Relative == other.Relative &&
-                   Multiply == other.Multiply && Version == other.Version;
+            return filter is LightnessFilter other
+                   && Lightness == other.Lightness
+                   && Relative == other.Relative
+                   && Multiply == other.Multiply
+                   && Version == other.Version;
         }
     }
 }

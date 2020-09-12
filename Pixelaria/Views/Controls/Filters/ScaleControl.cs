@@ -23,12 +23,12 @@
 using System;
 using System.Drawing;
 
-using Pixelaria.Filters;
+using PixelariaLib.Filters;
 
 namespace Pixelaria.Views.Controls.Filters
 {
     /// <summary>
-    /// Represents a FilterControl that handles a ScaleFilter
+    /// Represents a FilterControl that handles a <see cref="ScaleFilter"/>
     /// </summary>
     internal partial class ScaleControl : FilterControl
     {
@@ -38,7 +38,7 @@ namespace Pixelaria.Views.Controls.Filters
         private bool _ignoreEvent;
 
         /// <summary>
-        /// Initializes a new class of the ScaleControl class
+        /// Initializes a new class of the <see cref="ScaleControl"/> class
         /// </summary>
         public ScaleControl()
         {
@@ -46,7 +46,7 @@ namespace Pixelaria.Views.Controls.Filters
         }
 
         /// <summary>
-        /// Initializes this TransparencyControl
+        /// Initializes this <see cref="ScaleControl"/>
         /// </summary>
         /// <param name="bitmap">The Bitmap to generate the visualization for</param>
         public override void Initialize(Bitmap bitmap)

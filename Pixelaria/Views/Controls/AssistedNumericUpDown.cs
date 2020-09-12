@@ -29,7 +29,7 @@ using System.Windows.Forms;
 namespace Pixelaria.Views.Controls
 {
     /// <summary>
-    /// Represents a Numerid Up and Down control that has an assisting
+    /// Represents a Numeric Up and Down control that has an assisting
     /// bar bellow for quick value picking
     /// </summary>
     [DefaultEvent("ValueChanged")]

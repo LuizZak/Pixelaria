@@ -65,7 +65,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         private SheetSettings _sheetSettings;
 
         /// <summary>
-        /// The curre sheet export this SheetPreviewPictureBox is displaying
+        /// The current sheet export this SheetPreviewPictureBox is displaying
         /// </summary>
         private BundleSheetExport _sheetExport;
 

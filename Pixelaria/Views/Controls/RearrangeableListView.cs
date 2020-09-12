@@ -96,8 +96,6 @@ namespace Pixelaria.Views.Controls
         {
             base.OnItemDrag(e);
 
-            base.OnItemDrag(e);
-
             _draggedItems = new List<ListViewItem>();
 
             foreach (ListViewItem item in SelectedItems)
@@ -126,16 +124,16 @@ namespace Pixelaria.Views.Controls
         // 
         // Drag Enter event handler
         // 
-        protected override void OnDragEnter(DragEventArgs drgevent)
+        protected override void OnDragEnter(DragEventArgs e)
         {
-            base.OnDragEnter(drgevent);
+            base.OnDragEnter(e);
 
-            UnsafeNativeMethods.ImageList_DragEnter(Handle, drgevent.X - Left, drgevent.Y - Top);
+            UnsafeNativeMethods.ImageList_DragEnter(Handle, e.X - Left, e.Y - Top);
 
             // Enable timer for scrolling dragged item
             _timer.Enabled = true;
 
-            drgevent.Effect = DragDropEffects.Move;
+            e.Effect = DragDropEffects.Move;
         }
 
         // 
@@ -156,16 +154,16 @@ namespace Pixelaria.Views.Controls
         // 
         // OnDragOver event handler. Updates the dragged node's ghost image's position
         // 
-        protected override void OnDragOver(DragEventArgs drgevent)
+        protected override void OnDragOver(DragEventArgs e)
         {
-            base.OnDragOver(drgevent);
+            base.OnDragOver(e);
 
             // Cancel if no node is being dragged
             if (_draggedItems == null)
                 return;
 
             // Get actual drop item
-            var controlP = PointToClient(new Point(drgevent.X, drgevent.Y));
+            var controlP = PointToClient(new Point(e.X, e.Y));
             int index = InsertionMark.NearestIndex(controlP);
 
             if (index == -1)
@@ -186,8 +184,8 @@ namespace Pixelaria.Views.Controls
                     // Cancel the operation if the user specified so
                     if (evArgs.Cancel)
                     {
-                        drgevent.Effect = DragDropEffects.None;
-                        OnDragDrop(drgevent);
+                        e.Effect = DragDropEffects.None;
+                        OnDragDrop(e);
                         return;
                     }
                     if (!evArgs.Allow)
@@ -196,12 +194,12 @@ namespace Pixelaria.Views.Controls
                     }
                 }
 
-                drgevent.Effect = DragDropEffects.Move;
+                e.Effect = DragDropEffects.Move;
 
-                // Dissalow the drag here
+                // Disallow the drag here
                 if (!evArgs.Allow)
                 {
-                    drgevent.Effect = DragDropEffects.None;
+                    e.Effect = DragDropEffects.None;
                 }
 
                 _tempDropItem = dropItem;
@@ -211,28 +209,28 @@ namespace Pixelaria.Views.Controls
         // 
         // OnGiveFeedback event handler. Occurs during a drag operation and updates the mouse cursor
         // 
-        protected override void OnGiveFeedback(GiveFeedbackEventArgs gfbevent)
+        protected override void OnGiveFeedback(GiveFeedbackEventArgs e)
         {
-            base.OnGiveFeedback(gfbevent);
+            base.OnGiveFeedback(e);
 
-            if (gfbevent.Effect == DragDropEffects.Move)
+            if (e.Effect == DragDropEffects.Move)
             {
                 // Show pointer cursor while dragging
-                gfbevent.UseDefaultCursors = false;
+                e.UseDefaultCursors = false;
                 Cursor = Cursors.Default;
             }
             else
             {
-                gfbevent.UseDefaultCursors = true;
+                e.UseDefaultCursors = true;
             }
         }
 
         // 
         // OnDragDrop event handler. Ends a node dragging
         // 
-        protected override void OnDragDrop(DragEventArgs drgevent)
+        protected override void OnDragDrop(DragEventArgs e)
         {
-            base.OnDragDrop(drgevent);
+            base.OnDragDrop(e);
 
             // Cancel if no node is being dragged
             if (_draggedItems == null)
@@ -242,7 +240,7 @@ namespace Pixelaria.Views.Controls
                 return;
             }
 
-            if (drgevent.Effect == DragDropEffects.None)
+            if (e.Effect == DragDropEffects.None)
             {
                 // Set drag node and temp drop node to null
                 _draggedItems = null;
@@ -264,10 +262,10 @@ namespace Pixelaria.Views.Controls
             }
 
             // Get drop item
-            ListViewItem dropItem = Items[InsertionMark.Index];
+            var dropItem = Items[InsertionMark.Index];
 
             // Launch the feedback for the drag operation
-            ListViewItemDragEventArgs evArgs = new ListViewItemDragEventArgs(ListViewItemDragEventType.DragEnd, ListViewItemDragEventBehavior.PlaceBeforeOrAfterAuto, _draggedItems, dropItem);
+            var evArgs = new ListViewItemDragEventArgs(ListViewItemDragEventType.DragEnd, ListViewItemDragEventBehavior.PlaceBeforeOrAfterAuto, _draggedItems, dropItem);
 
             if (DragOperation != null)
             {
@@ -289,7 +287,7 @@ namespace Pixelaria.Views.Controls
 
                 SelectedItems.Clear();
 
-                foreach (ListViewItem item in _draggedItems)
+                foreach (var item in _draggedItems)
                 {
                     Items.Remove(item);
                     Items.Add(item);
@@ -302,7 +300,7 @@ namespace Pixelaria.Views.Controls
 
                 for(int i = index; i < Items.Count - SelectedItems.Count; i++)
                 {
-                    ListViewItem item = Items[index];
+                    var item = Items[index];
 
                     Items.Remove(item);
                     Items.Add(item);
@@ -401,7 +399,7 @@ namespace Pixelaria.Views.Controls
         /// </summary>
         DragEnd,
         /// <summary>
-        /// Firead after a drag event has been successful
+        /// Fired after a drag event has been successful
         /// </summary>
         AfterDragEnd
     }

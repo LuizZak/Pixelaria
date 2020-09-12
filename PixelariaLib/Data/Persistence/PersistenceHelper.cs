@@ -35,7 +35,7 @@ namespace PixelariaLib.Data.Persistence
     public static class PersistenceHelper
     {
         /// <summary>
-        /// Saves the given bitmap onto the given stram. The save procedure stores a long value just before the bitmap specifying the size of the bitmap's contents
+        /// Saves the given bitmap onto the given stream. The save procedure stores a long value just before the bitmap specifying the size of the bitmap's contents
         /// </summary>
         /// <param name="bitmap">The bitmap to save</param>
         /// <param name="stream">The stream to save the bitmap to</param>

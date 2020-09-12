@@ -23,7 +23,6 @@
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using JetBrains.Annotations;
 using Pixelaria.Views.Controls.PaintTools.Abstracts;
 
 namespace Pixelaria.Views.Controls.PaintTools
@@ -54,7 +53,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             lastMousePointAbsolute = new Point(-1, -1);
 
             // Initialize the operation cursor
-            MemoryStream cursorMemoryStream = new MemoryStream(Properties.Resources.picker_cursor);
+            var cursorMemoryStream = new MemoryStream(Properties.Resources.picker_cursor);
             ToolCursor = new Cursor(cursorMemoryStream);
             cursorMemoryStream.Dispose();
 
@@ -65,11 +64,11 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// Called to notify this PaintTool that the mouse is being held down
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public override void MouseDown([NotNull] MouseEventArgs e)
+        public override void MouseDown(MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left || e.Button == MouseButtons.Right)
             {
-                Point absolute = GetAbsolutePoint(e.Location);
+                var absolute = GetAbsolutePoint(e.Location);
                 ColorPickAtPoint(absolute, e.Button == MouseButtons.Left ? ColorIndex.FirstColor : ColorIndex.SecondColor);
 
                 lastMousePointAbsolute = absolute;
@@ -80,7 +79,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// Called to notify this PaintTool that the mouse is being moved
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public override void MouseMove([NotNull] MouseEventArgs e)
+        public override void MouseMove(MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left || e.Button == MouseButtons.Right)
             {

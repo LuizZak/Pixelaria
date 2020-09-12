@@ -181,7 +181,6 @@
     <Compile Include="Algorithms\PaintOperations\UndoTasks\PerPixelUndoTask.cs" />
     <Compile Include="Controllers\FiltersController.cs" />
     <Compile Include="Data\FrameRenderer.cs" />
-    <Compile Include="Utils\Logging.cs" />
     <Compile Include="Utils\UnsafeNativeMethods.cs" />
     <Compile Include="Views\Controls\ColorControls\ColorPickerDialog.cs">
       <SubType>Form</SubType>
@@ -215,15 +214,7 @@
     <Compile Include="Data\ProjectTree.cs" />
     <Compile Include="Data\Undo\UndoSystem.cs" />
     <Compile Include="Controllers\Validators\DefaultValidator.cs" />
-    <Compile Include="Filters\FadeFilter.cs" />
     <Compile Include="Filters\FilterStore.cs" />
-    <Compile Include="Filters\HSLFilter.cs" />
-    <Compile Include="Filters\IFilter.cs" />
-    <Compile Include="Filters\OffsetFilter.cs" />
-    <Compile Include="Filters\RotationFilter.cs" />
-    <Compile Include="Filters\ScaleFilter.cs" />
-    <Compile Include="Filters\StrokeFilter.cs" />
-    <Compile Include="Filters\TransparencyFilter.cs" />
     <Compile Include="Localization\AnimationMessages.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -235,7 +226,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Utils\RecentFileList.cs" />
-    <Compile Include="Utils\Settings.cs" />
     <Compile Include="Views\Controls\AssistedNumericUpDown.cs">
       <SubType>UserControl</SubType>
     </Compile>

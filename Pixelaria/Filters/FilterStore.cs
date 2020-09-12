@@ -29,6 +29,7 @@ using System.Linq;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using Pixelaria.Views.Controls.Filters;
+using PixelariaLib.Filters;
 
 namespace Pixelaria.Filters
 {
@@ -80,7 +81,7 @@ namespace Pixelaria.Filters
         }
 
         /// <summary>
-        /// Initializes a new instance of the FolterStore class
+        /// Initializes a new instance of the FilterStore class
         /// </summary>
         private FilterStore()
         {
@@ -229,10 +230,10 @@ namespace Pixelaria.Filters
         }
 
         /// <summary>
-        /// Returns an image binded to the given filter name
+        /// Returns an image bound to the given filter name
         /// </summary>
         /// <param name="name">The name of the filter</param>
-        /// <returns>An image, binded to the given filter name</returns>
+        /// <returns>An image, bound to the given filter name</returns>
         public Image GetIconForFilter(string name)
         {
             // ReSharper disable once LoopCanBeConvertedToQuery
@@ -251,7 +252,7 @@ namespace Pixelaria.Filters
         /// <returns>An array of all the filter display names of the program</returns>
         private string[] GetFilterList()
         {
-            string[] filterNames = new string[_filterItems.Count];
+            var filterNames = new string[_filterItems.Count];
 
             for (int i = 0; i < _filterItems.Count; i++)
             {

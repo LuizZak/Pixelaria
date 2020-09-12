@@ -344,7 +344,7 @@ namespace Pixelaria.Views.Controls.LayerControls
             control.RemoveLayerSelected += OnRemoveLayerSelected;
             control.LayerControlDragged += OnLayerControlDragged;
             control.LayerNameEdited += OnLayerNameEdited;
-            control.LayerCollapeChanged += OnLayerCollapseChanged;
+            control.LayerCollapseChanged += OnLayerCollapseChanged;
 
             control.LayerImagePressed += OnLayerImagePressed;
             control.LayerImageReleased += OnLayerImageReleased;
@@ -362,7 +362,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         }
 
         /// <summary>
-        /// Removes the specified layer control from this layer contro panel
+        /// Removes the specified layer control from this layer control panel
         /// </summary>
         /// <param name="control">The layer control to remove</param>
         /// <param name="arrangeAfter">Whether to call the ArrangeControls method after removing the control</param>

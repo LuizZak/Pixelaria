@@ -50,7 +50,7 @@ namespace PixelariaLib.Data.Persistence
         private bool _requiresReload = true;
 
         /// <summary>
-        /// The Bundle binded to this PixelariaFile.
+        /// The Bundle bound to this PixelariaFile.
         /// 
         /// Null, if file is being loaded, not saved to.
         /// </summary>

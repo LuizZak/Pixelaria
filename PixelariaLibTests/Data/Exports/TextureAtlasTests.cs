@@ -22,7 +22,6 @@
 
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PixelariaLib.Data;
 using PixelariaLib.Data.Exports;
 using PixelariaLibTests.TestGenerators;
 
@@ -37,9 +36,9 @@ namespace PixelariaLibTests.Data.Exports
         [TestMethod]
         public void TestTextureAtlasFrameInsert()
         {
-            TextureAtlas atlas = new TextureAtlas(AnimationSheetGenerator.GenerateDefaultAnimationExportSettings(), "TestAtlas");
+            var atlas = new TextureAtlas(AnimationSheetGenerator.GenerateDefaultAnimationExportSettings(), "TestAtlas");
 
-            Animation anim = AnimationGenerator.GenerateAnimation("TestAnim1", 16, 16, 10);
+            var anim = AnimationGenerator.GenerateAnimation("TestAnim1", 16, 16, 10);
 
             foreach (var frame in anim.Frames)
             {
@@ -55,9 +54,9 @@ namespace PixelariaLibTests.Data.Exports
         [TestMethod]
         public void TestInsertDuplicatedFrames()
         {
-            TextureAtlas atlas = new TextureAtlas(AnimationSheetGenerator.GenerateDefaultAnimationExportSettings(), "TestAtlas");
+            var atlas = new TextureAtlas(AnimationSheetGenerator.GenerateDefaultAnimationExportSettings(), "TestAtlas");
 
-            Animation anim = AnimationGenerator.GenerateAnimation("TestAnim1", 16, 16, 5);
+            var anim = AnimationGenerator.GenerateAnimation("TestAnim1", 16, 16, 5);
 
             foreach (var frame in anim.Frames)
             {
@@ -74,9 +73,9 @@ namespace PixelariaLibTests.Data.Exports
         [TestMethod]
         public void TestInsertAnimation()
         {
-            TextureAtlas atlas = new TextureAtlas(AnimationSheetGenerator.GenerateDefaultAnimationExportSettings(), "TestAtlas");
+            var atlas = new TextureAtlas(AnimationSheetGenerator.GenerateDefaultAnimationExportSettings(), "TestAtlas");
 
-            Animation anim = AnimationGenerator.GenerateAnimation("TestAnim1", 16, 16, 10);
+            var anim = AnimationGenerator.GenerateAnimation("TestAnim1", 16, 16, 10);
 
             atlas.InsertFramesFromAnimation(anim);
 
@@ -89,9 +88,9 @@ namespace PixelariaLibTests.Data.Exports
         [TestMethod]
         public void TestInsertDuplicatedAnimation()
         {
-            TextureAtlas atlas = new TextureAtlas(AnimationSheetGenerator.GenerateDefaultAnimationExportSettings(), "TestAtlas");
+            var atlas = new TextureAtlas(AnimationSheetGenerator.GenerateDefaultAnimationExportSettings(), "TestAtlas");
 
-            Animation anim = AnimationGenerator.GenerateAnimation("TestAnim1", 16, 16, 10);
+            var anim = AnimationGenerator.GenerateAnimation("TestAnim1", 16, 16, 10);
 
             atlas.InsertFramesFromAnimation(anim);
             atlas.InsertFramesFromAnimation(anim);

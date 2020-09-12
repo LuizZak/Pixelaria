@@ -63,7 +63,7 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         /// </summary>
         /// <param name="bitmap">The target bitmap for hte undo operation</param>
         /// <param name="description">A description to use for this UndoTask</param>
-        /// <param name="tracker">The pixel histroy tracker that contains the information to use on this PerPixelUndoTask</param>
+        /// <param name="tracker">The pixel history tracker that contains the information to use on this PerPixelUndoTask</param>
         public PerPixelUndoTask(Bitmap bitmap, string description, PixelHistoryTracker tracker)
             : base(bitmap)
         {

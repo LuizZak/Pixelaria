@@ -80,9 +80,9 @@ namespace Pixelaria.Views.Controls
         // 
         // OnResize event handler
         // 
-        protected override void OnResize(EventArgs eventargs)
+        protected override void OnResize(EventArgs e)
         {
-            base.OnResize(eventargs);
+            base.OnResize(e);
 
             Invalidate(titleRectangle);
         }

@@ -319,7 +319,7 @@ namespace PixelariaLib.Data.Persistence
             {
                 get
                 {
-                    StringBuilder builder = new StringBuilder();
+                    var builder = new StringBuilder();
 
                     Array.ForEach(magicNumberBytes, b => builder.Append((char)b));
 

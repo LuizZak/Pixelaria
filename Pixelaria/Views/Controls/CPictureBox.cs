@@ -90,11 +90,11 @@ namespace Pixelaria.Views.Controls
         // 
         // OnPaintBackground event handler. Draws the background image tiled behind the image
         // 
-        protected override void OnPaintBackground(PaintEventArgs pevent)
+        protected override void OnPaintBackground(PaintEventArgs e)
         {
-            pevent.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+            e.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
 
-            base.OnPaintBackground(pevent);
+            base.OnPaintBackground(e);
         }
 
         // 
@@ -102,7 +102,7 @@ namespace Pixelaria.Views.Controls
         // 
         internal static Rectangle CalculateBackgroundImageRectangle(Rectangle bounds, Image backgroundImage, ImageLayout imageLayout)
         {
-            Rectangle rectangle = bounds;
+            var rectangle = bounds;
             if (backgroundImage != null)
             {
                 switch (imageLayout)
@@ -132,7 +132,7 @@ namespace Pixelaria.Views.Controls
                         return rectangle;
 
                     case ImageLayout.Zoom:
-                        Size size2 = backgroundImage.Size;
+                        var size2 = backgroundImage.Size;
                         float num = bounds.Width / ((float)size2.Width);
                         float num2 = bounds.Height / ((float)size2.Height);
 

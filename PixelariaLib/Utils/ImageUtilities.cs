@@ -57,8 +57,8 @@ namespace PixelariaLib.Utils
             if (image.Width == newWidth && image.Height == newHeight)
                 return image;
 
-            Rectangle currentBounds = new Rectangle(0, 0, image.Width, image.Height);
-            Rectangle newBounds = new Rectangle(0, 0, newWidth, newHeight);
+            var currentBounds = new Rectangle(0, 0, image.Width, image.Height);
+            var newBounds = new Rectangle(0, 0, newWidth, newHeight);
 
             // New bounds calculation
             if (scalingMethod == PerFrameScalingMethod.PlaceAtTopLeft)
@@ -78,7 +78,7 @@ namespace PixelariaLib.Utils
                 // If the target size is smaller than the image
                 if (newBounds.Width < currentBounds.Width || newBounds.Height < currentBounds.Height)
                 {
-                    Rectangle rec = newBounds;
+                    var rec = newBounds;
 
                     float num = Math.Min((float)newBounds.Width / currentBounds.Width, (float)newBounds.Height / currentBounds.Height);
                     newBounds.Width = (int)(currentBounds.Width * num);
@@ -98,9 +98,9 @@ namespace PixelariaLib.Utils
             }
 
             // New texture creation
-            Bitmap newTexture = new Bitmap(newWidth, newHeight, PixelFormat.Format32bppArgb);
+            var newTexture = new Bitmap(newWidth, newHeight, PixelFormat.Format32bppArgb);
 
-            Graphics graphics = Graphics.FromImage(newTexture);
+            var graphics = Graphics.FromImage(newTexture);
 
             graphics.InterpolationMode = interpolationMode;
             graphics.PixelOffsetMode = PixelOffsetMode.Half;
@@ -117,7 +117,7 @@ namespace PixelariaLib.Utils
         /// that display any type of transparency
         /// </summary>
         /// <returns>
-        /// An Image object that represents the default tile image to be used in the background of controlsthat display
+        /// An Image object that represents the default tile image to be used in the background of controls that display
         /// any type of transparency
         /// </returns>
         public static Image GetDefaultTile()
@@ -128,7 +128,7 @@ namespace PixelariaLib.Utils
         /// <summary>
         /// Returns a Rectangle that specifies the minimum image area, clipping out all the alpha pixels
         /// </summary>
-        /// <param name="image">The image to find the mimimum image area</param>
+        /// <param name="image">The image to find the minimum image area</param>
         /// <returns>A Rectangle that specifies the minimum image area, clipping out all the alpha pixels</returns>
         public static Rectangle FindMinimumImageArea([NotNull] Bitmap image)
         {
@@ -368,7 +368,7 @@ namespace PixelariaLib.Utils
         /// <param name="b2">The second bitmap to compare</param>
         /// <returns>Whether the two bitmaps are identical</returns>
         [System.Diagnostics.Contracts.Pure]
-        private static bool CompareMemCmp(Bitmap b1, Bitmap b2)
+        private static bool CompareMemCmp([NotNull] Bitmap b1, [NotNull] Bitmap b2)
         {
             var bd1 = b1.LockBits(new Rectangle(Point.Empty, b1.Size), ImageLockMode.ReadOnly, b1.PixelFormat);
             var bd2 = b2.LockBits(new Rectangle(Point.Empty, b2.Size), ImageLockMode.ReadOnly, b2.PixelFormat);

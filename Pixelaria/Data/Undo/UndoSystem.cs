@@ -87,12 +87,12 @@ namespace Pixelaria.Data.Undo
         public event EventHandler Cleared;
 
         /// <summary>
-        /// Gets the ammount of tasks currently held by this UndoSystem
+        /// Gets the amount of tasks currently held by this UndoSystem
         /// </summary>
         public int Count => _undoTasks.Count;
 
         /// <summary>
-        /// Gets or sets the maximum ammount of tasks this UndoSystem can store
+        /// Gets or sets the maximum amount of tasks this UndoSystem can store
         /// </summary>
         public int MaximumTaskCount { get; set; }
 
@@ -185,7 +185,7 @@ namespace Pixelaria.Data.Undo
                 return;
 
             // Get the task to undo
-            IUndoTask task = _undoTasks[_currentTask - 1];
+            var task = _undoTasks[_currentTask - 1];
 
             // Fire the WillPerformUndo event handler
             WillPerformUndo?.Invoke(this, new UndoEventArgs(task));
@@ -213,7 +213,7 @@ namespace Pixelaria.Data.Undo
                 return;
 
             // Get the task to undo
-            IUndoTask task = _undoTasks[_currentTask];
+            var task = _undoTasks[_currentTask];
 
             // Fire the WillPerformRedo event handler
             WillPerformRedo?.Invoke(this, new UndoEventArgs(task));
@@ -253,7 +253,7 @@ namespace Pixelaria.Data.Undo
             if (!InGroupUndo)
                 return;
 
-            GroupUndoTask task = _currentGroupUndoTask;
+            var task = _currentGroupUndoTask;
             _currentGroupUndoTask = null;
 
             if (task.UndoList.Count > 0 && !cancel)
@@ -278,7 +278,7 @@ namespace Pixelaria.Data.Undo
             if (!CanUndo)
                 return null;
 
-            IUndoTask task = NextUndo;
+            var task = NextUndo;
 
             _undoTasks.Remove(task);
             _currentTask--;
@@ -298,7 +298,7 @@ namespace Pixelaria.Data.Undo
             if (!CanRedo)
                 return null;
 
-            IUndoTask task = NextRedo;
+            var task = NextRedo;
 
             _undoTasks.Remove(task);
 
@@ -310,7 +310,7 @@ namespace Pixelaria.Data.Undo
         /// </summary>
         public void Clear()
         {
-            foreach (IUndoTask task in _undoTasks)
+            foreach (var task in _undoTasks)
             {
                 task.Clear();
             }
@@ -374,12 +374,12 @@ namespace Pixelaria.Data.Undo
         /// <summary>
         /// The list of undo tasks enclosed in this GroupUndoTask
         /// </summary>
-        readonly List<IUndoTask> _undoList;
+        private readonly List<IUndoTask> _undoList;
 
         /// <summary>
         /// The description for this GroupUndoTask instance
         /// </summary>
-        readonly string _description;
+        private readonly string _description;
 
         /// <summary>
         /// Gets or sets a value specifying whether to discard the undo group if it's opened on an UndoSystem while it receives an undo/redo call
@@ -413,7 +413,7 @@ namespace Pixelaria.Data.Undo
         /// <param name="tasks">The tasks to perform</param>
         /// <param name="description">The description for this GroupUndoTask</param>
         /// <param name="discardOnOperation">Whether to reverse the order of the operations on undo</param>
-        /// <param name="reverseOnUndo">Whether to perform the undo operations in the reverse order the trasks where added</param>
+        /// <param name="reverseOnUndo">Whether to perform the undo operations in the reverse order the tasks where added</param>
         public GroupUndoTask(IEnumerable<IUndoTask> tasks, string description, bool discardOnOperation = false, bool reverseOnUndo = true)
             : this(description)
         {
@@ -450,7 +450,7 @@ namespace Pixelaria.Data.Undo
         /// </summary>
         public void Clear()
         {
-            foreach (IUndoTask task in _undoList)
+            foreach (var task in _undoList)
             {
                 task.Clear();
             }
@@ -473,7 +473,7 @@ namespace Pixelaria.Data.Undo
             }
             else
             {
-                foreach (IUndoTask task in _undoList)
+                foreach (var task in _undoList)
                 {
                     task.Undo();
                 }
@@ -485,7 +485,7 @@ namespace Pixelaria.Data.Undo
         /// </summary>
         public void Redo()
         {
-            foreach (IUndoTask task in _undoList)
+            foreach (var task in _undoList)
             {
                 task.Redo();
             }

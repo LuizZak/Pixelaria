@@ -35,7 +35,7 @@ namespace Pixelaria.Views.ModelViews.Decorators
     public class OnionSkinDecorator : PictureBoxDecorator
     {
         /// <summary>
-        /// The frame view binded to this OnionSkinDecorator
+        /// The frame view bound to this <see cref="OnionSkinDecorator"/>
         /// </summary>
         protected FrameView frameView;
 
@@ -64,7 +64,7 @@ namespace Pixelaria.Views.ModelViews.Decorators
         readonly FrameView.EditFrameChangedEventHandler _frameChangedEventHandler;
 
         /// <summary>
-        /// Initializes a new instance of the OnionSkinDecorator class
+        /// Initializes a new instance of the <see cref="OnionSkinDecorator"/> class
         /// </summary>
         /// <param name="frameView">The frame editor view to show the onion skin to</param>
         /// <param name="pictureBox">The picture box to decorate</param>
@@ -105,7 +105,7 @@ namespace Pixelaria.Views.ModelViews.Decorators
         }
 
         /// <summary>
-        /// Initializes this PictureBoxDecorator's instance
+        /// Initializes this <see cref="PictureBoxDecorator"/>'s instance
         /// </summary>
         public override void Initialize()
         {
@@ -153,7 +153,7 @@ namespace Pixelaria.Views.ModelViews.Decorators
             var matrix = new ColorMatrix();
 
             //float multDecay = 0.3f + (0.7f / OnionSkinDepth);
-            float multDecay = 0.5f + (Settings.OnionSkinDepth / 50.0f);
+            float multDecay = 0.5f + Settings.OnionSkinDepth / 50.0f;
 
             // Draw the previous frames
             if (Settings.OnionSkinMode == OnionSkinMode.PreviousFrames || Settings.OnionSkinMode == OnionSkinMode.PreviousAndNextFrames)
@@ -259,7 +259,7 @@ namespace Pixelaria.Views.ModelViews.Decorators
     /// For abstracting away task of getting frame bitmaps of next and previous frames during onion
     /// skin rendering.
     /// 
-    /// Used to help invert dependency between the FrameView/OnionSkinDecorator and the animation controllers.
+    /// Used to help invert dependency between the <see cref="FrameView"/>/<see cref="OnionSkinDecorator"/> and the animation controllers.
     /// </summary>
     public interface IOnionSkinFrameProvider
     {

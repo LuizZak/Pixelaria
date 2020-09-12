@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Pixelaria.Filters;
+using PixelariaLib.Filters;
 
 namespace Pixelaria.Controllers
 {

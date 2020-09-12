@@ -445,7 +445,7 @@ namespace Pixelaria.Algorithms.PaintOperations
                 ystep = -1;
 
             // The point that represents each pixel to plot
-            Point p = new Point();
+            var p = new Point();
 
             // Iterate through and plot the line
             for (int x = x0; x <= x1; x++)
@@ -463,14 +463,14 @@ namespace Pixelaria.Algorithms.PaintOperations
 
                 if (!(ignoreFirstPlot && p == startPoint))
                 {
-                    plotFunction(p, size, (p == startPoint || p == endPoint) ? 0 : 2);
+                    plotFunction(p, size, p == startPoint || p == endPoint ? 0 : 2);
                 }
 
-                error = error - deltay;
+                error -= deltay;
                 if (error < 0)
                 {
                     y = y + ystep;
-                    error = error + deltax;
+                    error += deltax;
                 }
             }
         }

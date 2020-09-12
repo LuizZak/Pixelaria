@@ -103,7 +103,7 @@ namespace PixelariaLib.Data.Persistence.PixelariaFileBlocks
         /// <summary>
         /// Saves the layers of the given frame to a stream
         /// </summary>
-        /// <param name="frame">The frame to save the layers to the strean</param>
+        /// <param name="frame">The frame to save the layers to the stream</param>
         /// <param name="stream">The stream to save the layers to</param>
         protected void SaveLayersToStream([NotNull] Frame frame, [NotNull] Stream stream)
         {
@@ -176,7 +176,7 @@ namespace PixelariaLib.Data.Persistence.PixelariaFileBlocks
         }
 
         /// <summary>
-        /// Reads the animation ID from the underyling bytes buffer
+        /// Reads the animation ID from the underlying bytes buffer
         /// </summary>
         public int ReadAnimationId()
         {

@@ -42,8 +42,8 @@ namespace PixelariaLibTests.Data.Persistence
         public void TestImagePersistence()
         {
             // Setup the test
-            Bitmap bitmap1 = FrameGenerator.GenerateRandomBitmap(48, 37, 0);
-            Bitmap bitmap2 = FrameGenerator.GenerateRandomBitmap(12, 45, 0);
+            var bitmap1 = FrameGenerator.GenerateRandomBitmap(48, 37, 0);
+            var bitmap2 = FrameGenerator.GenerateRandomBitmap(12, 45, 0);
 
             Stream stream = new MemoryStream();
 
@@ -55,8 +55,8 @@ namespace PixelariaLibTests.Data.Persistence
             stream.Position = 0;
 
             // Load the bitmaps back up again one at a time
-            Bitmap loadedBitmap1 = PersistenceHelper.LoadImageFromStream(stream);
-            Bitmap loadedBitmap2 = PersistenceHelper.LoadImageFromStream(stream);
+            var loadedBitmap1 = PersistenceHelper.LoadImageFromStream(stream);
+            var loadedBitmap2 = PersistenceHelper.LoadImageFromStream(stream);
 
             // Compare images
             Assert.IsTrue(ImageUtilities.ImagesAreIdentical(bitmap1, loadedBitmap1), "An image loaded from a stream must match completely the image that was saved");

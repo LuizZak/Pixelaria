@@ -87,7 +87,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// Called to notify this PaintOperation that the mouse is being held down
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public override void MouseDown([NotNull] MouseEventArgs e)
+        public override void MouseDown(MouseEventArgs e)
         {
             var imagePoint = GetAbsolutePoint(e.Location);
 
@@ -167,7 +167,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// Called to notify this PaintOperation that a keyboard key was pressed down
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public override void KeyDown([NotNull] KeyEventArgs e)
+        public override void KeyDown(KeyEventArgs e)
         {
             if (e.KeyCode == Keys.ShiftKey)
             {
@@ -183,7 +183,7 @@ namespace Pixelaria.Views.Controls.PaintTools.Abstracts
         /// Called to notify this PaintOperation that a keyboard key was released
         /// </summary>
         /// <param name="e">The event args for this event</param>
-        public override void KeyUp([NotNull] KeyEventArgs e)
+        public override void KeyUp(KeyEventArgs e)
         {
             if(e.KeyCode == Keys.ShiftKey)
             {

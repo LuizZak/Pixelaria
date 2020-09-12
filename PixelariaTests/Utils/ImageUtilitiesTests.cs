@@ -40,13 +40,13 @@ namespace PixelariaTests.Utils
             // Test a fully filled bitmap
 
             // Create the bitmap
-            Bitmap bitmap = new Bitmap(64, 64); FillBitmapRegion(bitmap, new Rectangle(0, 0, bitmap.Width, bitmap.Height), Color.Transparent);
+            var bitmap = new Bitmap(64, 64); FillBitmapRegion(bitmap, new Rectangle(0, 0, bitmap.Width, bitmap.Height), Color.Transparent);
             
             // Fill the region
             FillBitmapRegion(bitmap, new Rectangle(0, 0, 64, 64), Color.Red);
 
             // Test the resulting area rectangle
-            Rectangle bitmapArea = ImageUtilities.FindMinimumImageArea(bitmap);
+            var bitmapArea = ImageUtilities.FindMinimumImageArea(bitmap);
             Assert.AreEqual(new Rectangle(0, 0, 64, 64), bitmapArea, "The minimum image area for a fully filled bitmap must be its whole image area");
         }
 
@@ -56,10 +56,10 @@ namespace PixelariaTests.Utils
             // Test an empty bitmap
 
             // Create the bitmap
-            Bitmap bitmap = new Bitmap(5, 5); FillBitmapRegion(bitmap, new Rectangle(0, 0, bitmap.Width, bitmap.Height), Color.Transparent);
+            var bitmap = new Bitmap(5, 5); FillBitmapRegion(bitmap, new Rectangle(0, 0, bitmap.Width, bitmap.Height), Color.Transparent);
 
             // Test the resulting area rectangle
-            Rectangle bitmapArea = ImageUtilities.FindMinimumImageArea(bitmap);
+            var bitmapArea = ImageUtilities.FindMinimumImageArea(bitmap);
             Assert.AreEqual(new Rectangle(0, 0, 0, 0), bitmapArea, "The minimum image area for a fully filled bitmap must be its whole image area");
         }
 
@@ -69,13 +69,13 @@ namespace PixelariaTests.Utils
             // Test a bitmap filled halfway horizontally from the left and completely vertically
 
             // Create the bitmap
-            Bitmap bitmap = new Bitmap(6, 6); FillBitmapRegion(bitmap, new Rectangle(0, 0, bitmap.Width, bitmap.Height), Color.Transparent);
+            var bitmap = new Bitmap(6, 6); FillBitmapRegion(bitmap, new Rectangle(0, 0, bitmap.Width, bitmap.Height), Color.Transparent);
 
             // Fill the region
             FillBitmapRegion(bitmap, new Rectangle(0, 0, 3, 6), Color.Red);
 
             // Test the resulting area rectangle
-            Rectangle bitmapArea = ImageUtilities.FindMinimumImageArea(bitmap);
+            var bitmapArea = ImageUtilities.FindMinimumImageArea(bitmap);
             Assert.AreEqual(new Rectangle(0, 0, 3, 6), bitmapArea, "The minimum image area has to clip the minimum width that is not opaque");
         }
 
@@ -85,13 +85,13 @@ namespace PixelariaTests.Utils
             // Test a bitmap filled halfway horizontally from the right and completely vertically
 
             // Create the bitmap
-            Bitmap bitmap = new Bitmap(64, 64); FillBitmapRegion(bitmap, new Rectangle(0, 0, bitmap.Width, bitmap.Height), Color.Transparent);
+            var bitmap = new Bitmap(64, 64); FillBitmapRegion(bitmap, new Rectangle(0, 0, bitmap.Width, bitmap.Height), Color.Transparent);
 
             // Fill the region
             FillBitmapRegion(bitmap, new Rectangle(32, 0, 32, 64), Color.Red);
 
             // Test the resulting area rectangle
-            Rectangle bitmapArea = ImageUtilities.FindMinimumImageArea(bitmap);
+            var bitmapArea = ImageUtilities.FindMinimumImageArea(bitmap);
             Assert.AreEqual(new Rectangle(32, 0, 32, 64), bitmapArea, "The minimum image area has to clip the minimum X coordinate that is not opaque");
         }
 
@@ -101,13 +101,13 @@ namespace PixelariaTests.Utils
             // Test a bitmap filled completely horizontally and halfway vertically from the top
 
             // Create the bitmap
-            Bitmap bitmap = new Bitmap(64, 64); FillBitmapRegion(bitmap, new Rectangle(0, 0, bitmap.Width, bitmap.Height), Color.Transparent);
+            var bitmap = new Bitmap(64, 64); FillBitmapRegion(bitmap, new Rectangle(0, 0, bitmap.Width, bitmap.Height), Color.Transparent);
 
             // Fill the region
             FillBitmapRegion(bitmap, new Rectangle(0, 0, 64, 32), Color.Red);
 
             // Test the resulting area rectangle
-            Rectangle bitmapArea = ImageUtilities.FindMinimumImageArea(bitmap);
+            var bitmapArea = ImageUtilities.FindMinimumImageArea(bitmap);
             Assert.AreEqual(new Rectangle(0, 0, 64, 32), bitmapArea, "The minimum image area has to clip the minimum height that is not opaque");
         }
 
@@ -117,13 +117,13 @@ namespace PixelariaTests.Utils
             // Test a bitmap filled completely horizontally and halfway vertically from the bottom
 
             // Create the bitmap
-            Bitmap bitmap = new Bitmap(64, 64); FillBitmapRegion(bitmap, new Rectangle(0, 0, bitmap.Width, bitmap.Height), Color.Transparent);
+            var bitmap = new Bitmap(64, 64); FillBitmapRegion(bitmap, new Rectangle(0, 0, bitmap.Width, bitmap.Height), Color.Transparent);
 
             // Fill the region
             FillBitmapRegion(bitmap, new Rectangle(0, 32, 64, 32), Color.Red);
 
             // Test the resulting area rectangle
-            Rectangle bitmapArea = ImageUtilities.FindMinimumImageArea(bitmap);
+            var bitmapArea = ImageUtilities.FindMinimumImageArea(bitmap);
             Assert.AreEqual(new Rectangle(0, 32, 64, 32), bitmapArea, "The minimum image area has to clip the minimum Y coordinate that is not opaque");
         }
 
@@ -133,15 +133,15 @@ namespace PixelariaTests.Utils
             // Test a bitmap filled with an arbitrary rectangle that is not touching any of the borders
 
             // Create the bitmap
-            Bitmap bitmap = new Bitmap(64, 64); FillBitmapRegion(bitmap, new Rectangle(0, 0, bitmap.Width, bitmap.Height), Color.Transparent);
+            var bitmap = new Bitmap(64, 64); FillBitmapRegion(bitmap, new Rectangle(0, 0, bitmap.Width, bitmap.Height), Color.Transparent);
 
-            Rectangle areaFilled = new Rectangle(11, 1, 10, 10);
+            var areaFilled = new Rectangle(11, 1, 10, 10);
 
             // Fill the region
             FillBitmapRegion(bitmap, areaFilled, Color.Red);
 
             // Test the resulting area rectangle
-            Rectangle bitmapArea = ImageUtilities.FindMinimumImageArea(bitmap);
+            var bitmapArea = ImageUtilities.FindMinimumImageArea(bitmap);
             Assert.AreEqual(areaFilled, bitmapArea, "The minimum image area has to clip around the opaque pixels");
         }
 
@@ -157,7 +157,7 @@ namespace PixelariaTests.Utils
             // ------------
 
             // Create the bitmap
-            Bitmap bitmap = new Bitmap(6, 6); FillBitmapRegion(bitmap, new Rectangle(0, 0, bitmap.Width, bitmap.Height), Color.Transparent);
+            var bitmap = new Bitmap(6, 6); FillBitmapRegion(bitmap, new Rectangle(0, 0, bitmap.Width, bitmap.Height), Color.Transparent);
 
             // Add the three plots
             bitmap.SetPixel(2, 2, Color.Red);
@@ -165,7 +165,7 @@ namespace PixelariaTests.Utils
             bitmap.SetPixel(2, 4, Color.Red);
 
             // Test the resulting area rectangle
-            Rectangle bitmapArea = ImageUtilities.FindMinimumImageArea(bitmap);
+            var bitmapArea = ImageUtilities.FindMinimumImageArea(bitmap);
             Assert.AreEqual(new Rectangle(2, 2, 3, 3), bitmapArea, "The minimum image area has to clip around the opaque pixels");
         }
 
@@ -181,14 +181,14 @@ namespace PixelariaTests.Utils
             // ------------
 
             // Create the bitmap
-            Bitmap bitmap = new Bitmap(6, 6); FillBitmapRegion(bitmap, new Rectangle(0, 0, bitmap.Width, bitmap.Height), Color.Transparent);
+            var bitmap = new Bitmap(6, 6); FillBitmapRegion(bitmap, new Rectangle(0, 0, bitmap.Width, bitmap.Height), Color.Transparent);
 
             // Add the two plots
             bitmap.SetPixel(4, 2, Color.Red);
             bitmap.SetPixel(2, 4, Color.Red);
 
             // Test the resulting area rectangle
-            Rectangle bitmapArea = ImageUtilities.FindMinimumImageArea(bitmap);
+            var bitmapArea = ImageUtilities.FindMinimumImageArea(bitmap);
             Assert.AreEqual(new Rectangle(2, 2, 3, 3), bitmapArea, "The minimum image area has to clip around the opaque pixels");
         }
 
@@ -204,13 +204,13 @@ namespace PixelariaTests.Utils
             // ------------
 
             // Create the bitmap
-            Bitmap bitmap = new Bitmap(6, 6); FillBitmapRegion(bitmap, new Rectangle(0, 0, bitmap.Width, bitmap.Height), Color.Transparent);
+            var bitmap = new Bitmap(6, 6); FillBitmapRegion(bitmap, new Rectangle(0, 0, bitmap.Width, bitmap.Height), Color.Transparent);
 
             // Add the plot
             bitmap.SetPixel(2, 2, Color.Red);
 
             // Test the resulting area rectangle
-            Rectangle bitmapArea = ImageUtilities.FindMinimumImageArea(bitmap);
+            var bitmapArea = ImageUtilities.FindMinimumImageArea(bitmap);
             Assert.AreEqual(new Rectangle(2, 2, 1, 1), bitmapArea, "The minimum image area has to clip around the opaque pixels");
         }
 

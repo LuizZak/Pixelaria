@@ -222,7 +222,7 @@ namespace PixelariaLib.Controllers.DataControllers
             var frameLayer = layer as Frame.FrameLayer;
             if (frameLayer == null)
             {
-                throw new ArgumentException("The provided layers's type is not compatible with this Frame object");
+                throw new ArgumentException("The provided layer's type is not compatible with this Frame object");
             }
 
             if (layerIndex == -1 || layerIndex == _frame.Layers.Count)

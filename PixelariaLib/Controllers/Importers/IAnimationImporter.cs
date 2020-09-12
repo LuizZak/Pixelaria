@@ -53,7 +53,7 @@ namespace PixelariaLib.Controllers.Importers
         /// Generates and returns an array of rectangles that represents the frames of the animation described by the given sheet settings.
         /// The rectangles are all sourced from a rectangle of size <see cref="textureSize"/>.
         /// </summary>
-        /// <param name="textureSize">The size of the sheet textxure to slice</param>
+        /// <param name="textureSize">The size of the sheet texture to slice</param>
         /// <param name="settings">The sheet settings to use to calculate the rectangle frames</param>
         /// <returns>An array of rectangles that represents the frames of the animation described by the given sheet settings</returns>
         Rectangle[] GenerateFrameBounds(Size textureSize, SheetSettings settings);

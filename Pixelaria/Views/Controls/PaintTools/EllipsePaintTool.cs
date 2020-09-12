@@ -37,7 +37,7 @@ namespace Pixelaria.Views.Controls.PaintTools
     internal class EllipsePaintTool : AbstractShapeTool, IColoredPaintTool, ICompositingPaintTool, IFillModePaintTool
     {
         /// <summary>
-        /// Initialies a new instance of the EllipsePaintTool class, setting the two drawing colors
+        /// Initializes a new instance of the EllipsePaintTool class, setting the two drawing colors
         /// for the paint tool
         /// </summary>
         /// <param name="firstColor">The first color for the paint tool</param>
@@ -134,7 +134,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <param name="registerUndo">Whether to register an undo task for this shape operation</param>
         public override void PerformShapeOperation(Color color1, Color color2, Rectangle area, [NotNull] Graphics gph, CompositingMode compMode, OperationFillMode opFillMode, bool registerUndo)
         {
-            PerformElipseOperation(color1, color2, area, gph, compMode, opFillMode);
+            PerformEllipseOperation(color1, color2, area, gph, compMode, opFillMode);
         }
 
         /// <summary>
@@ -196,7 +196,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             {
                 graphics.CompositingMode = compositingMode;
 
-                PerformElipseOperation(firstColor, secondColor, area, graphics, compositingMode, fillMode);
+                PerformEllipseOperation(firstColor, secondColor, area, graphics, compositingMode, fillMode);
 
                 graphics.Flush();
             }
@@ -211,7 +211,7 @@ namespace Pixelaria.Views.Controls.PaintTools
         /// <param name="graphics">The Graphics to draw the ellipse on</param>
         /// <param name="compositingMode">The CompositingMode to use when drawing the ellipse</param>
         /// <param name="fillMode">The fill mode for this ellipse operation</param>
-        public static void PerformElipseOperation(Color firstColor, Color secondColor, Rectangle area,
+        public static void PerformEllipseOperation(Color firstColor, Color secondColor, Rectangle area,
             [NotNull] Graphics graphics, CompositingMode compositingMode, OperationFillMode fillMode)
         {
             var brush = new SolidBrush((fillMode == OperationFillMode.SolidFillFirstColor ? firstColor : secondColor));
@@ -363,7 +363,7 @@ namespace Pixelaria.Views.Controls.PaintTools
             /// <returns>A short string description of this UndoTask</returns>
             public override string GetDescription()
             {
-                return "Elipse";
+                return "Ellipse";
             }
         }
     }

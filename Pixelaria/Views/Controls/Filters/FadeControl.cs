@@ -24,7 +24,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 
-using Pixelaria.Filters;
+using PixelariaLib.Filters;
 using PixelariaLib.Utils;
 
 namespace Pixelaria.Views.Controls.Filters
