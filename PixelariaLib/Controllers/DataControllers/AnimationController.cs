@@ -631,7 +631,7 @@ namespace PixelariaLib.Controllers.DataControllers
             return new FrameId(frame.ID, frame);
         }
 
-        private struct FrameId : IFrameId
+        private readonly struct FrameId : IFrameId
         {
             public IFrame OriginalFrame { get; }
             public int Id { get; }

@@ -38,7 +38,7 @@ namespace PixelariaLib.Utils
     /// </summary>
     [Editor(typeof(AhslColorEditor), typeof(UITypeEditor))]
     [TypeConverter(typeof(AhslColorTypeConverter))]
-    public struct AhslColor : IEquatable<AhslColor>
+    public readonly struct AhslColor : IEquatable<AhslColor>
     {
         /// <summary>
         /// Gets or sets the alpha component as a value ranging from 0 - 255
