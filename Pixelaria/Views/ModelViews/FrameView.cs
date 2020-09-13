@@ -37,7 +37,6 @@ using Pixelaria.Data.Undo;
 using Pixelaria.Filters;
 
 using Pixelaria.Views.Controls;
-using Pixelaria.Views.Controls.ColorControls;
 using Pixelaria.Views.Controls.PaintTools;
 using Pixelaria.Views.Controls.PaintTools.Interfaces;
 using Pixelaria.Views.MiscViews;
@@ -46,6 +45,7 @@ using Pixelaria.Views.ModelViews.Decorators;
 using Pixelaria.Views.Controls.PaintTools.Abstracts;
 using PixelariaLib.Controllers.DataControllers;
 using PixelariaLib.Controllers.LayerControlling;
+using PixelariaLib.Views.Controls.ColorControls;
 using PixelariaLib.Data;
 using PixelariaLib.Filters;
 using PixelariaLib.Utils;
@@ -2064,7 +2064,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         // Image Panel zoom change event
         // 
-        private void PictureBox_ZoomChanged(object sender, [NotNull] ZoomChangedEventArgs e)
+        private void PictureBox_ZoomChanged(object sender, [NotNull] PixelariaLib.Views.Controls.ZoomChangedEventArgs e)
         {
             anud_zoom.Value = (decimal)e.NewZoom;
         }

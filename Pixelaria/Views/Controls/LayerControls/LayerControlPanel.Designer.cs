@@ -4,7 +4,7 @@ namespace Pixelaria.Views.Controls.LayerControls
 {
     public partial class LayerControlPanel
     {
-        private LabeledPanel labeledPanel1;
+        private PixelariaLib.Views.Controls.LabeledPanel labeledPanel1;
         private Panel panel1;
         private Panel pnl_container;
 
@@ -16,7 +16,7 @@ namespace Pixelaria.Views.Controls.LayerControls
             this.btn_collapse = new System.Windows.Forms.Button();
             this.btn_createNewLayer = new System.Windows.Forms.Button();
             this.pnl_container = new System.Windows.Forms.Panel();
-            this.labeledPanel1 = new Pixelaria.Views.Controls.LabeledPanel();
+            this.labeledPanel1 = new PixelariaLib.Views.Controls.LabeledPanel();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.cms_layersRightClick = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.cmb_combineLayers = new System.Windows.Forms.ToolStripMenuItem();

@@ -48,7 +48,7 @@ namespace PixelariaLib.Data
     /// <summary>
     /// A basic wrapper for an animation provider, which can be used in places where animations simply have to be associated with an export settings object
     /// </summary>
-    public struct BasicAnimationProvider : IAnimationProvider
+    public readonly struct BasicAnimationProvider : IAnimationProvider
     {
         private readonly IAnimation[] _animations;
 

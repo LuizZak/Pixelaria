@@ -33,6 +33,7 @@ using JetBrains.Annotations;
 using Pixelaria.Views.Controls.PaintTools;
 using Pixelaria.Views.Controls.PaintTools.Interfaces;
 using Pixelaria.Views.ModelViews;
+using PixelariaLib.Views.Controls;
 
 namespace Pixelaria.Views.Controls
 {

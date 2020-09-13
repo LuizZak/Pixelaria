@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.cb_relative = new System.Windows.Forms.CheckBox();
-            this.cs_hue = new Pixelaria.Views.Controls.ColorControls.ColorSlider();
+            this.cs_hue = new PixelariaLib.Views.Controls.ColorControls.ColorSlider();
             this.SuspendLayout();
             // 
             // cb_relative
@@ -48,7 +48,7 @@
             this.cs_hue.ActiveColor = new PixelariaLib.Utils.AhslColor(1F, 0F, 1F, 0.5F);
             this.cs_hue.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.cs_hue.ColorComponent = Pixelaria.Views.Controls.ColorControls.ColorSliderComponent.Hue;
+            this.cs_hue.ColorComponent = PixelariaLib.Views.Controls.ColorControls.ColorSliderComponent.Hue;
             this.cs_hue.CurrentValue = 0F;
             this.cs_hue.CustomColorTitle = "Custom";
             this.cs_hue.CustomEndColor = new PixelariaLib.Utils.AhslColor(1F, 0F, 0F, 1F);
@@ -57,7 +57,7 @@
             this.cs_hue.Name = "cs_hue";
             this.cs_hue.Size = new System.Drawing.Size(532, 38);
             this.cs_hue.TabIndex = 3;
-            this.cs_hue.ColorChanged += new Pixelaria.Views.Controls.ColorControls.ColorSlider.ColorChangedEventHandler(this.cs_hue_ColorChanged);
+            this.cs_hue.ColorChanged += new PixelariaLib.Views.Controls.ColorControls.ColorSlider.ColorChangedEventHandler(this.cs_hue_ColorChanged);
             // 
             // HueControl
             // 
@@ -74,6 +74,6 @@
 
         #endregion
         private System.Windows.Forms.CheckBox cb_relative;
-        private ColorControls.ColorSlider cs_hue;
+        private PixelariaLib.Views.Controls.ColorControls.ColorSlider cs_hue;
     }
 }

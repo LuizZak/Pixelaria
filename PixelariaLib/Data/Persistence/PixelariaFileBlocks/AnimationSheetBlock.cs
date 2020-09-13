@@ -171,7 +171,7 @@ namespace PixelariaLib.Data.Persistence.PixelariaFileBlocks
         /// <summary>
         /// Encapsulates an animation sheet and associated animation IDs
         /// </summary>
-        public struct AnimationSheetEntry
+        public readonly struct AnimationSheetEntry
         {
             public AnimationSheet Sheet { get; }
             public int[] AnimationIds { get; }

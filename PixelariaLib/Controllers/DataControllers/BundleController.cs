@@ -87,7 +87,7 @@ namespace PixelariaLib.Controllers.DataControllers
             return new AnimId(animation.ID);
         }
 
-        private struct AnimId : IAnimationId
+        private readonly struct AnimId : IAnimationId
         {
             public int Id { get; }
 

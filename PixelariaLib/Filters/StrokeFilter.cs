@@ -88,7 +88,7 @@ namespace PixelariaLib.Filters
         public unsafe void ApplyToBitmap(Bitmap bitmap)
         {
             // 
-            // !!!   ATENTION: UNSAFE POINTER HANDLING    !!!
+            // !!!   ATTENTION: UNSAFE POINTER HANDLING   !!!
             // !!! WATCH IT WHEN MESSING WITH THIS METHOD !!!
             // 
 

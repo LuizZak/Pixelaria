@@ -122,7 +122,7 @@ namespace PixelariaLib.Views.Controls
         public bool ShowImageArea { get; set; }
 
         /// <summary>
-        /// Gets or sets a value specifing whether this ZoomablePictureBox should change it's size to match the
+        /// Gets or sets a value specifying whether this ZoomablePictureBox should change it's size to match the
         /// image's current zoom settings. Setting this value to true disables scrollbars display when the
         /// image bounds is larger than the control's area
         /// </summary>
@@ -363,10 +363,10 @@ namespace PixelariaLib.Views.Controls
 
         /// <summary>
         /// Gets the absolute pixel point that represents the given control point transformed
-        /// to aboslute pixel coordinates
+        /// to absolute pixel coordinates
         /// </summary>
         /// <param name="controlPoint">The control point to convert to absolute coordinates</param>
-        /// <returns>The absolute point that represents the given control point transformed to aboslute pixel coordinates</returns>
+        /// <returns>The absolute point that represents the given control point transformed to absolute pixel coordinates</returns>
         public Point GetAbsolutePoint(PointF controlPoint)
         {
             var m = new Matrix();
@@ -458,14 +458,14 @@ namespace PixelariaLib.Views.Controls
         /// </summary>
         public void UpdateScrollbars()
         {
-            // Get the ammount of pixels that don't fit the control's width and height
+            // Get the amount of pixels that don't fit the control's width and height
             int excessW = (int)(Image.Width * scale.X - (Width - vScrollBar.Width));
             int excessH = (int)(Image.Height * scale.Y - (Height - hScrollBar.Height));
 
             if (excessW > 0)
             {
-                int largeChange = Math.Min((Width - vScrollBar.Width), excessW);
-                hScrollBar.LargeChange = Math.Min((Width - vScrollBar.Width), excessW);
+                int largeChange = Math.Max(0, Math.Min(Width - vScrollBar.Width, excessW));
+                hScrollBar.LargeChange = Math.Max(0, Math.Min(Width - vScrollBar.Width, excessW));
                 hScrollBar.Maximum = excessW + largeChange - 1;
                 hScrollBar.Value = offsetPoint.X;
                 hScrollBar.Visible = true;
@@ -477,8 +477,8 @@ namespace PixelariaLib.Views.Controls
 
             if (excessH > 0)
             {
-                int largeChange = Math.Min((Height - hScrollBar.Height), excessH);
-                vScrollBar.LargeChange = Math.Min((Height - hScrollBar.Height), excessH);
+                int largeChange = Math.Max(0, Math.Min(Height - hScrollBar.Height, excessH));
+                vScrollBar.LargeChange = Math.Max(0, Math.Min(Height - hScrollBar.Height, excessH));
                 vScrollBar.Maximum = excessH + largeChange - 1;
                 vScrollBar.Value = offsetPoint.Y;
                 vScrollBar.Visible = true;
@@ -550,20 +550,20 @@ namespace PixelariaLib.Views.Controls
         // 
         // OnPaintBackground event handler
         // 
-        protected override void OnPaintBackground(PaintEventArgs pevent)
+        protected override void OnPaintBackground(PaintEventArgs e)
         {
             if (ClipBackgroundToImage && Image != null)
             {
                 if (BackgroundImage == null)
                     return;
                 
-                pevent.Graphics.Clear(BackColor);
+                e.Graphics.Clear(BackColor);
 
                 var rec = CalculateBackgroundImageRectangle(ClientRectangle, Image, ImageLayout);
 
                 // Transform the rectangle by the transform matrix
-                var transform = pevent.Graphics.Transform;
-                UpdateGraphicsTransform(pevent.Graphics);
+                var transform = e.Graphics.Transform;
+                UpdateGraphicsTransform(e.Graphics);
 
                 if (ImageLayout == ImageLayout.Center)
                 {
@@ -579,38 +579,36 @@ namespace PixelariaLib.Views.Controls
                     new PointF(rec.X + rec.Width, rec.Y + rec.Height), new PointF(rec.X, rec.Y + rec.Height)
                 };
 
-                pevent.Graphics.Transform.TransformPoints(points);
-                pevent.Graphics.Transform = transform;
+                e.Graphics.Transform.TransformPoints(points);
+                e.Graphics.Transform = transform;
 
                 if (BackgroundImageLayout == ImageLayout.Tile)
                 {
-                    using (var tex = new TextureBrush(BackgroundImage) {WrapMode = WrapMode.Tile})
-                    {
-                        var state = pevent.Graphics.Save();
+                    using var tex = new TextureBrush(BackgroundImage) {WrapMode = WrapMode.Tile};
+                    var state = e.Graphics.Save();
 
-                        tex.TranslateTransform(points[0].X, points[0].Y);
+                    tex.TranslateTransform(points[0].X, points[0].Y);
                         
-                        var rect = Utilities.GetRectangleArea(points);
+                    var rect = Utilities.GetRectangleArea(points);
 
-                        pevent.Graphics.CompositingMode = CompositingMode.SourceCopy;
-                        pevent.Graphics.CompositingQuality = CompositingQuality.HighSpeed;
-                        pevent.Graphics.PixelOffsetMode = PixelOffsetMode.HighSpeed;
-                        pevent.Graphics.SmoothingMode = SmoothingMode.None;
-                        pevent.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+                    e.Graphics.CompositingMode = CompositingMode.SourceCopy;
+                    e.Graphics.CompositingQuality = CompositingQuality.HighSpeed;
+                    e.Graphics.PixelOffsetMode = PixelOffsetMode.HighSpeed;
+                    e.Graphics.SmoothingMode = SmoothingMode.None;
+                    e.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
 
-                        pevent.Graphics.FillRectangle(tex, rect);
+                    e.Graphics.FillRectangle(tex, rect);
 
-                        pevent.Graphics.Restore(state);
-                    }
+                    e.Graphics.Restore(state);
                 }
                 else
                 {
-                    pevent.Graphics.DrawImage(BackgroundImage, rec);
+                    e.Graphics.DrawImage(BackgroundImage, rec);
                 }
             }
             else
             {
-                base.OnPaintBackground(pevent);
+                base.OnPaintBackground(e);
             }
         }
 
@@ -648,7 +646,7 @@ namespace PixelariaLib.Views.Controls
 
             if (AllowDrag && e.Button == MouseButtons.Left)
             {
-                // Steal the focus from the current control so the mouse wheel event handler funcions correctly
+                // Steal the focus from the current control so the mouse wheel event handler functions correctly
                 var findForm = FindForm();
                 if (findForm != null)
                     findForm.ActiveControl = this;
@@ -717,7 +715,7 @@ namespace PixelariaLib.Views.Controls
 
             if (boundsControl.ClientRectangle.Contains(p))
             {
-                PointF newZoom = scale;
+                var newZoom = scale;
 
                 if (ZoomFactorMode == ZoomFactorMode.Multiply)
                 {
@@ -771,7 +769,7 @@ namespace PixelariaLib.Views.Controls
     }
 
     /// <summary>
-    /// Event arguments for the ZoomChanged event
+    /// Event arguments for the <see cref="ZoomablePictureBox.ZoomChanged"/> event
     /// </summary>
     public class ZoomChangedEventArgs : EventArgs
     {
@@ -786,7 +784,7 @@ namespace PixelariaLib.Views.Controls
         public float NewZoom { get; }
 
         /// <summary>
-        /// Initializes a new instance of the ZoomChangeEventArgs
+        /// Initializes a new instance of the <see cref="ZoomChangedEventArgs"/>
         /// </summary>
         /// <param name="oldZoom">The old zoom before the event</param>
         /// <param name="newZoom">The new zoom after the event</param>
@@ -798,12 +796,12 @@ namespace PixelariaLib.Views.Controls
     }
 
     /// <summary>
-    /// Specifies the way a ZoomablePictureBox zooms when the user scrolls the mouse wheel on top of it
+    /// Specifies the way a <see cref="ZoomablePictureBox"/> zooms when the user scrolls the mouse wheel on top of it
     /// </summary>
     public enum ZoomFactorMode
     {
         /// <summary>
-        /// The zoom is multiplied/divied by the zoom factor
+        /// The zoom is multiplied/divided by the zoom factor
         /// </summary>
         Multiply,
         /// <summary>

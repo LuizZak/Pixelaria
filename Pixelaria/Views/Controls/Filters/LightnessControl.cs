@@ -24,6 +24,7 @@ using System;
 using System.Drawing;
 
 using PixelariaLib.Filters;
+using PixelariaLib.Views.Controls.ColorControls;
 
 namespace Pixelaria.Views.Controls.Filters
 {
@@ -74,7 +75,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         // Lightness slider value changed
         // 
-        private void cs_lightness_ColorChanged(object sender, ColorControls.ColorChangedEventArgs e)
+        private void cs_lightness_ColorChanged(object sender, ColorChangedEventArgs e)
         {
             ((LightnessFilter)filter).Lightness = (int)(cs_lightness.CurrentValue * 100);
 

@@ -43,8 +43,8 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.zpb_original = new Pixelaria.Views.Controls.ZoomablePictureBox();
-            this.zpb_preview = new Pixelaria.Views.Controls.ZoomablePictureBox();
+            this.zpb_original = new PixelariaLib.Views.Controls.ZoomablePictureBox();
+            this.zpb_preview = new PixelariaLib.Views.Controls.ZoomablePictureBox();
             this.gb_filterControlContainer.SuspendLayout();
             this.panel1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -238,7 +238,7 @@
             this.zpb_original.VerticalScrollValue = 0;
             this.zpb_original.Zoom = ((System.Drawing.PointF)(resources.GetObject("zpb_original.Zoom")));
             this.zpb_original.ZoomFactor = 1.414214F;
-            this.zpb_original.ZoomChanged += new Pixelaria.Views.Controls.ZoomablePictureBox.ZoomChangedEventHandler(this.zpb_original_ZoomChanged);
+            this.zpb_original.ZoomChanged += new PixelariaLib.Views.Controls.ZoomablePictureBox.ZoomChangedEventHandler(this.zpb_original_ZoomChanged);
             this.zpb_original.HorizontalScroll += new System.Windows.Forms.ScrollEventHandler(this.zpb_Scroll);
             this.zpb_original.VerticalScroll += new System.Windows.Forms.ScrollEventHandler(this.zpb_Scroll);
             // 
@@ -261,7 +261,7 @@
             this.zpb_preview.VerticalScrollValue = 0;
             this.zpb_preview.Zoom = ((System.Drawing.PointF)(resources.GetObject("zpb_preview.Zoom")));
             this.zpb_preview.ZoomFactor = 1.414214F;
-            this.zpb_preview.ZoomChanged += new Pixelaria.Views.Controls.ZoomablePictureBox.ZoomChangedEventHandler(this.zpb_preview_ZoomChanged);
+            this.zpb_preview.ZoomChanged += new PixelariaLib.Views.Controls.ZoomablePictureBox.ZoomChangedEventHandler(this.zpb_preview_ZoomChanged);
             this.zpb_preview.HorizontalScroll += new System.Windows.Forms.ScrollEventHandler(this.zpb_Scroll);
             this.zpb_preview.VerticalScroll += new System.Windows.Forms.ScrollEventHandler(this.zpb_Scroll);
             // 
@@ -296,9 +296,9 @@
         private System.Windows.Forms.GroupBox gb_filterControlContainer;
         private System.Windows.Forms.Button btn_addFilter;
         private System.Windows.Forms.FlowLayoutPanel pnl_container;
-        private ZoomablePictureBox zpb_preview;
+        private PixelariaLib.Views.Controls.ZoomablePictureBox zpb_preview;
         private System.Windows.Forms.Label label1;
-        private ZoomablePictureBox zpb_original;
+        private PixelariaLib.Views.Controls.ZoomablePictureBox zpb_original;
         private System.Windows.Forms.ContextMenuStrip cms_filters;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;

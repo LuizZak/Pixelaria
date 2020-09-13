@@ -54,12 +54,12 @@ namespace Pixelaria.Views.ModelViews
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AnimationView));
             this.il_framesThumbs = new System.Windows.Forms.ImageList(this.components);
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.labeledPanel1 = new Pixelaria.Views.Controls.LabeledPanel();
+            this.labeledPanel1 = new PixelariaLib.Views.Controls.LabeledPanel();
             this.cb_enablePreview = new System.Windows.Forms.CheckBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.animationPreviewPanel = new Pixelaria.Views.ModelViews.AnimationPreviewPanel();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.lv_frames = new Pixelaria.Views.Controls.RearrangeableListView();
+            this.lv_frames = new PixelariaLib.Views.Controls.RearrangeableListView();
             this.panel3 = new System.Windows.Forms.Panel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.cb_frameskip = new System.Windows.Forms.CheckBox();
@@ -244,7 +244,7 @@ namespace Pixelaria.Views.ModelViews
             this.lv_frames.Size = new System.Drawing.Size(574, 351);
             this.lv_frames.TabIndex = 1;
             this.lv_frames.UseCompatibleStateImageBehavior = false;
-            this.lv_frames.DragOperation += new Pixelaria.Views.Controls.RearrangeableListView.DragOperationHandler(this.lv_frames_DragOperation);
+            this.lv_frames.DragOperation += new PixelariaLib.Views.Controls.RearrangeableListView.DragOperationHandler(this.lv_frames_DragOperation);
             this.lv_frames.SelectedIndexChanged += new System.EventHandler(this.lv_frames_SelectedIndexChanged);
             this.lv_frames.DoubleClick += new System.EventHandler(this.lv_frames_DoubleClick);
             this.lv_frames.KeyDown += new System.Windows.Forms.KeyEventHandler(this.lv_frames_KeyDown);
@@ -991,7 +991,7 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripButton tsb_pasteFrames;
         private System.Windows.Forms.ToolStripButton tsb_cutFrames;
-        private Pixelaria.Views.Controls.RearrangeableListView lv_frames;
+        private PixelariaLib.Views.Controls.RearrangeableListView lv_frames;
         private System.Windows.Forms.ToolStripTextBox txt_animName;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
         private System.Windows.Forms.ToolStripButton tsb_insertFrame;
@@ -1034,7 +1034,7 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.ToolStripMenuItem cmb_pasteFrames;
         private System.Windows.Forms.ToolStripMenuItem cmb_addFrameFromFile;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem6;
-        private Controls.LabeledPanel labeledPanel1;
+        private PixelariaLib.Views.Controls.LabeledPanel labeledPanel1;
         private System.Windows.Forms.ToolStripMenuItem tsm_saveAnimationStrip;
         private System.Windows.Forms.ToolStripMenuItem tsm_flipHorizontal;
         private System.Windows.Forms.ToolStripMenuItem tsm_flipVertical;

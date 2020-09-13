@@ -50,9 +50,9 @@ namespace Pixelaria.Views.Controls.Filters
         /// </summary>
         private void InitializeComponent()
         {
-            this.anud_offsetY = new Pixelaria.Views.Controls.AssistedNumericUpDown();
+            this.anud_offsetY = new PixelariaLib.Views.Controls.AssistedNumericUpDown();
             this.label2 = new System.Windows.Forms.Label();
-            this.anud_offsetX = new Pixelaria.Views.Controls.AssistedNumericUpDown();
+            this.anud_offsetX = new PixelariaLib.Views.Controls.AssistedNumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
             this.cb_wrapHorizontal = new System.Windows.Forms.CheckBox();
             this.cb_wrapVertical = new System.Windows.Forms.CheckBox();
@@ -183,9 +183,9 @@ namespace Pixelaria.Views.Controls.Filters
 
         #endregion
 
-        private AssistedNumericUpDown anud_offsetY;
+        private PixelariaLib.Views.Controls.AssistedNumericUpDown anud_offsetY;
         private System.Windows.Forms.Label label2;
-        private AssistedNumericUpDown anud_offsetX;
+        private PixelariaLib.Views.Controls.AssistedNumericUpDown anud_offsetX;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.CheckBox cb_wrapHorizontal;
         private System.Windows.Forms.CheckBox cb_wrapVertical;

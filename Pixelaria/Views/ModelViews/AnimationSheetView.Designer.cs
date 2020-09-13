@@ -95,7 +95,7 @@ namespace Pixelaria.Views.ModelViews
             this.cb_showReuseCount = new System.Windows.Forms.CheckBox();
             this.tt_mainTooltip = new System.Windows.Forms.ToolTip(this.components);
             this.pb_zoomIcon = new System.Windows.Forms.PictureBox();
-            this.anud_zoom = new Pixelaria.Views.Controls.AssistedNumericUpDown();
+            this.anud_zoom = new PixelariaLib.Views.Controls.AssistedNumericUpDown();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pb_unsavedAnimWarning)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_yPadding)).BeginInit();
@@ -948,7 +948,7 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.Button btn_apply;
         private System.Windows.Forms.CheckBox cb_showReuseCount;
         private System.Windows.Forms.PictureBox pb_zoomIcon;
-        private Controls.AssistedNumericUpDown anud_zoom;
+        private PixelariaLib.Views.Controls.AssistedNumericUpDown anud_zoom;
         private System.Windows.Forms.PictureBox pb_unsavedAnimWarning;
         private System.Windows.Forms.CheckBox cb_autoUpdatePreview;
     }

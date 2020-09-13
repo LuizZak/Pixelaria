@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.label1 = new System.Windows.Forms.Label();
-            this.anud_angle = new Pixelaria.Views.Controls.AssistedNumericUpDown();
+            this.anud_angle = new PixelariaLib.Views.Controls.AssistedNumericUpDown();
             this.cb_rotateAroundCenter = new System.Windows.Forms.CheckBox();
             this.cb_pixelQuality = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
@@ -115,7 +115,7 @@
         #endregion
 
         private System.Windows.Forms.Label label1;
-        private AssistedNumericUpDown anud_angle;
+        private PixelariaLib.Views.Controls.AssistedNumericUpDown anud_angle;
         private System.Windows.Forms.CheckBox cb_rotateAroundCenter;
         private System.Windows.Forms.CheckBox cb_pixelQuality;
     }

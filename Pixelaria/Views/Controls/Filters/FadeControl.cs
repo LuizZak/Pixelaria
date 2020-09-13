@@ -101,7 +101,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         // Factor slider changed
         // 
-        private void cs_factor_ColorChanged(object sender, ColorControls.ColorChangedEventArgs e)
+        private void cs_factor_ColorChanged(object sender, PixelariaLib.Views.Controls.ColorControls.ColorChangedEventArgs e)
         {
             ((FadeFilter)filter).FadeFactor = cs_factor.CurrentValue;
 

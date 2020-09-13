@@ -20,7 +20,7 @@
     base directory of this project.
 */
 
-using Pixelaria.Views.Controls.ColorControls;
+using PixelariaLib.Views.Controls.ColorControls;
 
 namespace Pixelaria.Views.Controls.Filters
 {
@@ -52,11 +52,11 @@ namespace Pixelaria.Views.Controls.Filters
         /// </summary>
         private void InitializeComponent()
         {
-            this.anud_strokeSize = new Pixelaria.Views.Controls.AssistedNumericUpDown();
+            this.anud_strokeSize = new PixelariaLib.Views.Controls.AssistedNumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
             this.cb_knockout = new System.Windows.Forms.CheckBox();
             this.cb_smooth = new System.Windows.Forms.CheckBox();
-            this.cp_color = new Pixelaria.Views.Controls.ColorControls.ColorPanel();
+            this.cp_color = new PixelariaLib.Views.Controls.ColorControls.ColorPanel();
             this.label2 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
@@ -163,7 +163,7 @@ namespace Pixelaria.Views.Controls.Filters
 
         #endregion
 
-        private AssistedNumericUpDown anud_strokeSize;
+        private PixelariaLib.Views.Controls.AssistedNumericUpDown anud_strokeSize;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.CheckBox cb_knockout;
         private System.Windows.Forms.CheckBox cb_smooth;

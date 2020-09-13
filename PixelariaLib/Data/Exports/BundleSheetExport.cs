@@ -355,7 +355,7 @@ namespace PixelariaLib.Data.Exports
         /// <summary>
         /// Represents a unique sheet region that one or more frames share
         /// </summary>
-        public struct FramesEntry
+        public readonly struct FramesEntry
         {
             /// <summary>
             /// The shared sheet area

@@ -34,10 +34,10 @@ using Pixelaria.Controllers;
 using Pixelaria.Properties;
 using Pixelaria.Views.ModelViews;
 using Pixelaria.Views.SettingsViews;
-using Pixelaria.Views.Controls;
 using PixelariaLib.Controllers.DataControllers;
 using PixelariaLib.Controllers.Exporters;
 using PixelariaLib.Data;
+using PixelariaLib.Views.Controls;
 
 namespace Pixelaria.Views
 {

@@ -194,12 +194,6 @@
     <Compile Include="Controllers\FiltersController.cs" />
     <Compile Include="Data\FrameRenderer.cs" />
     <Compile Include="Utils\UnsafeNativeMethods.cs" />
-    <Compile Include="Views\Controls\ColorControls\ColorPickerDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Views\Controls\ColorControls\ColorPickerDialog.Designer.cs">
-      <DependentUpon>ColorPickerDialog.cs</DependentUpon>
-    </Compile>
     <Compile Include="Views\Controls\LayerControls\LayerControlPanel.Designer.cs">
       <DependentUpon>LayerControlPanel.cs</DependentUpon>
     </Compile>
@@ -215,9 +209,6 @@
     </Compile>
     <Compile Include="Views\Controls\TimelineControl.Designer.cs">
       <DependentUpon>TimelineControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Controls\TinyColorSlider.cs">
-      <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Views\Controls\ValidationPanel.cs">
       <SubType>UserControl</SubType>
@@ -245,15 +236,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Utils\RecentFileList.cs" />
-    <Compile Include="Views\Controls\AssistedNumericUpDown.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\Controls\AssistedNumericUpDown.Designer.cs">
-      <DependentUpon>AssistedNumericUpDown.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Controls\LabeledPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="Views\Controls\LayerControls\LayerControlPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -272,30 +254,6 @@
     <Compile Include="Views\Controls\PaintTools\LinePaintTool.cs" />
     <Compile Include="Views\Controls\PaintTools\Abstracts\AbstractDraggingPaintTool.cs" />
     <Compile Include="Views\Controls\PaintTools\Abstracts\AbstractPaintTool.cs" />
-    <Compile Include="Views\Controls\ColorControls\ColorPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Views\Controls\ColorControls\ColorPicker.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\Controls\ColorControls\ColorPicker.Designer.cs">
-      <DependentUpon>ColorPicker.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Controls\ColorControls\ColorSlider.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\Controls\ColorControls\ColorSlider.Designer.cs">
-      <DependentUpon>ColorSlider.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Controls\ColorControls\ColorSwatchControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\Controls\ColorControls\ColorSwatchControl.Designer.cs">
-      <DependentUpon>ColorSwatchControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Controls\CPictureBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="Views\Controls\FilterSelector.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -374,20 +332,11 @@
     <Compile Include="Views\Controls\ProjectTreeView.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Views\Controls\RearrangeableListView.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Views\Controls\RearrangeableTreeView.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="Views\Controls\PaintTools\RectanglePaintTool.cs" />
     <Compile Include="Views\Controls\PaintTools\SelectionPaintTool.cs" />
     <Compile Include="Views\Controls\PaintTools\SheetPreviewHoverMouseTool.cs" />
     <Compile Include="Views\Controls\PaintTools\SprayPaintTool.cs" />
     <Compile Include="Views\Controls\TimelineScrubControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Views\Controls\ZoomablePictureBox.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Views\Controls\PaintTools\ZoomPaintTool.cs" />
@@ -513,21 +462,6 @@
       <LastGenOutput>AnimationMessages.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\Controls\AssistedNumericUpDown.resx">
-      <DependentUpon>AssistedNumericUpDown.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\Controls\ColorControls\ColorPicker.resx">
-      <DependentUpon>ColorPicker.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\Controls\ColorControls\ColorPickerDialog.resx">
-      <DependentUpon>ColorPickerDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\Controls\ColorControls\ColorSlider.resx">
-      <DependentUpon>ColorSlider.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\Controls\ColorControls\ColorSwatchControl.resx">
-      <DependentUpon>ColorSwatchControl.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Views\Controls\FilterSelector.resx">
       <DependentUpon>FilterSelector.cs</DependentUpon>
     </EmbeddedResource>
@@ -566,9 +500,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\Controls\LayerControls\LayerControl.resx">
       <DependentUpon>LayerControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\Controls\TinyColorSlider.resx">
-      <DependentUpon>TinyColorSlider.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\Controls\ValidationPanel.resx">
       <DependentUpon>ValidationPanel.cs</DependentUpon>

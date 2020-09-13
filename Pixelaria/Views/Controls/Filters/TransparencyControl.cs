@@ -24,6 +24,7 @@ using System.ComponentModel;
 using System.Drawing;
 
 using PixelariaLib.Filters;
+using PixelariaLib.Views.Controls.ColorControls;
 
 namespace Pixelaria.Views.Controls.Filters
 {
@@ -71,14 +72,14 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         // Transparency slider value changed
         //
-        private void cs_transparency_ColorChanged(object sender, ColorControls.ColorChangedEventArgs e)
+        private void cs_transparency_ColorChanged(object sender, ColorChangedEventArgs e)
         {
             ((TransparencyFilter)filter).Transparency = cs_transparency.CurrentValue;
 
             FireFilterUpdated();
         }
 
-        private ColorControls.ColorSlider cs_transparency;
+        private ColorSlider cs_transparency;
 
         #region Designer Required Code
 
@@ -114,7 +115,7 @@ namespace Pixelaria.Views.Controls.Filters
         /// </summary>
         protected void InitializeComponent()
         {
-            this.cs_transparency = new Pixelaria.Views.Controls.ColorControls.ColorSlider();
+            this.cs_transparency = new PixelariaLib.Views.Controls.ColorControls.ColorSlider();
             this.SuspendLayout();
             // 
             // cs_transparency
@@ -130,7 +131,7 @@ namespace Pixelaria.Views.Controls.Filters
             this.cs_transparency.Name = "cs_transparency";
             this.cs_transparency.Size = new System.Drawing.Size(479, 38);
             this.cs_transparency.TabIndex = 0;
-            this.cs_transparency.ColorChanged += new Pixelaria.Views.Controls.ColorControls.ColorSlider.ColorChangedEventHandler(this.cs_transparency_ColorChanged);
+            this.cs_transparency.ColorChanged += new PixelariaLib.Views.Controls.ColorControls.ColorSlider.ColorChangedEventHandler(this.cs_transparency_ColorChanged);
             // 
             // TransparencyControl
             // 
