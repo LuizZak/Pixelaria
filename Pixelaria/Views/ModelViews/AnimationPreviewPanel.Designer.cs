@@ -59,7 +59,7 @@ namespace Pixelaria.Views.ModelViews
             this.lbl_currentFrame = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.lbl_frameCount = new System.Windows.Forms.Label();
-            this.tlc_timeline = new Pixelaria.Views.Controls.TimelineControl();
+            this.tlc_timeline = new Pixelaria.Views.Controls.TimelineScrubControl();
             this.pnl_preview = new Pixelaria.Views.Controls.CPictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.nud_previewZoom)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tb_zoomTrack)).BeginInit();
@@ -177,7 +177,7 @@ namespace Pixelaria.Views.ModelViews
             this.tlc_timeline.Size = new System.Drawing.Size(197, 38);
             this.tlc_timeline.TabIndex = 16;
             this.tlc_timeline.Text = "timelineControl1";
-            this.tlc_timeline.FrameChanged += new Pixelaria.Views.Controls.TimelineControl.FrameChangedEventHandler(this.tlc_timeline_FrameChanged);
+            this.tlc_timeline.FrameChanged += new Pixelaria.Views.Controls.TimelineScrubControl.FrameChangedEventHandler(this.tlc_timeline_FrameChanged);
             // 
             // pnl_preview
             // 
@@ -227,6 +227,6 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.Label lbl_currentFrame;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label lbl_frameCount;
-        private Controls.TimelineControl tlc_timeline;
+        private Controls.TimelineScrubControl tlc_timeline;
     }
 }

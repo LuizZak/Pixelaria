@@ -22,6 +22,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,6 +32,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FastBitmapLib, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -97,6 +99,8 @@
     <Compile Include="Data\IAnimationProvider.cs" />
     <Compile Include="Data\IDObject.cs" />
     <Compile Include="Data\IFrame.cs" />
+    <Compile Include="Data\KeyframeMetadata.cs" />
+    <Compile Include="Data\KeyframeMetadataSerializers\PointKeyframeSerializer.cs" />
     <Compile Include="Data\Persistence\GenericFile.cs" />
     <Compile Include="Data\Persistence\GenericFileBlock.cs" />
     <Compile Include="Data\Persistence\PersistenceHelper.cs" />
@@ -108,6 +112,7 @@
     <Compile Include="Data\Persistence\PixelariaFileBlocks\ExporterSettingsBlock.cs" />
     <Compile Include="Data\Persistence\PixelariaFileBlocks\FileBlock.cs" />
     <Compile Include="Data\Persistence\PixelariaFileBlocks\FrameBlock.cs" />
+    <Compile Include="Data\Persistence\PixelariaFileBlocks\KeyframeBlock.cs" />
     <Compile Include="Data\Persistence\PixelariaFileBlocks\ProjectTreeBlock.cs" />
     <Compile Include="Data\Persistence\PixelariaSaverLoader.cs" />
     <Compile Include="Data\Persistence\ProjectTreeBlocks\NodeBlock.cs" />

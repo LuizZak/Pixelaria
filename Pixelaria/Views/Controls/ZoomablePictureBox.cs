@@ -464,8 +464,8 @@ namespace Pixelaria.Views.Controls
 
             if (excessW > 0)
             {
-                int largeChange = Math.Min((Width - vScrollBar.Width), excessW);
-                hScrollBar.LargeChange = Math.Min((Width - vScrollBar.Width), excessW);
+                int largeChange = Math.Max(0, Math.Min(Width - vScrollBar.Width, excessW));
+                hScrollBar.LargeChange = Math.Max(0, Math.Min(Width - vScrollBar.Width, excessW));
                 hScrollBar.Maximum = excessW + largeChange - 1;
                 hScrollBar.Value = offsetPoint.X;
                 hScrollBar.Visible = true;
@@ -477,8 +477,8 @@ namespace Pixelaria.Views.Controls
 
             if (excessH > 0)
             {
-                int largeChange = Math.Min((Height - hScrollBar.Height), excessH);
-                vScrollBar.LargeChange = Math.Min((Height - hScrollBar.Height), excessH);
+                int largeChange = Math.Max(0, Math.Min(Height - hScrollBar.Height, excessH));
+                vScrollBar.LargeChange = Math.Max(0, Math.Min(Height - hScrollBar.Height, excessH));
                 vScrollBar.Maximum = excessH + largeChange - 1;
                 vScrollBar.Value = offsetPoint.Y;
                 vScrollBar.Visible = true;
@@ -584,24 +584,22 @@ namespace Pixelaria.Views.Controls
 
                 if (BackgroundImageLayout == ImageLayout.Tile)
                 {
-                    using (var tex = new TextureBrush(BackgroundImage) {WrapMode = WrapMode.Tile})
-                    {
-                        var state = e.Graphics.Save();
+                    using var tex = new TextureBrush(BackgroundImage) {WrapMode = WrapMode.Tile};
+                    var state = e.Graphics.Save();
 
-                        tex.TranslateTransform(points[0].X, points[0].Y);
+                    tex.TranslateTransform(points[0].X, points[0].Y);
                         
-                        var rect = Utilities.GetRectangleArea(points);
+                    var rect = Utilities.GetRectangleArea(points);
 
-                        e.Graphics.CompositingMode = CompositingMode.SourceCopy;
-                        e.Graphics.CompositingQuality = CompositingQuality.HighSpeed;
-                        e.Graphics.PixelOffsetMode = PixelOffsetMode.HighSpeed;
-                        e.Graphics.SmoothingMode = SmoothingMode.None;
-                        e.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+                    e.Graphics.CompositingMode = CompositingMode.SourceCopy;
+                    e.Graphics.CompositingQuality = CompositingQuality.HighSpeed;
+                    e.Graphics.PixelOffsetMode = PixelOffsetMode.HighSpeed;
+                    e.Graphics.SmoothingMode = SmoothingMode.None;
+                    e.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
 
-                        e.Graphics.FillRectangle(tex, rect);
+                    e.Graphics.FillRectangle(tex, rect);
 
-                        e.Graphics.Restore(state);
-                    }
+                    e.Graphics.Restore(state);
                 }
                 else
                 {

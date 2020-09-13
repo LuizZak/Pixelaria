@@ -82,7 +82,7 @@ namespace PixelariaLib.Data.Persistence.PixelariaFileBlocks
             // Add file blocks for each of the frames for this animation
             foreach (var frame in Animation.Frames)
             {
-                owningFile.AddBlock(new FrameBlock(frame));
+                owningFile?.AddBlock(new FrameBlock(frame));
             }
         }
 

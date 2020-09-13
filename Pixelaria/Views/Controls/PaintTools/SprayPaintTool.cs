@@ -227,12 +227,10 @@ namespace Pixelaria.Views.Controls.PaintTools
             // Set the color(opacity) of the image
             attributes.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
 
-            using (var gfx = Graphics.FromImage(internalPictureBox.Buffer))
-            {
-                gfx.DrawImage(pen, new Rectangle(point, new Size(pen.Width, pen.Height)), 0, 0, pen.Width, pen.Height, GraphicsUnit.Pixel, attributes);
+            using var gfx = Graphics.FromImage(internalPictureBox.Buffer);
+            gfx.DrawImage(pen, new Rectangle(point, new Size(pen.Width, pen.Height)), 0, 0, pen.Width, pen.Height, GraphicsUnit.Pixel, attributes);
 
-                gfx.Flush();
-            }
+            gfx.Flush();
         }
 
         /// <summary>
@@ -253,13 +251,11 @@ namespace Pixelaria.Views.Controls.PaintTools
             }
             else
             {
-                using (var g = Graphics.FromImage(firstPenBitmap))
-                {
-                    g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                    Brush b = new SolidBrush(Color.FromArgb(255, firstColor.R, firstColor.G, firstColor.B));
-                    g.FillEllipse(b, 0, 0, size, size);
-                    g.Flush();
-                }
+                using var g = Graphics.FromImage(firstPenBitmap);
+                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                Brush b = new SolidBrush(Color.FromArgb(255, firstColor.R, firstColor.G, firstColor.B));
+                g.FillEllipse(b, 0, 0, size, size);
+                g.Flush();
             }
 
             secondPenBitmap = new Bitmap(size + 1, size + 1, PixelFormat.Format32bppArgb);
@@ -270,13 +266,11 @@ namespace Pixelaria.Views.Controls.PaintTools
             }
             else
             {
-                using (var g = Graphics.FromImage(secondPenBitmap))
-                {
-                    g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                    Brush b = new SolidBrush(Color.FromArgb(255, secondColor.R, secondColor.G, secondColor.B));
-                    g.FillEllipse(b, 0, 0, size, size);
-                    g.Flush();
-                }
+                using var g = Graphics.FromImage(secondPenBitmap);
+                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                Brush b = new SolidBrush(Color.FromArgb(255, secondColor.R, secondColor.G, secondColor.B));
+                g.FillEllipse(b, 0, 0, size, size);
+                g.Flush();
             }
         }
 

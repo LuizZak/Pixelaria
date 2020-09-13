@@ -30,6 +30,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -39,6 +40,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FastBitmapLib, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -56,6 +58,9 @@
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="Rhino.Mocks, Version=3.6.0.0, Culture=neutral, PublicKeyToken=0b3305902db7183f, processorArchitecture=MSIL">
+      <HintPath>..\packages\RhinoMocks.3.6.1\lib\net\Rhino.Mocks.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -72,17 +77,22 @@
     <Compile Include="Data\Exports\SheetExportTests.cs" />
     <Compile Include="Data\Exports\TextureAtlasTests.cs" />
     <Compile Include="Data\FrameTests.cs" />
+    <Compile Include="Data\KeyframeMetadataSerializers\PointKeyframeSerializerTests.cs" />
+    <Compile Include="Data\KeyframeMetadataTests.cs" />
     <Compile Include="Data\Persistence\FileBlocksTests.cs" />
     <Compile Include="Data\Persistence\PersistenceHelperTests.cs" />
     <Compile Include="Data\Persistence\PersistenceTests.cs" />
     <Compile Include="Data\Persistence\PixelariaFileBlocks\AnimationBlockTests.cs" />
     <Compile Include="Data\Persistence\PixelariaFileBlocks\AnimationHeaderBlockTests.cs" />
     <Compile Include="Data\Persistence\PixelariaFileBlocks\ExporterSettingsBlockTests.cs" />
+    <Compile Include="Data\Persistence\PixelariaFileBlocks\FrameBlockTests.cs" />
+    <Compile Include="Data\Persistence\PixelariaFileBlocks\KeyframeBlockTests.cs" />
     <Compile Include="Data\Persistence\PixelariaFileTests.cs" />
     <Compile Include="TestGenerators\AnimationGenerator.cs" />
     <Compile Include="TestGenerators\AnimationSheetGenerator.cs" />
     <Compile Include="TestGenerators\BundleGenerator.cs" />
     <Compile Include="TestGenerators\FrameGenerator.cs" />
+    <Compile Include="TestUtils\StreamTestUtils.cs" />
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\ImageUtilitiesTests.cs" />

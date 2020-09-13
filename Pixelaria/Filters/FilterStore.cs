@@ -285,17 +285,13 @@ namespace Pixelaria.Filters
         {
             string savePath = Path.GetDirectoryName(Application.LocalUserAppDataPath) + "\\filterpresets.bin";
 
-            using (var stream = new FileStream(savePath, FileMode.Create))
-            {
-                using (var writer = new BinaryWriter(stream))
-                {
-                    writer.Write(_filterPresets.Count);
+            using var stream = new FileStream(savePath, FileMode.Create);
+            using var writer = new BinaryWriter(stream);
+            writer.Write(_filterPresets.Count);
 
-                    foreach (var preset in _filterPresets)
-                    {
-                        preset.SaveToStream(stream);
-                    }
-                }
+            foreach (var preset in _filterPresets)
+            {
+                preset.SaveToStream(stream);
             }
         }
 
@@ -308,21 +304,17 @@ namespace Pixelaria.Filters
 
             string savePath = Path.GetDirectoryName(Application.LocalUserAppDataPath) + "\\filterpresets.bin";
 
-            using (var stream = new FileStream(savePath, FileMode.OpenOrCreate))
+            using var stream = new FileStream(savePath, FileMode.OpenOrCreate);
+            // No filters saved
+            if (stream.Length == 0)
+                return;
+
+            using var reader = new BinaryReader(stream);
+            int count = reader.ReadInt32();
+
+            for (int i = 0; i < count; i++)
             {
-                // No filters saved
-                if (stream.Length == 0)
-                    return;
-
-                using (var reader = new BinaryReader(stream))
-                {
-                    int count = reader.ReadInt32();
-
-                    for (int i = 0; i < count; i++)
-                    {
-                        _filterPresets.Add(FilterPreset.FromStream(stream));
-                    }
-                }
+                _filterPresets.Add(FilterPreset.FromStream(stream));
             }
         }
 
@@ -434,17 +426,15 @@ namespace Pixelaria.Filters
         /// <param name="stream">A stream to save this filter preset to</param>
         public void SaveToStream([NotNull] Stream stream)
         {
-            using (var writer = new BinaryWriter(stream))
+            using var writer = new BinaryWriter(stream);
+            writer.Write(Name);
+
+            writer.Write(_filters.Length);
+
+            foreach (var filter in _filters)
             {
-                writer.Write(Name);
-
-                writer.Write(_filters.Length);
-
-                foreach (var filter in _filters)
-                {
-                    writer.Write(filter.Name);
-                    filter.SaveToStream(stream);
-                }
+                writer.Write(filter.Name);
+                filter.SaveToStream(stream);
             }
         }
 

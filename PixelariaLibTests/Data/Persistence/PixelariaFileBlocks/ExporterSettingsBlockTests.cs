@@ -25,9 +25,11 @@ using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PixelariaLib.Controllers.Exporters;
 using PixelariaLib.Controllers.Exporters.Unity;
 using PixelariaLib.Data;
 using PixelariaLib.Data.Persistence.PixelariaFileBlocks;
+using PixelariaTests.TestUtils;
 
 namespace PixelariaLibTests.Data.Persistence.PixelariaFileBlocks
 {
@@ -67,8 +69,7 @@ namespace PixelariaLibTests.Data.Persistence.PixelariaFileBlocks
 
             sut.SaveToStream(stream);
 
-            var result = stream.GetBuffer().Take((int) stream.Length).ToArray();
-            Assert.IsTrue(result.SequenceEqual(expectedStream));
+            Assert.That.MemoryStreamMatches(stream, expectedStream);
         }
 
         [TestMethod]
@@ -83,7 +84,7 @@ namespace PixelariaLibTests.Data.Persistence.PixelariaFileBlocks
             Assert.IsTrue(((UnityExporter.Settings) sut.Settings).GenerateAnimationControllers);
         }
 
-        private static byte[] GenerateTestStream([NotNull] UnityExporter.Settings settings)
+        private static byte[] GenerateTestStream([NotNull] IBundleExporterSettings settings)
         {
             var stream = new MemoryStream();
             var writer = new BinaryWriter(stream, Encoding.UTF8);

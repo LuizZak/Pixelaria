@@ -46,10 +46,8 @@ namespace PixelariaLib.Data.Persistence
         [CanBeNull]
         public static Bundle LoadBundleFromDisk([NotNull] string path)
         {
-            using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
-            {
-                return LoadBundleFromStream(stream);
-            }
+            using var stream = new FileStream(path, FileMode.Open, FileAccess.Read);
+            return LoadBundleFromStream(stream);
         }
 
         /// <summary>

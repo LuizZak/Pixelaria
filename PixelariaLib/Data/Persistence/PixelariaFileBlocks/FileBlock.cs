@@ -59,6 +59,7 @@ namespace PixelariaLib.Data.Persistence.PixelariaFileBlocks
         /// <summary>
         /// The file this block is currently present in
         /// </summary>
+        [CanBeNull]
         protected PixelariaFile owningFile;
 
         /// <summary>
@@ -124,6 +125,9 @@ namespace PixelariaLib.Data.Persistence.PixelariaFileBlocks
                 // Exporter settings
                 case BLOCKID_EXPORTER_SETTINGS:
                     return new ExporterSettingsBlock();
+                // Keyframe block
+                case BLOCKID_KEYFRAME:
+                    return new KeyframeBlock();
                 default:
                     return new FileBlock();
             }
@@ -145,5 +149,7 @@ namespace PixelariaLib.Data.Persistence.PixelariaFileBlocks
         public const short BLOCKID_EXPORTER_NAME = 0x0006;
         /// <summary>Represents an Exporter Settings block</summary>
         public const short BLOCKID_EXPORTER_SETTINGS = 0x0007;
+        /// <summary>Represents a Keyframe block</summary>
+        public const short BLOCKID_KEYFRAME = 0x0008;
     }
 }

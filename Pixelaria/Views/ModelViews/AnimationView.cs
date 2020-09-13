@@ -762,6 +762,19 @@ namespace Pixelaria.Views.ModelViews
         }
 
         /// <summary>
+        /// Opens a view for editing frame origins
+        /// </summary>
+        public void EditFrameOrigins()
+        {
+            var view = new FrameOriginView(ViewAnimation.MakeCopyForEditing(true));
+
+            if (view.ShowDialog(this) == DialogResult.OK)
+            {
+                MarkModified();
+            }
+        }
+
+        /// <summary>
         /// Updates the animation's name based on the text provided in the animation name's textbox
         /// </summary>
         private void UpdateAnimationName()
@@ -845,14 +858,12 @@ namespace Pixelaria.Views.ModelViews
                     // Copy the frame to the clipboard too
                     var stream = new MemoryStream();
 
-                    using (var bitmap = clonedFrame.GetComposedBitmap())
-                    {
-                        bitmap.Save(stream, ImageFormat.Png);
-                        stream.Position = 0;
+                    using var bitmap = clonedFrame.GetComposedBitmap();
+                    bitmap.Save(stream, ImageFormat.Png);
+                    stream.Position = 0;
 
-                        System.Windows.Forms.Clipboard.SetImage(bitmap);
-                        System.Windows.Forms.Clipboard.SetData("PNG", stream);
-                    }
+                    System.Windows.Forms.Clipboard.SetImage(bitmap);
+                    System.Windows.Forms.Clipboard.SetData("PNG", stream);
                 }
 
                 frameListClip.AddFrame(clonedFrame);
@@ -886,7 +897,7 @@ namespace Pixelaria.Views.ModelViews
         /// </summary>
         private void SelectAll()
         {
-            foreach(ListViewItem item in lv_frames.Items)
+            foreach (ListViewItem item in lv_frames.Items)
             {
                 item.Selected = true;
             }
@@ -1566,6 +1577,12 @@ namespace Pixelaria.Views.ModelViews
         private void tsm_flipVertical_Click(object sender, EventArgs e)
         {
             FlipVertical();
+        }
+
+        // Edit Frame Origins click
+        private void tsm_editFrameOrigins_Click(object sender, EventArgs e)
+        {
+            EditFrameOrigins();
         }
 
         #endregion

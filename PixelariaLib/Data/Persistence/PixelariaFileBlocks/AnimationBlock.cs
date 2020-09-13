@@ -93,22 +93,20 @@ namespace PixelariaLib.Data.Persistence.PixelariaFileBlocks
         /// </summary>
         public Animation[] LoadAnimationsFromStream()
         {
-            using (var stream = new MemoryStream(GetBlockBuffer(), false))
+            using var stream = new MemoryStream(GetBlockBuffer(), false);
+            var reader = new BinaryReader(stream);
+
+            int animationCount = reader.ReadInt32();
+
+            var anims = new Animation[0];
+
+            // Load the animations now
+            for (int i = 0; i < animationCount; i++)
             {
-                var reader = new BinaryReader(stream);
-
-                int animationCount = reader.ReadInt32();
-
-                var anims = new Animation[0];
-
-                // Load the animations now
-                for (int i = 0; i < animationCount; i++)
-                {
-                    anims[i] = LoadAnimationFromStream(stream);
-                }
-
-                return anims;
+                anims[i] = LoadAnimationFromStream(stream);
             }
+
+            return anims;
         }
 
         /// <summary>

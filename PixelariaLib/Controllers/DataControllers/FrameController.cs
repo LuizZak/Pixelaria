@@ -55,6 +55,8 @@ namespace PixelariaLib.Controllers.DataControllers
         /// </summary>
         public int LayerCount => _frame.LayerCount;
 
+        public KeyframeMetadata Metadata => _frame.KeyframeMetadata;
+
         public FrameController([NotNull] Frame frame)
         {
             _frame = frame;

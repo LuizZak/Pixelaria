@@ -748,20 +748,18 @@ namespace Pixelaria.Views.Controls.ColorControls
                 {
                     var defaultTile = ImageUtilities.GetDefaultTile();
 
-                    using (var backBrush = new TextureBrush(defaultTile))
-                    {
-                        var state = g.Save();
+                    using var backBrush = new TextureBrush(defaultTile);
+                    var state = g.Save();
 
-                        g.CompositingMode = CompositingMode.SourceCopy;
-                        g.CompositingQuality = CompositingQuality.HighSpeed;
-                        g.PixelOffsetMode = PixelOffsetMode.HighSpeed;
-                        g.SmoothingMode = SmoothingMode.None;
-                        g.InterpolationMode = InterpolationMode.NearestNeighbor;
+                    g.CompositingMode = CompositingMode.SourceCopy;
+                    g.CompositingQuality = CompositingQuality.HighSpeed;
+                    g.PixelOffsetMode = PixelOffsetMode.HighSpeed;
+                    g.SmoothingMode = SmoothingMode.None;
+                    g.InterpolationMode = InterpolationMode.NearestNeighbor;
 
-                        g.FillPath(backBrush, path);
+                    g.FillPath(backBrush, path);
 
-                        g.Restore(state);
-                    }
+                    g.Restore(state);
                 }
             }
 

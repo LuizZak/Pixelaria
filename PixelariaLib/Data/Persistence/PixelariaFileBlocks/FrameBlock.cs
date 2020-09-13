@@ -40,7 +40,7 @@ namespace PixelariaLib.Data.Persistence.PixelariaFileBlocks
         private const int CurrentVersion = 3;
 
         /// <summary>
-        /// Initializes a new instance of the FrameBlock class
+        /// Initializes a new instance of the <see cref="FrameBlock"/> class
         /// </summary>
         public FrameBlock()
         {
@@ -49,7 +49,7 @@ namespace PixelariaLib.Data.Persistence.PixelariaFileBlocks
         }
 
         /// <summary>
-        /// Initializes a new instance of the FrameBlock class
+        /// Initializes a new instance of the <see cref="FrameBlock"/> class
         /// </summary>
         public FrameBlock(IFrame frame)
             : this()
@@ -58,11 +58,27 @@ namespace PixelariaLib.Data.Persistence.PixelariaFileBlocks
             blockVersion = CurrentVersion;
         }
 
+        public override void PrepareFromBundle(Bundle bundle)
+        {
+            base.PrepareFromBundle(bundle);
+
+            foreach (var keyValuePair in _frame.KeyframeMetadata.GetDictionary())
+            {
+                var serializer = KeyframeMetadata.SerializerForValue(keyValuePair.Value);
+
+                if (serializer == null)
+                    continue;
+
+                var block = new KeyframeBlock(serializer, keyValuePair.Key, keyValuePair.Value, _frame.ID);
+                owningFile?.AddBlock(block);
+            }
+        }
+
         /// <summary>
         /// Saves the content portion of this block to the given stream
         /// </summary>
         /// <param name="stream">The stream to save the content portion to</param>
-        protected override void SaveContentToStream([NotNull] Stream stream)
+        protected override void SaveContentToStream(Stream stream)
         {
             var writer = new BinaryWriter(stream);
 
@@ -86,10 +102,8 @@ namespace PixelariaLib.Data.Persistence.PixelariaFileBlocks
             }
             else
             {
-                using (var bitmap = frame.GetComposedBitmap())
-                {
-                    PersistenceHelper.SaveImageToStream(bitmap, stream);
-                }
+                using var bitmap = frame.GetComposedBitmap();
+                PersistenceHelper.SaveImageToStream(bitmap, stream);
             }
 
             // Write the frame ID
@@ -138,41 +152,39 @@ namespace PixelariaLib.Data.Persistence.PixelariaFileBlocks
         /// <returns>The Frame object loaded</returns>
         public FrameInfo LoadFrameFromBuffer(int width, int height)
         {
-            using (var stream = new MemoryStream(GetBlockBuffer(), false))
+            using var stream = new MemoryStream(GetBlockBuffer(), false);
+            var reader = new BinaryReader(stream);
+                
+            var animationId = reader.ReadInt32();
+
+            var frame = new Frame(null, width, height, false);
+            frame.Layers.Clear();
+
+            FrameLayer[] layers;
+
+            if (blockVersion == 0)
             {
-                var reader = new BinaryReader(stream);
-                
-                var animationId = reader.ReadInt32();
+                var bitmap = PersistenceHelper.LoadImageFromStream(stream);
+                frame.SetFrameBitmap(bitmap, false);
 
-                var frame = new Frame(null, width, height, false);
-                frame.Layers.Clear();
-
-                FrameLayer[] layers;
-
-                if (blockVersion == 0)
-                {
-                    var bitmap = PersistenceHelper.LoadImageFromStream(stream);
-                    frame.SetFrameBitmap(bitmap, false);
-
-                    layers = new FrameLayer[0];
-                }
-                else if (blockVersion >= 1 && blockVersion <= CurrentVersion)
-                {
-                    layers = LoadLayersFromStream(stream);
-                }
-                else
-                {
-                    throw new Exception("Unknown frame block version " + blockVersion);
-                }
-
-                frame.ID = reader.ReadInt32();
-
-                // Get the hash now
-                int length = reader.ReadInt32();
-                var hash = reader.ReadBytes(length);
-                
-                return new FrameInfo(animationId, hash, layers, frame);
+                layers = new FrameLayer[0];
             }
+            else if (blockVersion >= 1 && blockVersion <= CurrentVersion)
+            {
+                layers = LoadLayersFromStream(stream);
+            }
+            else
+            {
+                throw new Exception("Unknown frame block version " + blockVersion);
+            }
+
+            frame.ID = reader.ReadInt32();
+
+            // Get the hash now
+            int length = reader.ReadInt32();
+            var hash = reader.ReadBytes(length);
+                
+            return new FrameInfo(animationId, hash, layers, frame);
         }
 
         /// <summary>
@@ -239,7 +251,7 @@ namespace PixelariaLib.Data.Persistence.PixelariaFileBlocks
             public int AnimationId { get; }
 
             /// <summary>
-            /// The frame bieng manipulated by this FrameBlock
+            /// The frame being manipulated by this FrameBlock
             /// </summary>
             public Frame Frame { get; }
 

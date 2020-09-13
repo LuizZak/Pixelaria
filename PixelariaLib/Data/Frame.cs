@@ -41,7 +41,9 @@ namespace PixelariaLib.Data
         /// The list of layers laid on this frame
         /// </summary>
         public readonly List<FrameLayer> Layers;
-        
+
+        public KeyframeMetadata KeyframeMetadata { get; } = new KeyframeMetadata();
+
         /// <summary>
         /// Gets the width of this frame
         /// </summary>
@@ -281,6 +283,9 @@ namespace PixelariaLib.Data
 
             Hash = frame.Hash;
             _shortHash = castFrame._shortHash;
+
+            // Copy metadata
+            KeyframeMetadata.CopyFrom(frame.KeyframeMetadata);
         }
 
         /// <summary>
@@ -434,10 +439,8 @@ namespace PixelariaLib.Data
                 throw new InvalidOperationException("The frame was not initialized prior to this action");
             }
 
-            using (var bitmap = GetComposedBitmap())
-            {
-                SetHash(ImageUtilities.GetHashForBitmap(bitmap));
-            }
+            using var bitmap = GetComposedBitmap();
+            SetHash(ImageUtilities.GetHashForBitmap(bitmap));
         }
 
         /// <summary>

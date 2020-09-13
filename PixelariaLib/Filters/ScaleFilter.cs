@@ -87,32 +87,30 @@ namespace PixelariaLib.Filters
             if (!Modifying)
                 return;
 
-            using (var bit = (Bitmap) bitmap.Clone())
-            using (var g = Graphics.FromImage(bitmap))
+            using var bit = (Bitmap) bitmap.Clone();
+            using var g = Graphics.FromImage(bitmap);
+            g.Clear(Color.Transparent);
+
+            g.InterpolationMode = PixelQuality
+                ? InterpolationMode.NearestNeighbor
+                : InterpolationMode.HighQualityBicubic;
+
+            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+            var rec = new RectangleF(0, 0, bitmap.Width, bitmap.Height);
+
+            rec.Width *= ScaleX;
+            rec.Height *= ScaleY;
+
+            if (Centered)
             {
-                g.Clear(Color.Transparent);
-
-                g.InterpolationMode = PixelQuality
-                    ? InterpolationMode.NearestNeighbor
-                    : InterpolationMode.HighQualityBicubic;
-
-                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-
-                var rec = new RectangleF(0, 0, bitmap.Width, bitmap.Height);
-
-                rec.Width *= ScaleX;
-                rec.Height *= ScaleY;
-
-                if (Centered)
-                {
-                    rec.X = (float) Math.Round(bitmap.Width / 2.0f - rec.Width / 2.0f);
-                    rec.Y = (float) Math.Round(bitmap.Height / 2.0f - rec.Height / 2.0f);
-                }
-
-                g.DrawImage(bit, rec, new RectangleF(0, 0, bitmap.Width, bitmap.Height), GraphicsUnit.Pixel);
-
-                g.Flush();
+                rec.X = (float) Math.Round(bitmap.Width / 2.0f - rec.Width / 2.0f);
+                rec.Y = (float) Math.Round(bitmap.Height / 2.0f - rec.Height / 2.0f);
             }
+
+            g.DrawImage(bit, rec, new RectangleF(0, 0, bitmap.Width, bitmap.Height), GraphicsUnit.Pixel);
+
+            g.Flush();
         }
 
         /// <summary>

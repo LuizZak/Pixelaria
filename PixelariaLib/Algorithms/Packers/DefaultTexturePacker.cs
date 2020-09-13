@@ -542,20 +542,18 @@ namespace PixelariaLib.Algorithms.Packers
 
                 if (frag != null)
                     return frag.FrameRectangle;
-                
-                using (var frameBitmap = frame.GetComposedBitmap())
+
+                using var frameBitmap = frame.GetComposedBitmap();
+                var newFrag = new CompareFrag
                 {
-                    var newFrag = new CompareFrag
-                    {
-                        FrameRectangle = _useMinimumTextureArea
-                            ? ImageUtilities.FindMinimumImageArea(frameBitmap)
-                            : new Rectangle(0, 0, frame.Width, frame.Height)
-                    };
+                    FrameRectangle = _useMinimumTextureArea
+                        ? ImageUtilities.FindMinimumImageArea(frameBitmap)
+                        : new Rectangle(0, 0, frame.Width, frame.Height)
+                };
 
-                    _fragDictionary[frame.ID] = newFrag;
+                _fragDictionary[frame.ID] = newFrag;
 
-                    return newFrag.FrameRectangle;
-                }
+                return newFrag.FrameRectangle;
             }
 
             /// <summary>

@@ -192,14 +192,12 @@ namespace Pixelaria.Views.Controls.PaintTools
 
             //fb.Unlock();
 
-            using (var graphics = Graphics.FromImage(bitmap))
-            {
-                graphics.CompositingMode = compositingMode;
+            using var graphics = Graphics.FromImage(bitmap);
+            graphics.CompositingMode = compositingMode;
 
                 PerformEllipseOperation(firstColor, secondColor, area, graphics, compositingMode, fillMode);
 
-                graphics.Flush();
-            }
+            graphics.Flush();
         }
 
         /// <summary>
@@ -336,16 +334,14 @@ namespace Pixelaria.Views.Controls.PaintTools
             public override void Undo()
             {
                 // Redraw the original slice back to the image
-                using (var g = Graphics.FromImage(_bitmap))
-                {
-                    g.SetClip(new Rectangle(_area.X, _area.Y, _originalSlice.Width, _originalSlice.Height));
-                    g.Clear(Color.Transparent);
-                    g.CompositingMode = CompositingMode.SourceCopy;
+                using var g = Graphics.FromImage(_bitmap);
+                g.SetClip(new Rectangle(_area.X, _area.Y, _originalSlice.Width, _originalSlice.Height));
+                g.Clear(Color.Transparent);
+                g.CompositingMode = CompositingMode.SourceCopy;
 
-                    g.DrawImage(_originalSlice, new Rectangle(_area.X, _area.Y, _originalSlice.Width, _originalSlice.Height));
+                g.DrawImage(_originalSlice, new Rectangle(_area.X, _area.Y, _originalSlice.Width, _originalSlice.Height));
 
-                    g.Flush();
-                }
+                g.Flush();
             }
 
             /// <summary>

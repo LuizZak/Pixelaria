@@ -67,6 +67,11 @@ namespace PixelariaLib.Data
         bool Initialized { get; }
 
         /// <summary>
+        /// Gets the keyframe metadata for this frame.
+        /// </summary>
+        KeyframeMetadata KeyframeMetadata { get; }
+
+        /// <summary>
         /// Initializes this frame with the given set of properties
         /// </summary>
         /// <param name="animation">The Animation that will own this frame</param>

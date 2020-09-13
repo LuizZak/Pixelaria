@@ -147,11 +147,10 @@ namespace PixelariaLib.Controllers.Exporters.Unity
                                 animControllerFile.Write(unityAnimationFile.SerializeAnimationControllerYaml());
                                 animControllerFile.Flush();
                             }
-                            using (var animControllerMetaFile = File.CreateText(Path.Combine(savePath, unityAnimationFile.Animation.Name + ".controller.meta")))
-                            {
-                                animControllerMetaFile.Write(unityAnimationFile.SerializeAnimationControllerMetaYaml());
-                                animControllerMetaFile.Flush();
-                            }
+
+                            using var animControllerMetaFile = File.CreateText(Path.Combine(savePath, unityAnimationFile.Animation.Name + ".controller.meta"));
+                            animControllerMetaFile.Write(unityAnimationFile.SerializeAnimationControllerMetaYaml());
+                            animControllerMetaFile.Flush();
                         }
                     }
 
@@ -192,6 +191,7 @@ namespace PixelariaLib.Controllers.Exporters.Unity
 
                 var rand = new Random($"{sheetName}_{i}".GetHashCode());
 
+                /*
                 var frameEntry = new UnityPngMeta.FrameEntry
                 {
                     Frames = entry.FrameRects.Select(f => f.Frame).ToArray(),
@@ -200,6 +200,16 @@ namespace PixelariaLib.Controllers.Exporters.Unity
                     Rect = entry.SheetArea,
                     SpriteId = GuidHelper.GenerateSeededGuid(metaSeed + i).ToString().Replace("-", "")
                 };
+                */
+                var frameEntry = new UnityPngMeta.FrameEntry(
+                    entry.FrameRects.Select(f => f.Frame).ToArray(),
+                    entry.SheetArea,
+                    $"{sheetName}_{i}",
+                    (long)(rand.NextDouble() * long.MaxValue),
+                    GuidHelper.GenerateSeededGuid(metaSeed + i).ToString().Replace("-", ""),
+                    new PointF(0, 1)
+                );
+
                 frameEntry.Rect.Y = sheet.Sheet.Height - frameEntry.Rect.Y - frameEntry.Rect.Height;
 
                 meta.AddEntry(frameEntry);
@@ -210,15 +220,7 @@ namespace PixelariaLib.Controllers.Exporters.Unity
 
         private static IEnumerable<UnityAnimationFile> GenerateAnimations([NotNull] UnityPngMeta meta, [NotNull] BundleSheetExport sheet)
         {
-            var anims = new List<UnityAnimationFile>();
-
-            foreach (var animation in sheet.Animations)
-            {
-                var animFile = GenerateAnimationFile(meta, animation);
-                anims.Add(animFile);
-            }
-
-            return anims;
+            return sheet.Animations.Select(animation => GenerateAnimationFile(meta, animation)).ToList();
         }
 
         private static UnityAnimationFile GenerateAnimationFile([NotNull] UnityPngMeta meta, [NotNull] Animation animation)
@@ -305,12 +307,10 @@ namespace PixelariaLib.Controllers.Exporters.Unity
             var document = new YamlDocument(root);
             var stream = new YamlStream(document);
 
-            using (var writer = new StringWriter())
-            {
-                stream.Save(writer, false);
-                writer.Flush();
-                return writer.ToString();
-            }
+            using var writer = new StringWriter();
+            stream.Save(writer, false);
+            writer.Flush();
+            return writer.ToString();
         }
 
         private YamlMappingNode CreateTextureImporter()
@@ -488,6 +488,17 @@ namespace PixelariaLib.Controllers.Exporters.Unity
             public string Name;
             public long InternalId;
             public string SpriteId;
+            public PointF Origin;
+
+            public FrameEntry(IFrame[] frames, Rectangle rect, string name, long internalId, string spriteId, PointF origin)
+            {
+                Frames = frames;
+                Rect = rect;
+                Name = name;
+                InternalId = internalId;
+                SpriteId = spriteId;
+                Origin = origin;
+            }
 
             public YamlMappingNode CreateSpriteNode()
             {
@@ -505,7 +516,7 @@ namespace PixelariaLib.Controllers.Exporters.Unity
                         }
                     },
                     {"alignment", "1"},
-                    {"pivot", new YamlMappingNode {{"x", "0"}, {"y", "1"}}},
+                    {"pivot", new YamlMappingNode {{"x", Origin.X.ToString()}, {"y", Origin.Y.ToString()}}},
                     {"border", new YamlMappingNode {{"x", "0"}, {"y", "0"}, {"z", "0"}, {"w", "0"}}},
                     {"outline", new YamlSequenceNode()},
                     {"physicsShape", new YamlSequenceNode()},
@@ -518,7 +529,6 @@ namespace PixelariaLib.Controllers.Exporters.Unity
                     {"edges", new YamlSequenceNode()},
                     {"weights", new YamlSequenceNode()},
                 };
-
 
                 return node;
             }
@@ -589,19 +599,17 @@ namespace PixelariaLib.Controllers.Exporters.Unity
             var document = new YamlDocument(root);
             var stream = new YamlStream(document);
 
-            using (var writer = new StringWriter())
-            {
-                stream.Save(writer, false);
-                writer.Flush();
-                string body = writer.ToString();
+            using var writer = new StringWriter();
+            stream.Save(writer, false);
+            writer.Flush();
+            string body = writer.ToString();
 
-                body = $@"%YAML 1.1
+            body = $@"%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!74 &7400000
 {body}";
 
-                return body;
-            }
+            return body;
         }
 
         /// <summary>
@@ -628,13 +636,11 @@ namespace PixelariaLib.Controllers.Exporters.Unity
             var document = new YamlDocument(root);
             var stream = new YamlStream(document);
 
-            using (var writer = new StringWriter())
-            {
-                stream.Save(writer, false);
-                writer.Flush();
-                string body = writer.ToString();
-                return body;
-            }
+            using var writer = new StringWriter();
+            stream.Save(writer, false);
+            writer.Flush();
+            string body = writer.ToString();
+            return body;
         }
 
         /// <summary>
@@ -653,13 +659,11 @@ namespace PixelariaLib.Controllers.Exporters.Unity
                 var document = new YamlDocument(rootController);
                 var stream = new YamlStream(document);
 
-                using (var writer = new StringWriter())
-                {
-                    stream.Save(writer, false);
-                    writer.Flush();
+                using var writer = new StringWriter();
+                stream.Save(writer, false);
+                writer.Flush();
 
-                    body += $"\n--- !u!91 &9100000\n{writer}";
-                }
+                body += $"\n--- !u!91 &9100000\n{writer}";
             }
             body = body.Replace("...\r\n", "");
             // Animation state machine
@@ -671,13 +675,11 @@ namespace PixelariaLib.Controllers.Exporters.Unity
                 var document = new YamlDocument(rootController);
                 var stream = new YamlStream(document);
 
-                using (var writer = new StringWriter())
-                {
-                    stream.Save(writer, false);
-                    writer.Flush();
+                using var writer = new StringWriter();
+                stream.Save(writer, false);
+                writer.Flush();
 
-                    body += $"--- !u!1107 &{AnimationStateMachineId}\n{writer}";
-                }
+                body += $"--- !u!1107 &{AnimationStateMachineId}\n{writer}";
             }
             body = body.Replace("...\r\n", "");
             // Animation state
@@ -689,13 +691,11 @@ namespace PixelariaLib.Controllers.Exporters.Unity
                 var document = new YamlDocument(rootController);
                 var stream = new YamlStream(document);
 
-                using (var writer = new StringWriter())
-                {
-                    stream.Save(writer, false);
-                    writer.Flush();
+                using var writer = new StringWriter();
+                stream.Save(writer, false);
+                writer.Flush();
 
-                    body += $"--- !u!1102 &{AnimationStateId}\n{writer}";
-                }
+                body += $"--- !u!1102 &{AnimationStateId}\n{writer}";
             }
 
             return body;
@@ -725,13 +725,11 @@ namespace PixelariaLib.Controllers.Exporters.Unity
             var document = new YamlDocument(root);
             var stream = new YamlStream(document);
 
-            using (var writer = new StringWriter())
-            {
-                stream.Save(writer, false);
-                writer.Flush();
-                string body = writer.ToString();
-                return body;
-            }
+            using var writer = new StringWriter();
+            stream.Save(writer, false);
+            writer.Flush();
+            string body = writer.ToString();
+            return body;
         }
 
         #region Animation

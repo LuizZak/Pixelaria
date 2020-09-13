@@ -137,15 +137,15 @@ namespace PixelariaLibTests.Data
             controller.AddFrame(frame2);
             controller.AddFrame(frame3);
 
-            Assert.AreEqual(0, frame1.Index, "The Inedx property of a frame must reflect the frame's own position in the Animation it is on");
-            Assert.AreEqual(1, frame2.Index, "The Inedx property of a frame must reflect the frame's own position in the Animation it is on");
+            Assert.AreEqual(0, frame1.Index, "The Index property of a frame must reflect the frame's own position in the Animation it is on");
+            Assert.AreEqual(1, frame2.Index, "The Index property of a frame must reflect the frame's own position in the Animation it is on");
 
             Assert.AreEqual(frame1.Index, anim.GetFrameIndex(frame1), "A frame's Index property should be equivalent to a call to Animation.GetFrameIndex(frame)");
             Assert.AreEqual(frame2.Index, anim.GetFrameIndex(frame2), "A frame's Index property should be equivalent to a call to Animation.GetFrameIndex(frame)");
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException), "Tring to perform any action on an uninitialized frame other than a call to Initialize should raise an InvalidOperationException")]
+        [ExpectedException(typeof(InvalidOperationException), "Trying to perform any action on an uninitialized frame other than a call to Initialize should raise an InvalidOperationException")]
         public void TestFrameUninitializedException()
         {
             var frame = new Frame();
@@ -231,6 +231,8 @@ namespace PixelariaLibTests.Data
         public Size Size => Size.Empty;
 
         public int Index => 0;
+
+        public KeyframeMetadata KeyframeMetadata { get; } = new KeyframeMetadata();
 
         [CanBeNull]
         public Animation Animation

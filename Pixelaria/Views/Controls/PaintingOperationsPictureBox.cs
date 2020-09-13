@@ -441,8 +441,8 @@ namespace Pixelaria.Views.Controls
 
                     var pen = Pens.Gray;
 
-                    float xOff = (-offsetPoint.X) % scale.X;
-                    float yOff = (-offsetPoint.Y) % scale.Y;
+                    float xOff = -offsetPoint.X % scale.X;
+                    float yOff = -offsetPoint.Y % scale.Y;
 
                     // Draw the horizontal lines
                     for (float y = yOff; y < Math.Min(Height, (Image.Height * scale.Y)); y += scale.Y)

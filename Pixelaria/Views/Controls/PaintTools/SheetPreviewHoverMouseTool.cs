@@ -354,35 +354,33 @@ namespace Pixelaria.Views.Controls.PaintTools
             if (!_displayReusedCount)
                 return;
 
-            using (var g = Graphics.FromImage(_frameRectSheet))
+            using var g = Graphics.FromImage(_frameRectSheet);
+            g.InterpolationMode = InterpolationMode.NearestNeighbor;
+            g.CompositingMode = CompositingMode.SourceCopy;
+            g.CompositingQuality = CompositingQuality.HighSpeed;
+
+            // Draw the reuse count now
+            for (int i = 0; i < rects.Length; i++)
             {
-                g.InterpolationMode = InterpolationMode.NearestNeighbor;
-                g.CompositingMode = CompositingMode.SourceCopy;
-                g.CompositingQuality = CompositingQuality.HighSpeed;
+                var fRect = rects[i];
 
-                // Draw the reuse count now
-                for (int i = 0; i < rects.Length; i++)
-                {
-                    var fRect = rects[i];
+                fRect.X += 1;
+                fRect.Y += 1;
 
-                    fRect.X += 1;
-                    fRect.Y += 1;
-
-                    if (!_displayReusedCount || _sheetExport == null)
-                        continue;
+                if (!_displayReusedCount || _sheetExport == null)
+                    continue;
                     
-                    var pixelPoint = fRect.Location;
+                var pixelPoint = fRect.Location;
 
-                    int digitsScale = 3;
-                    int frameCount = _sheetExport.Atlas.GetFrameBoundsMap().CountOfFramesAtSheetBoundsIndex(i);
+                int digitsScale = 3;
+                int frameCount = _sheetExport.Atlas.GetFrameBoundsMap().CountOfFramesAtSheetBoundsIndex(i);
 
-                    while ((fRect.Size.Width < SizeForImageNumber(frameCount, digitsScale).Width * 2 ||
-                            fRect.Size.Height < SizeForImageNumber(frameCount, digitsScale).Height * 2)
-                           && digitsScale > 1)
-                        digitsScale--;
+                while ((fRect.Size.Width < SizeForImageNumber(frameCount, digitsScale).Width * 2 ||
+                        fRect.Size.Height < SizeForImageNumber(frameCount, digitsScale).Height * 2)
+                       && digitsScale > 1)
+                    digitsScale--;
 
-                    RenderPixelNumber(g, pixelPoint, frameCount, digitsScale);
-                }
+                RenderPixelNumber(g, pixelPoint, frameCount, digitsScale);
             }
         }
 

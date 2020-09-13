@@ -42,14 +42,12 @@ namespace PixelariaLib.Data.Persistence
         public static void SaveImageToStream([NotNull] Bitmap bitmap, [NotNull] Stream stream)
         {
             // Save the image to a temporary memory stream so the write doesn't mess the original stream
-            using(var memStream = new MemoryStream())
-            {
-                bitmap.Save(memStream, ImageFormat.Png);
+            using var memStream = new MemoryStream();
+            bitmap.Save(memStream, ImageFormat.Png);
 
-                // Write the bitmap size and contents to the target stream
-                stream.Write(BitConverter.GetBytes(memStream.Length), 0, 8);
-                stream.Write(memStream.GetBuffer(), 0, (int)memStream.Length);
-            }
+            // Write the bitmap size and contents to the target stream
+            stream.Write(BitConverter.GetBytes(memStream.Length), 0, 8);
+            stream.Write(memStream.GetBuffer(), 0, (int)memStream.Length);
         }
 
         /// <summary>

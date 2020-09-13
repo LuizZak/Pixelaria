@@ -164,14 +164,12 @@ namespace Pixelaria.Views.Controls.PaintTools
         public static void PerformRectangleOperation(Color firstColor, Color secondColor, Rectangle area,
             [NotNull] Bitmap bitmap, CompositingMode compositingMode, OperationFillMode fillMode)
         {
-            using (var graphics = Graphics.FromImage(bitmap))
-            {
-                graphics.CompositingMode = compositingMode;
+            using var graphics = Graphics.FromImage(bitmap);
+            graphics.CompositingMode = compositingMode;
 
-                PerformRectangleOperation(firstColor, secondColor, area, graphics, compositingMode, fillMode);
+            PerformRectangleOperation(firstColor, secondColor, area, graphics, compositingMode, fillMode);
 
-                graphics.Flush();
-            }
+            graphics.Flush();
         }
 
         /// <summary>
@@ -282,11 +280,9 @@ namespace Pixelaria.Views.Controls.PaintTools
                 // Take the image slide now
                 _originalSlice = new Bitmap(area.Width, area.Height);
 
-                using (var g = Graphics.FromImage(_originalSlice))
-                {
-                    g.DrawImage(_bitmap, new Point(-area.X, -area.Y));
-                    g.Flush();
-                }
+                using var g = Graphics.FromImage(_originalSlice);
+                g.DrawImage(_bitmap, new Point(-area.X, -area.Y));
+                g.Flush();
             }
 
             ~RectangleUndoTask()
@@ -322,16 +318,14 @@ namespace Pixelaria.Views.Controls.PaintTools
             public override void Undo()
             {
                 // Redraw the original slice back to the image
-                using (var g = Graphics.FromImage(_bitmap))
-                {
-                    g.SetClip(_area);
-                    g.Clear(Color.Transparent);
-                    g.CompositingMode = CompositingMode.SourceCopy;
+                using var g = Graphics.FromImage(_bitmap);
+                g.SetClip(_area);
+                g.Clear(Color.Transparent);
+                g.CompositingMode = CompositingMode.SourceCopy;
                 
-                    g.DrawImage(_originalSlice, _area);
+                g.DrawImage(_originalSlice, _area);
 
-                    g.Flush();
-                }
+                g.Flush();
             }
 
             /// <summary>

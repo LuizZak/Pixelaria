@@ -42,6 +42,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -56,6 +57,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Prefer32Bit>false</Prefer32Bit>
     <UseVSHostingProcess>false</UseVSHostingProcess>
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -68,6 +70,7 @@
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -80,6 +83,7 @@
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>PXL Icon.ico</ApplicationIcon>
@@ -98,6 +102,7 @@
     <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
     <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <OutputPath>bin\Release\</OutputPath>
@@ -110,6 +115,7 @@
     <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
     <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FastBitmapLib, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -167,6 +173,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\IInterfaceStateProvider.cs" />
+    <Compile Include="Timeline\EmptyTimelineLayerController.cs" />
+    <Compile Include="Timeline\IKeyframeSource.cs" />
+    <Compile Include="Timeline\ITimeline.cs" />
+    <Compile Include="Timeline\ITimelineLayerController.cs" />
+    <Compile Include="Timeline\KeyframeCollectionSource.cs" />
+    <Compile Include="Timeline\TimelinePlayer.cs" />
     <Compile Include="Algorithms\PaintOperations\IColorBlender.cs" />
     <Compile Include="Algorithms\PaintOperations\Interfaces\IColoredPaintOperation.cs" />
     <Compile Include="Algorithms\PaintOperations\Interfaces\ICompositingPaintOperation.cs" />
@@ -197,6 +209,13 @@
     <Compile Include="Views\Controls\PaintTools\Interfaces\IAreaOperation.cs" />
     <Compile Include="Views\Controls\PaintTools\Interfaces\IPaintingPictureBoxTool.cs" />
     <Compile Include="Views\Controls\PaintTools\IUndoIntercepterPaintTool.cs" />
+    <Compile Include="Timeline\Timeline.cs" />
+    <Compile Include="Views\Controls\TimelineControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Views\Controls\TimelineControl.Designer.cs">
+      <DependentUpon>TimelineControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\Controls\TinyColorSlider.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -365,7 +384,7 @@
     <Compile Include="Views\Controls\PaintTools\SelectionPaintTool.cs" />
     <Compile Include="Views\Controls\PaintTools\SheetPreviewHoverMouseTool.cs" />
     <Compile Include="Views\Controls\PaintTools\SprayPaintTool.cs" />
-    <Compile Include="Views\Controls\TimelineControl.cs">
+    <Compile Include="Views\Controls\TimelineScrubControl.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Views\Controls\ZoomablePictureBox.cs">
@@ -433,6 +452,12 @@
     </Compile>
     <Compile Include="Views\ModelViews\AnimationView.Designer.cs">
       <DependentUpon>AnimationView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ModelViews\FrameOriginView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\ModelViews\FrameOriginView.Designer.cs">
+      <DependentUpon>FrameOriginView.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\ModelViews\ImageFilterView.cs">
       <SubType>Form</SubType>
@@ -586,6 +611,10 @@
       <DependentUpon>AnimationView.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="Views\ModelViews\FrameOriginView.resx">
+      <DependentUpon>FrameOriginView.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\ModelViews\ImageFilterView.resx">
       <DependentUpon>ImageFilterView.cs</DependentUpon>
     </EmbeddedResource>
@@ -647,17 +676,6 @@
     <None Include="Resources\document_new.png" />
   </ItemGroup>
   <ItemGroup>
-    <COMReference Include="Microsoft.Vbe.Interop.Forms">
-      <Guid>{0D452EE1-E08F-101A-852E-02608C4D0BB4}</Guid>
-      <VersionMajor>2</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>primary</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </COMReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\checkers_pattern.png" />
   </ItemGroup>
   <ItemGroup>
@@ -711,6 +729,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="PXL Icon.ico" />
+    <None Include="Resources\frame_origin_marker.png" />
+    <None Include="Resources\frame_origin.png" />
     <None Include="Resources\error_22x22.png" />
     <None Include="Resources\emblem-important.png" />
     <None Include="Resources\frame_flip_vertical.png" />

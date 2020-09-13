@@ -1,4 +1,4 @@
-/*
+﻿/*
     Pixelaria
     Copyright (C) 2013 Luiz Fernando Silva
 
@@ -561,9 +561,9 @@ namespace Pixelaria.Views.ModelViews
             {
                 basePaintTool.ColorPicked -= OnColorPicked;
             }
-            if (iepb_frame.CurrentPaintTool is SelectionPaintTool selectionTool)
+            if (iepb_frame.CurrentPaintTool is IAreaOperation areaOperation)
             {
-                selectionTool.FinishOperation(true);
+                areaOperation.FinishOperation(true);
             }
 
             iepb_frame.CurrentPaintTool = paintTool;
@@ -572,13 +572,13 @@ namespace Pixelaria.Views.ModelViews
             gb_fillMode.Visible = paintTool is IFillModePaintTool;
             gb_otherGroup.Visible = paintTool is IAirbrushPaintTool;
 
-            if (paintTool is IAirbrushPaintTool)
+            if (paintTool is IAirbrushPaintTool airbrushPaintTool)
             {
-                (paintTool as IAirbrushPaintTool).AirbrushMode = cb_airbrushMode.Checked;
+                airbrushPaintTool.AirbrushMode = cb_airbrushMode.Checked;
             }
-            if (paintTool is AbstractPaintTool)
+            if (paintTool is AbstractPaintTool abstractPaintTool)
             {
-                (paintTool as AbstractPaintTool).ColorPicked += OnColorPicked;
+                abstractPaintTool.ColorPicked += OnColorPicked;
             }
 
             // Focus on the canvas
@@ -2030,27 +2030,25 @@ namespace Pixelaria.Views.ModelViews
         private void OnColorPicked(object sender, [NotNull] PaintToolColorPickedEventArgs args)
         {
             // Pick the color from the composed bitmap
-            using(var composed = FrameRenderer.ComposeFrame(_viewFrameController, lcp_layers.LayerStatuses, !ModifierKeys.HasFlag(Keys.Control)))
+            using var composed = FrameRenderer.ComposeFrame(_viewFrameController, lcp_layers.LayerStatuses, !ModifierKeys.HasFlag(Keys.Control));
+            var colorAt = composed.GetPixel(args.ImagePoint.X, args.ImagePoint.Y);
+
+            ColorPickerColor colorIndex;
+
+            switch (args.ColorIndex)
             {
-                var colorAt = composed.GetPixel(args.ImagePoint.X, args.ImagePoint.Y);
-
-                ColorPickerColor colorIndex;
-
-                switch (args.ColorIndex)
-                {
-                    case ColorIndex.FirstColor:
-                        colorIndex = ColorPickerColor.FirstColor;
-                        break;
-                    case ColorIndex.SecondColor:
-                        colorIndex = ColorPickerColor.SecondColor;
-                        break;
-                    default:
-                        colorIndex = ColorPickerColor.CurrentColor;
-                        break;
-                }
-
-                iepb_frame.FireColorChangeEvent(colorAt, colorIndex);
+                case ColorIndex.FirstColor:
+                    colorIndex = ColorPickerColor.FirstColor;
+                    break;
+                case ColorIndex.SecondColor:
+                    colorIndex = ColorPickerColor.SecondColor;
+                    break;
+                default:
+                    colorIndex = ColorPickerColor.CurrentColor;
+                    break;
             }
+
+            iepb_frame.FireColorChangeEvent(colorAt, colorIndex);
         }
 
         // 

@@ -21,9 +21,9 @@
 */
 
 using System.IO;
-using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixelariaLib.Controllers.Exporters.Pixelaria;
+using PixelariaTests.TestUtils;
 
 namespace PixelariaLibTests.Controllers.Exporters.Pixelaria
 {
@@ -38,7 +38,7 @@ namespace PixelariaLibTests.Controllers.Exporters.Pixelaria
 
             sut.Save(stream);
 
-            Assert.IsTrue(stream.GetBuffer().Take((int)stream.Length).SequenceEqual(new byte[] { 0, 0 }));
+            Assert.That.MemoryStreamMatches(stream, new byte[] {0, 0});
         }
 
         [TestMethod]

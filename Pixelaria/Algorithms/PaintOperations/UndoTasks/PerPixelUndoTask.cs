@@ -85,12 +85,10 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         /// </summary>
         public override void Undo()
         {
-            using (var bitmap = targetBitmap.FastLock())
+            using var bitmap = targetBitmap.FastLock();
+            foreach (var pixelUndo in PixelHistoryTracker.StoredPixelsEnumerable)
             {
-                foreach (var pixelUndo in PixelHistoryTracker.StoredPixelsEnumerable)
-                {
-                    bitmap.SetPixel(pixelUndo.PixelX, pixelUndo.PixelY, pixelUndo.OldColor);
-                }
+                bitmap.SetPixel(pixelUndo.PixelX, pixelUndo.PixelY, pixelUndo.OldColor);
             }
         }
 
@@ -99,12 +97,10 @@ namespace Pixelaria.Algorithms.PaintOperations.UndoTasks
         /// </summary>
         public override void Redo()
         {
-            using (var bitmap = targetBitmap.FastLock())
+            using var bitmap = targetBitmap.FastLock();
+            foreach (var pixelUndo in PixelHistoryTracker.StoredPixelsEnumerable)
             {
-                foreach (var pixelUndo in PixelHistoryTracker.StoredPixelsEnumerable)
-                {
-                    bitmap.SetPixel(pixelUndo.PixelX, pixelUndo.PixelY, pixelUndo.NewColor);
-                }
+                bitmap.SetPixel(pixelUndo.PixelX, pixelUndo.PixelY, pixelUndo.NewColor);
             }
         }
 

@@ -75,21 +75,19 @@ namespace PixelariaLib.Filters
                 return;
 
             // Lock the bitmap
-            using (var fastBitmap = bitmap.FastLock())
+            using var fastBitmap = bitmap.FastLock();
+            int* scan0 = (int*) fastBitmap.Scan0;
+            int count = bitmap.Width * bitmap.Height;
+
+            float hueF = Hue / 360.0f;
+
+            while (count-- > 0)
             {
-                int* scan0 = (int*) fastBitmap.Scan0;
-                int count = bitmap.Width * bitmap.Height;
+                var ahsl = AhslColor.FromArgb(*scan0);
 
-                float hueF = Hue / 360.0f;
+                var newHue = Relative ? (ahsl.FloatHue + hueF) % 1.0f : hueF;
 
-                while (count-- > 0)
-                {
-                    var ahsl = AhslColor.FromArgb(*scan0);
-
-                    var newHue = Relative ? (ahsl.FloatHue + hueF) % 1.0f : hueF;
-
-                    * scan0++ = new AhslColor(ahsl.FloatAlpha, newHue, ahsl.FloatSaturation, ahsl.FloatLightness).ToArgb();
-                }
+                * scan0++ = new AhslColor(ahsl.FloatAlpha, newHue, ahsl.FloatSaturation, ahsl.FloatLightness).ToArgb();
             }
         }
 
@@ -194,32 +192,30 @@ namespace PixelariaLib.Filters
                 return;
             
             // Lock the bitmap
-            using (var fastBitmap = bitmap.FastLock())
+            using var fastBitmap = bitmap.FastLock();
+            int* scan0 = (int*) fastBitmap.Scan0;
+            int count = bitmap.Width * bitmap.Height;
+
+            float satF = Saturation / 100.0f;
+
+            while (count-- > 0)
             {
-                int* scan0 = (int*) fastBitmap.Scan0;
-                int count = bitmap.Width * bitmap.Height;
+                var ahsl = AhslColor.FromArgb(*scan0);
+                float s = ahsl.FloatSaturation;
 
-                float satF = Saturation / 100.0f;
-
-                while (count-- > 0)
+                if (!KeepGrays || ahsl.FloatSaturation > 0)
                 {
-                    var ahsl = AhslColor.FromArgb(*scan0);
-                    float s = ahsl.FloatSaturation;
-
-                    if (!KeepGrays || ahsl.FloatSaturation > 0)
+                    if (Multiply)
                     {
-                        if (Multiply)
-                        {
-                            s = ahsl.FloatSaturation * satF;
-                        }
-                        else
-                        {
-                            s = Relative ? ahsl.FloatSaturation + satF : satF;
-                        }
+                        s = ahsl.FloatSaturation * satF;
                     }
-
-                    *scan0++ = new AhslColor(ahsl.FloatAlpha, ahsl.FloatHue, s, ahsl.FloatLightness).ToArgb();
+                    else
+                    {
+                        s = Relative ? ahsl.FloatSaturation + satF : satF;
+                    }
                 }
+
+                *scan0++ = new AhslColor(ahsl.FloatAlpha, ahsl.FloatHue, s, ahsl.FloatLightness).ToArgb();
             }
         }
 
@@ -322,29 +318,27 @@ namespace PixelariaLib.Filters
                 return;
 
             // Lock the bitmap
-            using (var fastBitmap = bitmap.FastLock())
+            using var fastBitmap = bitmap.FastLock();
+            int* scan0 = (int*) fastBitmap.Scan0;
+            int count = bitmap.Width * bitmap.Height;
+
+            float lightF = Lightness / 100.0f;
+
+            while (count-- > 0)
             {
-                int* scan0 = (int*) fastBitmap.Scan0;
-                int count = bitmap.Width * bitmap.Height;
+                var ahsl = AhslColor.FromArgb(*scan0);
+                float l;
 
-                float lightF = Lightness / 100.0f;
-
-                while (count-- > 0)
+                if (Multiply)
                 {
-                    var ahsl = AhslColor.FromArgb(*scan0);
-                    float l;
-
-                    if (Multiply)
-                    {
-                        l = ahsl.FloatLightness * lightF;
-                    }
-                    else
-                    {
-                        l = Relative ? ahsl.FloatLightness + lightF : lightF;
-                    }
-
-                    *scan0++ = new AhslColor(ahsl.FloatAlpha, ahsl.FloatHue, ahsl.FloatSaturation, l).ToArgb();
+                    l = ahsl.FloatLightness * lightF;
                 }
+                else
+                {
+                    l = Relative ? ahsl.FloatLightness + lightF : lightF;
+                }
+
+                *scan0++ = new AhslColor(ahsl.FloatAlpha, ahsl.FloatHue, ahsl.FloatSaturation, l).ToArgb();
             }
         }
 
