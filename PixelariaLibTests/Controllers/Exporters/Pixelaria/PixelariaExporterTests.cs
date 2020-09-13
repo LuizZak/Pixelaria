@@ -23,7 +23,7 @@
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixelariaLib.Controllers.Exporters.Pixelaria;
-using PixelariaTests.TestUtils;
+using PixelariaLibTests.TestUtils;
 
 namespace PixelariaLibTests.Controllers.Exporters.Pixelaria
 {

@@ -29,7 +29,7 @@ using PixelariaLib.Controllers.Exporters;
 using PixelariaLib.Controllers.Exporters.Unity;
 using PixelariaLib.Data;
 using PixelariaLib.Data.Persistence.PixelariaFileBlocks;
-using PixelariaTests.TestUtils;
+using PixelariaLibTests.TestUtils;
 
 namespace PixelariaLibTests.Data.Persistence.PixelariaFileBlocks
 {

@@ -24,7 +24,7 @@ using System.Drawing;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixelariaLib.Data.KeyframeMetadataSerializers;
-using PixelariaTests.TestUtils;
+using PixelariaLibTests.TestUtils;
 
 namespace PixelariaLibTests.Data.KeyframeMetadataSerializers
 {

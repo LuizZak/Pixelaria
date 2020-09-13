@@ -26,7 +26,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace PixelariaTests.TestUtils
+namespace PixelariaLibTests.TestUtils
 {
     public static class StreamTestUtils
     {

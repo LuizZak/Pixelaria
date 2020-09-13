@@ -26,7 +26,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixelariaLib.Data;
 using PixelariaLib.Data.Persistence.PixelariaFileBlocks;
-using PixelariaTests.TestUtils;
+using PixelariaLibTests.TestUtils;
 using Rhino.Mocks;
 
 namespace PixelariaLibTests.Data.Persistence.PixelariaFileBlocks

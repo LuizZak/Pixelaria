@@ -27,7 +27,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixelariaLib.Controllers.Exporters;
 using PixelariaLib.Controllers.Exporters.Unity;
 using PixelariaLibTests.TestGenerators;
-using PixelariaTests.TestUtils;
+using PixelariaLibTests.TestUtils;
 
 namespace PixelariaLibTests.Controllers.Exporters.Unity
 {
