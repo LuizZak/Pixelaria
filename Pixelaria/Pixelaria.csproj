@@ -317,9 +317,6 @@
     <Compile Include="Views\Controls\PaintTools\SelectionPaintTool.cs" />
     <Compile Include="Views\Controls\PaintTools\SheetPreviewHoverMouseTool.cs" />
     <Compile Include="Views\Controls\PaintTools\SprayPaintTool.cs" />
-    <Compile Include="Views\Controls\TimelineControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="Views\Controls\PaintTools\ZoomPaintTool.cs" />
     <Compile Include="Views\MainForm.cs">
       <SubType>Form</SubType>

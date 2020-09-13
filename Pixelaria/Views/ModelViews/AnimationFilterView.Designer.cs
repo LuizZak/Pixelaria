@@ -36,7 +36,7 @@
             this.btn_cancel = new System.Windows.Forms.Button();
             this.btn_ok = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
-            this.tc_timeline = new Pixelaria.Views.Controls.TimelineControl();
+            this.tc_timeline = new PixelariaLib.Views.Controls.TimelineControl();
             this.fs_filters = new Pixelaria.Views.Controls.FilterSelector();
             this.pnl_bottom.SuspendLayout();
             this.pnl_errorPanel.SuspendLayout();
@@ -128,10 +128,10 @@
             // 
             this.tc_timeline.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tc_timeline.BehaviorType = Pixelaria.Views.Controls.TimelineBehaviorType.TimelineWithRange;
+            this.tc_timeline.BehaviorType = PixelariaLib.Views.Controls.TimelineBehaviorType.TimelineWithRange;
             this.tc_timeline.CurrentFrame = 1;
             this.tc_timeline.DisableFrameSelectionOutOfRange = false;
-            this.tc_timeline.FrameDisplayType = Pixelaria.Views.Controls.TimelineFrameDisplayType.FrameNumber;
+            this.tc_timeline.FrameDisplayType = PixelariaLib.Views.Controls.TimelineFrameDisplayType.FrameNumber;
             this.tc_timeline.Location = new System.Drawing.Point(12, 575);
             this.tc_timeline.Maximum = 1;
             this.tc_timeline.Minimum = 0;
@@ -142,7 +142,7 @@
             this.tc_timeline.Size = new System.Drawing.Size(624, 40);
             this.tc_timeline.TabIndex = 32;
             this.tc_timeline.Text = "timelineControl1";
-            this.tc_timeline.FrameChanged += new Pixelaria.Views.Controls.TimelineControl.FrameChangedEventHandler(this.tc_timeline_FrameChanged);
+            this.tc_timeline.FrameChanged += new PixelariaLib.Views.Controls.TimelineControl.FrameChangedEventHandler(this.tc_timeline_FrameChanged);
             // 
             // fs_filters
             // 
@@ -187,7 +187,7 @@
         private System.Windows.Forms.Label lbl_error;
         private System.Windows.Forms.Button btn_cancel;
         private System.Windows.Forms.Button btn_ok;
-        private Controls.TimelineControl tc_timeline;
+        private PixelariaLib.Views.Controls.TimelineControl tc_timeline;
         private System.Windows.Forms.Label label1;
 
 
