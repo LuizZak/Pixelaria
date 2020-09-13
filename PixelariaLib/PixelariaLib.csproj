@@ -189,7 +189,7 @@
     <Compile Include="Views\Controls\RearrangeableTreeView.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Views\Controls\TimelineControl.cs">
+    <Compile Include="Views\Controls\TimelineScrubControl.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Views\Controls\TinyColorSlider.cs">

@@ -49,6 +49,7 @@ using PixelariaLib.Views.Controls.ColorControls;
 using PixelariaLib.Data;
 using PixelariaLib.Filters;
 using PixelariaLib.Utils;
+using PixelariaLib.Views.Controls;
 
 namespace Pixelaria.Views.ModelViews
 {

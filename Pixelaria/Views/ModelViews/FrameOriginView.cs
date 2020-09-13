@@ -31,7 +31,6 @@ using Pixelaria.Views.Controls;
 using PixelariaLib.Controllers.DataControllers;
 using PixelariaLib.Data;
 using PixelariaLib.Views.Controls;
-using FrameChangedEventArgs = Pixelaria.Views.Controls.FrameChangedEventArgs;
 
 namespace Pixelaria.Views.ModelViews
 {

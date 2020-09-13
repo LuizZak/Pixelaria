@@ -59,7 +59,7 @@ namespace Pixelaria.Views.ModelViews
             this.lbl_currentFrame = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.lbl_frameCount = new System.Windows.Forms.Label();
-            this.tlc_timeline = new Pixelaria.Views.Controls.TimelineScrubControl();
+            this.tlc_timeline = new PixelariaLib.Views.Controls.TimelineScrubControl();
             this.pnl_preview = new PixelariaLib.Views.Controls.CPictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.nud_previewZoom)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tb_zoomTrack)).BeginInit();
@@ -165,7 +165,7 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.tlc_timeline.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tlc_timeline.BehaviorType = Pixelaria.Views.Controls.TimelineBehaviorType.TimelineWithRange;
+            this.tlc_timeline.BehaviorType = PixelariaLib.Views.Controls.TimelineBehaviorType.TimelineWithRange;
             this.tlc_timeline.CurrentFrame = 0;
             this.tlc_timeline.Location = new System.Drawing.Point(3, 62);
             this.tlc_timeline.Maximum = 10;
@@ -177,7 +177,7 @@ namespace Pixelaria.Views.ModelViews
             this.tlc_timeline.Size = new System.Drawing.Size(197, 38);
             this.tlc_timeline.TabIndex = 16;
             this.tlc_timeline.Text = "timelineControl1";
-            this.tlc_timeline.FrameChanged += new Pixelaria.Views.Controls.TimelineScrubControl.FrameChangedEventHandler(this.tlc_timeline_FrameChanged);
+            this.tlc_timeline.FrameChanged += new PixelariaLib.Views.Controls.TimelineScrubControl.FrameChangedEventHandler(this.tlc_timeline_FrameChanged);
             // 
             // pnl_preview
             // 
@@ -227,6 +227,6 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.Label lbl_currentFrame;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label lbl_frameCount;
-        private Controls.TimelineScrubControl tlc_timeline;
+        private PixelariaLib.Views.Controls.TimelineScrubControl tlc_timeline;
     }
 }

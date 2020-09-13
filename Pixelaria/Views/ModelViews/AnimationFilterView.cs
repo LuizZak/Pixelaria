@@ -28,9 +28,9 @@ using Pixelaria.Controllers;
 
 using Pixelaria.Filters;
 
-using Pixelaria.Views.Controls;
 using Pixelaria.Views.Controls.Filters;
 using PixelariaLib.Controllers.DataControllers;
+using PixelariaLib.Views.Controls;
 
 namespace Pixelaria.Views.ModelViews
 {

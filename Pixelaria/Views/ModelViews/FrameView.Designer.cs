@@ -20,10 +20,8 @@
     base directory of this project.
 */
 
-using Pixelaria.Views.Controls;
 using PixelariaLib.Views.Controls.ColorControls;
 using Pixelaria.Views.Controls.LayerControls;
-using Pixelaria.Views.Controls.PaintTools;
 
 namespace Pixelaria.Views.ModelViews
 {
@@ -60,7 +58,7 @@ namespace Pixelaria.Views.ModelViews
             this.pnl_framePreview = new PixelariaLib.Views.Controls.LabeledPanel();
             this.zpb_framePreview = new PixelariaLib.Views.Controls.ZoomablePictureBox();
             this.panel4 = new System.Windows.Forms.Panel();
-            this.tc_currentFrame = new Pixelaria.Views.Controls.TimelineScrubControl();
+            this.tc_currentFrame = new PixelariaLib.Views.Controls.TimelineScrubControl();
             this.pb_zoomIcon = new System.Windows.Forms.PictureBox();
             this.anud_zoom = new PixelariaLib.Views.Controls.AssistedNumericUpDown();
             this.panel2 = new System.Windows.Forms.Panel();
@@ -355,9 +353,9 @@ namespace Pixelaria.Views.ModelViews
             // 
             this.tc_currentFrame.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tc_currentFrame.BehaviorType = Pixelaria.Views.Controls.TimelineBehaviorType.Timeline;
+            this.tc_currentFrame.BehaviorType = PixelariaLib.Views.Controls.TimelineBehaviorType.Timeline;
             this.tc_currentFrame.CurrentFrame = 2;
-            this.tc_currentFrame.FrameDisplayType = Pixelaria.Views.Controls.TimelineFrameDisplayType.FrameNumber;
+            this.tc_currentFrame.FrameDisplayType = PixelariaLib.Views.Controls.TimelineFrameDisplayType.FrameNumber;
             this.tc_currentFrame.Location = new System.Drawing.Point(4, 3);
             this.tc_currentFrame.Maximum = 10;
             this.tc_currentFrame.Minimum = 0;
@@ -367,7 +365,7 @@ namespace Pixelaria.Views.ModelViews
             this.tc_currentFrame.ScrollX = 0D;
             this.tc_currentFrame.Size = new System.Drawing.Size(545, 41);
             this.tc_currentFrame.TabIndex = 2;
-            this.tc_currentFrame.FrameChanged += new Pixelaria.Views.Controls.TimelineScrubControl.FrameChangedEventHandler(this.tc_currentFrame_FrameChanged);
+            this.tc_currentFrame.FrameChanged += new PixelariaLib.Views.Controls.TimelineScrubControl.FrameChangedEventHandler(this.tc_currentFrame_FrameChanged);
             // 
             // pb_zoomIcon
             // 
@@ -1492,7 +1490,7 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
         private System.Windows.Forms.ToolStripButton tsb_osShowCurrentFrame;
         private System.Windows.Forms.RadioButton rb_sprayPaint;
-        private Controls.TimelineScrubControl tc_currentFrame;
+        private PixelariaLib.Views.Controls.TimelineScrubControl tc_currentFrame;
         private System.Windows.Forms.ToolStripButton tsb_osDisplayOnFront;
         private System.Windows.Forms.GroupBox gb_otherGroup;
         private System.Windows.Forms.CheckBox cb_airbrushMode;
