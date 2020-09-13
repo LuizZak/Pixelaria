@@ -21,6 +21,7 @@
 */
 
 using Pixelaria.Data;
+using PixelariaLib.Views.Controls;
 
 namespace Pixelaria.Views.Controls
 {

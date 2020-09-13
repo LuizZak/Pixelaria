@@ -24,6 +24,7 @@ using System;
 using System.Drawing;
 
 using PixelariaLib.Filters;
+using PixelariaLib.Views.Controls.ColorControls;
 
 namespace Pixelaria.Views.Controls.Filters
 {
@@ -71,7 +72,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         // Hue slider color changed
         // 
-        private void cs_hue_ColorChanged(object sender, ColorControls.ColorChangedEventArgs e)
+        private void cs_hue_ColorChanged(object sender, ColorChangedEventArgs e)
         {
             ((HueFilter)filter).Hue = (int)(cs_hue.CurrentValue * 360);
 

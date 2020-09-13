@@ -30,6 +30,7 @@ using JetBrains.Annotations;
 using Pixelaria.Filters;
 using Pixelaria.Views.Controls.Filters;
 using PixelariaLib.Filters;
+using PixelariaLib.Views.Controls;
 
 namespace Pixelaria.Views.Controls
 {

@@ -72,7 +72,7 @@ namespace Pixelaria.Views.MiscViews
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.zpb_preview = new Pixelaria.Views.Controls.ZoomablePictureBox();
+            this.zpb_preview = new PixelariaLib.Views.Controls.ZoomablePictureBox();
             this.btn_ok = new System.Windows.Forms.Button();
             this.btn_cancel = new System.Windows.Forms.Button();
             this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
@@ -522,7 +522,7 @@ namespace Pixelaria.Views.MiscViews
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.GroupBox groupBox4;
-        private Controls.ZoomablePictureBox zpb_preview;
+        private PixelariaLib.Views.Controls.ZoomablePictureBox zpb_preview;
         private System.Windows.Forms.RadioButton rb_frameScaling_zoom;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label7;

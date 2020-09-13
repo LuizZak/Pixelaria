@@ -21,7 +21,7 @@
 */
 
 using Pixelaria.Views.Controls;
-using Pixelaria.Views.Controls.ColorControls;
+using PixelariaLib.Views.Controls.ColorControls;
 using Pixelaria.Views.Controls.LayerControls;
 using Pixelaria.Views.Controls.PaintTools;
 
@@ -58,18 +58,18 @@ namespace Pixelaria.Views.ModelViews
             this.rb_bucket = new System.Windows.Forms.RadioButton();
             this.rb_selection = new System.Windows.Forms.RadioButton();
             this.rb_zoom = new System.Windows.Forms.RadioButton();
-            this.pnl_framePreview = new Pixelaria.Views.Controls.LabeledPanel();
-            this.zpb_framePreview = new Pixelaria.Views.Controls.ZoomablePictureBox();
+            this.pnl_framePreview = new PixelariaLib.Views.Controls.LabeledPanel();
+            this.zpb_framePreview = new PixelariaLib.Views.Controls.ZoomablePictureBox();
             this.panel4 = new System.Windows.Forms.Panel();
             this.tc_currentFrame = new Pixelaria.Views.Controls.TimelineControl();
             this.pb_zoomIcon = new System.Windows.Forms.PictureBox();
-            this.anud_zoom = new Pixelaria.Views.Controls.AssistedNumericUpDown();
+            this.anud_zoom = new PixelariaLib.Views.Controls.AssistedNumericUpDown();
             this.panel2 = new System.Windows.Forms.Panel();
             this.panel3 = new System.Windows.Forms.Panel();
-            this.cs_colorSwatch = new Pixelaria.Views.Controls.ColorControls.ColorSwatchControl();
+            this.cs_colorSwatch = new PixelariaLib.Views.Controls.ColorControls.ColorSwatchControl();
             this.splitter1 = new System.Windows.Forms.Splitter();
-            this.cp_mainColorPicker = new Pixelaria.Views.Controls.ColorControls.ColorPicker();
-            this.panel1 = new Pixelaria.Views.Controls.LabeledPanel();
+            this.cp_mainColorPicker = new PixelariaLib.Views.Controls.ColorControls.ColorPicker();
+            this.panel1 = new PixelariaLib.Views.Controls.LabeledPanel();
             this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.rb_blendingBlend = new System.Windows.Forms.RadioButton();
@@ -82,7 +82,7 @@ namespace Pixelaria.Views.ModelViews
             this.btn_brushSize_4 = new System.Windows.Forms.Button();
             this.btn_brushSize_5 = new System.Windows.Forms.Button();
             this.btn_brushSize_6 = new System.Windows.Forms.Button();
-            this.anud_brushSize = new Pixelaria.Views.Controls.AssistedNumericUpDown();
+            this.anud_brushSize = new PixelariaLib.Views.Controls.AssistedNumericUpDown();
             this.gb_fillMode = new System.Windows.Forms.GroupBox();
             this.rb_fillMode_3 = new System.Windows.Forms.RadioButton();
             this.rb_fillMode_2 = new System.Windows.Forms.RadioButton();
@@ -443,7 +443,7 @@ namespace Pixelaria.Views.ModelViews
             this.cs_colorSwatch.Name = "cs_colorSwatch";
             this.cs_colorSwatch.Size = new System.Drawing.Size(171, 283);
             this.cs_colorSwatch.TabIndex = 4;
-            this.cs_colorSwatch.ColorSelect += new Pixelaria.Views.Controls.ColorControls.ColorSwatchControl.ColorSelectEventHandler(this.cs_colorSwatch_ColorSelect);
+            this.cs_colorSwatch.ColorSelect += new PixelariaLib.Views.Controls.ColorControls.ColorSwatchControl.ColorSelectEventHandler(this.cs_colorSwatch_ColorSelect);
             // 
             // splitter1
             // 
@@ -462,10 +462,10 @@ namespace Pixelaria.Views.ModelViews
             this.cp_mainColorPicker.Location = new System.Drawing.Point(0, 0);
             this.cp_mainColorPicker.Name = "cp_mainColorPicker";
             this.cp_mainColorPicker.SecondColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.cp_mainColorPicker.SelectedColor = Pixelaria.Views.Controls.ColorControls.ColorPickerColor.FirstColor;
+            this.cp_mainColorPicker.SelectedColor = PixelariaLib.Views.Controls.ColorControls.ColorPickerColor.FirstColor;
             this.cp_mainColorPicker.Size = new System.Drawing.Size(172, 550);
             this.cp_mainColorPicker.TabIndex = 3;
-            this.cp_mainColorPicker.ColorPick += new Pixelaria.Views.Controls.ColorControls.ColorPicker.ColorPickEventHandler(this.cp_mainColorPicker_ColorPick);
+            this.cp_mainColorPicker.ColorPick += new PixelariaLib.Views.Controls.ColorControls.ColorPicker.ColorPickEventHandler(this.cp_mainColorPicker_ColorPick);
             // 
             // panel1
             // 
@@ -1401,7 +1401,7 @@ namespace Pixelaria.Views.ModelViews
         #endregion
 
         private Pixelaria.Views.Controls.ImageEditPanel iepb_frame;
-        private LabeledPanel panel1;
+        private PixelariaLib.Views.Controls.LabeledPanel panel1;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.PrintDialog printDialog1;
         private System.Windows.Forms.ToolStrip toolStrip1;
@@ -1426,7 +1426,7 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.Splitter splitter1;
         private System.Windows.Forms.Panel panel4;
-        private Controls.AssistedNumericUpDown anud_zoom;
+        private PixelariaLib.Views.Controls.AssistedNumericUpDown anud_zoom;
         private System.Windows.Forms.PictureBox pb_zoomIcon;
         private System.Windows.Forms.ToolStripButton tsb_addFrameAtEnd;
         private System.Windows.Forms.MenuStrip menuStrip1;
@@ -1440,7 +1440,7 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem tsm_switchBlendingMode;
         private System.Windows.Forms.GroupBox gb_sizeGroup;
-        private Controls.AssistedNumericUpDown anud_brushSize;
+        private PixelariaLib.Views.Controls.AssistedNumericUpDown anud_brushSize;
         private System.Windows.Forms.ToolStripMenuItem tsm_exportFrame;
         private System.Windows.Forms.ToolStripMenuItem tsm_importFrame;
         private System.Windows.Forms.ToolStripButton tsb_applyChanges;
@@ -1471,10 +1471,10 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.ToolStripMenuItem tsm_paste;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
         private System.Windows.Forms.ToolTip tt_mainTooltip;
-        private LabeledPanel pnl_framePreview;
+        private PixelariaLib.Views.Controls.LabeledPanel pnl_framePreview;
         private System.Windows.Forms.ToolStripButton tsb_previewFrame;
         private System.Windows.Forms.ToolStripButton tsb_previewAnimation;
-        private Controls.ZoomablePictureBox zpb_framePreview;
+        private PixelariaLib.Views.Controls.ZoomablePictureBox zpb_framePreview;
         private System.Windows.Forms.ToolStripButton tsb_insertNewframe;
         private System.Windows.Forms.ToolStripButton tsb_clearFrame;
         private System.Windows.Forms.ToolStripMenuItem tsm_filters;

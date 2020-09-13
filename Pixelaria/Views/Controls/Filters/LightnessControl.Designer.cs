@@ -30,7 +30,7 @@
         {
             this.cb_relative = new System.Windows.Forms.CheckBox();
             this.cb_multiply = new System.Windows.Forms.CheckBox();
-            this.cs_lightness = new Pixelaria.Views.Controls.ColorControls.ColorSlider();
+            this.cs_lightness = new PixelariaLib.Views.Controls.ColorControls.ColorSlider();
             this.SuspendLayout();
             // 
             // cb_relative
@@ -60,7 +60,7 @@
             this.cs_lightness.ActiveColor = new PixelariaLib.Utils.AhslColor(1F, 0F, 0F, 1F);
             this.cs_lightness.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.cs_lightness.ColorComponent = Pixelaria.Views.Controls.ColorControls.ColorSliderComponent.Lightness;
+            this.cs_lightness.ColorComponent = PixelariaLib.Views.Controls.ColorControls.ColorSliderComponent.Lightness;
             this.cs_lightness.CurrentValue = 1F;
             this.cs_lightness.CustomColorTitle = "Custom";
             this.cs_lightness.CustomEndColor = new PixelariaLib.Utils.AhslColor(1F, 0F, 0F, 1F);
@@ -69,7 +69,7 @@
             this.cs_lightness.Name = "cs_lightness";
             this.cs_lightness.Size = new System.Drawing.Size(535, 38);
             this.cs_lightness.TabIndex = 10;
-            this.cs_lightness.ColorChanged += new Pixelaria.Views.Controls.ColorControls.ColorSlider.ColorChangedEventHandler(this.cs_lightness_ColorChanged);
+            this.cs_lightness.ColorChanged += new PixelariaLib.Views.Controls.ColorControls.ColorSlider.ColorChangedEventHandler(this.cs_lightness_ColorChanged);
             // 
             // LightnessControl
             // 
@@ -89,6 +89,6 @@
 
         private System.Windows.Forms.CheckBox cb_relative;
         private System.Windows.Forms.CheckBox cb_multiply;
-        private ColorControls.ColorSlider cs_lightness;
+        private PixelariaLib.Views.Controls.ColorControls.ColorSlider cs_lightness;
     }
 }

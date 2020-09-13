@@ -20,7 +20,7 @@
     base directory of this project.
 */
 
-using Pixelaria.Views.Controls.ColorControls;
+using PixelariaLib.Views.Controls.ColorControls;
 
 namespace Pixelaria.Views.Controls.Filters
 {
@@ -53,9 +53,9 @@ namespace Pixelaria.Views.Controls.Filters
         private void InitializeComponent()
         {
             this.label1 = new System.Windows.Forms.Label();
-            this.cp_color = new Pixelaria.Views.Controls.ColorControls.ColorPanel();
+            this.cp_color = new PixelariaLib.Views.Controls.ColorControls.ColorPanel();
             this.label2 = new System.Windows.Forms.Label();
-            this.cs_factor = new Pixelaria.Views.Controls.ColorControls.ColorSlider();
+            this.cs_factor = new PixelariaLib.Views.Controls.ColorControls.ColorSlider();
             this.SuspendLayout();
             // 
             // label1
@@ -91,7 +91,7 @@ namespace Pixelaria.Views.Controls.Filters
             this.cs_factor.ActiveColor = new PixelariaLib.Utils.AhslColor(1F, 0F, 0F, 1F);
             this.cs_factor.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.cs_factor.ColorComponent = Pixelaria.Views.Controls.ColorControls.ColorSliderComponent.Custom;
+            this.cs_factor.ColorComponent = PixelariaLib.Views.Controls.ColorControls.ColorSliderComponent.Custom;
             this.cs_factor.CurrentValue = 1F;
             this.cs_factor.CustomColorTitle = "Factor";
             this.cs_factor.CustomEndColor = new PixelariaLib.Utils.AhslColor(1F, 0F, 0F, 1F);
@@ -100,7 +100,7 @@ namespace Pixelaria.Views.Controls.Filters
             this.cs_factor.Name = "cs_factor";
             this.cs_factor.Size = new System.Drawing.Size(388, 38);
             this.cs_factor.TabIndex = 4;
-            this.cs_factor.ColorChanged += new Pixelaria.Views.Controls.ColorControls.ColorSlider.ColorChangedEventHandler(this.cs_factor_ColorChanged);
+            this.cs_factor.ColorChanged += new PixelariaLib.Views.Controls.ColorControls.ColorSlider.ColorChangedEventHandler(this.cs_factor_ColorChanged);
             // 
             // FadeControl
             // 

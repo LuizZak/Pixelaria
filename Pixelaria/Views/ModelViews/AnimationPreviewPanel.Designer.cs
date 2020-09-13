@@ -60,7 +60,7 @@ namespace Pixelaria.Views.ModelViews
             this.label3 = new System.Windows.Forms.Label();
             this.lbl_frameCount = new System.Windows.Forms.Label();
             this.tlc_timeline = new Pixelaria.Views.Controls.TimelineControl();
-            this.pnl_preview = new Pixelaria.Views.Controls.CPictureBox();
+            this.pnl_preview = new PixelariaLib.Views.Controls.CPictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.nud_previewZoom)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tb_zoomTrack)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pnl_preview)).BeginInit();
@@ -221,7 +221,7 @@ namespace Pixelaria.Views.ModelViews
         private System.Windows.Forms.CheckBox cb_playPreview;
         private System.Windows.Forms.NumericUpDown nud_previewZoom;
         private System.Windows.Forms.Label label2;
-        private Pixelaria.Views.Controls.CPictureBox pnl_preview;
+        private PixelariaLib.Views.Controls.CPictureBox pnl_preview;
         private System.Windows.Forms.TrackBar tb_zoomTrack;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label lbl_currentFrame;

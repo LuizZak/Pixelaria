@@ -38,12 +38,12 @@ using Pixelaria.Data.Undo;
 
 using Pixelaria.Filters;
 
-using Pixelaria.Views.Controls;
 using Pixelaria.Views.MiscViews;
 using PixelariaLib.Controllers.DataControllers;
 using PixelariaLib.Data;
 using PixelariaLib.Filters;
 using PixelariaLib.Utils;
+using PixelariaLib.Views.Controls;
 
 namespace Pixelaria.Views.ModelViews
 {

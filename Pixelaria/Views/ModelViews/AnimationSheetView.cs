@@ -804,7 +804,7 @@ namespace Pixelaria.Views.ModelViews
         // 
         // Sheet Preview ZPB zoom changed
         // 
-        private void zpb_sheetPreview_ZoomChanged(object sender, [NotNull] Controls.ZoomChangedEventArgs e)
+        private void zpb_sheetPreview_ZoomChanged(object sender, [NotNull] PixelariaLib.Views.Controls.ZoomChangedEventArgs e)
         {
             anud_zoom.Value = (decimal)e.NewZoom;
         }

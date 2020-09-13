@@ -24,6 +24,7 @@ using System;
 using System.Drawing;
 
 using PixelariaLib.Filters;
+using PixelariaLib.Views.Controls.ColorControls;
 
 namespace Pixelaria.Views.Controls.Filters
 {
@@ -75,7 +76,7 @@ namespace Pixelaria.Views.Controls.Filters
         // 
         // Saturation slider value changed
         // 
-        private void cs_saturation_ColorChanged(object sender, ColorControls.ColorChangedEventArgs e)
+        private void cs_saturation_ColorChanged(object sender, ColorChangedEventArgs e)
         {
             ((SaturationFilter)filter).Saturation = (int)(cs_saturation.CurrentValue * 100);
 

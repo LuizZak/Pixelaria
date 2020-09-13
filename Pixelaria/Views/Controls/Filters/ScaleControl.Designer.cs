@@ -60,8 +60,8 @@ namespace Pixelaria.Views.Controls.Filters
             this.cb_keepAspect = new System.Windows.Forms.CheckBox();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.anud_scaleY = new Pixelaria.Views.Controls.AssistedNumericUpDown();
-            this.anud_scaleX = new Pixelaria.Views.Controls.AssistedNumericUpDown();
+            this.anud_scaleY = new PixelariaLib.Views.Controls.AssistedNumericUpDown();
+            this.anud_scaleX = new PixelariaLib.Views.Controls.AssistedNumericUpDown();
             this.cb_pixelQuality = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
@@ -205,9 +205,9 @@ namespace Pixelaria.Views.Controls.Filters
 
         #endregion
 
-        private AssistedNumericUpDown anud_scaleX;
+        private PixelariaLib.Views.Controls.AssistedNumericUpDown anud_scaleX;
         private System.Windows.Forms.Label label1;
-        private AssistedNumericUpDown anud_scaleY;
+        private PixelariaLib.Views.Controls.AssistedNumericUpDown anud_scaleY;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.CheckBox cb_keepAspect;
         private System.Windows.Forms.CheckBox cb_centered;
