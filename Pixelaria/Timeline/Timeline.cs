@@ -22,7 +22,6 @@
 
 using System;
 using System.ComponentModel;
-using System.Linq;
 
 namespace Pixelaria.Timeline
 {
@@ -31,8 +30,7 @@ namespace Pixelaria.Timeline
     /// </summary>
     public class Timeline : ITimeline
     {
-        private readonly IKeyframeSource _keyframeSource;
-        private int _frameCount = 1;
+        private readonly ILayerSource _layerSource;
 
         /// <summary>
         /// Event fired when a new keyframe is added
@@ -59,16 +57,23 @@ namespace Pixelaria.Timeline
 
         public int FrameCount
         {
-            get => _frameCount;
-            set => _frameCount = Math.Max(1, value);
+            get
+            {
+                int frameCount = 0;
+                for (int i = 0; i < _layerSource.LayerCount; i++)
+                {
+                    frameCount = Math.Max(frameCount, _layerSource.LayerAtIndex(i).FrameCount);
+                }
+
+                return frameCount;
+            }
         }
 
-        public ITimelineLayerController LayerController { get; }
+        public int LayerCount => _layerSource.LayerCount;
 
-        public Timeline(IKeyframeSource keyframeSource, ITimelineLayerController layerController)
+        public Timeline(ILayerSource layerSource)
         {
-            _keyframeSource = keyframeSource;
-            LayerController = layerController;
+            _layerSource = layerSource;
         }
 
         public TimelinePlayer CreatePlayer()
@@ -76,190 +81,62 @@ namespace Pixelaria.Timeline
             return new TimelinePlayer(this);
         }
 
-        public void SetKeyframeValue(int frame, object value)
+        public ITimelineLayer LayerAtIndex(int index)
         {
-            _keyframeSource.SetKeyframeValue(frame, value ?? LayerController.DefaultKeyframeValue());
-            KeyframeValueChanged?.Invoke(this, new TimelineKeyframeValueChangeEventArgs(frame, value));
+            return _layerSource.LayerAtIndex(index);
         }
 
-        public void AddKeyframe(int frame, object value = null)
-        {
-            // Find the interpolated value for the keyframe to store
-            if (value == null)
-            {
-                var range = KeyframeRangeForFrame(frame);
-                var (item1, item2) = KeyframeValuesBetween(frame);
-                if (range.HasValue && item1 != null && item2 != null)
-                {
-                    value = LayerController.InterpolatedValue(item1, item2, range.Value.Ratio(frame));
-                }
-                else
-                {
-                    value = LayerController.DefaultKeyframeValue();
-                }
-            }
+    }
 
-            _keyframeSource.AddKeyframe(frame, value);
-            KeyframeAdded?.Invoke(this, new TimelineKeyframeEventArgs(frame));
-            KeyframeValueChanged?.Invoke(this, new TimelineKeyframeValueChangeEventArgs(frame, value));
+    public readonly struct KeyframeRange
+    {
+        public int Frame { get; }
+        public int Span { get; }
+
+        public int LastFrame => Frame + Span - 1;
+
+        public KeyframeRange(int frame, int span)
+        {
+            Frame = frame;
+            Span = span;
         }
 
-        public void RemoveKeyframe(int frame)
+        public float Ratio(int input)
         {
-            _keyframeSource.RemoveKeyframe(frame);
-            KeyframeRemoved?.Invoke(this, new TimelineKeyframeEventArgs(frame));
+            return Math.Min(1.0f, Math.Max(0.0f, (float)(input - Frame) / Span));
         }
 
-        public Keyframe? KeyframeForFrame(int frame)
+        public bool Equals(KeyframeRange other)
         {
-            for (int i = 0; i < _keyframeSource.KeyframeIndexes.Count; i++)
-            {
-                if (_keyframeSource.KeyframeIndexes[i] == frame)
-                    return new Keyframe(frame, _keyframeSource.ValueForKeyframe(frame));
-                if (i > 0 && _keyframeSource.KeyframeIndexes[i] > frame)
-                    return new Keyframe(frame - 1, _keyframeSource.ValueForKeyframe(frame - 1));
-            }
-
-            return null;
+            return Frame == other.Frame && Span == other.Span;
         }
 
-        public KeyframeRange? KeyframeRangeForFrame(int frame)
+        public override bool Equals(object obj)
         {
-            for (int i = 0; i < _keyframeSource.KeyframeIndexes.Count; i++)
-            {
-                if (i > 0 && _keyframeSource.KeyframeIndexes[i] > frame)
-                {
-                    return new KeyframeRange(_keyframeSource.KeyframeIndexes[i - 1], _keyframeSource.KeyframeIndexes[i] - _keyframeSource.KeyframeIndexes[i - 1]);
-                }
-                if (i == _keyframeSource.KeyframeIndexes.Count - 1 && _keyframeSource.KeyframeIndexes[i] <= frame)
-                {
-                    return new KeyframeRange(_keyframeSource.KeyframeIndexes[i], FrameCount - _keyframeSource.KeyframeIndexes[i]);
-                }
-            }
-
-            return null;
+            return obj is KeyframeRange other && Equals(other);
         }
 
-        public Keyframe? KeyframeExactlyOnFrame(int frame)
+        public override int GetHashCode()
         {
-            if (_keyframeSource.KeyframeIndexes.Any(kf => kf == frame))
+            unchecked
             {
-                return new Keyframe(frame, _keyframeSource.ValueForKeyframe(frame));
+                return (Frame * 397) ^ Span;
             }
-
-            return null;
         }
 
-        public KeyframePosition RelationshipToFrame(int frame)
+        public override string ToString()
         {
-            var kfRange = KeyframeRangeForFrame(frame);
-            if (!kfRange.HasValue)
-                return KeyframePosition.None;
-
-            if (frame == kfRange.Value.Frame)
-            {
-                if (kfRange.Value.Span == 1)
-                {
-                    return KeyframePosition.Full;
-                }
-
-                return KeyframePosition.First;
-            }
-
-            if (frame == kfRange.Value.LastFrame)
-            {
-                return KeyframePosition.Last;
-            }
-
-            return KeyframePosition.Center;
+            return $"{{Frame: {Frame}, Span: {Span}}}";
         }
 
-        /// <summary>
-        /// Searches for the two keyframes immediately before and after a given frame, and
-        /// returns their keyframe values.
-        ///
-        /// In case the frame lands exactly on a frame, the method returns that keyframe's
-        /// value as the first element of the tuple, and the value for the next keyframe
-        /// after that keyframe as the second element of the tuple.
-        ///
-        /// In case the frame lands after the last keyframe, both values represent the last
-        /// keyframe's value.
-        ///
-        /// If there are no keyframes on this timeline, a (null, null) tuple is returned,
-        /// instead.
-        /// </summary>
-        public (object, object) KeyframeValuesBetween(int frame)
+        public static bool operator ==(KeyframeRange left, KeyframeRange right)
         {
-            for (int i = 0; i < _keyframeSource.KeyframeIndexes.Count; i++)
-            {
-                if (_keyframeSource.KeyframeIndexes[i] > frame)
-                {
-                    if (i > 0)
-                    {
-                        return (_keyframeSource.ValueForKeyframe(_keyframeSource.KeyframeIndexes[i - 1]), 
-                            _keyframeSource.ValueForKeyframe(_keyframeSource.KeyframeIndexes[i]));
-                    }
-                }
-                else if (i == _keyframeSource.KeyframeIndexes.Count - 1)
-                {
-                    return (_keyframeSource.ValueForKeyframe(_keyframeSource.KeyframeIndexes[i]), 
-                        _keyframeSource.ValueForKeyframe(_keyframeSource.KeyframeIndexes[i]));
-                }
-            }
-
-            return (null, null);
+            return left.Equals(right);
         }
 
-        public readonly struct KeyframeRange
+        public static bool operator !=(KeyframeRange left, KeyframeRange right)
         {
-            public int Frame { get; }
-            public int Span { get; }
-
-            public int LastFrame => Frame + Span - 1;
-
-            public KeyframeRange(int frame, int span)
-            {
-                Frame = frame;
-                Span = span;
-            }
-
-            public float Ratio(int input)
-            {
-                return Math.Min(1.0f, Math.Max(0.0f, (float) (input - Frame) / Span));
-            }
-
-            public bool Equals(KeyframeRange other)
-            {
-                return Frame == other.Frame && Span == other.Span;
-            }
-
-            public override bool Equals(object obj)
-            {
-                return obj is KeyframeRange other && Equals(other);
-            }
-
-            public override int GetHashCode()
-            {
-                unchecked
-                {
-                    return (Frame * 397) ^ Span;
-                }
-            }
-
-            public override string ToString()
-            {
-                return $"{{Frame: {Frame}, Span: {Span}}}";
-            }
-
-            public static bool operator ==(KeyframeRange left, KeyframeRange right)
-            {
-                return left.Equals(right);
-            }
-
-            public static bool operator !=(KeyframeRange left, KeyframeRange right)
-            {
-                return !left.Equals(right);
-            }
+            return !left.Equals(right);
         }
     }
 

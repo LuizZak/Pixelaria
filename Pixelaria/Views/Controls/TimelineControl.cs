@@ -34,7 +34,7 @@ namespace Pixelaria.Views.Controls
     public partial class TimelineControl : Control
     {
         private readonly int _frameCountHeight = 16;
-        private readonly int _timelineHeight = 22;
+        private readonly int _layerHeight = 22;
         private readonly float _frameWidth = 12;
         private readonly Color _backgroundColor = Color.LightGray;
         private readonly Color _keyframeColor = Color.White;
@@ -129,7 +129,7 @@ namespace Pixelaria.Views.Controls
         {
             _contextMenu = new ContextMenuStrip();
 
-            Timeline = new Timeline.Timeline(new KeyframeCollectionSource(), new EmptyTimelineLayerController());
+            Timeline = new Timeline.Timeline(new EmptyTimelineLayerSource());
 
             InitializeComponent();
 
@@ -159,18 +159,26 @@ namespace Pixelaria.Views.Controls
             return Math.Max(0, Math.Min(Timeline.FrameCount - 1, (int) Math.Floor(x / _frameWidth)));
         }
 
-        private RectangleF BoundsForFrame(int frame)
+        private int LayerOnY(float y)
         {
-            return new RectangleF(frame * _frameWidth, _frameCountHeight, _frameWidth, _timelineHeight);
+            return Math.Max(0, Math.Min(Timeline.LayerCount - 1, (int) Math.Floor((y - _frameCountHeight) / _layerHeight)));
+        }
+
+        private RectangleF BoundsForFrame(int frame, int layer)
+        {
+            return new RectangleF(frame * _frameWidth, _frameCountHeight + layer * _layerHeight, _frameWidth, _layerHeight);
         }
 
         private void InvalidateCurrentFrame()
         {
-            var boundsForFrame = BoundsForFrame(_currentFrame);
-            boundsForFrame.Y = 0;
-            boundsForFrame.Height = Bounds.Height;
-            boundsForFrame.Inflate(2, 2);
-            Invalidate(new Region(boundsForFrame));
+            for (int i = 0; i < Timeline.LayerCount; i++)
+            {
+                var boundsForFrame = BoundsForFrame(_currentFrame, i);
+                boundsForFrame.Y = 0;
+                boundsForFrame.Height = Bounds.Height;
+                boundsForFrame.Inflate(2, 2);
+                Invalidate(new Region(boundsForFrame));
+            }
         }
 
         /// <summary>
@@ -197,11 +205,13 @@ namespace Pixelaria.Views.Controls
             CurrentFrame = newFrame;
         }
 
-        private void ShowContextMenu(int frame, Point position)
+        private void ShowContextMenu(int frame, int layerIndex, Point position)
         {
             _contextMenu.Items.Clear();
 
-            var kf = Timeline.KeyframeExactlyOnFrame(frame);
+            var layer = Timeline.LayerAtIndex(layerIndex);
+
+            var kf = layer.KeyframeExactlyOnFrame(frame);
             if (frame > 0 && kf.HasValue)
             {
                 _contextMenu.Items.Add("Remove Keyframe").Click += (sender, args) =>
@@ -215,7 +225,7 @@ namespace Pixelaria.Views.Controls
                             return;
                     }
 
-                    Timeline.RemoveKeyframe(kf.Value.Frame);
+                    layer.RemoveKeyframe(kf.Value.Frame);
                     Invalidate();
                 };
             }
@@ -232,7 +242,7 @@ namespace Pixelaria.Views.Controls
                             return;
                     }
 
-                    Timeline.AddKeyframe(frame);
+                    layer.AddKeyframe(frame);
                     Invalidate();
                 };
             }
@@ -244,14 +254,16 @@ namespace Pixelaria.Views.Controls
         {
             base.OnMouseDown(e);
 
+            var layer = LayerOnY(e.Y);
+
             if (e.Button == MouseButtons.Left || e.Button == MouseButtons.Right)
             {
                 ChangeFrame(FrameOnX(e.X));
             }
 
-            if (e.Button == MouseButtons.Right)
+            if (e.Button == MouseButtons.Right && layer >= 0 && layer < Timeline.LayerCount)
             {
-                ShowContextMenu(_currentFrame, e.Location);
+                ShowContextMenu(_currentFrame, layer, e.Location);
             }
         }
 
@@ -330,51 +342,63 @@ namespace Pixelaria.Views.Controls
                 Width = 2
             };
 
-            int frame = 0;
-            for (float x = 0; x < Bounds.Width; x += _frameWidth)
+            for (int layerIndex = 0; layerIndex < Timeline.LayerCount; layerIndex++)
             {
-                if (frame == Timeline.FrameCount)
-                    break;
-
-                var top = new Point((int)x, _frameCountHeight);
-                var bottom = new Point((int)x, _frameCountHeight + _timelineHeight);
-
-                e.Graphics.DrawLine(frame % 5 == 0 ? oddFrameSeparatorPen : frameSeparatorPen, top, bottom);
-
-                if (frame == _currentFrame)
+                int frame = 0;
+                for (float x = 0; x < Bounds.Width; x += _frameWidth)
                 {
-                    e.Graphics.FillRectangle(Brushes.CornflowerBlue, BoundsForFrame(frame));
+                    if (frame == Timeline.FrameCount)
+                        break;
+
+                    int y = _frameCountHeight + layerIndex * _layerHeight;
+
+                    var top = new Point((int)x, y);
+                    var bottom = new Point((int)x, y + _layerHeight);
+
+                    e.Graphics.DrawLine(frame % 5 == 0 ? oddFrameSeparatorPen : frameSeparatorPen, top, bottom);
+
+                    if (frame == _currentFrame)
+                    {
+                        e.Graphics.FillRectangle(Brushes.CornflowerBlue, BoundsForFrame(frame, layerIndex));
+                    }
+
+                    frame += 1;
                 }
-
-                frame += 1;
             }
-
+            
             frameSeparatorPen.Dispose();
             oddFrameSeparatorPen.Dispose();
         }
 
         private void DrawKeyframes([NotNull] PaintEventArgs e)
         {
-            // Do a second pass, now drawing the keyframes
-            int frame = 0;
-            for (float x = 0; x < Bounds.Width; x += _frameWidth)
+            for (int layerIndex = 0; layerIndex < Timeline.LayerCount; layerIndex++)
             {
-                if (frame == Timeline.FrameCount)
-                    break;
+                var layer = Timeline.LayerAtIndex(layerIndex);
 
-                DrawKeyframe(e, frame);
+                int frame = 0;
+                for (float x = 0; x < Bounds.Width; x += _frameWidth)
+                {
+                    if (frame == layer.FrameCount)
+                        break;
 
-                frame += 1;
+                    DrawKeyframe(e, frame, layerIndex);
+
+                    frame += 1;
+                }
             }
         }
 
-        private void DrawKeyframe([NotNull] PaintEventArgs e, int currentFrame)
+        private void DrawKeyframe([NotNull] PaintEventArgs e, int currentFrame, int currentLayer)
         {
-            var frameBounds = new RectangleF(0, 0, _frameWidth, _timelineHeight - 1);
+            var frameBounds = new RectangleF(0, 0, _frameWidth, _layerHeight - 1);
 
             var state = e.Graphics.Save();
 
-            e.Graphics.TranslateTransform(currentFrame * _frameWidth, _frameCountHeight);
+            float x = currentFrame * _frameWidth;
+            float y = _frameCountHeight + currentLayer * _layerHeight;
+
+            e.Graphics.TranslateTransform(x, y);
 
             var dashedPen = new Pen(Color.LightGray)
             {
@@ -384,7 +408,8 @@ namespace Pixelaria.Views.Controls
             var outlinePen = new Pen(Color.Gray);
             var bodyFillBrush = new SolidBrush(currentFrame == _currentFrame ? Color.White : Color.Gray);
 
-            var relationship = Timeline.RelationshipToFrame(currentFrame);
+            var layer = Timeline.LayerAtIndex(currentLayer);
+            var relationship = layer.RelationshipToFrame(currentFrame);
 
             if (relationship != KeyframePosition.None)
             {
@@ -395,7 +420,7 @@ namespace Pixelaria.Views.Controls
             if (relationship == KeyframePosition.First || relationship == KeyframePosition.Full)
             {
                 var circleCenter = new PointF(frameBounds.Width / 2, frameBounds.Height / 2);
-                var circleRadius = 2.5f;
+                const float circleRadius = 2.5f;
                 var ellipse = new RectangleF(circleCenter.X - circleRadius, circleCenter.Y - circleRadius, circleRadius * 2, circleRadius * 2);
                 e.Graphics.FillEllipse(bodyFillBrush, ellipse);
             }

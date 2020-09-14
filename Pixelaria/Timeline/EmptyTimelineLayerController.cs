@@ -20,6 +20,8 @@
     base directory of this project.
 */
 
+using System;
+
 namespace Pixelaria.Timeline
 {
     /// <summary>
@@ -42,6 +44,35 @@ namespace Pixelaria.Timeline
         public object InterpolatedValue(object start, object end, float ratio)
         {
             return start;
+        }
+    }
+
+    public class EmptyTimelineLayerSource : ILayerSource
+    {
+        public int LayerCount => 0;
+
+        public ITimelineLayer LayerAtIndex(int index)
+        {
+            throw new ArgumentException($"No layers are available in a {nameof(EmptyTimelineLayerController)} object");
+        }
+    }
+
+    public class SingleLayerTimelineLayerSource : ILayerSource
+    {
+        private readonly IKeyframeSource _keyframeSource;
+        private readonly ITimelineLayerController _layerController;
+
+        public int LayerCount => 1;
+
+        public SingleLayerTimelineLayerSource(IKeyframeSource keyframeSource, ITimelineLayerController layerController)
+        {
+            _keyframeSource = keyframeSource;
+            _layerController = layerController;
+        }
+
+        public ITimelineLayer LayerAtIndex(int index)
+        {
+            return new StaticTimelineLayer(_keyframeSource, _layerController);
         }
     }
 }

@@ -32,24 +32,24 @@ namespace PixelariaTests.Timeline
         [TestMethod]
         public void TestValueForFrame()
         {
-            var timeline = new Pixelaria.Timeline.Timeline(new KeyframeCollectionSource(), new IntegerTimelineLayerController());
-            timeline.FrameCount = 11;
-            timeline.AddKeyframe(0, 0);
-            timeline.AddKeyframe(5, 5);
-            timeline.AddKeyframe(10, 0);
+            var layerSource = new SingleLayerTimelineLayerSource(new KeyframeCollectionSource(11), new IntegerTimelineLayerController());
+            layerSource.LayerAtIndex(0).AddKeyframe(0, 0);
+            layerSource.LayerAtIndex(0).AddKeyframe(5, 5);
+            layerSource.LayerAtIndex(0).AddKeyframe(10, 0);
+            var timeline = new Pixelaria.Timeline.Timeline(layerSource);
             var timelinePlayer = new TimelinePlayer(timeline);
 
-            Assert.AreEqual(0, timelinePlayer.ValueForFrame(0));
-            Assert.AreEqual(1, timelinePlayer.ValueForFrame(1));
-            Assert.AreEqual(2, timelinePlayer.ValueForFrame(2));
-            Assert.AreEqual(3, timelinePlayer.ValueForFrame(3));
-            Assert.AreEqual(4, timelinePlayer.ValueForFrame(4));
-            Assert.AreEqual(5, timelinePlayer.ValueForFrame(5));
-            Assert.AreEqual(4, timelinePlayer.ValueForFrame(6));
-            Assert.AreEqual(3, timelinePlayer.ValueForFrame(7));
-            Assert.AreEqual(2, timelinePlayer.ValueForFrame(8));
-            Assert.AreEqual(1, timelinePlayer.ValueForFrame(9));
-            Assert.AreEqual(0, timelinePlayer.ValueForFrame(10));
+            Assert.AreEqual(0, timelinePlayer.ValueForFrame(0, 0));
+            Assert.AreEqual(1, timelinePlayer.ValueForFrame(1, 0));
+            Assert.AreEqual(2, timelinePlayer.ValueForFrame(2, 0));
+            Assert.AreEqual(3, timelinePlayer.ValueForFrame(3, 0));
+            Assert.AreEqual(4, timelinePlayer.ValueForFrame(4, 0));
+            Assert.AreEqual(5, timelinePlayer.ValueForFrame(5, 0));
+            Assert.AreEqual(4, timelinePlayer.ValueForFrame(6, 0));
+            Assert.AreEqual(3, timelinePlayer.ValueForFrame(7, 0));
+            Assert.AreEqual(2, timelinePlayer.ValueForFrame(8, 0));
+            Assert.AreEqual(1, timelinePlayer.ValueForFrame(9, 0));
+            Assert.AreEqual(0, timelinePlayer.ValueForFrame(10, 0));
         }
 
         private class IntegerTimelineLayerController : ITimelineLayerController

@@ -20,32 +20,26 @@
     base directory of this project.
 */
 
+using JetBrains.Annotations;
+
 namespace Pixelaria.Timeline
 {
-    public class TimelinePlayer
+    /// <summary>
+    /// An interface for provider of layers
+    /// </summary>
+    public interface ILayerSource
     {
-        private readonly ITimeline _timeline;
+        /// <summary>
+        /// Gets the number of layers on this layer source,
+        /// </summary>
+        int LayerCount { get; }
 
-        public int FrameCount => _timeline.FrameCount;
-
-        public TimelinePlayer(ITimeline timeline)
-        {
-            _timeline = timeline;
-        }
-
-        public object ValueForFrame(int frame, int layerIndex)
-        {
-            var layer = _timeline.LayerAtIndex(layerIndex);
-
-            var range = layer.KeyframeRangeForFrame(frame);
-            if (!range.HasValue)
-                return layer.LayerController.DefaultKeyframeValue();
-
-            var (value1, value2) = layer.KeyframeValuesBetween(frame);
-            if (value1 == null || value2 == null)
-                return layer.LayerController.DefaultKeyframeValue();
-
-            return layer.LayerController.InterpolatedValue(value1, value2, range.Value.Ratio(frame));
-        }
+        /// <summary>
+        /// Returns a layer object at a given index.
+        ///
+        /// The index must be between 0 and <see cref="LayerCount"/> - 1.
+        /// </summary>
+        [NotNull]
+        ITimelineLayer LayerAtIndex(int index);
     }
 }

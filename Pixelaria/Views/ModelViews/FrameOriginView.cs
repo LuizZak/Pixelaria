@@ -51,13 +51,16 @@ namespace Pixelaria.Views.ModelViews
         {
             Text = $@"Frame Origin - [{_animation.Name}]";
 
-            _timeline = new Timeline.Timeline(new FrameOriginKeyframeSource(_animation), new FrameOriginTimelineController())
+            var keyframeSource = new FrameOriginKeyframeSource(_animation);
+            keyframeSource.KeyframeAdded += KeyframeSourceOnKeyframeAdded;
+            keyframeSource.KeyframeRemoved += KeyframeSourceOnKeyframeRemoved;
+            keyframeSource.KeyframeValueChanged += KeyframeSourceOnKeyframeValueChanged;
+
+            var layerSource = new SingleLayerTimelineLayerSource(keyframeSource, new FrameOriginTimelineController());
+            _timeline = new Timeline.Timeline(layerSource);
+            if (_timeline.LayerAtIndex(0).KeyframeExactlyOnFrame(0) == null)
             {
-                FrameCount = _animation.FrameCount
-            };
-            if (_timeline.KeyframeExactlyOnFrame(0) == null)
-            {
-                _timeline.AddKeyframe(0, Point.Empty);
+                _timeline.LayerAtIndex(0).AddKeyframe(0, Point.Empty);
             }
 
             timelineControl.Timeline = _timeline;
@@ -68,6 +71,21 @@ namespace Pixelaria.Views.ModelViews
             zpb_framePreview.HookToControl(this);
 
             LoadFrame(0);
+        }
+
+        private void KeyframeSourceOnKeyframeValueChanged(object sender, TimelineKeyframeValueChangeEventArgs e)
+        {
+            timelineControl.Invalidate();
+        }
+
+        private void KeyframeSourceOnKeyframeRemoved(object sender, TimelineKeyframeEventArgs e)
+        {
+            timelineControl.Invalidate();
+        }
+
+        private void KeyframeSourceOnKeyframeAdded(object sender, TimelineKeyframeEventArgs e)
+        {
+            timelineControl.Invalidate();
         }
 
         private void btn_cancel_Click(object sender, EventArgs e)
@@ -125,7 +143,7 @@ namespace Pixelaria.Views.ModelViews
 
                 if (_frame != null)
                 {
-                    var value = _timeline.CreatePlayer().ValueForFrame(_frame.Index);
+                    var value = _timeline.CreatePlayer().ValueForFrame(_frame.Index, 0);
 
                     if (value is Point p)
                     {
@@ -144,7 +162,7 @@ namespace Pixelaria.Views.ModelViews
 
                 if (e.Button == MouseButtons.Left)
                 {
-                    _timeline.SetKeyframeValue(_frame.Index, ClippedPoint(e.Location));
+                    _timeline.LayerAtIndex(0).SetKeyframeValue(_frame.Index, ClippedPoint(e.Location));
                     Invalidate();
                 }
             }
@@ -155,7 +173,7 @@ namespace Pixelaria.Views.ModelViews
 
                 if (e.Button == MouseButtons.Left)
                 {
-                    _timeline.SetKeyframeValue(_frame.Index, ClippedPoint(e.Location));
+                    _timeline.LayerAtIndex(0).SetKeyframeValue(_frame.Index, ClippedPoint(e.Location));
                     Invalidate();
                 }
             }
@@ -174,6 +192,11 @@ namespace Pixelaria.Views.ModelViews
     public class FrameOriginKeyframeSource : IKeyframeSource
     {
         private readonly AnimationController _animation;
+        public int FrameCount => _animation.FrameCount;
+
+        public event IKeyframeSource.KeyframeEventHandler KeyframeAdded;
+        public event IKeyframeSource.KeyframeEventHandler KeyframeRemoved;
+        public event IKeyframeSource.KeyframeValueChangedEventHandler KeyframeValueChanged;
 
         public IReadOnlyList<int> KeyframeIndexes
         {
@@ -193,11 +216,14 @@ namespace Pixelaria.Views.ModelViews
         public void AddKeyframe(int frameIndex, object value)
         {
             _animation.MetadataForFrame(frameIndex)[FrameMetadataKeys.FrameOrigin] = value is Point p ? (object)p : null;
+            KeyframeAdded?.Invoke(this, new TimelineKeyframeEventArgs(frameIndex));
+            KeyframeValueChanged?.Invoke(this, new TimelineKeyframeValueChangeEventArgs(frameIndex, value));
         }
 
         public void SetKeyframeValue(int frameIndex, object value)
         {
             _animation.MetadataForFrame(frameIndex)[FrameMetadataKeys.FrameOrigin] = value is Point p ? (object)p : null;
+            KeyframeValueChanged?.Invoke(this, new TimelineKeyframeValueChangeEventArgs(frameIndex, value));
         }
 
         public object ValueForKeyframe(int frameIndex)
@@ -208,6 +234,7 @@ namespace Pixelaria.Views.ModelViews
         public void RemoveKeyframe(int frameIndex)
         {
             _animation.MetadataForFrame(frameIndex)[FrameMetadataKeys.FrameOrigin] = null;
+            KeyframeRemoved?.Invoke(this, new TimelineKeyframeEventArgs(frameIndex));
         }
 
         private int KeyframeIndex(int frame)

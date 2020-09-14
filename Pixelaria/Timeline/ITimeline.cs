@@ -62,30 +62,24 @@ namespace Pixelaria.Timeline
         [Description("Occurs whenever the the value of a keyframe changes")]
         event KeyframeValueChangedEventHandler KeyframeValueChanged;
 
-        int FrameCount { get; }
-        ITimelineLayerController LayerController { get; }
-        KeyframePosition RelationshipToFrame(int frame);
-        void SetKeyframeValue(int frame, object value);
-        void AddKeyframe(int frame, object value = null);
-        void RemoveKeyframe(int frame);
-        Keyframe? KeyframeExactlyOnFrame(int frame);
-        Timeline.KeyframeRange? KeyframeRangeForFrame(int frame);
+        /// <summary>
+        /// Gets the number of available layers on this timeline.
+        /// </summary>
+        int LayerCount { get; }
 
         /// <summary>
-        /// Searches for the two keyframes immediately before and after a given frame, and
-        /// returns their keyframe values.
+        /// Gets the total number of frames on this timeline.
         ///
-        /// In case the frame lands exactly on a frame, the method returns that keyframe's
-        /// value as the first element of the tuple, and the value for the next keyframe
-        /// after that keyframe as the second element of the tuple.
-        ///
-        /// In case the frame lands after the last keyframe, both values represent the last
-        /// keyframe's value.
-        ///
-        /// If there are no keyframes on this timeline, a (null, null) tuple is returned,
-        /// instead.
+        /// This value is the maximal frame count across all available timeline layers.
         /// </summary>
-        (object, object) KeyframeValuesBetween(int frame);
+        int FrameCount { get; }
+
+        /// <summary>
+        /// Returns a layer object at a given index.
+        ///
+        /// The index must be between 0 and <see cref="LayerCount"/> - 1.
+        /// </summary>
+        ITimelineLayer LayerAtIndex(int index);
     }
 
     public class TimelineKeyframeEventArgs : EventArgs
