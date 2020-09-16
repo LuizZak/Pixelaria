@@ -36,10 +36,9 @@ namespace Pixelaria.Views.Controls
         private readonly int _frameCountHeight = 16;
         private readonly int _layerHeight = 22;
         private readonly float _frameWidth = 12;
-        private readonly Color _backgroundColor = Color.LightGray;
-        private readonly Color _keyframeColor = Color.White;
-        private readonly Color _selectedFrameColor = Color.CornflowerBlue;
         private readonly ContextMenuStrip _contextMenu;
+
+        private readonly HScrollBar _hScrollBar = new HScrollBar();
 
         private int _currentFrame;
         private TimelineController _timelineController;
@@ -137,21 +136,37 @@ namespace Pixelaria.Views.Controls
             SetStyle(ControlStyles.OptimizedDoubleBuffer |
                      ControlStyles.AllPaintingInWmPaint |
                      ControlStyles.UserPaint, true);
+
+            SetupControl();
         }
 
-        private void TimelineControllerOnKeyframeAdded(object sender, TimelineKeyframeValueChangeEventArgs e)
+        private void SetupControl()
         {
-            Invalidate();
+            Controls.Add(sc_container);
+
+            SetupFramesPanel();
         }
 
-        private void TimelineControllerOnKeyframeRemoved(object sender, TimelineRemoveKeyframeEventArgs e)
+        private void SetupFramesPanel()
         {
-            Invalidate();
+            var framesPanel = FramesPanel();
+
+            framesPanel.Paint += FramesPanelOnPaint;
+            framesPanel.MouseDown += FramesPanelOnMouseDown;
+            framesPanel.MouseMove += FramesPanelOnMouseMove;
+
+            framesPanel.Controls.Add(_hScrollBar);
+            _hScrollBar.Dock = DockStyle.Bottom;
         }
 
-        private void TimelineControllerOnKeyframeValueChanged(object sender, TimelineKeyframeValueChangeEventArgs e)
+        private Panel LayersPanel()
         {
-            Invalidate();
+            return sc_container.Panel1;
+        }
+
+        private Panel FramesPanel()
+        {
+            return sc_container.Panel2;
         }
 
         private int FrameOnX(float x)
@@ -177,8 +192,14 @@ namespace Pixelaria.Views.Controls
                 boundsForFrame.Y = 0;
                 boundsForFrame.Height = Bounds.Height;
                 boundsForFrame.Inflate(2, 2);
-                Invalidate(new Region(boundsForFrame));
+                FramesPanel().Invalidate(new Region(boundsForFrame));
             }
+        }
+
+        private void InvalidatePanels()
+        {
+            LayersPanel().Invalidate();
+            FramesPanel().Invalidate();
         }
 
         /// <summary>
@@ -250,11 +271,30 @@ namespace Pixelaria.Views.Controls
             _contextMenu.Show(this, position);
         }
 
-        protected override void OnMouseDown(MouseEventArgs e)
-        {
-            base.OnMouseDown(e);
+        #region Timeline Event Handler
 
-            var layer = LayerOnY(e.Y);
+        private void TimelineControllerOnKeyframeAdded(object sender, TimelineKeyframeValueChangeEventArgs e)
+        {
+            InvalidatePanels();
+        }
+
+        private void TimelineControllerOnKeyframeRemoved(object sender, TimelineRemoveKeyframeEventArgs e)
+        {
+            InvalidatePanels();
+        }
+
+        private void TimelineControllerOnKeyframeValueChanged(object sender, TimelineKeyframeValueChangeEventArgs e)
+        {
+            InvalidatePanels();
+        }
+
+        #endregion Timeline Event Handler
+
+        #region Frames Panel Event Handling
+
+        private void FramesPanelOnMouseDown(object sender, [NotNull] MouseEventArgs e)
+        {
+            int layer = LayerOnY(e.Y);
 
             if (e.Button == MouseButtons.Left || e.Button == MouseButtons.Right)
             {
@@ -267,60 +307,87 @@ namespace Pixelaria.Views.Controls
             }
         }
 
-        protected override void OnMouseMove(MouseEventArgs e)
+        private void FramesPanelOnMouseMove(object sender, [NotNull] MouseEventArgs e)
         {
-            base.OnMouseMove(e);
-
             if (e.Button == MouseButtons.Left)
             {
                 ChangeFrame(FrameOnX(e.X));
             }
         }
 
-        protected override void OnPaint(PaintEventArgs e)
+        private void FramesPanelOnPaint(object sender, [NotNull] PaintEventArgs e)
         {
-            base.OnPaint(e);
-
-            e.Graphics.Clear(_backgroundColor);
-            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-
-            DrawFrameCounter(e);
-            DrawTimelineBackground(e);
-            DrawKeyframes(e);
+            DrawFramesPanel(e);
         }
 
-        private void DrawFrameCounter([NotNull] PaintEventArgs e)
+        #endregion
+
+        #region Rendering
+
+        private void DrawFramesPanel([NotNull] PaintEventArgs e)
+        {
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+
+            TimelineRenderer.DrawBackground(e.Graphics);
+            TimelineRenderer.DrawFrameCounter(e.Graphics, TimelineController, Bounds, _currentFrame);
+            TimelineRenderer.DrawTimelineBackground(e.Graphics, TimelineController, Bounds, _currentFrame);
+            TimelineRenderer.DrawKeyframes(e.Graphics, TimelineController, Bounds, _currentFrame);
+        }
+
+        #endregion
+    }
+
+    public class TimelineRenderer
+    {
+        private const int FrameCountHeight = 16;
+        private const int LayerHeight = 22;
+        private const float FrameWidth = 12;
+        private static readonly Color BackgroundColor = Color.LightGray;
+        private static readonly Color KeyframeColor = Color.White;
+        private static readonly Color SelectedFrameColor = Color.CornflowerBlue;
+
+        private static RectangleF BoundsForFrame(int frame, int layer)
+        {
+            return new RectangleF(frame * FrameWidth, FrameCountHeight + layer * LayerHeight, FrameWidth, LayerHeight);
+        }
+
+        public static void DrawBackground([NotNull] Graphics graphics)
+        {
+            graphics.Clear(BackgroundColor);
+        }
+
+        public static void DrawFrameCounter([NotNull] Graphics graphics, [NotNull] TimelineController timeline, Rectangle bounds, int currentFrame)
         {
             var font = new Font(FontFamily.GenericSansSerif, 8);
 
-            e.Graphics.DrawLine(Pens.White, 0, _frameCountHeight, Bounds.Width, _frameCountHeight);
+            graphics.DrawLine(Pens.White, 0, FrameCountHeight, bounds.Width, FrameCountHeight);
 
             int frame = 0;
-            for (float x = 0; x < Bounds.Width; x += _frameWidth)
+            for (float x = 0; x < bounds.Width; x += FrameWidth)
             {
-                if (frame == TimelineController.FrameCount)
+                if (frame == timeline.FrameCount)
                     break;
 
-                var currentFrameRect = new RectangleF(x, 0, _frameWidth, _frameCountHeight);
-                if (frame == _currentFrame)
+                var currentFrameRect = new RectangleF(x, 0, FrameWidth, FrameCountHeight);
+                if (frame == currentFrame)
                 {
-                    using var brush = new SolidBrush(_selectedFrameColor);
-                    e.Graphics.FillRectangle(brush, currentFrameRect);
+                    using var brush = new SolidBrush(SelectedFrameColor);
+                    graphics.FillRectangle(brush, currentFrameRect);
                 }
 
                 if (frame == 0 || (frame + 1) % 5 == 0)
                 {
                     string frameString = (frame + 1).ToString();
-                    e.Graphics.DrawString(frameString, font, Brushes.DimGray, x, 0);
+                    graphics.DrawString(frameString, font, Brushes.DimGray, x, 0);
 
-                    if (frame == _currentFrame)
+                    if (frame == currentFrame)
                     {
-                        var state = e.Graphics.Save();
+                        var state = graphics.Save();
 
-                        e.Graphics.IntersectClip(currentFrameRect);
-                        e.Graphics.DrawString(frameString, font, Brushes.White, x, 0);
+                        graphics.IntersectClip(currentFrameRect);
+                        graphics.DrawString(frameString, font, Brushes.White, x, 0);
 
-                        e.Graphics.Restore(state);
+                        graphics.Restore(state);
                     }
                 }
 
@@ -330,7 +397,7 @@ namespace Pixelaria.Views.Controls
             font.Dispose();
         }
 
-        private void DrawTimelineBackground([NotNull] PaintEventArgs e)
+        public static void DrawTimelineBackground([NotNull] Graphics graphics, [NotNull] TimelineController timeline, Rectangle bounds, int currentFrame)
         {
             var frameSeparatorPen = new Pen(Color.White)
             {
@@ -342,63 +409,63 @@ namespace Pixelaria.Views.Controls
                 Width = 2
             };
 
-            for (int layerIndex = 0; layerIndex < TimelineController.LayerCount; layerIndex++)
+            for (int layerIndex = 0; layerIndex < timeline.LayerCount; layerIndex++)
             {
                 int frame = 0;
-                for (float x = 0; x < Bounds.Width; x += _frameWidth)
+                for (float x = 0; x < bounds.Width; x += FrameWidth)
                 {
-                    if (frame == TimelineController.FrameCount)
+                    if (frame == timeline.FrameCount)
                         break;
 
-                    int y = _frameCountHeight + layerIndex * _layerHeight;
+                    int y = FrameCountHeight + layerIndex * LayerHeight;
 
                     var top = new Point((int)x, y);
-                    var bottom = new Point((int)x, y + _layerHeight);
+                    var bottom = new Point((int)x, y + LayerHeight);
 
-                    e.Graphics.DrawLine(frame % 5 == 0 ? oddFrameSeparatorPen : frameSeparatorPen, top, bottom);
+                    graphics.DrawLine(frame % 5 == 0 ? oddFrameSeparatorPen : frameSeparatorPen, top, bottom);
 
-                    if (frame == _currentFrame)
+                    if (frame == currentFrame)
                     {
-                        e.Graphics.FillRectangle(Brushes.CornflowerBlue, BoundsForFrame(frame, layerIndex));
+                        graphics.FillRectangle(Brushes.CornflowerBlue, BoundsForFrame(frame, layerIndex));
                     }
 
                     frame += 1;
                 }
             }
-            
+
             frameSeparatorPen.Dispose();
             oddFrameSeparatorPen.Dispose();
         }
 
-        private void DrawKeyframes([NotNull] PaintEventArgs e)
+        public static void DrawKeyframes([NotNull] Graphics graphics, [NotNull] TimelineController timeline, Rectangle bounds, int currentFrame)
         {
-            for (int layerIndex = 0; layerIndex < TimelineController.LayerCount; layerIndex++)
+            for (int layerIndex = 0; layerIndex < timeline.LayerCount; layerIndex++)
             {
-                var layer = TimelineController.LayerAtIndex(layerIndex);
+                var layer = timeline.LayerAtIndex(layerIndex);
 
                 int frame = 0;
-                for (float x = 0; x < Bounds.Width; x += _frameWidth)
+                for (float x = 0; x < bounds.Width; x += FrameWidth)
                 {
                     if (frame == layer.FrameCount)
                         break;
 
-                    DrawKeyframe(e, frame, layerIndex);
+                    DrawKeyframe(graphics, frame, layerIndex, timeline, currentFrame);
 
                     frame += 1;
                 }
             }
         }
 
-        private void DrawKeyframe([NotNull] PaintEventArgs e, int currentFrame, int currentLayer)
+        public static void DrawKeyframe([NotNull] Graphics graphics, int frame, int currentLayer, [NotNull] TimelineController timeline, int currentFrame)
         {
-            var frameBounds = new RectangleF(0, 0, _frameWidth, _layerHeight - 1);
+            var frameBounds = new RectangleF(0, 0, FrameWidth, LayerHeight - 1);
 
-            var state = e.Graphics.Save();
+            var state = graphics.Save();
 
-            float x = currentFrame * _frameWidth;
-            float y = _frameCountHeight + currentLayer * _layerHeight;
+            float x = frame * FrameWidth;
+            float y = FrameCountHeight + currentLayer * LayerHeight;
 
-            e.Graphics.TranslateTransform(x, y);
+            graphics.TranslateTransform(x, y);
 
             var dashedPen = new Pen(Color.LightGray)
             {
@@ -406,15 +473,15 @@ namespace Pixelaria.Views.Controls
                 DashCap = DashCap.Flat
             };
             var outlinePen = new Pen(Color.Gray);
-            var bodyFillBrush = new SolidBrush(currentFrame == _currentFrame ? Color.White : Color.Gray);
+            var bodyFillBrush = new SolidBrush(frame == currentFrame ? Color.White : Color.Gray);
 
-            var layer = TimelineController.LayerAtIndex(currentLayer);
-            var relationship = layer.RelationshipToFrame(currentFrame);
+            var layer = timeline.LayerAtIndex(currentLayer);
+            var relationship = layer.RelationshipToFrame(frame);
 
             if (relationship != KeyframePosition.None)
             {
-                using var brush = new SolidBrush(currentFrame == _currentFrame ? _selectedFrameColor : _keyframeColor);
-                e.Graphics.FillRectangle(brush, frameBounds);
+                using var brush = new SolidBrush(frame == currentFrame ? SelectedFrameColor : KeyframeColor);
+                graphics.FillRectangle(brush, frameBounds);
             }
 
             if (relationship == KeyframePosition.First || relationship == KeyframePosition.Full)
@@ -422,7 +489,7 @@ namespace Pixelaria.Views.Controls
                 var circleCenter = new PointF(frameBounds.Width / 2, frameBounds.Height / 2);
                 const float circleRadius = 2.5f;
                 var ellipse = new RectangleF(circleCenter.X - circleRadius, circleCenter.Y - circleRadius, circleRadius * 2, circleRadius * 2);
-                e.Graphics.FillEllipse(bodyFillBrush, ellipse);
+                graphics.FillEllipse(bodyFillBrush, ellipse);
             }
 
             switch (relationship)
@@ -430,29 +497,29 @@ namespace Pixelaria.Views.Controls
                 case KeyframePosition.None:
                     break;
                 case KeyframePosition.Full:
-                    e.Graphics.DrawRectangle(outlinePen, frameBounds.X, frameBounds.Y, frameBounds.Width, frameBounds.Height);
+                    graphics.DrawRectangle(outlinePen, frameBounds.X, frameBounds.Y, frameBounds.Width, frameBounds.Height);
                     break;
                 case KeyframePosition.First:
-                    e.Graphics.DrawLine(outlinePen, frameBounds.Left, frameBounds.Top, frameBounds.Left, frameBounds.Bottom);
-                    e.Graphics.DrawLine(outlinePen, frameBounds.Left, frameBounds.Top, frameBounds.Right, frameBounds.Top);
-                    e.Graphics.DrawLine(outlinePen, frameBounds.Left, frameBounds.Bottom, frameBounds.Right, frameBounds.Bottom);
-                    e.Graphics.DrawLine(dashedPen, frameBounds.Right, frameBounds.Top, frameBounds.Right, frameBounds.Bottom);
+                    graphics.DrawLine(outlinePen, frameBounds.Left, frameBounds.Top, frameBounds.Left, frameBounds.Bottom);
+                    graphics.DrawLine(outlinePen, frameBounds.Left, frameBounds.Top, frameBounds.Right, frameBounds.Top);
+                    graphics.DrawLine(outlinePen, frameBounds.Left, frameBounds.Bottom, frameBounds.Right, frameBounds.Bottom);
+                    graphics.DrawLine(dashedPen, frameBounds.Right, frameBounds.Top, frameBounds.Right, frameBounds.Bottom);
                     break;
                 case KeyframePosition.Center:
-                    e.Graphics.DrawLine(dashedPen, frameBounds.Left, frameBounds.Top, frameBounds.Left, frameBounds.Bottom);
-                    e.Graphics.DrawLine(outlinePen, frameBounds.Left, frameBounds.Top, frameBounds.Right, frameBounds.Top);
-                    e.Graphics.DrawLine(outlinePen, frameBounds.Left, frameBounds.Bottom, frameBounds.Right, frameBounds.Bottom);
-                    e.Graphics.DrawLine(dashedPen, frameBounds.Right, frameBounds.Top, frameBounds.Right, frameBounds.Bottom);
+                    graphics.DrawLine(dashedPen, frameBounds.Left, frameBounds.Top, frameBounds.Left, frameBounds.Bottom);
+                    graphics.DrawLine(outlinePen, frameBounds.Left, frameBounds.Top, frameBounds.Right, frameBounds.Top);
+                    graphics.DrawLine(outlinePen, frameBounds.Left, frameBounds.Bottom, frameBounds.Right, frameBounds.Bottom);
+                    graphics.DrawLine(dashedPen, frameBounds.Right, frameBounds.Top, frameBounds.Right, frameBounds.Bottom);
                     break;
                 case KeyframePosition.Last:
-                    e.Graphics.DrawLine(dashedPen, frameBounds.Left, frameBounds.Top, frameBounds.Left, frameBounds.Bottom);
-                    e.Graphics.DrawLine(outlinePen, frameBounds.Right, frameBounds.Top, frameBounds.Right, frameBounds.Bottom);
-                    e.Graphics.DrawLine(outlinePen, frameBounds.Left, frameBounds.Top, frameBounds.Right, frameBounds.Top);
-                    e.Graphics.DrawLine(outlinePen, frameBounds.Left, frameBounds.Bottom, frameBounds.Right, frameBounds.Bottom);
+                    graphics.DrawLine(dashedPen, frameBounds.Left, frameBounds.Top, frameBounds.Left, frameBounds.Bottom);
+                    graphics.DrawLine(outlinePen, frameBounds.Right, frameBounds.Top, frameBounds.Right, frameBounds.Bottom);
+                    graphics.DrawLine(outlinePen, frameBounds.Left, frameBounds.Top, frameBounds.Right, frameBounds.Top);
+                    graphics.DrawLine(outlinePen, frameBounds.Left, frameBounds.Bottom, frameBounds.Right, frameBounds.Bottom);
                     break;
             }
 
-            e.Graphics.Restore(state);
+            graphics.Restore(state);
 
             dashedPen.Dispose();
             outlinePen.Dispose();

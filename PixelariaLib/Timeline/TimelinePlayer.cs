@@ -24,7 +24,7 @@ using JetBrains.Annotations;
 
 namespace PixelariaLib.Timeline
 {
-    public class TimelinePlayer
+    public class TimelinePlayer : ITimelinePlayer
     {
         private readonly TimelineController _timelineController;
 

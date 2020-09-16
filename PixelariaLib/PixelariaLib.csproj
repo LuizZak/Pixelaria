@@ -141,6 +141,7 @@
     <Compile Include="Timeline\ITimeline.cs" />
     <Compile Include="Timeline\ITimelineLayer.cs" />
     <Compile Include="Timeline\ITimelineLayerController.cs" />
+    <Compile Include="Timeline\ITimelinePlayer.cs" />
     <Compile Include="Timeline\KeyframeCollectionSource.cs" />
     <Compile Include="Timeline\TimelineController.cs" />
     <Compile Include="Timeline\TimelineLayer.cs" />

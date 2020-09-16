@@ -20,26 +20,17 @@
     base directory of this project.
 */
 
-using System;
-using System.Windows.Forms;
-using JetBrains.Annotations;
-using Pixelaria.Views;
-using Pixelaria.Views.ModelViews;
-
-namespace Pixelaria
+namespace PixelariaLib.Timeline
 {
-    static class Program
+    /// <summary>
+    /// Interface for objects that can playback timeline content
+    /// </summary>
+    public interface ITimelinePlayer
     {
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
-        [STAThread]
-        static void Main([NotNull] string[] args)
-        {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            //Application.Run(new MainForm(args));
-            Application.Run(new TimelineTestView());
-        }
+        int FrameCount { get; }
+        
+        int LayerCount { get; }
+
+        object ValueForFrame(int frame, int layerIndex);
     }
 }

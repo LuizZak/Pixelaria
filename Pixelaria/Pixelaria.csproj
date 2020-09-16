@@ -429,6 +429,12 @@
     <Compile Include="Views\ModelViews\NewAnimationView.Designer.cs">
       <DependentUpon>NewAnimationView.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\ModelViews\TimelineTestView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\ModelViews\TimelineTestView.Designer.cs">
+      <DependentUpon>TimelineTestView.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\SettingsViews\BundleSettingsView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -491,6 +497,9 @@
     <EmbeddedResource Include="Views\Controls\LayerControls\LayerControl.resx">
       <DependentUpon>LayerControl.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Views\Controls\TimelineControl.resx">
+      <DependentUpon>TimelineControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\Controls\ValidationPanel.resx">
       <DependentUpon>ValidationPanel.cs</DependentUpon>
     </EmbeddedResource>
@@ -550,6 +559,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\ModelViews\NewAnimationView.resx">
       <DependentUpon>NewAnimationView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\ModelViews\TimelineTestView.resx">
+      <DependentUpon>TimelineTestView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\SettingsViews\BundleSettingsView.resx">
       <DependentUpon>BundleSettingsView.cs</DependentUpon>
