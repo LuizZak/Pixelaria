@@ -21,9 +21,9 @@
 */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Pixelaria.Timeline;
+using PixelariaLib.Timeline;
 
-namespace PixelariaTests.Timeline
+namespace PixelariaLibTests.Timeline
 {
     [TestClass]
     public class TimelineTests

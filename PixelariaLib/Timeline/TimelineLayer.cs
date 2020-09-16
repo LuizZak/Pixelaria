@@ -23,7 +23,7 @@
 using System.Linq;
 using JetBrains.Annotations;
 
-namespace Pixelaria.Timeline
+namespace PixelariaLib.Timeline
 {
     /// <summary>
     /// A layer on a timeline

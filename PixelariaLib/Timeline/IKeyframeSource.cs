@@ -23,7 +23,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace Pixelaria.Timeline
+namespace PixelariaLib.Timeline
 {
     public interface IKeyframeSource
     {

@@ -21,10 +21,9 @@
 */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Pixelaria.Timeline;
-using Pixelaria.Views.ModelViews;
+using PixelariaLib.Timeline;
 
-namespace PixelariaTests.Timeline
+namespace PixelariaLibTests.Timeline
 {
     [TestClass]
     public class TimelineLayerTests
@@ -106,7 +105,7 @@ namespace PixelariaTests.Timeline
         [TestMethod]
         public void TestKeyframeValuesBetween()
         {
-            var sut = CreateStaticTimelineLayer(new NumericTimelineLayerController());
+            var sut = CreateStaticTimelineLayer();
             sut.AddKeyframe(0, 0.0f);
             sut.AddKeyframe(1, 1.0f);
             sut.AddKeyframe(3, 2.0f);
@@ -119,9 +118,9 @@ namespace PixelariaTests.Timeline
             Assert.AreEqual((2.0f, 2.0f), sut.KeyframeValuesBetween(5));
         }
 
-        private static TimelineLayer CreateStaticTimelineLayer(ITimelineLayerController controller = null)
+        private static TimelineLayer CreateStaticTimelineLayer()
         {
-            return new TimelineLayer(new KeyframeCollectionSource(), controller ?? new FrameOriginTimelineController());
+            return new TimelineLayer(new KeyframeCollectionSource(), new NumericTimelineLayerController());
         }
 
         private class NumericTimelineLayerController : ITimelineLayerController

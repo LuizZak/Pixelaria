@@ -20,26 +20,28 @@
     base directory of this project.
 */
 
-namespace Pixelaria.Timeline
+namespace PixelariaLib.Timeline
 {
     /// <summary>
-    /// Controls the values for a specific timeline layer's keyframes
+    /// A layer controller that handles empty 0.0f values.
+    ///
+    /// Used mostly as a placeholder for timelines that are display-only.
     /// </summary>
-    public interface ITimelineLayerController
+    public class EmptyTimelineLayerController : ITimelineLayerController
     {
-        /// <summary>
-        /// Requests the default value for a newly created keyframe.
-        /// </summary>
-        object DefaultKeyframeValue();
+        public object DefaultKeyframeValue()
+        {
+            return 0.0f;
+        }
 
-        /// <summary>
-        /// Requests a copy of the given keyframe value.
-        /// </summary>
-        object DuplicateKeyframeValue(object value);
+        public object DuplicateKeyframeValue(object value)
+        {
+            return value;
+        }
 
-        /// <summary>
-        /// Requests the interpolated value between two keyframe values, with a given ratio.
-        /// </summary>
-        object InterpolatedValue(object start, object end, float ratio);
+        public object InterpolatedValue(object start, object end, float ratio)
+        {
+            return start;
+        }
     }
 }

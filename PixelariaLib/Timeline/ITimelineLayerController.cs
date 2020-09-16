@@ -20,23 +20,26 @@
     base directory of this project.
 */
 
-namespace Pixelaria.Timeline
+namespace PixelariaLib.Timeline
 {
     /// <summary>
-    /// Interface for a timeline object
+    /// Controls the values for a specific timeline layer's keyframes
     /// </summary>
-    public interface ITimeline
+    public interface ITimelineLayerController
     {
         /// <summary>
-        /// Gets the number of available layers on this timeline.
+        /// Requests the default value for a newly created keyframe.
         /// </summary>
-        int LayerCount { get; }
+        object DefaultKeyframeValue();
 
         /// <summary>
-        /// Gets the total number of frames on this timeline.
-        ///
-        /// This value is the maximal frame count across all available timeline layers.
+        /// Requests a copy of the given keyframe value.
         /// </summary>
-        int FrameCount { get; }
+        object DuplicateKeyframeValue(object value);
+
+        /// <summary>
+        /// Requests the interpolated value between two keyframe values, with a given ratio.
+        /// </summary>
+        object InterpolatedValue(object start, object end, float ratio);
     }
 }

@@ -26,7 +26,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using JetBrains.Annotations;
-using Pixelaria.Timeline;
+using PixelariaLib.Timeline;
 using PixelariaLib.Views.Controls;
 
 namespace Pixelaria.Views.Controls

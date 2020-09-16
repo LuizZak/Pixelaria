@@ -173,14 +173,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\IInterfaceStateProvider.cs" />
-    <Compile Include="Timeline\EmptyTimelineLayerController.cs" />
-    <Compile Include="Timeline\IKeyframeSource.cs" />
-    <Compile Include="Timeline\ITimeline.cs" />
-    <Compile Include="Timeline\ITimelineLayer.cs" />
-    <Compile Include="Timeline\ITimelineLayerController.cs" />
-    <Compile Include="Timeline\KeyframeCollectionSource.cs" />
-    <Compile Include="Timeline\TimelineLayer.cs" />
-    <Compile Include="Timeline\TimelinePlayer.cs" />
     <Compile Include="Algorithms\PaintOperations\IColorBlender.cs" />
     <Compile Include="Algorithms\PaintOperations\Interfaces\IColoredPaintOperation.cs" />
     <Compile Include="Algorithms\PaintOperations\Interfaces\ICompositingPaintOperation.cs" />
@@ -205,7 +197,6 @@
     <Compile Include="Views\Controls\PaintTools\Interfaces\IAreaOperation.cs" />
     <Compile Include="Views\Controls\PaintTools\Interfaces\IPaintingPictureBoxTool.cs" />
     <Compile Include="Views\Controls\PaintTools\IUndoIntercepterPaintTool.cs" />
-    <Compile Include="Timeline\TimelineController.cs" />
     <Compile Include="Views\Controls\TimelineControl.cs">
       <SubType>Component</SubType>
     </Compile>

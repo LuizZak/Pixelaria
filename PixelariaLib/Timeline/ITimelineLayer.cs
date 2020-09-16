@@ -20,7 +20,7 @@
     base directory of this project.
 */
 
-namespace Pixelaria.Timeline
+namespace PixelariaLib.Timeline
 {
     /// <summary>
     /// Interface for an abstract timeline layer composed of keyframes interspersed across discrete time entries

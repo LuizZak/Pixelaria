@@ -22,7 +22,7 @@
 
 using JetBrains.Annotations;
 
-namespace Pixelaria.Timeline
+namespace PixelariaLib.Timeline
 {
     public class TimelinePlayer
     {

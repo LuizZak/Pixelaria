@@ -26,7 +26,7 @@ using System.ComponentModel;
 using System.Linq;
 using JetBrains.Annotations;
 
-namespace Pixelaria.Timeline
+namespace PixelariaLib.Timeline
 {
     /// <summary>
     /// Represents a timeline containing layers and keyframes

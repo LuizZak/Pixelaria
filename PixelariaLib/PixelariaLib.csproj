@@ -136,6 +136,15 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Timeline\EmptyTimelineLayerController.cs" />
+    <Compile Include="Timeline\IKeyframeSource.cs" />
+    <Compile Include="Timeline\ITimeline.cs" />
+    <Compile Include="Timeline\ITimelineLayer.cs" />
+    <Compile Include="Timeline\ITimelineLayerController.cs" />
+    <Compile Include="Timeline\KeyframeCollectionSource.cs" />
+    <Compile Include="Timeline\TimelineController.cs" />
+    <Compile Include="Timeline\TimelineLayer.cs" />
+    <Compile Include="Timeline\TimelinePlayer.cs" />
     <Compile Include="Utils\AhslColor.cs" />
     <Compile Include="Utils\AsyncHelpers.cs" />
     <Compile Include="Utils\ImageUtilities.cs" />

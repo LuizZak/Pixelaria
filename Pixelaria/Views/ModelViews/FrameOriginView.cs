@@ -26,10 +26,10 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using JetBrains.Annotations;
-using Pixelaria.Timeline;
 using Pixelaria.Views.Controls;
 using PixelariaLib.Controllers.DataControllers;
 using PixelariaLib.Data;
+using PixelariaLib.Timeline;
 using PixelariaLib.Views.Controls;
 
 namespace Pixelaria.Views.ModelViews

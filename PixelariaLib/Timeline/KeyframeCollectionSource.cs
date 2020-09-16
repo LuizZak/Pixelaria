@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Pixelaria.Timeline
+namespace PixelariaLib.Timeline
 {
     public class KeyframeCollectionSource : IKeyframeSource
     {

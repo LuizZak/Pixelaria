@@ -20,30 +20,23 @@
     base directory of this project.
 */
 
-using System;
-
-namespace Pixelaria.Timeline
+namespace PixelariaLib.Timeline
 {
     /// <summary>
-    /// A layer controller that handles empty 0.0f values.
-    ///
-    /// Used mostly as a placeholder for timelines that are display-only.
+    /// Interface for a timeline object
     /// </summary>
-    public class EmptyTimelineLayerController : ITimelineLayerController
+    public interface ITimeline
     {
-        public object DefaultKeyframeValue()
-        {
-            return 0.0f;
-        }
+        /// <summary>
+        /// Gets the number of available layers on this timeline.
+        /// </summary>
+        int LayerCount { get; }
 
-        public object DuplicateKeyframeValue(object value)
-        {
-            return value;
-        }
-
-        public object InterpolatedValue(object start, object end, float ratio)
-        {
-            return start;
-        }
+        /// <summary>
+        /// Gets the total number of frames on this timeline.
+        ///
+        /// This value is the maximal frame count across all available timeline layers.
+        /// </summary>
+        int FrameCount { get; }
     }
 }
