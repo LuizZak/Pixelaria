@@ -32,7 +32,7 @@ namespace PixelariaTests.Timeline
         [TestMethod]
         public void TestValueForFrame()
         {
-            var timeline = new Pixelaria.Timeline.Timeline();
+            var timeline = new TimelineController();
             timeline.AddLayer(new IntegerTimelineLayerController());
             timeline.AddKeyframe(0, 0, 0);
             timeline.AddKeyframe(5, 0, 5);

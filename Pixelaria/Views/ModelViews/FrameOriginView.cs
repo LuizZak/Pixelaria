@@ -37,7 +37,7 @@ namespace Pixelaria.Views.ModelViews
     public partial class FrameOriginView : Form
     {
         private readonly AnimationController _animation;
-        private Timeline.Timeline _timeline;
+        private TimelineController _timelineController;
 
         public FrameOriginView(AnimationController animation)
         {
@@ -51,14 +51,14 @@ namespace Pixelaria.Views.ModelViews
         {
             Text = $@"Frame Origin - [{_animation.Name}]";
 
-            _timeline = new Timeline.Timeline();
-            _timeline.AddLayer(new FrameOriginKeyframeSource(_animation), new FrameOriginTimelineController());
-            if (_timeline.LayerAtIndex(0).KeyframeExactlyOnFrame(0) == null)
+            _timelineController = new TimelineController();
+            _timelineController.AddLayer(new FrameOriginKeyframeSource(_animation), new FrameOriginTimelineController());
+            if (_timelineController.LayerAtIndex(0).KeyframeExactlyOnFrame(0) == null)
             {
-                _timeline.AddKeyframe(0, 0, Point.Empty);
+                _timelineController.AddKeyframe(0, 0, Point.Empty);
             }
 
-            timelineControl.Timeline = _timeline;
+            timelineControl.TimelineController = _timelineController;
             timelineControl.FrameChanged += TimelineScrubControlOnFrameChanged;
             timelineControl.WillAddKeyframe += TimelineControlOnWillAddKeyframe;
             timelineControl.WillRemoveKeyframe += TimelineControlOnWillRemoveKeyframe;
@@ -102,18 +102,18 @@ namespace Pixelaria.Views.ModelViews
                 return;
 
             var frame = _animation.GetFrameController(_animation.GetFrameAtIndex(index));
-            zpb_framePreview.LoadFrame(frame, _timeline);
+            zpb_framePreview.LoadFrame(frame, _timelineController);
         }
 
         internal class FrameOriginEditImageBox : ZoomablePictureBox
         {
             private FrameController _frame;
-            private Timeline.Timeline _timeline;
+            private TimelineController _timelineController;
 
-            public void LoadFrame([NotNull] FrameController frame, Timeline.Timeline timeline)
+            public void LoadFrame([NotNull] FrameController frame, TimelineController timelineController)
             {
                 _frame = frame;
-                _timeline = timeline;
+                _timelineController = timelineController;
                 Image = frame.GetComposedBitmap();
             }
 
@@ -123,7 +123,7 @@ namespace Pixelaria.Views.ModelViews
 
                 if (_frame != null)
                 {
-                    var value = _timeline.CreatePlayer().ValueForFrame(_frame.Index, 0);
+                    var value = _timelineController.CreatePlayer().ValueForFrame(_frame.Index, 0);
 
                     if (value is Point p)
                     {
@@ -142,7 +142,7 @@ namespace Pixelaria.Views.ModelViews
 
                 if (e.Button == MouseButtons.Left)
                 {
-                    _timeline.SetKeyframeValue(_frame.Index, 0, ClippedPoint(e.Location));
+                    _timelineController.SetKeyframeValue(_frame.Index, 0, ClippedPoint(e.Location));
                     Invalidate();
                 }
             }
@@ -153,7 +153,7 @@ namespace Pixelaria.Views.ModelViews
 
                 if (e.Button == MouseButtons.Left)
                 {
-                    _timeline.SetKeyframeValue(_frame.Index, 0, ClippedPoint(e.Location));
+                    _timelineController.SetKeyframeValue(_frame.Index, 0, ClippedPoint(e.Location));
                     Invalidate();
                 }
             }

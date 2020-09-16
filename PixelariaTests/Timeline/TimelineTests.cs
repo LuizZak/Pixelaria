@@ -31,7 +31,7 @@ namespace PixelariaTests.Timeline
         [TestMethod]
         public void TestInterpolateKeyframes()
         {
-            var sut = new Pixelaria.Timeline.Timeline();
+            var sut = new TimelineController();
             sut.AddLayer(new NumericTimelineLayerController());
             sut.AddKeyframe(0, 0, 0.0f);
             sut.AddKeyframe(10, 0, 1.0f);

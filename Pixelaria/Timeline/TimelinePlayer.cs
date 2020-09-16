@@ -20,22 +20,27 @@
     base directory of this project.
 */
 
+using JetBrains.Annotations;
+
 namespace Pixelaria.Timeline
 {
     public class TimelinePlayer
     {
-        private readonly Timeline _timeline;
+        private readonly TimelineController _timelineController;
 
-        public int FrameCount => _timeline.FrameCount;
+        public int FrameCount => _timelineController.FrameCount;
 
-        public TimelinePlayer(Timeline timeline)
+        public int LayerCount => _timelineController.LayerCount;
+
+        public TimelinePlayer(TimelineController timelineController)
         {
-            _timeline = timeline;
+            _timelineController = timelineController;
         }
 
+        [CanBeNull]
         public object ValueForFrame(int frame, int layerIndex)
         {
-            var layer = _timeline.LayerAtIndex(layerIndex);
+            var layer = _timelineController.LayerAtIndex(layerIndex);
 
             var range = layer.KeyframeRangeForFrame(frame);
             if (!range.HasValue)

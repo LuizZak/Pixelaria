@@ -42,7 +42,7 @@ namespace Pixelaria.Views.Controls
         private readonly ContextMenuStrip _contextMenu;
 
         private int _currentFrame;
-        private Timeline.Timeline _timeline;
+        private TimelineController _timelineController;
 
         /// <summary>
         /// States the current frame in the seek bar.
@@ -101,26 +101,26 @@ namespace Pixelaria.Views.Controls
         [Description("Occurs whenever the user selects to remove a keyframe")]
         public event KeyframeEventHandler WillRemoveKeyframe;
 
-        public Timeline.Timeline Timeline
+        public TimelineController TimelineController
         {
-            get => _timeline;
+            get => _timelineController;
             set
             {
-                if (_timeline != null)
+                if (_timelineController != null)
                 {
-                    _timeline.WillAddKeyframe -= TimelineOnKeyframeAdded;
-                    _timeline.WillRemoveKeyframe -= TimelineOnKeyframeRemoved;
-                    _timeline.WillChangeKeyframeValue -= TimelineOnKeyframeValueChanged;
+                    _timelineController.WillAddKeyframe -= TimelineControllerOnKeyframeAdded;
+                    _timelineController.WillRemoveKeyframe -= TimelineControllerOnKeyframeRemoved;
+                    _timelineController.WillChangeKeyframeValue -= TimelineControllerOnKeyframeValueChanged;
                 }
 
-                _timeline = value;
+                _timelineController = value;
                 Invalidate();
 
-                if (_timeline != null)
+                if (_timelineController != null)
                 {
-                    _timeline.WillAddKeyframe += TimelineOnKeyframeAdded;
-                    _timeline.WillRemoveKeyframe += TimelineOnKeyframeRemoved;
-                    _timeline.WillChangeKeyframeValue += TimelineOnKeyframeValueChanged;
+                    _timelineController.WillAddKeyframe += TimelineControllerOnKeyframeAdded;
+                    _timelineController.WillRemoveKeyframe += TimelineControllerOnKeyframeRemoved;
+                    _timelineController.WillChangeKeyframeValue += TimelineControllerOnKeyframeValueChanged;
                 }
             }
         }
@@ -129,7 +129,7 @@ namespace Pixelaria.Views.Controls
         {
             _contextMenu = new ContextMenuStrip();
 
-            Timeline = new Timeline.Timeline();
+            TimelineController = new TimelineController();
 
             InitializeComponent();
 
@@ -139,29 +139,29 @@ namespace Pixelaria.Views.Controls
                      ControlStyles.UserPaint, true);
         }
 
-        private void TimelineOnKeyframeAdded(object sender, TimelineKeyframeValueChangeEventArgs e)
+        private void TimelineControllerOnKeyframeAdded(object sender, TimelineKeyframeValueChangeEventArgs e)
         {
             Invalidate();
         }
 
-        private void TimelineOnKeyframeRemoved(object sender, TimelineRemoveKeyframeEventArgs e)
+        private void TimelineControllerOnKeyframeRemoved(object sender, TimelineRemoveKeyframeEventArgs e)
         {
             Invalidate();
         }
 
-        private void TimelineOnKeyframeValueChanged(object sender, TimelineKeyframeValueChangeEventArgs e)
+        private void TimelineControllerOnKeyframeValueChanged(object sender, TimelineKeyframeValueChangeEventArgs e)
         {
             Invalidate();
         }
 
         private int FrameOnX(float x)
         {
-            return Math.Max(0, Math.Min(Timeline.FrameCount - 1, (int) Math.Floor(x / _frameWidth)));
+            return Math.Max(0, Math.Min(TimelineController.FrameCount - 1, (int) Math.Floor(x / _frameWidth)));
         }
 
         private int LayerOnY(float y)
         {
-            return Math.Max(0, Math.Min(Timeline.LayerCount - 1, (int) Math.Floor((y - _frameCountHeight) / _layerHeight)));
+            return Math.Max(0, Math.Min(TimelineController.LayerCount - 1, (int) Math.Floor((y - _frameCountHeight) / _layerHeight)));
         }
 
         private RectangleF BoundsForFrame(int frame, int layer)
@@ -171,7 +171,7 @@ namespace Pixelaria.Views.Controls
 
         private void InvalidateCurrentFrame()
         {
-            for (int i = 0; i < Timeline.LayerCount; i++)
+            for (int i = 0; i < TimelineController.LayerCount; i++)
             {
                 var boundsForFrame = BoundsForFrame(_currentFrame, i);
                 boundsForFrame.Y = 0;
@@ -209,7 +209,7 @@ namespace Pixelaria.Views.Controls
         {
             _contextMenu.Items.Clear();
 
-            var layer = Timeline.LayerAtIndex(layerIndex);
+            var layer = TimelineController.LayerAtIndex(layerIndex);
 
             var kf = layer.KeyframeExactlyOnFrame(frame);
             if (frame > 0 && kf.HasValue)
@@ -225,7 +225,7 @@ namespace Pixelaria.Views.Controls
                             return;
                     }
 
-                    Timeline.RemoveKeyframe(kf.Value.Frame, layerIndex);
+                    TimelineController.RemoveKeyframe(kf.Value.Frame, layerIndex);
                     Invalidate();
                 };
             }
@@ -242,7 +242,7 @@ namespace Pixelaria.Views.Controls
                             return;
                     }
 
-                    Timeline.AddKeyframe(frame, layerIndex);
+                    TimelineController.AddKeyframe(frame, layerIndex);
                     Invalidate();
                 };
             }
@@ -261,7 +261,7 @@ namespace Pixelaria.Views.Controls
                 ChangeFrame(FrameOnX(e.X));
             }
 
-            if (e.Button == MouseButtons.Right && layer >= 0 && layer < Timeline.LayerCount)
+            if (e.Button == MouseButtons.Right && layer >= 0 && layer < TimelineController.LayerCount)
             {
                 ShowContextMenu(_currentFrame, layer, e.Location);
             }
@@ -298,7 +298,7 @@ namespace Pixelaria.Views.Controls
             int frame = 0;
             for (float x = 0; x < Bounds.Width; x += _frameWidth)
             {
-                if (frame == Timeline.FrameCount)
+                if (frame == TimelineController.FrameCount)
                     break;
 
                 var currentFrameRect = new RectangleF(x, 0, _frameWidth, _frameCountHeight);
@@ -342,12 +342,12 @@ namespace Pixelaria.Views.Controls
                 Width = 2
             };
 
-            for (int layerIndex = 0; layerIndex < Timeline.LayerCount; layerIndex++)
+            for (int layerIndex = 0; layerIndex < TimelineController.LayerCount; layerIndex++)
             {
                 int frame = 0;
                 for (float x = 0; x < Bounds.Width; x += _frameWidth)
                 {
-                    if (frame == Timeline.FrameCount)
+                    if (frame == TimelineController.FrameCount)
                         break;
 
                     int y = _frameCountHeight + layerIndex * _layerHeight;
@@ -372,9 +372,9 @@ namespace Pixelaria.Views.Controls
 
         private void DrawKeyframes([NotNull] PaintEventArgs e)
         {
-            for (int layerIndex = 0; layerIndex < Timeline.LayerCount; layerIndex++)
+            for (int layerIndex = 0; layerIndex < TimelineController.LayerCount; layerIndex++)
             {
-                var layer = Timeline.LayerAtIndex(layerIndex);
+                var layer = TimelineController.LayerAtIndex(layerIndex);
 
                 int frame = 0;
                 for (float x = 0; x < Bounds.Width; x += _frameWidth)
@@ -408,7 +408,7 @@ namespace Pixelaria.Views.Controls
             var outlinePen = new Pen(Color.Gray);
             var bodyFillBrush = new SolidBrush(currentFrame == _currentFrame ? Color.White : Color.Gray);
 
-            var layer = Timeline.LayerAtIndex(currentLayer);
+            var layer = TimelineController.LayerAtIndex(currentLayer);
             var relationship = layer.RelationshipToFrame(currentFrame);
 
             if (relationship != KeyframePosition.None)

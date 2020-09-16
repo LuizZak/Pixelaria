@@ -31,7 +31,7 @@ namespace Pixelaria.Timeline
     /// <summary>
     /// Represents a timeline containing layers and keyframes
     /// </summary>
-    public class Timeline : ITimeline
+    public class TimelineController : ITimeline
     {
         private readonly List<TimelineLayer> _layers = new List<TimelineLayer>();
 
@@ -108,11 +108,6 @@ namespace Pixelaria.Timeline
         /// Total layer count
         /// </summary>
         public int LayerCount => _layers.Count;
-
-        public Timeline()
-        {
-            
-        }
 
         public TimelinePlayer CreatePlayer()
         {

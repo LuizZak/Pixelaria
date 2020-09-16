@@ -205,7 +205,7 @@
     <Compile Include="Views\Controls\PaintTools\Interfaces\IAreaOperation.cs" />
     <Compile Include="Views\Controls\PaintTools\Interfaces\IPaintingPictureBoxTool.cs" />
     <Compile Include="Views\Controls\PaintTools\IUndoIntercepterPaintTool.cs" />
-    <Compile Include="Timeline\Timeline.cs" />
+    <Compile Include="Timeline\TimelineController.cs" />
     <Compile Include="Views\Controls\TimelineControl.cs">
       <SubType>Component</SubType>
     </Compile>
