@@ -175,12 +175,11 @@
     <Compile Include="Controllers\IInterfaceStateProvider.cs" />
     <Compile Include="Timeline\EmptyTimelineLayerController.cs" />
     <Compile Include="Timeline\IKeyframeSource.cs" />
-    <Compile Include="Timeline\ILayerSource.cs" />
     <Compile Include="Timeline\ITimeline.cs" />
     <Compile Include="Timeline\ITimelineLayer.cs" />
     <Compile Include="Timeline\ITimelineLayerController.cs" />
     <Compile Include="Timeline\KeyframeCollectionSource.cs" />
-    <Compile Include="Timeline\StaticTimelineLayer.cs" />
+    <Compile Include="Timeline\TimelineLayer.cs" />
     <Compile Include="Timeline\TimelinePlayer.cs" />
     <Compile Include="Algorithms\PaintOperations\IColorBlender.cs" />
     <Compile Include="Algorithms\PaintOperations\Interfaces\IColoredPaintOperation.cs" />

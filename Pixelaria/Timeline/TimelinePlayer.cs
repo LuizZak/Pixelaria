@@ -24,11 +24,11 @@ namespace Pixelaria.Timeline
 {
     public class TimelinePlayer
     {
-        private readonly ITimeline _timeline;
+        private readonly Timeline _timeline;
 
         public int FrameCount => _timeline.FrameCount;
 
-        public TimelinePlayer(ITimeline timeline)
+        public TimelinePlayer(Timeline timeline)
         {
             _timeline = timeline;
         }

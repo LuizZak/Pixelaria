@@ -20,48 +20,13 @@
     base directory of this project.
 */
 
-using System;
-using System.ComponentModel;
-
 namespace Pixelaria.Timeline
 {
+    /// <summary>
+    /// Interface for a timeline object
+    /// </summary>
     public interface ITimeline
     {
-        /// <summary>
-        /// Event handler for keyframe-related events
-        /// </summary>
-        /// <param name="sender">The object that fired this event</param>
-        /// <param name="e">The event arguments for the event</param>
-        delegate void KeyframeEventHandler(object sender, TimelineKeyframeEventArgs e);
-        /// <summary>
-        /// Event fired when a new keyframe is added
-        /// </summary> 
-        [Browsable(true)]
-        [Category("Action")]
-        [Description("Occurs whenever a new keyframe is added")]
-        event KeyframeEventHandler KeyframeAdded;
-        /// <summary>
-        /// Event fired when a keyframe is removed
-        /// </summary>
-        [Browsable(true)]
-        [Category("Action")]
-        [Description("Occurs whenever a keyframe iss removed")]
-        event KeyframeEventHandler KeyframeRemoved;
-
-        /// <summary>
-        /// Event handler for events related to keyframe value changes
-        /// </summary>
-        /// <param name="sender">The object that fired this event</param>
-        /// <param name="e">The event arguments for the event</param>
-        delegate void KeyframeValueChangedEventHandler(object sender, TimelineKeyframeValueChangeEventArgs e);
-        /// <summary>
-        /// Event fired when a keyframe's value has changed
-        /// </summary>
-        [Browsable(true)]
-        [Category("Action")]
-        [Description("Occurs whenever the the value of a keyframe changes")]
-        event KeyframeValueChangedEventHandler KeyframeValueChanged;
-
         /// <summary>
         /// Gets the number of available layers on this timeline.
         /// </summary>
@@ -73,34 +38,5 @@ namespace Pixelaria.Timeline
         /// This value is the maximal frame count across all available timeline layers.
         /// </summary>
         int FrameCount { get; }
-
-        /// <summary>
-        /// Returns a layer object at a given index.
-        ///
-        /// The index must be between 0 and <see cref="LayerCount"/> - 1.
-        /// </summary>
-        ITimelineLayer LayerAtIndex(int index);
-    }
-
-    public class TimelineKeyframeEventArgs : EventArgs
-    {
-        public int FrameIndex { get; }
-
-        public TimelineKeyframeEventArgs(int frameIndex)
-        {
-            FrameIndex = frameIndex;
-        }
-    }
-
-    public class TimelineKeyframeValueChangeEventArgs : EventArgs
-    {
-        public int FrameIndex { get; }
-        public object Value { get; }
-
-        public TimelineKeyframeValueChangeEventArgs(int frameIndex, object value)
-        {
-            FrameIndex = frameIndex;
-            Value = value;
-        }
     }
 }

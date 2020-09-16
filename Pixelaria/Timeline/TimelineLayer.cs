@@ -20,73 +20,60 @@
     base directory of this project.
 */
 
-using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace Pixelaria.Timeline
 {
-    public class StaticTimelineLayer : ITimelineLayer
+    /// <summary>
+    /// A layer on a timeline
+    /// </summary>
+    public class TimelineLayer: ITimelineLayer
     {
         private readonly IKeyframeSource _keyframeSource;
 
-        public event IKeyframeSource.KeyframeEventHandler KeyframeAdded
-        {
-            add => _keyframeSource.KeyframeAdded += value;
-            remove => _keyframeSource.KeyframeAdded -= value;
-        }
-
-        public event IKeyframeSource.KeyframeEventHandler KeyframeRemoved
-        {
-            add => _keyframeSource.KeyframeRemoved += value;
-            remove => _keyframeSource.KeyframeRemoved -= value;
-        }
-
-        public event IKeyframeSource.KeyframeValueChangedEventHandler KeyframeValueChanged
-        {
-            add => _keyframeSource.KeyframeValueChanged += value;
-            remove => _keyframeSource.KeyframeValueChanged -= value;
-        }
-
-        public IReadOnlyList<int> KeyframeIndexes => _keyframeSource.KeyframeIndexes;
         public int FrameCount => _keyframeSource.FrameCount;
+
         public ITimelineLayerController LayerController { get; }
 
-        public StaticTimelineLayer(IKeyframeSource keyframeSource, ITimelineLayerController layerController)
+        public TimelineLayer(IKeyframeSource keyframeSource, ITimelineLayerController layerController)
         {
             _keyframeSource = keyframeSource;
             LayerController = layerController;
         }
 
+        /// <summary>
+        /// Sets the value for a keyframe at a specific frame. If the frame is not
+        /// a keyframe, a new keyframe is created and its value set as <see cref="value"/>
+        /// </summary>
         public void SetKeyframeValue(int frame, object value)
         {
             _keyframeSource.SetKeyframeValue(frame, value);
         }
 
-        public void AddKeyframe(int frame, object value = null)
+        /// <summary>
+        /// Adds a new keyframe at a specified frame.
+        /// </summary>
+        public void AddKeyframe(int frame, object value)
         {
-            // Find the interpolated value for the keyframe to store
-            if (value == null)
-            {
-                var range = KeyframeRangeForFrame(frame);
-                var (item1, item2) = KeyframeValuesBetween(frame);
-                if (range.HasValue && item1 != null && item2 != null)
-                {
-                    value = LayerController.InterpolatedValue(item1, item2, range.Value.Ratio(frame));
-                }
-                else
-                {
-                    value = LayerController.DefaultKeyframeValue();
-                }
-            }
-
             _keyframeSource.AddKeyframe(frame, value);
         }
 
+        /// <summary>
+        /// Removes a keyframe at a specified frame. If no keyframes exists at <see cref="frame"/>,
+        /// nothing is changed.
+        /// </summary>
         public void RemoveKeyframe(int frame)
         {
             _keyframeSource.RemoveKeyframe(frame);
         }
 
+        /// <summary>
+        /// Gets the value for a keyframe on a given index.
+        ///
+        /// Returns null, in case the frame at the given index is not a keyframe or has no value associated.
+        /// </summary>
+        [CanBeNull]
         public object ValueForKeyframe(int frameIndex)
         {
             return _keyframeSource.ValueForKeyframe(frameIndex);
@@ -105,33 +92,9 @@ namespace Pixelaria.Timeline
             return null;
         }
 
-        public KeyframeRange? KeyframeRangeForFrame(int frame)
-        {
-            for (int i = 0; i < _keyframeSource.KeyframeIndexes.Count; i++)
-            {
-                if (i > 0 && _keyframeSource.KeyframeIndexes[i] > frame)
-                {
-                    return new KeyframeRange(_keyframeSource.KeyframeIndexes[i - 1], _keyframeSource.KeyframeIndexes[i] - _keyframeSource.KeyframeIndexes[i - 1]);
-                }
-                if (i == _keyframeSource.KeyframeIndexes.Count - 1 && _keyframeSource.KeyframeIndexes[i] <= frame)
-                {
-                    return new KeyframeRange(_keyframeSource.KeyframeIndexes[i], FrameCount - _keyframeSource.KeyframeIndexes[i]);
-                }
-            }
-
-            return null;
-        }
-
-        public Keyframe? KeyframeExactlyOnFrame(int frame)
-        {
-            if (_keyframeSource.KeyframeIndexes.Any(kf => kf == frame))
-            {
-                return new Keyframe(frame, _keyframeSource.ValueForKeyframe(frame));
-            }
-
-            return null;
-        }
-
+        /// <summary>
+        /// Returns the keyframe relationship of a specific frame in this layer
+        /// </summary>
         public KeyframePosition RelationshipToFrame(int frame)
         {
             var kfRange = KeyframeRangeForFrame(frame);
@@ -157,10 +120,47 @@ namespace Pixelaria.Timeline
         }
 
         /// <summary>
-        /// Searches for the two keyframes immediately before and after a given frame, and
-        /// returns their keyframe values.
+        /// If the current frame at <see cref="frame"/> is a keyframe, returns that keyframe information,
+        /// otherwise returns null.
+        /// </summary>
+        public Keyframe? KeyframeExactlyOnFrame(int frame)
+        {
+            if (_keyframeSource.KeyframeIndexes.Any(kf => kf == frame))
+            {
+                return new Keyframe(frame, _keyframeSource.ValueForKeyframe(frame));
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Returns the range of a keyframe for a frame located at <see cref="frame"/>.
         ///
-        /// In case the frame lands exactly on a frame, the method returns that keyframe's
+        /// The range matches the keyframe range that <see cref="frame"/> is contained at,
+        /// or null, in case no keyframe is set before or after <see cref="frame"/>
+        /// </summary>
+        public KeyframeRange? KeyframeRangeForFrame(int frame)
+        {
+            for (int i = 0; i < _keyframeSource.KeyframeIndexes.Count; i++)
+            {
+                if (i > 0 && _keyframeSource.KeyframeIndexes[i] > frame)
+                {
+                    return new KeyframeRange(_keyframeSource.KeyframeIndexes[i - 1], _keyframeSource.KeyframeIndexes[i] - _keyframeSource.KeyframeIndexes[i - 1]);
+                }
+                if (i == _keyframeSource.KeyframeIndexes.Count - 1 && _keyframeSource.KeyframeIndexes[i] <= frame)
+                {
+                    return new KeyframeRange(_keyframeSource.KeyframeIndexes[i], FrameCount - _keyframeSource.KeyframeIndexes[i]);
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Searches for the two keyframes before and after a given frame, and returns
+        /// their keyframe values.
+        ///
+        /// In case the frame lands exactly on a key frame, the method returns that keyframe's
         /// value as the first element of the tuple, and the value for the next keyframe
         /// after that keyframe as the second element of the tuple.
         ///

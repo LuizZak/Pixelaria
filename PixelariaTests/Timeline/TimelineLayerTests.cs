@@ -27,16 +27,17 @@ using Pixelaria.Views.ModelViews;
 namespace PixelariaTests.Timeline
 {
     [TestClass]
-    public class StaticTimelineLayerTests
+    public class TimelineLayerTests
     {
         [TestMethod]
         public void TestRelationship()
         {
-            var sut = CreateStaticTimelineLayer(6);
+            var sut = CreateStaticTimelineLayer();
 
-            sut.AddKeyframe(0);
-            sut.AddKeyframe(1);
-            sut.AddKeyframe(3);
+            sut.AddKeyframe(0, 0);
+            sut.AddKeyframe(1, 0);
+            sut.AddKeyframe(3, 0);
+            sut.AddKeyframe(6, 0);
 
             Assert.AreEqual(KeyframePosition.Full, sut.RelationshipToFrame(0));
             Assert.AreEqual(KeyframePosition.First, sut.RelationshipToFrame(1));
@@ -49,7 +50,7 @@ namespace PixelariaTests.Timeline
         [TestMethod]
         public void TestSetFrameCount()
         {
-            var sut = CreateStaticTimelineLayer(0);
+            var sut = CreateStaticTimelineLayer();
 
             Assert.AreEqual(sut.FrameCount, 0);
         }
@@ -57,10 +58,10 @@ namespace PixelariaTests.Timeline
         [TestMethod]
         public void TestKeyframeForFrame()
         {
-            var sut = CreateStaticTimelineLayer(6);
-            sut.AddKeyframe(0);
-            sut.AddKeyframe(1);
-            sut.AddKeyframe(3);
+            var sut = CreateStaticTimelineLayer();
+            sut.AddKeyframe(0, 0);
+            sut.AddKeyframe(1, 1);
+            sut.AddKeyframe(3, 3);
 
             Assert.AreEqual(0, sut.KeyframeForFrame(0).Value.Frame);
             Assert.AreEqual(1, sut.KeyframeForFrame(1).Value.Frame);
@@ -71,39 +72,41 @@ namespace PixelariaTests.Timeline
         [TestMethod]
         public void TestKeyframeRangeForFrame()
         {
-            var sut = CreateStaticTimelineLayer(6);
-            sut.AddKeyframe(0);
-            sut.AddKeyframe(1);
-            sut.AddKeyframe(3);
+            var sut = CreateStaticTimelineLayer();
+            sut.AddKeyframe(0, 0);
+            sut.AddKeyframe(1, 0);
+            sut.AddKeyframe(3, 0);
+            sut.AddKeyframe(5, 0);
 
             Assert.AreEqual(new KeyframeRange(0, 1), sut.KeyframeRangeForFrame(0));
             Assert.AreEqual(new KeyframeRange(1, 2), sut.KeyframeRangeForFrame(1));
             Assert.AreEqual(new KeyframeRange(1, 2), sut.KeyframeRangeForFrame(2));
-            Assert.AreEqual(new KeyframeRange(3, 3), sut.KeyframeRangeForFrame(3));
-            Assert.AreEqual(new KeyframeRange(3, 3), sut.KeyframeRangeForFrame(4));
-            Assert.AreEqual(new KeyframeRange(3, 3), sut.KeyframeRangeForFrame(5));
+            Assert.AreEqual(new KeyframeRange(3, 2), sut.KeyframeRangeForFrame(3));
+            Assert.AreEqual(new KeyframeRange(3, 2), sut.KeyframeRangeForFrame(4));
+            Assert.AreEqual(new KeyframeRange(5, 0), sut.KeyframeRangeForFrame(5));
         }
 
         [TestMethod]
         public void TestKeyframeExactlyOnFrame()
         {
-            var sut = CreateStaticTimelineLayer(6);
-            sut.AddKeyframe(0);
-            sut.AddKeyframe(1);
-            sut.AddKeyframe(3);
+            var sut = CreateStaticTimelineLayer();
+            sut.AddKeyframe(0, 0);
+            sut.AddKeyframe(1, 0);
+            sut.AddKeyframe(3, 0);
+            sut.AddKeyframe(5, 0);
 
             Assert.IsNotNull(sut.KeyframeExactlyOnFrame(0));
             Assert.IsNotNull(sut.KeyframeExactlyOnFrame(1));
             Assert.IsNull(sut.KeyframeExactlyOnFrame(2));
             Assert.IsNotNull(sut.KeyframeExactlyOnFrame(3));
             Assert.IsNull(sut.KeyframeExactlyOnFrame(4));
-            Assert.IsNull(sut.KeyframeExactlyOnFrame(5));
+            Assert.IsNotNull(sut.KeyframeExactlyOnFrame(5));
         }
 
         [TestMethod]
         public void TestKeyframeValuesBetween()
         {
-            var sut = CreateStaticTimelineLayer(6, new NumericTimelineLayerController());
+            var sut = CreateStaticTimelineLayer(new NumericTimelineLayerController());
             sut.AddKeyframe(0, 0.0f);
             sut.AddKeyframe(1, 1.0f);
             sut.AddKeyframe(3, 2.0f);
@@ -116,22 +119,9 @@ namespace PixelariaTests.Timeline
             Assert.AreEqual((2.0f, 2.0f), sut.KeyframeValuesBetween(5));
         }
 
-        [TestMethod]
-        public void TestInterpolateKeyframes()
+        private static TimelineLayer CreateStaticTimelineLayer(ITimelineLayerController controller = null)
         {
-            var sut = CreateStaticTimelineLayer(11, new NumericTimelineLayerController());
-            sut.AddKeyframe(0, 0.0f);
-            sut.AddKeyframe(10, 1.0f);
-            sut.AddKeyframe(4);
-
-            var keyframe = sut.KeyframeExactlyOnFrame(4);
-
-            Assert.AreEqual(0.4f, keyframe.Value.Value);
-        }
-
-        static StaticTimelineLayer CreateStaticTimelineLayer(int frameCount, ITimelineLayerController controller = null)
-        {
-            return new StaticTimelineLayer(new KeyframeCollectionSource(frameCount), controller ?? new FrameOriginTimelineController());
+            return new TimelineLayer(new KeyframeCollectionSource(), controller ?? new FrameOriginTimelineController());
         }
 
         private class NumericTimelineLayerController : ITimelineLayerController

@@ -21,48 +21,12 @@
 */
 
 using System.Collections.Generic;
-using System.ComponentModel;
 using JetBrains.Annotations;
 
 namespace Pixelaria.Timeline
 {
     public interface IKeyframeSource
     {
-        /// <summary>
-        /// Event handler for keyframe-related events
-        /// </summary>
-        /// <param name="sender">The object that fired this event</param>
-        /// <param name="e">The event arguments for the event</param>
-        delegate void KeyframeEventHandler(object sender, TimelineKeyframeEventArgs e);
-        /// <summary>
-        /// Event fired when a new keyframe is added
-        /// </summary> 
-        [Browsable(true)]
-        [Category("Action")]
-        [Description("Occurs whenever a new keyframe is added")]
-        event KeyframeEventHandler KeyframeAdded;
-        /// <summary>
-        /// Event fired when a keyframe is removed
-        /// </summary>
-        [Browsable(true)]
-        [Category("Action")]
-        [Description("Occurs whenever a keyframe iss removed")]
-        event KeyframeEventHandler KeyframeRemoved;
-
-        /// <summary>
-        /// Event handler for events related to keyframe value changes
-        /// </summary>
-        /// <param name="sender">The object that fired this event</param>
-        /// <param name="e">The event arguments for the event</param>
-        delegate void KeyframeValueChangedEventHandler(object sender, TimelineKeyframeValueChangeEventArgs e);
-        /// <summary>
-        /// Event fired when a keyframe's value has changed
-        /// </summary>
-        [Browsable(true)]
-        [Category("Action")]
-        [Description("Occurs whenever the the value of a keyframe changes")]
-        event KeyframeValueChangedEventHandler KeyframeValueChanged;
-
         /// <summary>
         /// Gets a list of the keyframe indexes.
         /// </summary>
@@ -82,7 +46,7 @@ namespace Pixelaria.Timeline
         /// <summary>
         /// Adds a new keyframe at a specified frame.
         /// </summary>
-        void AddKeyframe(int frame, object value = null);
+        void AddKeyframe(int frame, object value);
 
         /// <summary>
         /// Removes a keyframe at a specified frame. If no keyframes exists at <see cref="frame"/>,

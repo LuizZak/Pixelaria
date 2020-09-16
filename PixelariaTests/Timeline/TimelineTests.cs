@@ -29,6 +29,20 @@ namespace PixelariaTests.Timeline
     public class TimelineTests
     {
         [TestMethod]
+        public void TestInterpolateKeyframes()
+        {
+            var sut = new Pixelaria.Timeline.Timeline();
+            sut.AddLayer(new NumericTimelineLayerController());
+            sut.AddKeyframe(0, 0, 0.0f);
+            sut.AddKeyframe(10, 0, 1.0f);
+            sut.AddKeyframe(4, 0);
+
+            var keyframe = sut.LayerAtIndex(0).KeyframeExactlyOnFrame(4);
+
+            Assert.AreEqual(0.4f, keyframe.Value.Value);
+        }
+
+        [TestMethod]
         public void TestKeyframeRangeRatio()
         {
             var range = new KeyframeRange(1, 3);
@@ -48,6 +62,38 @@ namespace PixelariaTests.Timeline
 
             Assert.AreEqual(0, range.Ratio(1));
             Assert.AreEqual(1f, range.Ratio(2));
+        }
+
+        [TestMethod]
+        public void TestKeyframeRangeRatioEmptySpan()
+        {
+            var range = new KeyframeRange(1, 0);
+
+            Assert.AreEqual(0, range.Ratio(1));
+            Assert.AreEqual(1f, range.Ratio(2));
+        }
+
+        private class NumericTimelineLayerController : ITimelineLayerController
+        {
+            public object DefaultKeyframeValue()
+            {
+                return 0.0f;
+            }
+
+            public object DuplicateKeyframeValue(object value)
+            {
+                return value;
+            }
+
+            public object InterpolatedValue(object start, object end, float ratio)
+            {
+                if (start is float f1 && end is float f2)
+                {
+                    return (f2 - f1) * ratio + f1;
+                }
+
+                return start;
+            }
         }
     }
 }

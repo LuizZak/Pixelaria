@@ -32,17 +32,13 @@ namespace Pixelaria.Timeline
 
         public IReadOnlyList<Keyframe> Keyframes => _keyframes;
 
-        public event IKeyframeSource.KeyframeEventHandler KeyframeAdded;
-        public event IKeyframeSource.KeyframeEventHandler KeyframeRemoved;
-        public event IKeyframeSource.KeyframeValueChangedEventHandler KeyframeValueChanged;
-
         public IReadOnlyList<int> KeyframeIndexes => _keyframes.Select(keyframe => keyframe.Frame).ToList();
 
-        public int FrameCount { get; }
+        public int FrameCount => _keyframes.Select(k => k.Frame).Prepend(0).Max();
 
-        public KeyframeCollectionSource(int frameCount)
+        public KeyframeCollectionSource()
         {
-            FrameCount = frameCount;
+            
         }
 
         public void AddKeyframe(int frameIndex, object value)
@@ -58,8 +54,6 @@ namespace Pixelaria.Timeline
                 return;
             }
             _keyframes.Insert(~index, keyframe);
-            KeyframeAdded?.Invoke(this, new TimelineKeyframeEventArgs(frameIndex));
-            KeyframeValueChanged?.Invoke(this, new TimelineKeyframeValueChangeEventArgs(frameIndex, value));
         }
 
         public void SetKeyframeValue(int frameIndex, object value)
@@ -69,7 +63,6 @@ namespace Pixelaria.Timeline
             var keyframe = _keyframes[index];
             keyframe.Value = value;
             _keyframes[index] = keyframe;
-            KeyframeValueChanged?.Invoke(this, new TimelineKeyframeValueChangeEventArgs(frameIndex, value));
         }
 
         public object ValueForKeyframe(int frameIndex)
@@ -84,7 +77,6 @@ namespace Pixelaria.Timeline
             if (index < 0)
                 return;
             _keyframes.RemoveAt(index);
-            KeyframeRemoved?.Invoke(this, new TimelineKeyframeEventArgs(frameIndex));
         }
 
         private int KeyframeIndex(int frame)

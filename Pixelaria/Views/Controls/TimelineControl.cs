@@ -42,7 +42,7 @@ namespace Pixelaria.Views.Controls
         private readonly ContextMenuStrip _contextMenu;
 
         private int _currentFrame;
-        private ITimeline _timeline;
+        private Timeline.Timeline _timeline;
 
         /// <summary>
         /// States the current frame in the seek bar.
@@ -101,16 +101,16 @@ namespace Pixelaria.Views.Controls
         [Description("Occurs whenever the user selects to remove a keyframe")]
         public event KeyframeEventHandler WillRemoveKeyframe;
 
-        public ITimeline Timeline
+        public Timeline.Timeline Timeline
         {
             get => _timeline;
             set
             {
                 if (_timeline != null)
                 {
-                    _timeline.KeyframeAdded -= TimelineOnKeyframeAdded;
-                    _timeline.KeyframeRemoved -= TimelineOnKeyframeAdded;
-                    _timeline.KeyframeValueChanged -= TimelineOnKeyframeValueChanged;
+                    _timeline.WillAddKeyframe -= TimelineOnKeyframeAdded;
+                    _timeline.WillRemoveKeyframe -= TimelineOnKeyframeRemoved;
+                    _timeline.WillChangeKeyframeValue -= TimelineOnKeyframeValueChanged;
                 }
 
                 _timeline = value;
@@ -118,9 +118,9 @@ namespace Pixelaria.Views.Controls
 
                 if (_timeline != null)
                 {
-                    _timeline.KeyframeAdded += TimelineOnKeyframeAdded;
-                    _timeline.KeyframeRemoved += TimelineOnKeyframeRemoved;
-                    _timeline.KeyframeValueChanged += TimelineOnKeyframeValueChanged;
+                    _timeline.WillAddKeyframe += TimelineOnKeyframeAdded;
+                    _timeline.WillRemoveKeyframe += TimelineOnKeyframeRemoved;
+                    _timeline.WillChangeKeyframeValue += TimelineOnKeyframeValueChanged;
                 }
             }
         }
@@ -129,7 +129,7 @@ namespace Pixelaria.Views.Controls
         {
             _contextMenu = new ContextMenuStrip();
 
-            Timeline = new Timeline.Timeline(new EmptyTimelineLayerSource());
+            Timeline = new Timeline.Timeline();
 
             InitializeComponent();
 
@@ -139,12 +139,12 @@ namespace Pixelaria.Views.Controls
                      ControlStyles.UserPaint, true);
         }
 
-        private void TimelineOnKeyframeAdded(object sender, TimelineKeyframeEventArgs e)
+        private void TimelineOnKeyframeAdded(object sender, TimelineKeyframeValueChangeEventArgs e)
         {
             Invalidate();
         }
 
-        private void TimelineOnKeyframeRemoved(object sender, TimelineKeyframeEventArgs e)
+        private void TimelineOnKeyframeRemoved(object sender, TimelineRemoveKeyframeEventArgs e)
         {
             Invalidate();
         }
@@ -225,7 +225,7 @@ namespace Pixelaria.Views.Controls
                             return;
                     }
 
-                    layer.RemoveKeyframe(kf.Value.Frame);
+                    Timeline.RemoveKeyframe(kf.Value.Frame, layerIndex);
                     Invalidate();
                 };
             }
@@ -242,7 +242,7 @@ namespace Pixelaria.Views.Controls
                             return;
                     }
 
-                    layer.AddKeyframe(frame);
+                    Timeline.AddKeyframe(frame, layerIndex);
                     Invalidate();
                 };
             }

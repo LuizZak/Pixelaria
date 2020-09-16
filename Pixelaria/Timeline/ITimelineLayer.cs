@@ -25,12 +25,22 @@ namespace Pixelaria.Timeline
     /// <summary>
     /// Interface for an abstract timeline layer composed of keyframes interspersed across discrete time entries
     /// </summary>
-    public interface ITimelineLayer: IKeyframeSource
+    public interface ITimelineLayer
     {
+        /// <summary>
+        /// Gets the total frame count for this keyframe source.
+        /// </summary>
+        int FrameCount { get; }
+
         /// <summary>
         /// The layer controller for this layer
         /// </summary>
         ITimelineLayerController LayerController { get; }
+
+        /// <summary>
+        /// Returns the keyframe that controls a given frame index.
+        /// </summary>
+        Keyframe? KeyframeForFrame(int frame);
 
         /// <summary>
         /// Returns the keyframe relationship of a specific frame in this layer

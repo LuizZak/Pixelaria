@@ -32,11 +32,11 @@ namespace PixelariaTests.Timeline
         [TestMethod]
         public void TestValueForFrame()
         {
-            var layerSource = new SingleLayerTimelineLayerSource(new KeyframeCollectionSource(11), new IntegerTimelineLayerController());
-            layerSource.LayerAtIndex(0).AddKeyframe(0, 0);
-            layerSource.LayerAtIndex(0).AddKeyframe(5, 5);
-            layerSource.LayerAtIndex(0).AddKeyframe(10, 0);
-            var timeline = new Pixelaria.Timeline.Timeline(layerSource);
+            var timeline = new Pixelaria.Timeline.Timeline();
+            timeline.AddLayer(new IntegerTimelineLayerController());
+            timeline.AddKeyframe(0, 0, 0);
+            timeline.AddKeyframe(5, 0, 5);
+            timeline.AddKeyframe(10, 0, 0);
             var timelinePlayer = new TimelinePlayer(timeline);
 
             Assert.AreEqual(0, timelinePlayer.ValueForFrame(0, 0));
