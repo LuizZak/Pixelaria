@@ -42,15 +42,7 @@ namespace PixelariaLib.Timeline
         {
             var layer = _timelineController.LayerAtIndex(layerIndex);
 
-            var range = layer.KeyframeRangeForFrame(frame);
-            if (!range.HasValue)
-                return layer.LayerController.DefaultKeyframeValue();
-
-            var (value1, value2) = layer.KeyframeValuesBetween(frame);
-            if (value1 == null || value2 == null)
-                return layer.LayerController.DefaultKeyframeValue();
-
-            return layer.LayerController.InterpolatedValue(value1, value2, range.Value.Ratio(frame));
+            return layer.KeyframeForFrame(frame)?.Value ?? layer.LayerController.DefaultKeyframeValue();
         }
     }
 }

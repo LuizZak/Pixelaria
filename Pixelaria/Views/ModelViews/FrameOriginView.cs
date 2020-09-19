@@ -52,7 +52,7 @@ namespace Pixelaria.Views.ModelViews
             Text = $@"Frame Origin - [{_animation.Name}]";
 
             _timelineController = new TimelineController();
-            _timelineController.AddLayer(new FrameOriginKeyframeSource(_animation), new FrameOriginTimelineController());
+            _timelineController.AddLayer("origin", new FrameOriginKeyframeSource(_animation), new FrameOriginTimelineController());
             if (_timelineController.LayerAtIndex(0).KeyframeExactlyOnFrame(0) == null)
             {
                 _timelineController.AddKeyframe(0, 0, Point.Empty);
@@ -62,6 +62,8 @@ namespace Pixelaria.Views.ModelViews
             timelineControl.FrameChanged += TimelineScrubControlOnFrameChanged;
             timelineControl.WillAddKeyframe += TimelineControlOnWillAddKeyframe;
             timelineControl.WillRemoveKeyframe += TimelineControlOnWillRemoveKeyframe;
+
+            timelineControl.ShowExtendedTimeline = false;
 
             zpb_framePreview.HookToControl(this);
 
@@ -171,27 +173,43 @@ namespace Pixelaria.Views.ModelViews
 
     public class FrameOriginKeyframeSource : IKeyframeSource
     {
+        private readonly List<Keyframe> _keyframes = new List<Keyframe>();
         private readonly AnimationController _animation;
         public int FrameCount => _animation.FrameCount;
 
-        public IReadOnlyList<int> KeyframeIndexes
-        {
-            get
-            {
-                return Enumerable.Range(0, _animation.FrameCount)
-                    .Where(i => _animation.MetadataForFrame(i)[FrameMetadataKeys.FrameOrigin] != null)
-                    .ToList();
-            }
-        }
+        public IReadOnlyList<Keyframe> Keyframes => _keyframes;
 
         public FrameOriginKeyframeSource(AnimationController animation)
         {
             _animation = animation;
+            FillFrames();
         }
 
-        public void AddKeyframe(int frameIndex, object value)
+        private void FillFrames()
         {
-            _animation.MetadataForFrame(frameIndex)[FrameMetadataKeys.FrameOrigin] = value is Point p ? (object)p : null;
+            _keyframes.Clear();
+
+            var keyframes = 
+                Enumerable
+                    .Range(0, _animation.FrameCount)
+                    .Where(i => _animation.MetadataForFrame(i)[FrameMetadataKeys.FrameOrigin] != null).ToList();
+
+            for (int i = 0; i < keyframes.Count - 1; i++)
+            {
+                int start = keyframes[i];
+                int length = keyframes[i + 1] - start;
+
+                var kf = new Keyframe(start, length, _animation.MetadataForFrame(i)[FrameMetadataKeys.FrameOrigin]);
+
+                _keyframes.Add(kf);
+            }
+        }
+
+        public void AddKeyframe(Keyframe keyframe)
+        {
+            _animation.MetadataForFrame(keyframe.Frame)[FrameMetadataKeys.FrameOrigin] = keyframe.Value is Point p ? (object)p : null;
+
+            FillFrames();
         }
 
         public void SetKeyframeValue(int frameIndex, object value)
@@ -207,6 +225,8 @@ namespace Pixelaria.Views.ModelViews
         public void RemoveKeyframe(int frameIndex)
         {
             _animation.MetadataForFrame(frameIndex)[FrameMetadataKeys.FrameOrigin] = null;
+
+            FillFrames();
         }
     }
 

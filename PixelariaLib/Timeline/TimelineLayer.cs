@@ -33,11 +33,14 @@ namespace PixelariaLib.Timeline
         private readonly IKeyframeSource _keyframeSource;
 
         public int FrameCount => _keyframeSource.FrameCount;
+        
+        public string LayerName { get; }
 
         public ITimelineLayerController LayerController { get; }
 
-        public TimelineLayer(IKeyframeSource keyframeSource, ITimelineLayerController layerController)
+        public TimelineLayer(string layerName, IKeyframeSource keyframeSource, ITimelineLayerController layerController)
         {
+            LayerName = layerName;
             _keyframeSource = keyframeSource;
             LayerController = layerController;
         }
@@ -54,9 +57,9 @@ namespace PixelariaLib.Timeline
         /// <summary>
         /// Adds a new keyframe at a specified frame.
         /// </summary>
-        public void AddKeyframe(int frame, object value)
+        public void AddKeyframe(Keyframe keyframe)
         {
-            _keyframeSource.AddKeyframe(frame, value);
+            _keyframeSource.AddKeyframe(keyframe);
         }
 
         /// <summary>
@@ -81,12 +84,10 @@ namespace PixelariaLib.Timeline
 
         public Keyframe? KeyframeForFrame(int frame)
         {
-            for (int i = 0; i < _keyframeSource.KeyframeIndexes.Count; i++)
+            for (int i = 0; i < _keyframeSource.Keyframes.Count; i++)
             {
-                if (_keyframeSource.KeyframeIndexes[i] == frame)
-                    return new Keyframe(frame, _keyframeSource.ValueForKeyframe(frame));
-                if (i > 0 && _keyframeSource.KeyframeIndexes[i] > frame)
-                    return new Keyframe(frame - 1, _keyframeSource.ValueForKeyframe(frame - 1));
+                if (_keyframeSource.Keyframes[i].Contains(frame))
+                    return _keyframeSource.Keyframes[i];
             }
 
             return null;
@@ -125,9 +126,10 @@ namespace PixelariaLib.Timeline
         /// </summary>
         public Keyframe? KeyframeExactlyOnFrame(int frame)
         {
-            if (_keyframeSource.KeyframeIndexes.Any(kf => kf == frame))
+            foreach (var kf in _keyframeSource.Keyframes)
             {
-                return new Keyframe(frame, _keyframeSource.ValueForKeyframe(frame));
+                if (kf.Frame == frame) 
+                    return kf;
             }
 
             return null;
@@ -141,55 +143,7 @@ namespace PixelariaLib.Timeline
         /// </summary>
         public KeyframeRange? KeyframeRangeForFrame(int frame)
         {
-            for (int i = 0; i < _keyframeSource.KeyframeIndexes.Count; i++)
-            {
-                if (i > 0 && _keyframeSource.KeyframeIndexes[i] > frame)
-                {
-                    return new KeyframeRange(_keyframeSource.KeyframeIndexes[i - 1], _keyframeSource.KeyframeIndexes[i] - _keyframeSource.KeyframeIndexes[i - 1]);
-                }
-                if (i == _keyframeSource.KeyframeIndexes.Count - 1 && _keyframeSource.KeyframeIndexes[i] <= frame)
-                {
-                    return new KeyframeRange(_keyframeSource.KeyframeIndexes[i], FrameCount - _keyframeSource.KeyframeIndexes[i]);
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Searches for the two keyframes before and after a given frame, and returns
-        /// their keyframe values.
-        ///
-        /// In case the frame lands exactly on a key frame, the method returns that keyframe's
-        /// value as the first element of the tuple, and the value for the next keyframe
-        /// after that keyframe as the second element of the tuple.
-        ///
-        /// In case the frame lands after the last keyframe, both values represent the last
-        /// keyframe's value.
-        ///
-        /// If there are no keyframes on this timeline, a (null, null) tuple is returned,
-        /// instead.
-        /// </summary>
-        public (object, object) KeyframeValuesBetween(int frame)
-        {
-            for (int i = 0; i < _keyframeSource.KeyframeIndexes.Count; i++)
-            {
-                if (_keyframeSource.KeyframeIndexes[i] > frame)
-                {
-                    if (i > 0)
-                    {
-                        return (_keyframeSource.ValueForKeyframe(_keyframeSource.KeyframeIndexes[i - 1]),
-                            _keyframeSource.ValueForKeyframe(_keyframeSource.KeyframeIndexes[i]));
-                    }
-                }
-                else if (i == _keyframeSource.KeyframeIndexes.Count - 1)
-                {
-                    return (_keyframeSource.ValueForKeyframe(_keyframeSource.KeyframeIndexes[i]),
-                        _keyframeSource.ValueForKeyframe(_keyframeSource.KeyframeIndexes[i]));
-                }
-            }
-
-            return (null, null);
+            return KeyframeForFrame(frame)?.KeyframeRange;
         }
     }
 }

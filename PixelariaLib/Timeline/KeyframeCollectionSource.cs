@@ -32,24 +32,15 @@ namespace PixelariaLib.Timeline
 
         public IReadOnlyList<Keyframe> Keyframes => _keyframes;
 
-        public IReadOnlyList<int> KeyframeIndexes => _keyframes.Select(keyframe => keyframe.Frame).ToList();
-
-        public int FrameCount => _keyframes.Select(k => k.Frame).Prepend(0).Max();
-
-        public KeyframeCollectionSource()
+        public int FrameCount => _keyframes.Select(k => k.KeyframeRange.LastFrame + 1).Prepend(0).Max();
+        
+        public void AddKeyframe(Keyframe keyframe)
         {
-            
-        }
-
-        public void AddKeyframe(int frameIndex, object value)
-        {
-            var keyframe = new Keyframe(frameIndex, value);
-
             int index = _keyframes.BinarySearch(keyframe, new KeyframeComparer());
             if (index >= 0)
             {
                 var kf = _keyframes[index];
-                kf.Value = value;
+                kf.Value = keyframe.Value;
                 _keyframes[index] = kf;
                 return;
             }

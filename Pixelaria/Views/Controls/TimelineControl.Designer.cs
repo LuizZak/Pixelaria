@@ -36,9 +36,9 @@
             // sc_container
             // 
             this.sc_container.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.sc_container.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
             this.sc_container.Location = new System.Drawing.Point(0, 0);
             this.sc_container.Name = "sc_container";
-            this.sc_container.Orientation = System.Windows.Forms.Orientation.Horizontal;
             this.sc_container.Panel1MinSize = 50;
             this.sc_container.Size = new System.Drawing.Size(150, 100);
             this.sc_container.TabIndex = 0;

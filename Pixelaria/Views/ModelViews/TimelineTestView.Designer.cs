@@ -35,9 +35,10 @@ namespace Pixelaria.Views.ModelViews
             // 
             // tc_timeline
             // 
-            this.tc_timeline.Location = new System.Drawing.Point(12, 12);
+            this.tc_timeline.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.tc_timeline.Location = new System.Drawing.Point(0, 283);
             this.tc_timeline.Name = "tc_timeline";
-            this.tc_timeline.Size = new System.Drawing.Size(672, 299);
+            this.tc_timeline.Size = new System.Drawing.Size(914, 299);
             this.tc_timeline.TabIndex = 0;
             this.tc_timeline.Text = "timelineControl1";
             this.tc_timeline.TimelineController = timelineController1;

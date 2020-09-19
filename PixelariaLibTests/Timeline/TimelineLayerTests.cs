@@ -33,10 +33,10 @@ namespace PixelariaLibTests.Timeline
         {
             var sut = CreateStaticTimelineLayer();
 
-            sut.AddKeyframe(0, 0);
-            sut.AddKeyframe(1, 0);
-            sut.AddKeyframe(3, 0);
-            sut.AddKeyframe(6, 0);
+            sut.AddKeyframe(new Keyframe(0, 1, 0));
+            sut.AddKeyframe(new Keyframe(1, 2, 0));
+            sut.AddKeyframe(new Keyframe(3, 3, 0));
+            sut.AddKeyframe(new Keyframe(6, 1, 0));
 
             Assert.AreEqual(KeyframePosition.Full, sut.RelationshipToFrame(0));
             Assert.AreEqual(KeyframePosition.First, sut.RelationshipToFrame(1));
@@ -58,9 +58,9 @@ namespace PixelariaLibTests.Timeline
         public void TestKeyframeForFrame()
         {
             var sut = CreateStaticTimelineLayer();
-            sut.AddKeyframe(0, 0);
-            sut.AddKeyframe(1, 1);
-            sut.AddKeyframe(3, 3);
+            sut.AddKeyframe(new Keyframe(0, 1, 0));
+            sut.AddKeyframe(new Keyframe(1, 2, 1));
+            sut.AddKeyframe(new Keyframe(3, 1, 3));
 
             Assert.AreEqual(0, sut.KeyframeForFrame(0).Value.Frame);
             Assert.AreEqual(1, sut.KeyframeForFrame(1).Value.Frame);
@@ -72,27 +72,27 @@ namespace PixelariaLibTests.Timeline
         public void TestKeyframeRangeForFrame()
         {
             var sut = CreateStaticTimelineLayer();
-            sut.AddKeyframe(0, 0);
-            sut.AddKeyframe(1, 0);
-            sut.AddKeyframe(3, 0);
-            sut.AddKeyframe(5, 0);
+            sut.AddKeyframe(new Keyframe(0, 1, 0));
+            sut.AddKeyframe(new Keyframe(1, 2, 0));
+            sut.AddKeyframe(new Keyframe(3, 2, 0));
+            sut.AddKeyframe(new Keyframe(5, 1, 0));
 
             Assert.AreEqual(new KeyframeRange(0, 1), sut.KeyframeRangeForFrame(0));
             Assert.AreEqual(new KeyframeRange(1, 2), sut.KeyframeRangeForFrame(1));
             Assert.AreEqual(new KeyframeRange(1, 2), sut.KeyframeRangeForFrame(2));
             Assert.AreEqual(new KeyframeRange(3, 2), sut.KeyframeRangeForFrame(3));
             Assert.AreEqual(new KeyframeRange(3, 2), sut.KeyframeRangeForFrame(4));
-            Assert.AreEqual(new KeyframeRange(5, 0), sut.KeyframeRangeForFrame(5));
+            Assert.AreEqual(new KeyframeRange(5, 1), sut.KeyframeRangeForFrame(5));
         }
 
         [TestMethod]
         public void TestKeyframeExactlyOnFrame()
         {
             var sut = CreateStaticTimelineLayer();
-            sut.AddKeyframe(0, 0);
-            sut.AddKeyframe(1, 0);
-            sut.AddKeyframe(3, 0);
-            sut.AddKeyframe(5, 0);
+            sut.AddKeyframe(new Keyframe(0, 1, 0));
+            sut.AddKeyframe(new Keyframe(1, 1, 0));
+            sut.AddKeyframe(new Keyframe(3, 2, 0));
+            sut.AddKeyframe(new Keyframe(5, 1, 0));
 
             Assert.IsNotNull(sut.KeyframeExactlyOnFrame(0));
             Assert.IsNotNull(sut.KeyframeExactlyOnFrame(1));
@@ -102,25 +102,9 @@ namespace PixelariaLibTests.Timeline
             Assert.IsNotNull(sut.KeyframeExactlyOnFrame(5));
         }
 
-        [TestMethod]
-        public void TestKeyframeValuesBetween()
-        {
-            var sut = CreateStaticTimelineLayer();
-            sut.AddKeyframe(0, 0.0f);
-            sut.AddKeyframe(1, 1.0f);
-            sut.AddKeyframe(3, 2.0f);
-
-            Assert.AreEqual((0.0f, 1.0f), sut.KeyframeValuesBetween(0));
-            Assert.AreEqual((1.0f, 2.0f), sut.KeyframeValuesBetween(1));
-            Assert.AreEqual((1.0f, 2.0f), sut.KeyframeValuesBetween(2));
-            Assert.AreEqual((2.0f, 2.0f), sut.KeyframeValuesBetween(3));
-            Assert.AreEqual((2.0f, 2.0f), sut.KeyframeValuesBetween(4));
-            Assert.AreEqual((2.0f, 2.0f), sut.KeyframeValuesBetween(5));
-        }
-
         private static TimelineLayer CreateStaticTimelineLayer()
         {
-            return new TimelineLayer(new KeyframeCollectionSource(), new NumericTimelineLayerController());
+            return new TimelineLayer("layer", new KeyframeCollectionSource(), new NumericTimelineLayerController());
         }
 
         private class NumericTimelineLayerController : ITimelineLayerController

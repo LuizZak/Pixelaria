@@ -38,10 +38,34 @@ namespace Pixelaria.Views.Controls
         private readonly float _frameWidth = 12;
         private readonly ContextMenuStrip _contextMenu;
 
+        private readonly VScrollBar _vScrollBar = new VScrollBar();
         private readonly HScrollBar _hScrollBar = new HScrollBar();
 
+        private readonly DoubleBufferedPanel _layersPanel = new DoubleBufferedPanel();
+        private readonly DoubleBufferedPanel _framesPanel = new DoubleBufferedPanel();
+
         private int _currentFrame;
+        private int _currentLayer;
         private TimelineController _timelineController;
+        private bool _showExtendedTimeline;
+
+        /// <summary>
+        /// Whether to display an extended timeline that displays frames further than the current frame count of the timeline.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [DefaultValue(false)]
+        [Description(
+            "Whether to display an extended timeline that displays frames further than the current frame count of the timeline")]
+        public bool ShowExtendedTimeline
+        {
+            get => _showExtendedTimeline;
+            set
+            {
+                _showExtendedTimeline = value;
+                UpdatePanelSizes();
+            }
+        }
 
         /// <summary>
         /// States the current frame in the seek bar.
@@ -66,6 +90,26 @@ namespace Pixelaria.Views.Controls
         }
 
         /// <summary>
+        /// States the current layer being highlighted.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [DefaultValue(0)]
+        [Description("States the current layer being highlighted")]
+        public int CurrentLayer
+        {
+            get => _currentLayer;
+            set
+            {
+                InvalidateCurrentLayer();
+                
+                _currentLayer = value;
+
+                InvalidateCurrentLayer();
+            }
+        }
+
+        /// <summary>
         /// Event handler for the <see cref="FrameChanged"/>
         /// </summary>
         /// <param name="sender">The object that fired this event</param>
@@ -78,6 +122,20 @@ namespace Pixelaria.Views.Controls
         [Category("Action")]
         [Description("Occurs whenever the user changes the current frame")]
         public event FrameChangedEventHandler FrameChanged;
+
+        /// <summary>
+        /// Event handler for the <see cref="LayerChanged"/>
+        /// </summary>
+        /// <param name="sender">The object that fired this event</param>
+        /// <param name="e">The event arguments for the event</param>
+        public delegate void LayerChangedEventHandler(object sender, LayerChangedEventArgs e);
+        /// <summary>
+        /// Event fired every time the layer highlighted has changed
+        /// </summary>
+        [Browsable(true)]
+        [Category("Action")]
+        [Description("Occurs whenever the user changes the current highlighted layer")]
+        public event LayerChangedEventHandler LayerChanged;
 
         /// <summary>
         /// Event handler for keyframe-related events
@@ -107,9 +165,17 @@ namespace Pixelaria.Views.Controls
             {
                 if (_timelineController != null)
                 {
-                    _timelineController.WillAddKeyframe -= TimelineControllerOnKeyframeAdded;
-                    _timelineController.WillRemoveKeyframe -= TimelineControllerOnKeyframeRemoved;
-                    _timelineController.WillChangeKeyframeValue -= TimelineControllerOnKeyframeValueChanged;
+                    _timelineController.WillAddKeyframe -= TimelineControllerOnWillAddKeyframe;
+                    _timelineController.WillRemoveKeyframe -= TimelineControllerOnWillRemoveKeyframe;
+                    _timelineController.WillChangeKeyframeValue -= TimelineControllerOnWillChangeKeyframeValue;
+                    _timelineController.WillAddLayer -= TimelineControllerOnWillAddLayer;
+                    _timelineController.WillRemoveLayer -= TimelineControllerOnWillRemoveLayer;
+
+                    _timelineController.DidAddKeyframe -= TimelineControllerOnDidAddKeyframe;
+                    _timelineController.DidRemoveKeyframe -= TimelineControllerOnDidRemoveKeyframe;
+                    _timelineController.DidChangeKeyframeValue -= TimelineControllerOnDidChangeKeyframeValue;
+                    _timelineController.DidAddLayer -= TimelineControllerOnDidAddLayer;
+                    _timelineController.DidRemoveLayer -= TimelineControllerOnDidRemoveLayer;
                 }
 
                 _timelineController = value;
@@ -117,9 +183,17 @@ namespace Pixelaria.Views.Controls
 
                 if (_timelineController != null)
                 {
-                    _timelineController.WillAddKeyframe += TimelineControllerOnKeyframeAdded;
-                    _timelineController.WillRemoveKeyframe += TimelineControllerOnKeyframeRemoved;
-                    _timelineController.WillChangeKeyframeValue += TimelineControllerOnKeyframeValueChanged;
+                    _timelineController.WillAddKeyframe += TimelineControllerOnWillAddKeyframe;
+                    _timelineController.WillRemoveKeyframe += TimelineControllerOnWillRemoveKeyframe;
+                    _timelineController.WillChangeKeyframeValue += TimelineControllerOnWillChangeKeyframeValue;
+                    _timelineController.WillAddLayer += TimelineControllerOnWillAddLayer;
+                    _timelineController.WillRemoveLayer += TimelineControllerOnWillRemoveLayer;
+
+                    _timelineController.DidAddKeyframe += TimelineControllerOnDidAddKeyframe;
+                    _timelineController.DidRemoveKeyframe += TimelineControllerOnDidRemoveKeyframe;
+                    _timelineController.DidChangeKeyframeValue += TimelineControllerOnDidChangeKeyframeValue;
+                    _timelineController.DidAddLayer += TimelineControllerOnDidAddLayer;
+                    _timelineController.DidRemoveLayer += TimelineControllerOnDidRemoveLayer;
                 }
             }
         }
@@ -144,9 +218,23 @@ namespace Pixelaria.Views.Controls
         {
             Controls.Add(sc_container);
 
+            sc_container.Panel2.Controls.Add(_framesPanel);
+            sc_container.Panel2.AutoScroll = true;
+            _framesPanel.Dock = DockStyle.None;
+
             SetupFramesPanel();
+            SetupScrollBars();
+            UpdatePanelSizes();
         }
 
+        private void SetupScrollBars()
+        {
+            _hScrollBar.Scroll += HScrollBarOnScroll;
+            _vScrollBar.Scroll += VScrollBarOnScroll;
+
+            _vScrollBar.AutoSize = false;
+        }
+        
         private void SetupFramesPanel()
         {
             var framesPanel = FramesPanel();
@@ -155,8 +243,10 @@ namespace Pixelaria.Views.Controls
             framesPanel.MouseDown += FramesPanelOnMouseDown;
             framesPanel.MouseMove += FramesPanelOnMouseMove;
 
-            framesPanel.Controls.Add(_hScrollBar);
+            //framesPanel.Controls.Add(_hScrollBar);
+            //framesPanel.Controls.Add(_vScrollBar);
             _hScrollBar.Dock = DockStyle.Bottom;
+            _vScrollBar.Dock = DockStyle.Right;
         }
 
         private Panel LayersPanel()
@@ -166,22 +256,7 @@ namespace Pixelaria.Views.Controls
 
         private Panel FramesPanel()
         {
-            return sc_container.Panel2;
-        }
-
-        private int FrameOnX(float x)
-        {
-            return Math.Max(0, Math.Min(TimelineController.FrameCount - 1, (int) Math.Floor(x / _frameWidth)));
-        }
-
-        private int LayerOnY(float y)
-        {
-            return Math.Max(0, Math.Min(TimelineController.LayerCount - 1, (int) Math.Floor((y - _frameCountHeight) / _layerHeight)));
-        }
-
-        private RectangleF BoundsForFrame(int frame, int layer)
-        {
-            return new RectangleF(frame * _frameWidth, _frameCountHeight + layer * _layerHeight, _frameWidth, _layerHeight);
+            return _framesPanel;
         }
 
         private void InvalidateCurrentFrame()
@@ -190,10 +265,19 @@ namespace Pixelaria.Views.Controls
             {
                 var boundsForFrame = BoundsForFrame(_currentFrame, i);
                 boundsForFrame.Y = 0;
-                boundsForFrame.Height = Bounds.Height;
+                boundsForFrame.Height = FramesPanel().Height;
                 boundsForFrame.Inflate(2, 2);
                 FramesPanel().Invalidate(new Region(boundsForFrame));
             }
+        }
+
+        private void InvalidateCurrentLayer()
+        {
+            int startY = _frameCountHeight + CurrentLayer * _layerHeight;
+            int endY = startY + _layerHeight;
+
+            var boundsForLayer = new Rectangle(0, startY, FramesPanel().Width, endY - startY);
+            FramesPanel().Invalidate(boundsForLayer);
         }
 
         private void InvalidatePanels()
@@ -202,20 +286,25 @@ namespace Pixelaria.Views.Controls
             FramesPanel().Invalidate();
         }
 
+        private void UpdatePanelSizes()
+        {
+            _framesPanel.Size = Size.Ceiling(new SizeF(GetTimelineWidth(), GetTimelineHeight()));
+        }
+
         /// <summary>
         /// Changes the current frame being displayed
         /// </summary>
         /// <param name="newFrame">The new frame to display</param>
         private void ChangeFrame(int newFrame)
         {
+            newFrame = Math.Max(0, Math.Min(LastVisibleFrame() - 1, newFrame));
+
             if (_currentFrame == newFrame)
                 return;
 
-            int oldFrame = _currentFrame;
-
             if (FrameChanged != null)
             {
-                var evArgs = new FrameChangedEventArgs(oldFrame, newFrame);
+                var evArgs = new FrameChangedEventArgs(_currentFrame, newFrame);
 
                 FrameChanged.Invoke(this, evArgs);
 
@@ -226,7 +315,31 @@ namespace Pixelaria.Views.Controls
             CurrentFrame = newFrame;
         }
 
-        private void ShowContextMenu(int frame, int layerIndex, Point position)
+        /// <summary>
+        /// Changes the current layer being highlighted
+        /// </summary>
+        /// <param name="layer">The new layer to highlight</param>
+        private void ChangeLayer(int layer)
+        {
+            layer = Math.Min(TimelineController.LayerCount, layer);
+
+            if (_currentLayer == layer)
+                return;
+
+            if (LayerChanged != null)
+            {
+                var evArgs = new LayerChangedEventArgs(_currentLayer, layer);
+
+                LayerChanged.Invoke(this, evArgs);
+
+                if (evArgs.Cancel)
+                    return;
+            }
+
+            CurrentLayer = layer;
+        }
+
+        private void ShowContextMenu([NotNull] Control control, int frame, int layerIndex, Point position)
         {
             _contextMenu.Items.Clear();
 
@@ -268,24 +381,137 @@ namespace Pixelaria.Views.Controls
                 };
             }
 
-            _contextMenu.Show(this, position);
+            _contextMenu.Show(control, position);
         }
 
-        #region Timeline Event Handler
+        private int LastVisibleFrame()
+        {
+            if (ShowExtendedTimeline)
+            {
+                const int minimumFrames = 100;
+                const int frameBuffer = 50;
 
-        private void TimelineControllerOnKeyframeAdded(object sender, TimelineKeyframeValueChangeEventArgs e)
+                return Math.Max(TimelineController.FrameCount + frameBuffer, minimumFrames);
+            }
+
+            return TimelineController.FrameCount;
+        }
+
+        private void UpdateFramePanelMouseEvent(Point point)
+        {
+            ChangeFrame(FrameOnX(point.X));
+            ChangeLayer(LayerOnY(point.Y));
+        }
+
+        #region Geometry
+
+        private int FrameOnX(float x)
+        {
+            return Math.Max(0, (int)Math.Floor(x / _frameWidth));
+        }
+
+        private int LayerOnY(float y)
+        {
+            return Math.Max(0, Math.Min(TimelineController.LayerCount - 1, (int)Math.Floor((y - _frameCountHeight) / _layerHeight)));
+        }
+
+        private RectangleF BoundsForFrame(int frame, int layer)
+        {
+            return new RectangleF(frame * _frameWidth, _frameCountHeight + layer * _layerHeight, _frameWidth, _layerHeight);
+        }
+
+        private float GetTimelineHeight()
+        {
+            return _frameCountHeight + TimelineController.LayerCount * _layerHeight;
+        }
+
+        private float GetTimelineWidth()
+        {
+            return LastVisibleFrame() * _frameWidth;
+        }
+
+        #endregion
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+
+            UpdatePanelSizes();
+        }
+
+        #region ScrollBar Event Handling
+
+        private void HScrollBarOnScroll(object sender, ScrollEventArgs e)
+        {
+            
+        }
+
+        private void VScrollBarOnScroll(object sender, [NotNull] ScrollEventArgs e)
+        {
+            UpdatePanelSizes();
+        }
+
+        #endregion
+
+        #region Timeline Event Handling
+
+        private void TimelineControllerOnWillAddKeyframe(object sender, TimelineCancelableKeyframeValueChangeEventArgs e)
+        {
+            InvalidatePanels();
+            UpdatePanelSizes();
+        }
+
+        private void TimelineControllerOnWillRemoveKeyframe(object sender, TimelineCancelableRemoveKeyframeEventArgs e)
+        {
+            InvalidatePanels();
+            UpdatePanelSizes();
+        }
+
+        private void TimelineControllerOnWillChangeKeyframeValue(object sender, TimelineCancelableKeyframeValueChangeEventArgs e)
         {
             InvalidatePanels();
         }
 
-        private void TimelineControllerOnKeyframeRemoved(object sender, TimelineRemoveKeyframeEventArgs e)
+        private void TimelineControllerOnWillRemoveLayer(object sender, TimelineCancelableLayerEventArgs e)
         {
             InvalidatePanels();
+            UpdatePanelSizes();
         }
 
-        private void TimelineControllerOnKeyframeValueChanged(object sender, TimelineKeyframeValueChangeEventArgs e)
+        private void TimelineControllerOnWillAddLayer(object sender, TimelineCancelableLayerEventArgs e)
         {
             InvalidatePanels();
+            UpdatePanelSizes();
+        }
+
+        private void TimelineControllerOnDidAddKeyframe(object sender, TimelineKeyframeValueChangeEventArgs e)
+        {
+            InvalidatePanels();
+            UpdatePanelSizes();
+        }
+
+        private void TimelineControllerOnDidRemoveKeyframe(object sender, TimelineRemoveKeyframeEventArgs e)
+        {
+            InvalidatePanels();
+            UpdatePanelSizes();
+        }
+
+        private void TimelineControllerOnDidRemoveLayer(object sender, TimelineLayerEventArgs e)
+        {
+            InvalidatePanels();
+            UpdatePanelSizes();
+        }
+
+        private void TimelineControllerOnDidChangeKeyframeValue(object sender, TimelineKeyframeValueChangeEventArgs e)
+        {
+            InvalidatePanels();
+            UpdatePanelSizes();
+        }
+
+        private void TimelineControllerOnDidAddLayer(object sender, TimelineLayerEventArgs e)
+        {
+            InvalidatePanels();
+            UpdatePanelSizes();
         }
 
         #endregion Timeline Event Handler
@@ -298,12 +524,12 @@ namespace Pixelaria.Views.Controls
 
             if (e.Button == MouseButtons.Left || e.Button == MouseButtons.Right)
             {
-                ChangeFrame(FrameOnX(e.X));
+                UpdateFramePanelMouseEvent(e.Location);
             }
 
             if (e.Button == MouseButtons.Right && layer >= 0 && layer < TimelineController.LayerCount)
             {
-                ShowContextMenu(_currentFrame, layer, e.Location);
+                ShowContextMenu(FramesPanel(), _currentFrame, layer, e.Location);
             }
         }
 
@@ -311,30 +537,42 @@ namespace Pixelaria.Views.Controls
         {
             if (e.Button == MouseButtons.Left)
             {
-                ChangeFrame(FrameOnX(e.X));
+                UpdateFramePanelMouseEvent(e.Location);
             }
         }
 
         private void FramesPanelOnPaint(object sender, [NotNull] PaintEventArgs e)
         {
-            DrawFramesPanel(e);
+            DrawFramesPanel(_framesPanel, e);
         }
 
         #endregion
 
         #region Rendering
 
-        private void DrawFramesPanel([NotNull] PaintEventArgs e)
+        private void DrawFramesPanel([NotNull] Control control, [NotNull] PaintEventArgs e)
         {
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
 
             TimelineRenderer.DrawBackground(e.Graphics);
-            TimelineRenderer.DrawFrameCounter(e.Graphics, TimelineController, Bounds, _currentFrame);
-            TimelineRenderer.DrawTimelineBackground(e.Graphics, TimelineController, Bounds, _currentFrame);
-            TimelineRenderer.DrawKeyframes(e.Graphics, TimelineController, Bounds, _currentFrame);
+            TimelineRenderer.DrawFrameCounter(e.Graphics, TimelineController, control.Bounds, _currentFrame);
+            TimelineRenderer.DrawLayerBackground(e.Graphics, control.Bounds, _currentLayer);
+            TimelineRenderer.DrawTimelineBackground(e.Graphics, TimelineController, control.Bounds, _currentFrame);
+            TimelineRenderer.DrawKeyframes(e.Graphics, TimelineController, control.Bounds, _currentFrame);
         }
 
         #endregion
+
+        private class DoubleBufferedPanel : Panel
+        {
+            public DoubleBufferedPanel()
+            {
+                // Set the control's style so it won't flicker at every draw call:
+                SetStyle(ControlStyles.OptimizedDoubleBuffer |
+                         ControlStyles.AllPaintingInWmPaint |
+                         ControlStyles.UserPaint, true);
+            }
+        }
     }
 
     public class TimelineRenderer
@@ -345,6 +583,7 @@ namespace Pixelaria.Views.Controls
         private static readonly Color BackgroundColor = Color.LightGray;
         private static readonly Color KeyframeColor = Color.White;
         private static readonly Color SelectedFrameColor = Color.CornflowerBlue;
+        private static readonly Color SelectedLayerColor = Color.LightSkyBlue;
 
         private static RectangleF BoundsForFrame(int frame, int layer)
         {
@@ -356,6 +595,16 @@ namespace Pixelaria.Views.Controls
             graphics.Clear(BackgroundColor);
         }
 
+        public static void DrawLayerBackground([NotNull] Graphics graphics, Rectangle bounds, int currentLayer)
+        {
+            int y = FrameCountHeight + currentLayer * LayerHeight;
+
+            var rect = new Rectangle(0, y, bounds.Width, LayerHeight);
+
+            using var solidBrush = new SolidBrush(SelectedLayerColor);
+            graphics.FillRectangle(solidBrush, rect);
+        }
+
         public static void DrawFrameCounter([NotNull] Graphics graphics, [NotNull] TimelineController timeline, Rectangle bounds, int currentFrame)
         {
             var font = new Font(FontFamily.GenericSansSerif, 8);
@@ -365,9 +614,6 @@ namespace Pixelaria.Views.Controls
             int frame = 0;
             for (float x = 0; x < bounds.Width; x += FrameWidth)
             {
-                if (frame == timeline.FrameCount)
-                    break;
-
                 var currentFrameRect = new RectangleF(x, 0, FrameWidth, FrameCountHeight);
                 if (frame == currentFrame)
                 {
@@ -414,9 +660,6 @@ namespace Pixelaria.Views.Controls
                 int frame = 0;
                 for (float x = 0; x < bounds.Width; x += FrameWidth)
                 {
-                    if (frame == timeline.FrameCount)
-                        break;
-
                     int y = FrameCountHeight + layerIndex * LayerHeight;
 
                     var top = new Point((int)x, y);
@@ -449,7 +692,10 @@ namespace Pixelaria.Views.Controls
                     if (frame == layer.FrameCount)
                         break;
 
-                    DrawKeyframe(graphics, frame, layerIndex, timeline, currentFrame);
+                    if (layer.KeyframeForFrame(frame) != null)
+                    {
+                        DrawKeyframe(graphics, frame, layerIndex, timeline, currentFrame);
+                    }
 
                     frame += 1;
                 }
@@ -539,6 +785,22 @@ namespace Pixelaria.Views.Controls
         public TimelineControlKeyframeEventArgs(int frameIndex)
         {
             FrameIndex = frameIndex;
+        }
+    }
+
+    /// <summary>
+    /// Event args for a layer changed event
+    /// </summary>
+    public class LayerChangedEventArgs : EventArgs
+    {
+        public int OldLayer { get; }
+        public int NewLayer { get; }
+        public bool Cancel { get; set; }
+
+        public LayerChangedEventArgs(int oldLayer, int newLayer)
+        {
+            OldLayer = oldLayer;
+            NewLayer = newLayer;
         }
     }
 }

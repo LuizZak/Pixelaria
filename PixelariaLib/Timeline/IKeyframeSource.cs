@@ -30,7 +30,7 @@ namespace PixelariaLib.Timeline
         /// <summary>
         /// Gets a list of the keyframe indexes.
         /// </summary>
-        IReadOnlyList<int> KeyframeIndexes { get; }
+        IReadOnlyList<Keyframe> Keyframes { get; }
 
         /// <summary>
         /// Gets the total frame count for this keyframe source.
@@ -46,7 +46,7 @@ namespace PixelariaLib.Timeline
         /// <summary>
         /// Adds a new keyframe at a specified frame.
         /// </summary>
-        void AddKeyframe(int frame, object value);
+        void AddKeyframe(Keyframe keyframe);
 
         /// <summary>
         /// Removes a keyframe at a specified frame. If no keyframes exists at <see cref="frame"/>,

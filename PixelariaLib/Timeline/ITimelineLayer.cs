@@ -33,6 +33,11 @@ namespace PixelariaLib.Timeline
         int FrameCount { get; }
 
         /// <summary>
+        /// The display name for this layer
+        /// </summary>
+        string LayerName { get; }
+
+        /// <summary>
         /// The layer controller for this layer
         /// </summary>
         ITimelineLayerController LayerController { get; }
@@ -60,21 +65,5 @@ namespace PixelariaLib.Timeline
         /// or null, in case no keyframe is set before or after <see cref="frame"/>
         /// </summary>
         KeyframeRange? KeyframeRangeForFrame(int frame);
-
-        /// <summary>
-        /// Searches for the two keyframes before and after a given frame, and returns
-        /// their keyframe values.
-        ///
-        /// In case the frame lands exactly on a key frame, the method returns that keyframe's
-        /// value as the first element of the tuple, and the value for the next keyframe
-        /// after that keyframe as the second element of the tuple.
-        ///
-        /// In case the frame lands after the last keyframe, both values represent the last
-        /// keyframe's value.
-        ///
-        /// If there are no keyframes on this timeline, a (null, null) tuple is returned,
-        /// instead.
-        /// </summary>
-        (object, object) KeyframeValuesBetween(int frame);
     }
 }
