@@ -172,6 +172,7 @@ namespace Pixelaria.Views.Controls
                     _timelineController.WillRemoveLayer -= TimelineControllerOnWillRemoveLayer;
 
                     _timelineController.DidAddKeyframe -= TimelineControllerOnDidAddKeyframe;
+                    _timelineController.DidInsertKeyframe -= TimelineControllerOnDidInsertKeyframe;
                     _timelineController.DidRemoveKeyframe -= TimelineControllerOnDidRemoveKeyframe;
                     _timelineController.DidChangeKeyframeValue -= TimelineControllerOnDidChangeKeyframeValue;
                     _timelineController.DidAddLayer -= TimelineControllerOnDidAddLayer;
@@ -190,6 +191,7 @@ namespace Pixelaria.Views.Controls
                     _timelineController.WillRemoveLayer += TimelineControllerOnWillRemoveLayer;
 
                     _timelineController.DidAddKeyframe += TimelineControllerOnDidAddKeyframe;
+                    _timelineController.DidInsertKeyframe += TimelineControllerOnDidInsertKeyframe;
                     _timelineController.DidRemoveKeyframe += TimelineControllerOnDidRemoveKeyframe;
                     _timelineController.DidChangeKeyframeValue += TimelineControllerOnDidChangeKeyframeValue;
                     _timelineController.DidAddLayer += TimelineControllerOnDidAddLayer;
@@ -485,6 +487,12 @@ namespace Pixelaria.Views.Controls
         }
 
         private void TimelineControllerOnDidAddKeyframe(object sender, TimelineKeyframeValueChangeEventArgs e)
+        {
+            InvalidatePanels();
+            UpdatePanelSizes();
+        }
+
+        private void TimelineControllerOnDidInsertKeyframe(object sender, TimelineCancelableAddKeyframeEventArgs e)
         {
             InvalidatePanels();
             UpdatePanelSizes();
