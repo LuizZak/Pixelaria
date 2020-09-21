@@ -365,7 +365,6 @@ namespace Pixelaria.Views.Controls
                     }
 
                     TimelineController.RemoveKeyframe(kf.Value.Frame, layerIndex);
-                    Invalidate();
                 };
             }
             else
@@ -382,7 +381,6 @@ namespace Pixelaria.Views.Controls
                     }
 
                     TimelineController.InsertKeyframe(frame, layerIndex);
-                    Invalidate();
                 };
 
                 kf = layer.KeyframeForFrame(frame);
@@ -391,13 +389,11 @@ namespace Pixelaria.Views.Controls
                     _contextMenu.Items.Add("Insert Frame").Click += (sender, args) =>
                     {
                         TimelineController.ChangeKeyframeLength(kf.Value.Frame, layerIndex, kf.Value.Length + 1);
-                        Invalidate();
                     };
 
                     _contextMenu.Items.Add("Remove Frame").Click += (sender, args) =>
                     {
                         TimelineController.ChangeKeyframeLength(kf.Value.Frame, layerIndex, kf.Value.Length - 1);
-                        Invalidate();
                     };
                 }
                 else
@@ -410,7 +406,6 @@ namespace Pixelaria.Views.Controls
                         _contextMenu.Items.Add("Extend Frame").Click += (sender, args) =>
                         {
                             TimelineController.ChangeKeyframeLength(latest.Frame, layerIndex, frame - latest.Frame + 1);
-                            Invalidate();
                         };
                     }
                 }
