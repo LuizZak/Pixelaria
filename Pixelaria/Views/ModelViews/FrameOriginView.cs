@@ -219,6 +219,11 @@ namespace Pixelaria.Views.ModelViews
             FillFrames();
         }
 
+        public void ChangeKeyframeLength(int frame, int length)
+        {
+            
+        }
+
         public void SetKeyframeValue(int frameIndex, object value)
         {
             _animation.MetadataForFrame(frameIndex)[FrameMetadataKeys.FrameOrigin] = value is Point p ? (object)p : null;

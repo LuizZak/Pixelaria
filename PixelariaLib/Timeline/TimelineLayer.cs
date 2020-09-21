@@ -74,6 +74,21 @@ namespace PixelariaLib.Timeline
         }
 
         /// <summary>
+        /// Changes the length of a keyframe at a specified frame.
+        /// 
+        /// If no keyframe exists at <see cref="frame"/>, nothing is changed.
+        ///
+        /// In case the new length overlaps another keyframe, the length is capped to the frame
+        /// just before the next keyframe.
+        /// 
+        /// <see cref="length"/> must be greater than zero.
+        /// </summary>
+        public void ChangeKeyframeLength(int frame, int length)
+        {
+            _keyframeSource.ChangeKeyframeLength(frame, length);
+        }
+
+        /// <summary>
         /// Removes a keyframe at a specified frame. If no keyframes exists at <see cref="frame"/>,
         /// nothing is changed.
         /// </summary>

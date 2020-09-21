@@ -81,8 +81,8 @@ namespace PixelariaLibTests.Timeline
         public void TestInsertKeyframeAtFrameIndexSplicesKeyframeRanges()
         {
             var sut = CreateSut();
-
             sut.AddKeyframe(new Keyframe(0, 10, 10));
+
             sut.InsertKeyframe(5, 5);
 
             Assert.AreEqual(10, sut.FrameCount);
@@ -92,16 +92,65 @@ namespace PixelariaLibTests.Timeline
         }
 
         [TestMethod]
+        public void TestInsertKeyframeAtFrameIndexOnLastFrameOfExistingKeyframeRange()
+        {
+            var sut = CreateSut();
+            sut.AddKeyframe(new Keyframe(29, 2, 10));
+
+            sut.InsertKeyframe(30, 5);
+
+            Assert.AreEqual(31, sut.FrameCount);
+            Assert.AreEqual(2, sut.Keyframes.Count);
+            Assert.AreEqual(new KeyframeRange(29, 1), sut.Keyframes[0].KeyframeRange);
+            Assert.AreEqual(new KeyframeRange(30, 1), sut.Keyframes[1].KeyframeRange);
+        }
+
+        [TestMethod]
         public void TestInsertKeyframeAtFrameIndexReplacesKeyframeIfOverlappingExactlyOnKeyframe()
         {
             var sut = CreateSut();
-
             sut.AddKeyframe(new Keyframe(0, 10, 10));
+
             sut.InsertKeyframe(0, 5);
 
             Assert.AreEqual(10, sut.FrameCount);
             Assert.AreEqual(1, sut.Keyframes.Count);
             Assert.AreEqual(new KeyframeRange(0, 10), sut.Keyframes[0].KeyframeRange);
+        }
+
+        [TestMethod]
+        public void TestChangeKeyframeLength()
+        {
+            var sut = CreateSut();
+            sut.AddKeyframe(new Keyframe(0, 5, 0));
+
+            sut.ChangeKeyframeLength(0, 10);
+
+            Assert.AreEqual(new KeyframeRange(0, 10), sut.Keyframes[0].KeyframeRange);
+        }
+
+        [TestMethod]
+        public void TestChangeKeyframeLengthSetsMinimumLengthOfOne()
+        {
+            var sut = CreateSut();
+            sut.AddKeyframe(new Keyframe(0, 5, 0));
+
+            sut.ChangeKeyframeLength(0, -1);
+
+            Assert.AreEqual(new KeyframeRange(0, 1), sut.Keyframes[0].KeyframeRange);
+        }
+
+        [TestMethod]
+        public void TestChangeKeyframeLengthCapsMaximumLengthToOneFrameBeforeNextKeyframe()
+        {
+            var sut = CreateSut();
+            sut.AddKeyframe(new Keyframe(0, 1, 0));
+            sut.AddKeyframe(new Keyframe(5, 1, 0));
+
+            sut.ChangeKeyframeLength(0, 10);
+
+            Assert.AreEqual(new KeyframeRange(0, 5), sut.Keyframes[0].KeyframeRange);
+            Assert.AreEqual(new KeyframeRange(5, 1), sut.Keyframes[1].KeyframeRange);
         }
 
         private static KeyframeCollectionSource CreateSut()

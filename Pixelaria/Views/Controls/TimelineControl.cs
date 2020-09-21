@@ -24,6 +24,7 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Linq;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using PixelariaLib.Timeline;
@@ -174,6 +175,7 @@ namespace Pixelaria.Views.Controls
                     _timelineController.DidAddKeyframe -= TimelineControllerOnDidAddKeyframe;
                     _timelineController.DidInsertKeyframe -= TimelineControllerOnDidInsertKeyframe;
                     _timelineController.DidRemoveKeyframe -= TimelineControllerOnDidRemoveKeyframe;
+                    _timelineController.DidChangeKeyframeLength -= TimelineControllerOnDidChangeKeyframeLength;
                     _timelineController.DidChangeKeyframeValue -= TimelineControllerOnDidChangeKeyframeValue;
                     _timelineController.DidAddLayer -= TimelineControllerOnDidAddLayer;
                     _timelineController.DidRemoveLayer -= TimelineControllerOnDidRemoveLayer;
@@ -193,6 +195,7 @@ namespace Pixelaria.Views.Controls
                     _timelineController.DidAddKeyframe += TimelineControllerOnDidAddKeyframe;
                     _timelineController.DidInsertKeyframe += TimelineControllerOnDidInsertKeyframe;
                     _timelineController.DidRemoveKeyframe += TimelineControllerOnDidRemoveKeyframe;
+                    _timelineController.DidChangeKeyframeLength += TimelineControllerOnDidChangeKeyframeLength;
                     _timelineController.DidChangeKeyframeValue += TimelineControllerOnDidChangeKeyframeValue;
                     _timelineController.DidAddLayer += TimelineControllerOnDidAddLayer;
                     _timelineController.DidRemoveLayer += TimelineControllerOnDidRemoveLayer;
@@ -348,7 +351,7 @@ namespace Pixelaria.Views.Controls
             var layer = TimelineController.LayerAtIndex(layerIndex);
 
             var kf = layer.KeyframeExactlyOnFrame(frame);
-            if (frame > 0 && kf.HasValue)
+            if (kf.HasValue)
             {
                 _contextMenu.Items.Add("Remove Keyframe").Click += (sender, args) =>
                 {
@@ -365,7 +368,7 @@ namespace Pixelaria.Views.Controls
                     Invalidate();
                 };
             }
-            else if (frame != 0)
+            else
             {
                 _contextMenu.Items.Add("Add Keyframe").Click += (sender, args) =>
                 {
@@ -381,6 +384,36 @@ namespace Pixelaria.Views.Controls
                     TimelineController.InsertKeyframe(frame, layerIndex);
                     Invalidate();
                 };
+
+                kf = layer.KeyframeForFrame(frame);
+                if (kf.HasValue)
+                {
+                    _contextMenu.Items.Add("Insert Frame").Click += (sender, args) =>
+                    {
+                        TimelineController.ChangeKeyframeLength(kf.Value.Frame, layerIndex, kf.Value.Length + 1);
+                        Invalidate();
+                    };
+
+                    _contextMenu.Items.Add("Remove Frame").Click += (sender, args) =>
+                    {
+                        TimelineController.ChangeKeyframeLength(kf.Value.Frame, layerIndex, kf.Value.Length - 1);
+                        Invalidate();
+                    };
+                }
+                else
+                {
+                    var kfBefore = layer.KeyframesBefore(frame);
+                    if (kfBefore.Length > 0)
+                    {
+                        var latest = kfBefore.OrderBy(kf => kf.Frame).Last();
+
+                        _contextMenu.Items.Add("Extend Frame").Click += (sender, args) =>
+                        {
+                            TimelineController.ChangeKeyframeLength(latest.Frame, layerIndex, frame - latest.Frame + 1);
+                            Invalidate();
+                        };
+                    }
+                }
             }
 
             _contextMenu.Show(control, position);
@@ -504,7 +537,7 @@ namespace Pixelaria.Views.Controls
             UpdatePanelSizes();
         }
 
-        private void TimelineControllerOnDidRemoveLayer(object sender, TimelineLayerEventArgs e)
+        private void TimelineControllerOnDidChangeKeyframeLength(object sender, TimelineChangeKeyframeLengthEventArgs e)
         {
             InvalidatePanels();
             UpdatePanelSizes();
@@ -517,6 +550,12 @@ namespace Pixelaria.Views.Controls
         }
 
         private void TimelineControllerOnDidAddLayer(object sender, TimelineLayerEventArgs e)
+        {
+            InvalidatePanels();
+            UpdatePanelSizes();
+        }
+
+        private void TimelineControllerOnDidRemoveLayer(object sender, TimelineLayerEventArgs e)
         {
             InvalidatePanels();
             UpdatePanelSizes();

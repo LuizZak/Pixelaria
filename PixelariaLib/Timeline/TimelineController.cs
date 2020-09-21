@@ -57,6 +57,13 @@ namespace PixelariaLib.Timeline
         public delegate void KeyframeValueChangedEventHandler(object sender, TimelineKeyframeValueChangeEventArgs e);
 
         /// <summary>
+        /// Event handler for events related to keyframe length changes
+        /// </summary>
+        /// <param name="sender">The object that fired this event</param>
+        /// <param name="e">The event arguments for the event</param>
+        public delegate void KeyframeLengthChangedEventHandler(object sender, TimelineChangeKeyframeLengthEventArgs e);
+
+        /// <summary>
         /// Event handler for layer-based events
         /// </summary>
         /// <param name="sender">The object that fired this event</param>
@@ -83,6 +90,13 @@ namespace PixelariaLib.Timeline
         /// <param name="sender">The object that fired this event</param>
         /// <param name="e">The event arguments for the event</param>
         public delegate void KeyframeCancelableValueChangedEventHandler(object sender, TimelineCancelableKeyframeValueChangeEventArgs e);
+        
+        /// <summary>
+        /// Event handler for events related to keyframe length changes
+        /// </summary>
+        /// <param name="sender">The object that fired this event</param>
+        /// <param name="e">The event arguments for the event</param>
+        public delegate void KeyframeCancelableLengthChangedEventHandler(object sender, TimelineCancelableChangeKeyframeLengthEventArgs e);
 
         /// <summary>
         /// Event handler for cancelable layer-based events
@@ -118,8 +132,15 @@ namespace PixelariaLib.Timeline
         /// </summary>
         [Browsable(true)]
         [Category("Action")]
-        [Description("Occurs before the the value of a keyframe changes")]
+        [Description("Occurs before the value of a keyframe changes")]
         public event KeyframeCancelableValueChangedEventHandler WillChangeKeyframeValue;
+        /// <summary>
+        /// Event fired before a keyframe's length has changed
+        /// </summary>
+        [Browsable(true)]
+        [Category("Action")]
+        [Description("Occurs before the length of a keyframe changes")]
+        public event KeyframeCancelableLengthChangedEventHandler WillChangeKeyframeLength;
 
         /// <summary>
         /// Event fired before a new layer is added
@@ -162,8 +183,15 @@ namespace PixelariaLib.Timeline
         /// </summary>
         [Browsable(true)]
         [Category("Action")]
-        [Description("Occurs after the the value of a keyframe changes")]
+        [Description("Occurs after the value of a keyframe changes")]
         public event KeyframeValueChangedEventHandler DidChangeKeyframeValue;
+        /// <summary>
+        /// Event fired after a keyframe's length has changed
+        /// </summary>
+        [Browsable(true)]
+        [Category("Action")]
+        [Description("Occurs after the length of a keyframe changes")]
+        public event KeyframeLengthChangedEventHandler DidChangeKeyframeLength;
 
         /// <summary>
         /// Event fired after a new layer is added
@@ -255,6 +283,28 @@ namespace PixelariaLib.Timeline
                 layer.AddKeyframe(keyframe);
 
                 DidAddKeyframe?.Invoke(this, eventArgs);
+            }
+        }
+
+        /// <summary>
+        /// Changes the length of a keyframe at a specified frame.
+        /// </summary>
+        public void ChangeKeyframeLength(int frame, int layerIndex, int length)
+        {
+            var layer = InternalLayerAtIndex(layerIndex);
+
+            var kf = layer.KeyframeExactlyOnFrame(frame);
+            if (kf == null)
+                return;
+
+            var eventArgs = new TimelineCancelableChangeKeyframeLengthEventArgs(frame, layerIndex, kf.Value.Length, length);
+            WillChangeKeyframeLength?.Invoke(this, eventArgs);
+
+            if (!eventArgs.Cancel)
+            {
+                layer.ChangeKeyframeLength(frame, length);
+
+                DidChangeKeyframeLength?.Invoke(this, eventArgs);
             }
         }
 
@@ -564,6 +614,40 @@ namespace PixelariaLib.Timeline
         public TimelineCancelableKeyframeValueChangeEventArgs(Keyframe keyframe, int layerIndex, object oldValue) : base(keyframe, layerIndex, oldValue)
         {
 
+        }
+    }
+
+    /// <summary>
+    /// Event arguments for a timeline keyframe length change event
+    /// </summary>
+    public class TimelineChangeKeyframeLengthEventArgs : EventArgs
+    {
+        public int Frame { get; }
+
+        public int LayerIndex { get; }
+
+        public int OldLength { get; }
+
+        public int NewLength { get; }
+
+        public TimelineChangeKeyframeLengthEventArgs(int frame, int layerIndex, int oldLength, int newLength)
+        {
+            Frame = frame;
+            LayerIndex = layerIndex;
+            OldLength = oldLength;
+            NewLength = newLength;
+        }
+    }
+
+    /// <summary>
+    /// Event arguments for a timeline keyframe length change event
+    /// </summary>
+    public class TimelineCancelableChangeKeyframeLengthEventArgs : TimelineChangeKeyframeLengthEventArgs
+    {
+        public bool Cancel { get; set; }
+
+        public TimelineCancelableChangeKeyframeLengthEventArgs(int frame, int layerIndex, int oldLength, int newLength) : base(frame, layerIndex, oldLength, newLength)
+        {
         }
     }
 

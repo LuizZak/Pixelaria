@@ -75,11 +75,26 @@ namespace PixelariaLib.Timeline
             }
 
             var firstKf = new Keyframe(_keyframes[index].Frame, frame - _keyframes[index].Frame, _keyframes[index].Value);
-            int length = _keyframes[index].Length - frame - _keyframes[index].Frame;
+            int length = _keyframes[index].Length - (frame - _keyframes[index].Frame);
             var secondKf = new Keyframe(frame, length, value);
 
             _keyframes[index] = firstKf;
             _keyframes.Insert(index + 1, secondKf);
+        }
+
+        public void ChangeKeyframeLength(int frame, int length)
+        {
+            int index = _keyframes.FindIndex(kf => kf.Frame == frame);
+            if (index == -1)
+                return;
+
+            length = Math.Max(length, 1);
+            if (_keyframes.Count - 1 > index)
+            {
+                length = Math.Min(length, _keyframes[index + 1].Frame - frame);
+            }
+
+            _keyframes[index] = new Keyframe(frame, length, _keyframes[index].Value);
         }
 
         public void SetKeyframeValue(int frameIndex, object value)
