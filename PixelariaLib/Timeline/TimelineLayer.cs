@@ -20,6 +20,7 @@
     base directory of this project.
 */
 
+using System.Linq;
 using JetBrains.Annotations;
 
 namespace PixelariaLib.Timeline
@@ -154,6 +155,26 @@ namespace PixelariaLib.Timeline
         public KeyframeRange? KeyframeRangeForFrame(int frame)
         {
             return KeyframeForFrame(frame)?.KeyframeRange;
+        }
+
+        /// <summary>
+        /// Returns all keyframes that precede <see cref="frame"/>.
+        ///
+        /// Does not include keyframes exactly on <see cref="frame"/>
+        /// </summary>
+        public Keyframe[] KeyframesBefore(int frame)
+        {
+            return _keyframeSource.Keyframes.Where(kf => kf.Frame < frame).ToArray();
+        }
+
+        /// <summary>
+        /// Returns all keyframes that succeed <see cref="frame"/>.
+        ///
+        /// Does not include keyframes exactly on <see cref="frame"/>
+        /// </summary>
+        public Keyframe[] KeyframesAfter(int frame)
+        {
+            return _keyframeSource.Keyframes.Where(kf => kf.Frame > frame).ToArray();
         }
     }
 }

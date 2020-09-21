@@ -31,7 +31,7 @@ namespace PixelariaLibTests.Timeline
         [TestMethod]
         public void TestRelationship()
         {
-            var sut = CreateTimelineLayer();
+            var sut = CreateSut();
 
             sut.AddKeyframe(new Keyframe(0, 1, 0));
             sut.AddKeyframe(new Keyframe(1, 2, 0));
@@ -49,7 +49,7 @@ namespace PixelariaLibTests.Timeline
         [TestMethod]
         public void TestSetFrameCount()
         {
-            var sut = CreateTimelineLayer();
+            var sut = CreateSut();
 
             Assert.AreEqual(sut.FrameCount, 0);
         }
@@ -57,7 +57,7 @@ namespace PixelariaLibTests.Timeline
         [TestMethod]
         public void TestKeyframeForFrame()
         {
-            var sut = CreateTimelineLayer();
+            var sut = CreateSut();
             sut.AddKeyframe(new Keyframe(0, 1, 0));
             sut.AddKeyframe(new Keyframe(1, 2, 1));
             sut.AddKeyframe(new Keyframe(3, 1, 3));
@@ -71,7 +71,7 @@ namespace PixelariaLibTests.Timeline
         [TestMethod]
         public void TestKeyframeRangeForFrame()
         {
-            var sut = CreateTimelineLayer();
+            var sut = CreateSut();
             sut.AddKeyframe(new Keyframe(0, 1, 0));
             sut.AddKeyframe(new Keyframe(1, 2, 0));
             sut.AddKeyframe(new Keyframe(3, 2, 0));
@@ -88,7 +88,7 @@ namespace PixelariaLibTests.Timeline
         [TestMethod]
         public void TestKeyframeExactlyOnFrame()
         {
-            var sut = CreateTimelineLayer();
+            var sut = CreateSut();
             sut.AddKeyframe(new Keyframe(0, 1, 0));
             sut.AddKeyframe(new Keyframe(1, 1, 0));
             sut.AddKeyframe(new Keyframe(3, 2, 0));
@@ -102,7 +102,47 @@ namespace PixelariaLibTests.Timeline
             Assert.IsNotNull(sut.KeyframeExactlyOnFrame(5));
         }
 
-        private static TimelineLayer CreateTimelineLayer()
+        [TestMethod]
+        public void TestKeyframesBefore()
+        {
+            var sut = CreateSut();
+            sut.InsertKeyframe(0, 0);
+            sut.InsertKeyframe(1, 0);
+            sut.InsertKeyframe(2, 0);
+
+            Assert.AreEqual(3, sut.KeyframesBefore(3).Length);
+        }
+
+        [TestMethod]
+        public void TestKeyframesBeforeIgnoresKeyframeUnderFrame()
+        {
+            var sut = CreateSut();
+            sut.InsertKeyframe(1, 0);
+
+            Assert.AreEqual(0, sut.KeyframesBefore(1).Length);
+        }
+
+        [TestMethod]
+        public void TestKeyframesAfter()
+        {
+            var sut = CreateSut();
+            sut.InsertKeyframe(1, 0);
+            sut.InsertKeyframe(2, 0);
+            sut.InsertKeyframe(3, 0);
+
+            Assert.AreEqual(3, sut.KeyframesAfter(0).Length);
+        }
+
+        [TestMethod]
+        public void TestKeyframesAfterIgnoresKeyframeUnderFrame()
+        {
+            var sut = CreateSut();
+            sut.InsertKeyframe(1, 0);
+
+            Assert.AreEqual(0, sut.KeyframesAfter(1).Length);
+        }
+
+        private static TimelineLayer CreateSut()
         {
             return new TimelineLayer("layer", new KeyframeCollectionSource(), new NumericTimelineLayerController());
         }

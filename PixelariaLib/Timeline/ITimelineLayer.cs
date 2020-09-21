@@ -65,5 +65,19 @@ namespace PixelariaLib.Timeline
         /// or null, in case no keyframe is set before or after <see cref="frame"/>
         /// </summary>
         KeyframeRange? KeyframeRangeForFrame(int frame);
+
+        /// <summary>
+        /// Returns all keyframes that precede <see cref="frame"/>.
+        ///
+        /// Does not include keyframes exactly on <see cref="frame"/>
+        /// </summary>
+        Keyframe[] KeyframesBefore(int frame);
+
+        /// <summary>
+        /// Returns all keyframes that succeed <see cref="frame"/>.
+        ///
+        /// Does not include keyframes exactly on <see cref="frame"/>
+        /// </summary>
+        Keyframe[] KeyframesAfter(int frame);
     }
 }
