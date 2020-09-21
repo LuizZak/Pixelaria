@@ -40,7 +40,7 @@ namespace PixelariaLibTests.Timeline
 
             var keyframe = sut.LayerAtIndex(0).KeyframeExactlyOnFrame(4);
 
-            Assert.AreEqual(0.4f, keyframe.Value.Value);
+            Assert.AreEqual(0.4f, keyframe?.Value);
         }
 
         [TestMethod]

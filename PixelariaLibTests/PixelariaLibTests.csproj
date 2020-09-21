@@ -93,6 +93,7 @@
     <Compile Include="TestGenerators\BundleGenerator.cs" />
     <Compile Include="TestGenerators\FrameGenerator.cs" />
     <Compile Include="TestUtils\StreamTestUtils.cs" />
+    <Compile Include="Timeline\KeyframeCollectionSourceTests.cs" />
     <Compile Include="Timeline\TimelineLayerTests.cs" />
     <Compile Include="Timeline\TimelinePlayerTests.cs" />
     <Compile Include="Timeline\TimelineTests.cs" />

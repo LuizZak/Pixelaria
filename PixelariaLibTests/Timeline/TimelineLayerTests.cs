@@ -31,7 +31,7 @@ namespace PixelariaLibTests.Timeline
         [TestMethod]
         public void TestRelationship()
         {
-            var sut = CreateStaticTimelineLayer();
+            var sut = CreateTimelineLayer();
 
             sut.AddKeyframe(new Keyframe(0, 1, 0));
             sut.AddKeyframe(new Keyframe(1, 2, 0));
@@ -49,7 +49,7 @@ namespace PixelariaLibTests.Timeline
         [TestMethod]
         public void TestSetFrameCount()
         {
-            var sut = CreateStaticTimelineLayer();
+            var sut = CreateTimelineLayer();
 
             Assert.AreEqual(sut.FrameCount, 0);
         }
@@ -57,21 +57,21 @@ namespace PixelariaLibTests.Timeline
         [TestMethod]
         public void TestKeyframeForFrame()
         {
-            var sut = CreateStaticTimelineLayer();
+            var sut = CreateTimelineLayer();
             sut.AddKeyframe(new Keyframe(0, 1, 0));
             sut.AddKeyframe(new Keyframe(1, 2, 1));
             sut.AddKeyframe(new Keyframe(3, 1, 3));
 
-            Assert.AreEqual(0, sut.KeyframeForFrame(0).Value.Frame);
-            Assert.AreEqual(1, sut.KeyframeForFrame(1).Value.Frame);
-            Assert.AreEqual(1, sut.KeyframeForFrame(2).Value.Frame);
-            Assert.AreEqual(3, sut.KeyframeForFrame(3).Value.Frame);
+            Assert.AreEqual(0, sut.KeyframeForFrame(0)?.Frame);
+            Assert.AreEqual(1, sut.KeyframeForFrame(1)?.Frame);
+            Assert.AreEqual(1, sut.KeyframeForFrame(2)?.Frame);
+            Assert.AreEqual(3, sut.KeyframeForFrame(3)?.Frame);
         }
 
         [TestMethod]
         public void TestKeyframeRangeForFrame()
         {
-            var sut = CreateStaticTimelineLayer();
+            var sut = CreateTimelineLayer();
             sut.AddKeyframe(new Keyframe(0, 1, 0));
             sut.AddKeyframe(new Keyframe(1, 2, 0));
             sut.AddKeyframe(new Keyframe(3, 2, 0));
@@ -88,7 +88,7 @@ namespace PixelariaLibTests.Timeline
         [TestMethod]
         public void TestKeyframeExactlyOnFrame()
         {
-            var sut = CreateStaticTimelineLayer();
+            var sut = CreateTimelineLayer();
             sut.AddKeyframe(new Keyframe(0, 1, 0));
             sut.AddKeyframe(new Keyframe(1, 1, 0));
             sut.AddKeyframe(new Keyframe(3, 2, 0));
@@ -102,7 +102,7 @@ namespace PixelariaLibTests.Timeline
             Assert.IsNotNull(sut.KeyframeExactlyOnFrame(5));
         }
 
-        private static TimelineLayer CreateStaticTimelineLayer()
+        private static TimelineLayer CreateTimelineLayer()
         {
             return new TimelineLayer("layer", new KeyframeCollectionSource(), new NumericTimelineLayerController());
         }

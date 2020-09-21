@@ -376,7 +376,7 @@ namespace Pixelaria.Views.Controls
                             return;
                     }
 
-                    TimelineController.AddKeyframe(frame, layerIndex);
+                    TimelineController.InsertKeyframe(frame, layerIndex);
                     Invalidate();
                 };
             }

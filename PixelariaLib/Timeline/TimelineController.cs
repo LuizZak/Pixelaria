@@ -36,11 +36,18 @@ namespace PixelariaLib.Timeline
         private readonly List<TimelineLayer> _layers = new List<TimelineLayer>();
 
         /// <summary>
-        /// Event handler for keyframe-related events
+        /// Event handler for keyframe removal events
         /// </summary>
         /// <param name="sender">The object that fired this event</param>
         /// <param name="e">The event arguments for the event</param>
-        public delegate void KeyframeEventHandler(object sender, TimelineRemoveKeyframeEventArgs e);
+        public delegate void KeyframeRemoveEventHandler(object sender, TimelineRemoveKeyframeEventArgs e);
+
+        /// <summary>
+        /// Event handler for keyframe insertion events
+        /// </summary>
+        /// <param name="sender">The object that fired this event</param>
+        /// <param name="e">The event arguments for the event</param>
+        public delegate void KeyframeAddEventHandler(object sender, TimelineAddKeyframeEventArgs e);
 
         /// <summary>
         /// Event handler for events related to keyframe value changes
@@ -57,11 +64,18 @@ namespace PixelariaLib.Timeline
         public delegate void LayerEventHandler(object sender, TimelineLayerEventArgs e);
 
         /// <summary>
-        /// Event handler for cancelable keyframe-related events
+        /// Event handler for cancelable keyframe remove events
         /// </summary>
         /// <param name="sender">The object that fired this event</param>
         /// <param name="e">The event arguments for the event</param>
-        public delegate void KeyframeCancelableEventHandler(object sender, TimelineCancelableRemoveKeyframeEventArgs e);
+        public delegate void KeyframeCancelableRemoveEventHandler(object sender, TimelineCancelableRemoveKeyframeEventArgs e);
+
+        /// <summary>
+        /// Event handler for cancelable keyframe insertion events
+        /// </summary>
+        /// <param name="sender">The object that fired this event</param>
+        /// <param name="e">The event arguments for the event</param>
+        public delegate void KeyframeCancelableAddEventHandler(object sender, TimelineCancelableAddKeyframeEventArgs e);
 
         /// <summary>
         /// Event handler for cancelable events related to keyframe value changes
@@ -84,13 +98,21 @@ namespace PixelariaLib.Timeline
         [Category("Action")]
         [Description("Occurs before a new keyframe is added")]
         public event KeyframeCancelableValueChangedEventHandler WillAddKeyframe;
+
+        /// <summary>
+        /// Event fired before a new keyframe is inserted
+        /// </summary> 
+        [Browsable(true)]
+        [Category("Action")]
+        [Description("Occurs before a new keyframe is inserted")]
+        public event KeyframeCancelableAddEventHandler WillInsertKeyframe;
         /// <summary>
         /// Event fired before a keyframe is removed
         /// </summary>
         [Browsable(true)]
         [Category("Action")]
         [Description("Occurs before a keyframe is removed")]
-        public event KeyframeCancelableEventHandler WillRemoveKeyframe;
+        public event KeyframeCancelableRemoveEventHandler WillRemoveKeyframe;
         /// <summary>
         /// Event fired before a keyframe's value has changed
         /// </summary>
@@ -115,40 +137,47 @@ namespace PixelariaLib.Timeline
         public event CancelableLayerEventHandler WillRemoveLayer;
 
         /// <summary>
-        /// Event fired before a new keyframe is added
+        /// Event fired after a new keyframe is added
         /// </summary> 
         [Browsable(true)]
         [Category("Action")]
-        [Description("Occurs whenever a new keyframe is added")]
+        [Description("Occurs after a new keyframe is added")]
         public event KeyframeValueChangedEventHandler DidAddKeyframe;
         /// <summary>
-        /// Event fired before a keyframe is removed
-        /// </summary>
+        /// Event fired after a new keyframe is inserted
+        /// </summary> 
         [Browsable(true)]
         [Category("Action")]
-        [Description("Occurs whenever a keyframe is removed")]
-        public event KeyframeEventHandler DidRemoveKeyframe;
+        [Description("Occurs after a new keyframe is inserted")]
+        public event KeyframeCancelableAddEventHandler DidInsertKeyframe;
         /// <summary>
-        /// Event fired before a keyframe's value has changed
+        /// Event fired after a keyframe is removed
         /// </summary>
         [Browsable(true)]
         [Category("Action")]
-        [Description("Occurs whenever the the value of a keyframe changes")]
+        [Description("Occurs after a keyframe is removed")]
+        public event KeyframeRemoveEventHandler DidRemoveKeyframe;
+        /// <summary>
+        /// Event fired after a keyframe's value has changed
+        /// </summary>
+        [Browsable(true)]
+        [Category("Action")]
+        [Description("Occurs after the the value of a keyframe changes")]
         public event KeyframeValueChangedEventHandler DidChangeKeyframeValue;
 
         /// <summary>
-        /// Event fired before a new layer is added
+        /// Event fired after a new layer is added
         /// </summary> 
         [Browsable(true)]
         [Category("Action")]
-        [Description("Occurs whenever a new layer is added")]
+        [Description("Occurs after a new layer is added")]
         public event LayerEventHandler DidAddLayer;
         /// <summary>
-        /// Event fired before a layer is removed
+        /// Event fired after a layer is removed
         /// </summary>
         [Browsable(true)]
         [Category("Action")]
-        [Description("Occurs whenever a layer is removed")]
+        [Description("Occurs after a layer is removed")]
         public event LayerEventHandler DidRemoveLayer;
 
         /// <summary>
@@ -183,11 +212,27 @@ namespace PixelariaLib.Timeline
         }
 
         /// <summary>
-        /// Adds a new keyframe at a specified frame.
+        /// Inserts a new keyframe at a specified frame.
+        ///
+        /// If the keyframe overlaps an existing keyframe, the resulting keyframe ranges
+        /// occupy the existing keyframe's range
         /// </summary>
-        public void AddKeyframe(int frame, int layerIndex, object value = null)
+        public void InsertKeyframe(int frame, int layerIndex, object value = null)
         {
-            AddKeyframe(frame, 1, layerIndex, value);
+            var layer = InternalLayerAtIndex(layerIndex);
+
+            // Find the interpolated value for the keyframe to store
+            value ??= layer.LayerController.DefaultKeyframeValue();
+
+            var eventArgs = new TimelineCancelableAddKeyframeEventArgs(frame, layerIndex, value);
+            WillInsertKeyframe?.Invoke(this, eventArgs);
+
+            if (!eventArgs.Cancel)
+            {
+                layer.InsertKeyframe(frame, value);
+
+                DidInsertKeyframe?.Invoke(this, eventArgs);
+            }
         }
 
         /// <summary>
@@ -453,6 +498,38 @@ namespace PixelariaLib.Timeline
         public bool Cancel { get; set; }
 
         public TimelineCancelableRemoveKeyframeEventArgs(Keyframe keyframe, int layerIndex) : base(keyframe, layerIndex)
+        {
+
+        }
+    }
+
+    /// <summary>
+    /// Event arguments for a timeline keyframe insertion event
+    /// </summary>
+    public class TimelineAddKeyframeEventArgs : EventArgs
+    {
+        public int Frame { get; }
+
+        public int LayerIndex { get; }
+
+        public object Value { get;  }
+        
+        public TimelineAddKeyframeEventArgs(int frame, int layerIndex, object value)
+        {
+            Frame = frame;
+            Value = value;
+            LayerIndex = layerIndex;
+        }
+    }
+
+    /// <summary>
+    /// Event arguments for a cancelable timeline keyframe insertion event
+    /// </summary>
+    public class TimelineCancelableAddKeyframeEventArgs : TimelineAddKeyframeEventArgs
+    {
+        public bool Cancel { get; set; }
+
+        public TimelineCancelableAddKeyframeEventArgs(int frame, int layerIndex, object value) : base(frame, layerIndex, value)
         {
 
         }

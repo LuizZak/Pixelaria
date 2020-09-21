@@ -20,7 +20,6 @@
     base directory of this project.
 */
 
-using System.Linq;
 using JetBrains.Annotations;
 
 namespace PixelariaLib.Timeline
@@ -60,6 +59,17 @@ namespace PixelariaLib.Timeline
         public void AddKeyframe(Keyframe keyframe)
         {
             _keyframeSource.AddKeyframe(keyframe);
+        }
+
+        /// <summary>
+        /// Inserts a new keyframe at a specified frame.
+        ///
+        /// If the keyframe overlaps an existing keyframe, the resulting keyframe ranges
+        /// occupy the existing keyframe's range
+        /// </summary>
+        public void InsertKeyframe(int frame, object value)
+        {
+            _keyframeSource.InsertKeyframe(frame, value);
         }
 
         /// <summary>

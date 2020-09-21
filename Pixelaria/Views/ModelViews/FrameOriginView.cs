@@ -55,7 +55,7 @@ namespace Pixelaria.Views.ModelViews
             _timelineController.AddLayer("origin", new FrameOriginKeyframeSource(_animation), new FrameOriginTimelineController());
             if (_timelineController.LayerAtIndex(0).KeyframeExactlyOnFrame(0) == null)
             {
-                _timelineController.AddKeyframe(0, 0, Point.Empty);
+                _timelineController.InsertKeyframe(0, 0, Point.Empty);
             }
 
             timelineControl.TimelineController = _timelineController;
@@ -208,6 +208,13 @@ namespace Pixelaria.Views.ModelViews
         public void AddKeyframe(Keyframe keyframe)
         {
             _animation.MetadataForFrame(keyframe.Frame)[FrameMetadataKeys.FrameOrigin] = keyframe.Value is Point p ? (object)p : null;
+
+            FillFrames();
+        }
+
+        public void InsertKeyframe(int frame, object value)
+        {
+            _animation.MetadataForFrame(frame)[FrameMetadataKeys.FrameOrigin] = value is Point p ? (object)p : null;
 
             FillFrames();
         }

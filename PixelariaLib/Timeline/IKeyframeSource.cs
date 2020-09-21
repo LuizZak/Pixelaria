@@ -38,21 +38,26 @@ namespace PixelariaLib.Timeline
         int FrameCount { get; }
 
         /// <summary>
-        /// Sets the value for a keyframe at a specific frame. If the frame is not
-        /// a keyframe, a new keyframe is created and its value set as <see cref="value"/>
+        /// Adds a new keyframe at a specified frame.
         /// </summary>
-        void SetKeyframeValue(int frame, object value);
+        void AddKeyframe(Keyframe keyframe);
 
         /// <summary>
         /// Adds a new keyframe at a specified frame.
         /// </summary>
-        void AddKeyframe(Keyframe keyframe);
+        void InsertKeyframe(int frame, object value);
 
         /// <summary>
         /// Removes a keyframe at a specified frame. If no keyframes exists at <see cref="frame"/>,
         /// nothing is changed.
         /// </summary>
         void RemoveKeyframe(int frame);
+
+        /// <summary>
+        /// Sets the value for a keyframe at a specific frame. If the frame is not
+        /// a keyframe, a new keyframe is created and its value set as <see cref="value"/>
+        /// </summary>
+        void SetKeyframeValue(int frame, object value);
 
         /// <summary>
         /// Gets the value for a keyframe on a given index.

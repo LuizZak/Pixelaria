@@ -36,15 +36,50 @@ namespace PixelariaLib.Timeline
         
         public void AddKeyframe(Keyframe keyframe)
         {
+            // Remove keyframes that have their first frame within the range of the incoming keyframe's range
+            _keyframes.RemoveAll(kf => keyframe.Contains(kf.Frame));
+
+            // Find any existing keyframe that starts before the new keyframe but that has a length that overlaps
+            // the new keyframe's range, and clip it
+            int kfIndex = _keyframes.FindIndex(kf => kf.Contains(keyframe.Frame));
+            if (kfIndex > -1)
+            {
+                var existingKf = _keyframes[kfIndex];
+                _keyframes[kfIndex] = new Keyframe(existingKf.Frame, keyframe.Frame - existingKf.Frame, existingKf.Value);
+            }
+
             int index = _keyframes.BinarySearch(keyframe, new KeyframeComparer());
             if (index >= 0)
             {
-                var kf = _keyframes[index];
-                kf.Value = keyframe.Value;
-                _keyframes[index] = kf;
+                _keyframes[index] = keyframe;
                 return;
             }
             _keyframes.Insert(~index, keyframe);
+        }
+
+        public void InsertKeyframe(int frame, object value)
+        {
+            int index = _keyframes.FindIndex(kf => kf.Contains(frame));
+            if (index == -1)
+            {
+                _keyframes.Add(new Keyframe(frame, 1, value));
+                return;
+            }
+
+            if (_keyframes[index].Frame == frame)
+            {
+                var keyframe = _keyframes[index];
+                keyframe.Value = value;
+                _keyframes[index] = keyframe;
+                return;
+            }
+
+            var firstKf = new Keyframe(_keyframes[index].Frame, frame - _keyframes[index].Frame, _keyframes[index].Value);
+            int length = _keyframes[index].Length - frame - _keyframes[index].Frame;
+            var secondKf = new Keyframe(frame, length, value);
+
+            _keyframes[index] = firstKf;
+            _keyframes.Insert(index + 1, secondKf);
         }
 
         public void SetKeyframeValue(int frameIndex, object value)

@@ -40,13 +40,13 @@ namespace Pixelaria.Views.ModelViews
             tc_timeline.TimelineController.AddLayer("layer 11", layerController);
             tc_timeline.TimelineController.AddLayer("layer 12", layerController);
             tc_timeline.TimelineController.AddKeyframe(0, 5, 0);
-            tc_timeline.TimelineController.AddKeyframe(15, 0);
+            tc_timeline.TimelineController.InsertKeyframe(15, 0);
 
             tc_timeline.TimelineController.AddKeyframe(20, 2, 1);
-            tc_timeline.TimelineController.AddKeyframe(50, 1);
+            tc_timeline.TimelineController.InsertKeyframe(50, 1);
 
-            tc_timeline.TimelineController.AddKeyframe(5, 3);
-            tc_timeline.TimelineController.AddKeyframe(10, 3);
+            tc_timeline.TimelineController.InsertKeyframe(5, 3);
+            tc_timeline.TimelineController.InsertKeyframe(10, 3);
         }
     }
 }

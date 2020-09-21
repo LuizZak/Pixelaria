@@ -29,27 +29,26 @@ namespace PixelariaLibTests.Timeline
     [TestClass]
     public class TimelinePlayerTests
     {
-        // TODO: Fix interpolation of timeline keyframes in playback
-        //[TestMethod]
+        [TestMethod]
         public void TestValueForFrame()
         {
             var timeline = new TimelineController();
             timeline.AddLayer("layer", new IntegerTimelineLayerController());
-            timeline.AddKeyframe(0, 1, 0, 0);
-            timeline.AddKeyframe(5, 1, 0, 5);
+            timeline.AddKeyframe(0, 5, 0, 0);
+            timeline.AddKeyframe(5, 5, 0, 5);
             timeline.AddKeyframe(10, 1, 0, 0);
             var timelinePlayer = new TimelinePlayer(timeline);
 
             Assert.AreEqual(0, timelinePlayer.ValueForFrame(0, 0));
-            Assert.AreEqual(1, timelinePlayer.ValueForFrame(1, 0));
-            Assert.AreEqual(2, timelinePlayer.ValueForFrame(2, 0));
-            Assert.AreEqual(3, timelinePlayer.ValueForFrame(3, 0));
-            Assert.AreEqual(4, timelinePlayer.ValueForFrame(4, 0));
+            Assert.AreEqual(0, timelinePlayer.ValueForFrame(1, 0));
+            Assert.AreEqual(0, timelinePlayer.ValueForFrame(2, 0));
+            Assert.AreEqual(0, timelinePlayer.ValueForFrame(3, 0));
+            Assert.AreEqual(0, timelinePlayer.ValueForFrame(4, 0));
             Assert.AreEqual(5, timelinePlayer.ValueForFrame(5, 0));
-            Assert.AreEqual(4, timelinePlayer.ValueForFrame(6, 0));
-            Assert.AreEqual(3, timelinePlayer.ValueForFrame(7, 0));
-            Assert.AreEqual(2, timelinePlayer.ValueForFrame(8, 0));
-            Assert.AreEqual(1, timelinePlayer.ValueForFrame(9, 0));
+            Assert.AreEqual(5, timelinePlayer.ValueForFrame(6, 0));
+            Assert.AreEqual(5, timelinePlayer.ValueForFrame(7, 0));
+            Assert.AreEqual(5, timelinePlayer.ValueForFrame(8, 0));
+            Assert.AreEqual(5, timelinePlayer.ValueForFrame(9, 0));
             Assert.AreEqual(0, timelinePlayer.ValueForFrame(10, 0));
         }
 
