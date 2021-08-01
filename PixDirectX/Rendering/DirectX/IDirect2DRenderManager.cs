@@ -37,7 +37,7 @@ namespace PixDirectX.Rendering.DirectX
         IRenderLoopState RenderingState { get; }
         
         /// <summary>
-        /// Initializes the Direct2D rendering state, but do not start the render loop yet.
+        /// Initializes the Direct2D rendering state.
         /// </summary>
         void Initialize();
 

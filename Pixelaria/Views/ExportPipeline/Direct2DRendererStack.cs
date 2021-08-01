@@ -110,5 +110,10 @@ namespace Pixelaria.Views.ExportPipeline
                 return new Direct2DRenderLoopResponse(redrawRects);
             });
         }
+
+        public void ChangeRefreshRate(int refreshRate)
+        {
+            _direct2DLoopManager.ChangeRefreshRate(refreshRate);
+        }
     }
 }

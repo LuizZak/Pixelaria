@@ -60,6 +60,9 @@ namespace PixDirectX.Rendering.DirectX
         [CanBeNull]
         private DeviceDebug _deviceDebug;
 
+        private int _refreshRate = 60;
+        private int _refreshTimerDelay = 1000 / 60;
+
         /// <summary>
         /// Event fired whenever the Direct2D state of this loop manager is invalidated (either due to context
         /// switches, resolution changes or window state changes).
@@ -183,6 +186,8 @@ namespace PixDirectX.Rendering.DirectX
             _renderingState.DirectWriteFactory = directWriteFactory;
             _renderingState.DesktopDpiScaling = desktopScale;
             _renderingState.DeviceContext = d2dContext;
+
+            ChangeRefreshRate(60);
         }
 
         /// <summary>
@@ -197,7 +202,7 @@ namespace PixDirectX.Rendering.DirectX
             {
                 loop(state);
 
-                return new Direct2DRenderLoopResponse(new System.Drawing.Rectangle[0], false);
+                return new Direct2DRenderLoopResponse(Array.Empty<System.Drawing.Rectangle>(), false);
             });
         }
 
@@ -251,11 +256,14 @@ namespace PixDirectX.Rendering.DirectX
 
                     isFirstLoop = false;
 
+                    // Time to sleep before next frame
+                    var sleepUntilNextFrame = new TimeSpan(0, 0, 0, 0, Math.Max(1, _refreshTimerDelay - (int)_frameDeltaTimer.ElapsedMilliseconds));
+
                     // Test if we're in occluded state
                     if (_renderingState.SwapChain.Present(0, PresentFlags.Test) == (int)DXGIStatus.Occluded)
                     {
                         isOccluded = true;
-                        Thread.Sleep(Math.Max(1, 16 - (int)_frameDeltaTimer.ElapsedMilliseconds));
+                        Thread.Sleep(sleepUntilNextFrame);
                         continue;
                     }
 
@@ -271,7 +279,7 @@ namespace PixDirectX.Rendering.DirectX
                     }
 
                     _renderingState.SwapChain.Present(0, PresentFlags.None, parameters);
-                    Thread.Sleep(Math.Max(1, 16 - (int)_frameDeltaTimer.ElapsedMilliseconds));
+                    Thread.Sleep(sleepUntilNextFrame);
                 }
             }
         }
@@ -287,6 +295,17 @@ namespace PixDirectX.Rendering.DirectX
 
             _renderingState.D2DRenderTarget.EndDraw();
         }
+        
+        public void ChangeRefreshRate(int refreshRate)
+        {
+            if (_refreshRate == refreshRate)
+                return;
+
+            _refreshRate = refreshRate;
+            _refreshTimerDelay = 1000 / refreshRate;
+        }
+
+        #region Private Methods
 
         private void ResizeRenderTarget()
         {
@@ -318,6 +337,8 @@ namespace PixDirectX.Rendering.DirectX
 
             throw new InvalidOperationException($"Expected a state value of type {typeof(IDirect2DRenderingState)}");
         }
+
+        #endregion
 
         private class Direct2DRenderingState : IDirect2DRenderingState
         {

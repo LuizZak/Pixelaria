@@ -44,6 +44,8 @@ namespace Pixelaria.Views.ExportPipeline
         private readonly GdiImageResourceManager _imageResource = new GdiImageResourceManager();
         private Action<IRenderLoopState, ClippingRegion> _renderAction;
         private GdiRenderLoopState _renderState;
+        private int _refreshRate = 60;
+        private int _refreshTimerDelay = 1000 / 60;
         public IRenderLoopState RenderingState => _renderState;
 
 
@@ -112,10 +114,19 @@ namespace Pixelaria.Views.ExportPipeline
                     }
                 }
 
-                Thread.Sleep(Math.Max(1, 16 - (int)_frameDeltaTimer.ElapsedMilliseconds));
+                Thread.Sleep(Math.Max(1, _refreshTimerDelay - (int)_frameDeltaTimer.ElapsedMilliseconds));
             }
         }
+        
+        public void ChangeRefreshRate(int refreshRate)
+        {
+            if (_refreshRate == refreshRate)
+                return;
 
+            _refreshRate = refreshRate;
+            _refreshTimerDelay = 1000 / refreshRate;
+        }
+        
         private GdiRenderLoopState RenderStateFromGraphics(Graphics graphics, TimeSpan deltaTime)
         {
             return new GdiRenderLoopState(graphics, _control.Size, deltaTime);

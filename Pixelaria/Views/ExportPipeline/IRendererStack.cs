@@ -58,5 +58,11 @@ namespace Pixelaria.Views.ExportPipeline
         /// Frame rendering occurs after the closure is executed.
         /// </summary>
         void ConfigureRenderLoop(Action<IRenderLoopState, ClippingRegion> execute);
+        
+        /// <summary>
+        /// Changes the refresh rate for this render stack.
+        /// </summary>
+        /// <param name="refreshRate">The new refresh rate, in Hz</param>
+        void ChangeRefreshRate(int refreshRate);
     }
 }

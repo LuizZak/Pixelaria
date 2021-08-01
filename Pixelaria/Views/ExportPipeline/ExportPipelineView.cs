@@ -38,6 +38,7 @@ using PixUI.Controls;
 using Pixelaria.Data.Persistence;
 using Pixelaria.ExportPipeline;
 using Pixelaria.Properties;
+using Pixelaria.Utils;
 using Pixelaria.Views.Direct2D;
 using Pixelaria.Views.ExportPipeline.PipelineNodePanel;
 using Pixelaria.Views.ExportPipeline.PipelineView;
@@ -68,7 +69,6 @@ namespace Pixelaria.Views.ExportPipeline
         /// Clean up any resources being used.
         /// </summary>
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        [SuppressMessage("ReSharper", "UseNullPropagation")]
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -86,20 +86,38 @@ namespace Pixelaria.Views.ExportPipeline
             base.Dispose(disposing);
         }
 
+        #region Form Events
+
         protected override void OnShown(EventArgs e)
         {
             base.OnShown(e);
             
-            ConfigureRenderLoop();
+            ConfigureAndRunRenderLoop();
         }
 
-        public void ConfigureRenderLoop()
+        protected override void OnLocationChanged(EventArgs e)
+        {
+            base.OnLocationChanged(e);
+
+            DetectMonitorRefreshRate();
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Configures and executes a render loop on the current form.
+        ///
+        /// The method doesn't return while the run loop is active.
+        /// </summary>
+        public void ConfigureAndRunRenderLoop()
         {
             if (DesignMode)
                 return;
 
             _rendererStack = new Direct2DRendererStack();
             var renderManager = _rendererStack.Initialize(exportPipelineControl);
+            
+            DetectMonitorRefreshRate();
 
             DefaultResources.LoadDefaultResources(renderManager.ImageResources);
 
@@ -113,6 +131,19 @@ namespace Pixelaria.Views.ExportPipeline
                 exportPipelineControl.UpdateFrameStep(state.FrameRenderDeltaTime);
                 exportPipelineControl.FillRedrawRegion(clipping);
             });
+        }
+
+        public void DetectMonitorRefreshRate()
+        {
+            if (IsDisposed)
+                return;
+
+            var refreshRate = MonitorSettingsHelper.GetRefreshRateForForm(this);
+
+            if (refreshRate != null)
+            {
+                _rendererStack?.ChangeRefreshRate(refreshRate.Value);
+            }
         }
 
         #region Form Configuration
