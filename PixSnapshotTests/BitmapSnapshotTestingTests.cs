@@ -317,25 +317,44 @@ namespace PixSnapshotTests
             };
 
             BitmapSnapshotTesting.Snapshot<MockSnapshotProvider, Bitmap>(bitmapAct, testAdapter, testContext, false);
-
-            bool match;
-
-            using (var bitDiff = bitmapDiff.FastLock())
+            
+            using (var expBitDiff = bitmapDiff.FastLock())
             using (var actBitDiff = testAdapter.SaveComparisonBitmapFiles_diff.FastLock())
             {
-                match = bitDiff.DataArray.SequenceEqual(actBitDiff.DataArray);
+                var expBitDiffArray = expBitDiff.DataArray;
+                var actBitDiffArray = actBitDiff.DataArray;
+
+                bool match = expBitDiffArray.SequenceEqual(actBitDiffArray);
+
+                if (match)
+                    return; // Success!
+
+                string expPath = Path.Combine(TestContext.TestDir, $"diff-test-{testCase}-expected.png");
+                string actPath = Path.Combine(TestContext.TestDir, $"diff-test-{testCase}-actual.png");
+                string diffPath = Path.Combine(TestContext.TestDir, $"diff-test-{testCase}-diff.png");
+
+                var diffBit = new Bitmap(expBitDiff.Width, expBitDiff.Height);
+                using (var diffBitFast = diffBit.FastLock())
+                {
+                    diffBitFast.Clear(unchecked((int)0xFFFFFFFF));
+                    for (int i = 0; i < expBitDiffArray.Length; i++)
+                    {
+                        if (expBitDiffArray[i] != actBitDiffArray[i])
+                        {
+                            int x = i % expBitDiff.Width;
+                            int y = i / expBitDiff.Width;
+
+                            diffBitFast.SetPixel(x, y, unchecked((int)0xFFFF0000));
+                        }
+                    }
+                }
+
+                bitmapDiff.Save(expPath, ImageFormat.Png);
+                testAdapter.SaveComparisonBitmapFiles_diff.Save(actPath, ImageFormat.Png);
+                diffBit.Save(diffPath, ImageFormat.Png);
+
+                Assert.Fail($"Images do not match! Inspect the resulting image at {TestContext.TestDir}");
             }
-
-            if (match) 
-                return; // Success!
-
-            string expPath = Path.Combine(TestContext.TestDir, $"diff-test-{testCase.ToString()}-expected.png");
-            string actPath = Path.Combine(TestContext.TestDir, $"diff-test-{testCase.ToString()}-actual.png");
-
-            bitmapDiff.Save(expPath, ImageFormat.Png);
-            testAdapter.SaveComparisonBitmapFiles_diff.Save(actPath, ImageFormat.Png);
-
-            Assert.Fail($"Images do not match! Inspect the resulting image at {actPath}");
         }
 
         private static Bitmap ExpectedBitmapForDiffTest(DiffTestCase testCase)
@@ -390,7 +409,7 @@ namespace PixSnapshotTests
                 return context;
             }
         }
-
+        
         [SuppressMessage("ReSharper", "InconsistentNaming")]
         private class MockTestAdapter : IBitmapSnapshotTestAdapter
         {
