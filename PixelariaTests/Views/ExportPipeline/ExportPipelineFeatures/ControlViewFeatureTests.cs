@@ -135,7 +135,8 @@ namespace PixelariaTests.Views.ExportPipeline.ExportPipelineFeatures
             control.VerifyAllExpectations();
         }
 
-        [TestMethod]
+        // TODO: Test throws NullReferenceException when calling AssertWasNotCalled, attempt to fix test later, for now see TestOnMouseUpOnlyAfterOnMouseDown_Subclass
+        //[TestMethod]
         public void TestOnMouseUpOnlyAfterOnMouseDown()
         {
             // OnMouseUp should only fire on controls which have been pressed down
@@ -146,6 +147,7 @@ namespace PixelariaTests.Views.ExportPipeline.ExportPipelineFeatures
 
             var control = MockRepository.GeneratePartialMock<ControlView>();
 
+            control.Stub(view => view.GetHashCode()).Return(0123);
             control.Location = Vector.Zero;
             control.Size = new Vector(200, 200);
 
@@ -156,6 +158,29 @@ namespace PixelariaTests.Views.ExportPipeline.ExportPipelineFeatures
             control.AssertWasNotCalled(c => c.OnMouseUp(ev));
         }
         
+        [TestMethod]
+        public void TestOnMouseUpOnlyAfterOnMouseDown_Subclass()
+        {
+            // OnMouseUp should only fire on controls which have been pressed down
+            // with OnMouseDown beforehand
+            var sut = new ControlViewFeature(new ExportPipelineControl(), new TestDirect2DRenderManager());
+
+            var ev = new MouseEventArgs(MouseButtons.Left, 0, 10, 10, 0);
+
+            var control = new TestControl
+            {
+                Location = Vector.Zero,
+                Size = new Vector(200, 200)
+            };
+
+            sut.AddControl(control);
+
+            sut.OnMouseUp(ev);
+
+            Assert.IsFalse(control.DidCallOnMouseUp);
+        }
+
+
         [TestMethod]
         public void TestOnMouseUpIsFiredWhenMouseIsNoLongerOverControlToo()
         {
@@ -397,7 +422,16 @@ namespace PixelariaTests.Views.ExportPipeline.ExportPipelineFeatures
         {
             public bool StubCanBecomeFirstResponder { private get; set; } = true;
 
+            public bool DidCallOnMouseUp;
+
             public override bool CanBecomeFirstResponder => StubCanBecomeFirstResponder;
+
+            public override void OnMouseUp(MouseEventArgs e)
+            {
+                base.OnMouseUp(e);
+
+                DidCallOnMouseUp = true;
+            }
         }
     }
 }
