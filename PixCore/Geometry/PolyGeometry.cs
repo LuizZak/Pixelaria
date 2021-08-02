@@ -107,7 +107,7 @@ namespace PixCore.Geometry
         /// </summary>
         public void Combine(AABB area, GeometryOperation operation)
         {
-            Combine(PolyGeometry.Rectangle(area), operation);
+            Combine(Rectangle(area), operation);
         }
 
         /// <summary>

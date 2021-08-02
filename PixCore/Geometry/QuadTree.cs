@@ -95,7 +95,7 @@ namespace PixCore.Geometry
                 if (Nodes.Count >= MaxBucket && MaxDepth > 0) //bin is full and can still subdivide
                 {
                     //
-                    //partition into quadrants and sort existing nodes amonst quads.
+                    //partition into quadrants and sort existing nodes amongst quads.
                     //
                     Nodes.Add(node); //treat new node just like other nodes for partitioning
 
