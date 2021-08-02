@@ -138,7 +138,7 @@ namespace PixRendering
     /// <summary>
     /// Metrics returned when hit testing an <see cref="ITextLayout"/> instance.
     /// </summary>
-    public struct HitTestMetrics
+    public readonly struct HitTestMetrics
     {
         public int TextPosition { get; }
 

@@ -27,7 +27,7 @@ namespace PixPipelineGraph
     /// <summary>
     /// Describes information for an input of a pipeline node
     /// </summary>
-    public struct PipelineInput : IEquatable<PipelineInput>
+    public readonly struct PipelineInput : IEquatable<PipelineInput>
     {
         /// <summary>
         /// The node this pipeline input is attached to
