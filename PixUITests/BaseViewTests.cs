@@ -24,6 +24,7 @@ using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixCore.Geometry;
 using PixUI;
+using PixUI.LayoutSystem;
 
 namespace PixUITests
 {
@@ -325,5 +326,38 @@ namespace PixUITests
         }
 
         #endregion
+
+        [TestMethod]
+        public void TestRemoveConstraints()
+        {
+            var sut = new BaseView();
+            var child = new BaseView();
+            sut.AddChild(child);
+            LayoutConstraint.Create(sut.Anchors.Top, child.Anchors.Top);
+
+            sut.RemoveConstraints();
+
+            Assert.AreEqual(0, sut.LayoutConstraints.Count);
+            Assert.AreEqual(0, sut.AffectingConstraints.Count);
+            Assert.AreEqual(0, child.LayoutConstraints.Count);
+            Assert.AreEqual(0, child.AffectingConstraints.Count);
+        }
+
+        [TestMethod]
+        public void TestRemoveConstraints_DoesNotAffectChildViews()
+        {
+            var sut = new BaseView();
+            var child1 = new BaseView();
+            var child2 = new BaseView();
+            sut.AddChild(child1);
+            sut.AddChild(child2);
+            LayoutConstraint.Create(child1.Anchors.Top, child2.Anchors.Top);
+
+            sut.RemoveConstraints();
+            
+            Assert.AreEqual(1, sut.LayoutConstraints.Count);
+            Assert.AreEqual(1, child1.AffectingConstraints.Count);
+            Assert.AreEqual(1, child2.AffectingConstraints.Count);
+        }
     }
 }
