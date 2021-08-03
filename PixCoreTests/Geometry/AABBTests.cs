@@ -72,5 +72,21 @@ namespace PixCoreTests.Geometry
 
             Assert.AreEqual(aabb.BottomRight, new Vector(aabb.Right, aabb.Bottom));
         }
+
+        [TestMethod]
+        public void TestInsetCoordinates()
+        {
+            var aabb = new AABB(10, 20, 30, 40);
+
+            Assert.AreEqual(aabb.Inset(1, 2, 3, 4), new AABB(11, 22, 27, 36));
+        }
+
+        [TestMethod]
+        public void TestInsetAmount()
+        {
+            var aabb = new AABB(10, 20, 30, 40);
+
+            Assert.AreEqual(aabb.Inset(3), new AABB(13, 23, 27, 37));
+        }
     }
 }

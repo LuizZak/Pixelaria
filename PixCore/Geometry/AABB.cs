@@ -470,10 +470,31 @@ namespace PixCore.Geometry
             return Corners.Transform(matrix).Area();
         }
         
+        /// <summary>
+        /// Returns the bounds of this AABB inset by the given <see cref="InsetBounds"/>.
+        /// </summary>
         [Pure]
         public AABB Inset(in InsetBounds inset)
         {
             return inset.Inset(this);
+        }
+        
+        /// <summary>
+        /// Returns the bounds of this AABB inset by the given inset bounds.
+        /// </summary>
+        [Pure]
+        public AABB Inset(float left, float top, float bottom, float right)
+        {
+            return Inset(new InsetBounds(left, top, bottom, right));
+        }
+
+        /// <summary>
+        /// Returns the bounds of this AABB inset by the given inset amount.
+        /// </summary>
+        [Pure]
+        public AABB Inset(float amount)
+        {
+            return Inset(new InsetBounds(amount));
         }
 
         [Pure]
