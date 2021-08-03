@@ -97,6 +97,30 @@ namespace PixCore.Geometry
         public float Bottom => Maximum.Y;
 
         /// <summary>
+        /// Alias <see cref="Minimum"/>
+        /// </summary>
+        public Vector TopLeft => Minimum;
+
+        /// <summary>
+        /// Top-right point of the AABB bounds.
+        ///
+        /// Equivalent to <c>(Maximum.X, Minimum.Y)</c> or <c>(Top, Right)</c>
+        /// </summary>
+        public Vector TopRight => new Vector(Maximum.X, Minimum.Y);
+
+        /// <summary>
+        /// Alias for <see cref="Maximum"/>
+        /// </summary>
+        public Vector BottomRight => Maximum;
+
+        /// <summary>
+        /// Bottom-left point of the AABB bounds.
+        ///
+        /// Equivalent to <c>(Minimum.X, Maximum.Y)</c> or <c>(Bottom, Left)</c>
+        /// </summary>
+        public Vector BottomLeft => new Vector(Minimum.X, Maximum.Y);
+
+        /// <summary>
         /// Returns an array of vectors that represent this <see cref="AABB"/>'s corners in clockwise
         /// order, starting from the top-left corner.
         /// 

@@ -40,5 +40,37 @@ namespace PixCoreTests.Geometry
             Assert.IsFalse(nonEmpty.IsEmpty);
             Assert.IsTrue(emptyNonZero.IsEmpty);
         }
+
+        [TestMethod]
+        public void TestTopLeft()
+        {
+            var aabb = new AABB(1, 2, 3, 4);
+
+            Assert.AreEqual(aabb.TopLeft, aabb.Minimum);
+        }
+
+        [TestMethod]
+        public void TestTopRight()
+        {
+            var aabb = new AABB(1, 2, 3, 4);
+
+            Assert.AreEqual(aabb.TopRight, new Vector(aabb.Right, aabb.Top));
+        }
+
+        [TestMethod]
+        public void TestBottomLeft()
+        {
+            var aabb = new AABB(1, 2, 3, 4);
+
+            Assert.AreEqual(aabb.BottomLeft, new Vector(aabb.Left, aabb.Bottom));
+        }
+
+        [TestMethod]
+        public void TestBottomRight()
+        {
+            var aabb = new AABB(1, 2, 3, 4);
+
+            Assert.AreEqual(aabb.BottomRight, new Vector(aabb.Right, aabb.Bottom));
+        }
     }
 }
