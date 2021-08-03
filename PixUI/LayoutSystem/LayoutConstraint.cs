@@ -289,7 +289,7 @@ namespace PixUI.LayoutSystem
             }
         }
 
-        private Expression<Func<double, bool>> GetSingleExpression(LayoutRelationship constraintRelatedBy, double constant)
+        private static Expression<Func<double, bool>> GetSingleExpression(LayoutRelationship constraintRelatedBy, double constant)
         {
             switch (constraintRelatedBy)
             {
@@ -354,7 +354,7 @@ namespace PixUI.LayoutSystem
             return constraint;
         }
     }
-
+    
     public enum LayoutRelationship
     {
         Equal,

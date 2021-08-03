@@ -23,6 +23,7 @@
 using System;
 using System.Diagnostics;
 using Cassowary;
+using JetBrains.Annotations;
 
 namespace PixUI.LayoutSystem
 {
@@ -103,6 +104,42 @@ namespace PixUI.LayoutSystem
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        protected bool Equals([NotNull] LayoutAnchor other)
+        {
+            return Equals(Target, other.Target) && AnchorKind == other.AnchorKind;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((LayoutAnchor)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return ((Target != null ? Target.GetHashCode() : 0) * 397) ^ (int)AnchorKind;
+            }
+        }
+
+        public static bool operator ==(LayoutAnchor left, LayoutAnchor right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(LayoutAnchor left, LayoutAnchor right)
+        {
+            return !Equals(left, right);
+        }
+
+        public override string ToString()
+        {
+            return $"[{Target}:{AnchorKind}]";
         }
     }
 

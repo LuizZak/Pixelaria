@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using PixCore.Geometry;
@@ -421,6 +422,16 @@ namespace PixUI
             Parent?.SetNeedsLayout();
         }
 
+        /// <summary>
+        /// Removes all constraints currently affecting this view.
+        ///
+        /// Does not affect constraints of child or parent views not constrained directly to this view.
+        /// </summary>
+        public void RemoveConstraints()
+        {
+            AffectingConstraints.ToList().ForEach(c => c.RemoveConstraint());
+        }
+
         #endregion
 
         /// <summary>
@@ -429,15 +440,9 @@ namespace PixUI
         public virtual void AddChild([NotNull] BaseView child)
         {
             // Check recursiveness
-            var cur = this;
-            while (cur != null)
-            {
-                if(Equals(cur, child))
-                    throw new ArgumentException(@"Cannot add BaseView as child of itself", nameof(child));
-
-                cur = cur.Parent;
-            }
-
+            if (IsDescendentOf(child))
+                throw new ArgumentException(@"Cannot add BaseView as child of itself", nameof(child));
+            
             child.Parent?.RemoveChild(child);
 
             child.Parent = this;
@@ -452,14 +457,8 @@ namespace PixUI
         public virtual void InsertChild(int index, [NotNull] BaseView child)
         {
             // Check recursiveness
-            var cur = this;
-            while (cur != null)
-            {
-                if (Equals(cur, child))
-                    throw new ArgumentException(@"Cannot add BaseView as child of itself", nameof(child));
-
-                cur = cur.Parent;
-            }
+            if (IsDescendentOf(child))
+                throw new ArgumentException(@"Cannot add BaseView as child of itself", nameof(child));
 
             child.Parent?.RemoveChild(child);
 
@@ -997,6 +996,16 @@ namespace PixUI
         public bool Equals(BaseView other)
         {
             return ReferenceEquals(this, other);
+        }
+
+        public static bool operator ==(BaseView left, BaseView right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(BaseView left, BaseView right)
+        {
+            return !Equals(left, right);
         }
 
         public override bool Equals(object obj)
