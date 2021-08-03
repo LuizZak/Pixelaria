@@ -182,21 +182,20 @@ namespace PixUI.LayoutSystem
         ///
         /// If <c>null</c>, indicates that this is an absolute constraint
         /// </summary>
-        [CanBeNull]
-        public LayoutAnchor SecondAnchor { get; }
+        public LayoutAnchor? SecondAnchor { get; }
 
         /// <summary>
         /// The relationship for this constraint
         /// </summary>
         public LayoutRelationship Relationship { get; }
 
-        internal LayoutConstraint([NotNull] LayoutAnchor firstAnchor, [CanBeNull] LayoutAnchor secondAnchor, LayoutRelationship relationship, [NotNull] ClStrength priority)
+        internal LayoutConstraint(LayoutAnchor firstAnchor, LayoutAnchor? secondAnchor, LayoutRelationship relationship, [NotNull] ClStrength priority)
         {
             if (secondAnchor != null)
             {
-                if (ReferenceEquals(firstAnchor.Target, secondAnchor.Target))
+                if (ReferenceEquals(firstAnchor.Target, secondAnchor.Value.Target))
                 {
-                    throw new ArgumentException($"Cannot create constraints that relate a view to itself: ${firstAnchor.Variable().Name} and ${secondAnchor.Variable().Name}");
+                    throw new ArgumentException($"Cannot create constraints that relate a view to itself: ${firstAnchor.Variable().Name} and ${secondAnchor.Value.Variable().Name}");
                 }
             }
 
@@ -230,6 +229,8 @@ namespace PixUI.LayoutSystem
 
             if (SecondAnchor != null)
             {
+                var secondAnchor = SecondAnchor.Value;
+
                 // Create an expression of the form:
                 //
                 // first [==|<=|>=] (second - containerLocation) * multiplier + containerLocation + offset
@@ -252,21 +253,21 @@ namespace PixUI.LayoutSystem
                 // first [==|<=|>=] second + offset
                 //
 
-                var container = SecondAnchor.Target.Parent ?? SecondAnchor.Target;
+                var container = secondAnchor.Target.Parent ?? secondAnchor.Target;
 
                 ClLinearExpression secondExpression;
 
                 if (Math.Abs(Multiplier - 1) < float.Epsilon)
                 {
-                    secondExpression = new ClLinearExpression(SecondAnchor.Variable())
+                    secondExpression = new ClLinearExpression(secondAnchor.Variable())
                         .Plus(new ClLinearExpression(Constant));
                 }
                 else
                 {
-                    secondExpression = new ClLinearExpression(SecondAnchor.Variable())
-                        .Minus(SecondAnchor.RelativeExpression(container))
+                    secondExpression = new ClLinearExpression(secondAnchor.Variable())
+                        .Minus(secondAnchor.RelativeExpression(container))
                         .Times(Multiplier)
-                        .Plus(SecondAnchor.RelativeExpression(container))
+                        .Plus(secondAnchor.RelativeExpression(container))
                         .Plus(new ClLinearExpression(Constant));
                 }
 
@@ -294,6 +295,7 @@ namespace PixUI.LayoutSystem
             switch (constraintRelatedBy)
             {
                 case LayoutRelationship.Equal:
+                    // ReSharper disable once CompareOfFloatsByEqualityOperator
                     return source => source == constant;
                 case LayoutRelationship.GreaterThanOrEqual:
                     return source => source >= constant;
@@ -317,12 +319,12 @@ namespace PixUI.LayoutSystem
             }
         }
 
-        public static LayoutConstraint Create([NotNull] LayoutAnchor firstAnchor, LayoutRelationship relationship = LayoutRelationship.Equal, ClStrength priority = null, float constant = 0, float multiplier = 1)
+        public static LayoutConstraint Create(LayoutAnchor firstAnchor, LayoutRelationship relationship = LayoutRelationship.Equal, ClStrength priority = null, float constant = 0, float multiplier = 1)
         {
             return Create(firstAnchor, null, relationship, priority, constant, multiplier);
         }
 
-        public static LayoutConstraint Create([NotNull] LayoutAnchor firstAnchor, [CanBeNull] LayoutAnchor secondAnchor, LayoutRelationship relationship = LayoutRelationship.Equal, ClStrength priority = null, float constant = 0, float multiplier = 1)
+        public static LayoutConstraint Create(LayoutAnchor firstAnchor, LayoutAnchor? secondAnchor, LayoutRelationship relationship = LayoutRelationship.Equal, ClStrength priority = null, float constant = 0, float multiplier = 1)
         {
             var constraint = new LayoutConstraint(firstAnchor, secondAnchor, relationship, priority ?? ClStrength.Strong)
             {
@@ -334,7 +336,7 @@ namespace PixUI.LayoutSystem
 
             if (secondAnchor != null)
             {
-                var ancestor = firstAnchor.Target.CommonAncestor(secondAnchor.Target);
+                var ancestor = firstAnchor.Target.CommonAncestor(secondAnchor.Value.Target);
 
                 if (ancestor == null)
                     throw new ArgumentException("Cannot create constraints between views in different hierarchies");

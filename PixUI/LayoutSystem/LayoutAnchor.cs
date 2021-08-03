@@ -23,7 +23,6 @@
 using System;
 using System.Diagnostics;
 using Cassowary;
-using JetBrains.Annotations;
 
 namespace PixUI.LayoutSystem
 {
@@ -31,7 +30,7 @@ namespace PixUI.LayoutSystem
     /// A layout anchor in a view
     /// </summary>
     [DebuggerDisplay("[{Target}:{AnchorKind}]")]
-    public class LayoutAnchor
+    public readonly struct LayoutAnchor
     {
         public BaseView Target { get; }
 
@@ -106,17 +105,14 @@ namespace PixUI.LayoutSystem
             }
         }
 
-        protected bool Equals([NotNull] LayoutAnchor other)
+        public bool Equals(LayoutAnchor other)
         {
             return Equals(Target, other.Target) && AnchorKind == other.AnchorKind;
         }
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((LayoutAnchor)obj);
+            return obj is LayoutAnchor other && Equals(other);
         }
 
         public override int GetHashCode()
@@ -129,12 +125,12 @@ namespace PixUI.LayoutSystem
 
         public static bool operator ==(LayoutAnchor left, LayoutAnchor right)
         {
-            return Equals(left, right);
+            return left.Equals(right);
         }
 
         public static bool operator !=(LayoutAnchor left, LayoutAnchor right)
         {
-            return !Equals(left, right);
+            return !left.Equals(right);
         }
 
         public override string ToString()
