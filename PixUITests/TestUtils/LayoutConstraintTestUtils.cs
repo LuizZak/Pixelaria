@@ -23,7 +23,6 @@
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixUI;
-using PixUI.Controls;
 using PixUI.LayoutSystem;
 
 namespace PixUITests.TestUtils
@@ -33,9 +32,9 @@ namespace PixUITests.TestUtils
     /// </summary>
     public class LayoutConstraintTestUtils
     {
-        private readonly ControlView _view;
+        private readonly BaseView _view;
 
-        public LayoutConstraintTestUtils(ControlView view)
+        public LayoutConstraintTestUtils(BaseView view)
         {
             _view = view;
         }
@@ -156,7 +155,7 @@ namespace PixUITests.TestUtils
     public static class LayoutConstraintTestUtilsAssert
     {
         [Pure]
-        public static LayoutConstraintTestUtils Layout(this Assert assert, ControlView view)
+        public static LayoutConstraintTestUtils Layout(this Assert assert, BaseView view)
         {
             return new LayoutConstraintTestUtils(view);
         }

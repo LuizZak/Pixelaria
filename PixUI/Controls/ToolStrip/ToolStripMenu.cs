@@ -21,6 +21,7 @@
 */
 
 using System;
+using System.Drawing;
 using JetBrains.Annotations;
 using PixUI.LayoutSystem;
 
@@ -31,6 +32,8 @@ namespace PixUI.Controls.ToolStrip
     /// </summary>
     public class ToolStripMenu : ControlView
     {
+        private readonly StatedValueStore<ToolStripMenuVisualStyleParameters> _statesStyles = new StatedValueStore<ToolStripMenuVisualStyleParameters>();
+
         /// <summary>
         /// Default size of tool strip bar depth.
         ///
@@ -40,17 +43,33 @@ namespace PixUI.Controls.ToolStrip
 
         /// <summary>
         /// Gets the orientation of this tool strip menu within its parent view.
+        ///
+        /// Defaults to <see cref="ToolStripOrientation.Horizontal"/>
         /// </summary>
-        public ToolStripOrientation Orientation { get; internal set; }
+        public ToolStripOrientation Orientation { get; internal set; } = ToolStripOrientation.Horizontal;
+
+        /// <summary>
+        /// Gets the current active style for this tool strip menu.
+        /// </summary>
+        public ToolStripMenuVisualStyleParameters Style { get; private set; }
 
         /// <summary>
         /// Creates a new instance of <see cref="ToolStripMenu"/>
         /// </summary>
-        public static ToolStripMenu Create()
+        public static ToolStripMenu Create(bool darkTheme = true)
         {
             var menu = new ToolStripMenu();
 
             menu.Initialize();
+
+            if (darkTheme)
+            {
+                menu.SetStyleForState(ToolStripMenuVisualStyleParameters.DefaultDarkStyle(), ControlViewState.Normal);
+            }
+            else
+            {
+                menu.SetStyleForState(ToolStripMenuVisualStyleParameters.DefaultLightStyle(), ControlViewState.Normal);
+            }
 
             return menu;
         }
@@ -65,6 +84,55 @@ namespace PixUI.Controls.ToolStrip
             // Layout and colors
         }
 
+        #region Visual Style Settings
+
+        /// <summary>
+        /// Sets the visual style of this tool strip menu when it's under a given view state.
+        /// </summary>
+        public void SetStyleForState(ToolStripMenuVisualStyleParameters visualStyle, ControlViewState state)
+        {
+            _statesStyles.SetValue(visualStyle, state);
+
+            if (CurrentState == state)
+            {
+                ApplyStyle(visualStyle);
+            }
+        }
+
+        /// <summary>
+        /// Removes the special style for a given control view state.
+        /// 
+        /// Note that <see cref="ControlViewState.Normal"/> styles are the default styles and cannot be removed.
+        /// </summary>
+        public void RemoveStyleForState(ControlViewState state)
+        {
+            if (state == ControlViewState.Normal)
+                return;
+
+            _statesStyles.RemoveValueForState(state);
+        }
+
+        /// <summary>
+        /// Gets the visual style for a given state.
+        /// 
+        /// If no custom visual style is specified for the state, the normal state style is returned instead.
+        /// </summary>
+        public ToolStripMenuVisualStyleParameters GetStyleForState(ControlViewState state)
+        {
+            return _statesStyles.GetValue(state);
+        }
+
+        private void ApplyStyle(ToolStripMenuVisualStyleParameters style)
+        {
+            Style = style;
+            
+            BackColor = style.BackgroundColor;
+            
+            Invalidate();
+        }
+
+        #endregion
+
         /// <summary>
         /// Anchors this tool strip to a given view, on a given side of its bounds.
         ///
@@ -72,7 +140,7 @@ namespace PixUI.Controls.ToolStrip
         /// </summary>
         /// <param name="view">A view to anchor to</param>
         /// <param name="position">The side of the view to anchor to</param>
-        public void AnchorIntoView([NotNull] ControlView view, ToolStripAnchorPosition position)
+        public void AnchorIntoView([NotNull] BaseView view, ToolStripAnchorPosition position)
         {
             RemoveConstraints();
 
@@ -122,6 +190,29 @@ namespace PixUI.Controls.ToolStrip
                 default:
                     throw new ArgumentOutOfRangeException(nameof(position), position, null);
             }
+        }
+    }
+
+    /// <summary>
+    /// Defines the visual style parameters for a <see cref="ToolStripMenu"/>
+    /// </summary>
+    public struct ToolStripMenuVisualStyleParameters
+    {
+        public Color BackgroundColor { get; set; }
+
+        public ToolStripMenuVisualStyleParameters(Color backgroundColor)
+        {
+            BackgroundColor = backgroundColor;
+        }
+
+        public static ToolStripMenuVisualStyleParameters DefaultDarkStyle()
+        {
+            return new ToolStripMenuVisualStyleParameters(Color.Black);
+        }
+
+        public static ToolStripMenuVisualStyleParameters DefaultLightStyle()
+        {
+            return new ToolStripMenuVisualStyleParameters(Color.FromKnownColor(KnownColor.Control));
         }
     }
 

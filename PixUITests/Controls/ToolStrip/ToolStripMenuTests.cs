@@ -22,6 +22,8 @@
 
 using System.Windows.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PixCore.Geometry;
+using PixUI;
 using PixUI.Controls;
 using PixUI.Controls.ToolStrip;
 using PixUITests.TestUtils;
@@ -31,12 +33,14 @@ namespace PixUITests.Controls.ToolStrip
     [TestClass]
     public class ToolStripMenuTests
     {
+        public TestContext TestContext { get; set; }
+
         [TestInitialize]
         public void TestInitialize()
         {
             ControlView.UiDispatcher = Dispatcher.CurrentDispatcher;
 
-            //BaseViewSnapshot.RecordMode = true;
+            BaseViewSnapshot.RecordMode = true;
         }
 
         #region Layout Tests
@@ -45,7 +49,7 @@ namespace PixUITests.Controls.ToolStrip
         public void TestAnchorIntoView_Top()
         {
             var sut = CreateToolStripMenu();
-            var view = new ControlView();
+            var view = new BaseView();
             
             sut.AnchorIntoView(view, ToolStripAnchorPosition.Top);
           
@@ -60,7 +64,7 @@ namespace PixUITests.Controls.ToolStrip
         public void TestAnchorIntoView_Left()
         {
             var sut = CreateToolStripMenu();
-            var view = new ControlView();
+            var view = new BaseView();
 
             sut.AnchorIntoView(view, ToolStripAnchorPosition.Left);
 
@@ -75,7 +79,7 @@ namespace PixUITests.Controls.ToolStrip
         public void TestAnchorIntoView_Right()
         {
             var sut = CreateToolStripMenu();
-            var view = new ControlView();
+            var view = new BaseView();
 
             sut.AnchorIntoView(view, ToolStripAnchorPosition.Right);
 
@@ -90,7 +94,7 @@ namespace PixUITests.Controls.ToolStrip
         public void TestAnchorIntoView_Bottom()
         {
             var sut = CreateToolStripMenu();
-            var view = new ControlView();
+            var view = new BaseView();
 
             sut.AnchorIntoView(view, ToolStripAnchorPosition.Bottom);
 
@@ -103,6 +107,20 @@ namespace PixUITests.Controls.ToolStrip
 
         #endregion
 
+        #region Rendering
+
+
+        [TestMethod]
+        public void TestEmptyRendering()
+        {
+            var sut = CreateToolStripMenu();
+            sut.Size = new Vector(100, ToolStripMenu.BarSize);
+
+            BaseViewSnapshot.Snapshot(sut, TestContext);
+        }
+
+        #endregion
+        
         private static ToolStripMenu CreateToolStripMenu()
         {
             return ToolStripMenu.Create();

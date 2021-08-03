@@ -172,13 +172,13 @@ namespace PixUI.Controls
         /// <summary>
         /// Creates a new instance of <see cref="TextField"/>
         /// </summary>
-        public static TextField Create(bool darkStyle = true)
+        public static TextField Create(bool darkTheme = true)
         {
             var textField = new TextField();
 
             textField.Initialize();
 
-            if (darkStyle)
+            if (darkTheme)
             {
                 textField.SetStyleForState(TextFieldVisualStyleParameters.DefaultDarkStyle(), ControlViewState.Normal);
             }

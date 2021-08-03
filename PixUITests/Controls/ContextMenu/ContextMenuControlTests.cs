@@ -33,6 +33,8 @@ namespace PixUITests.Controls.ContextMenu
     [TestClass]
     public class ContextMenuControlTests
     {
+        public TestContext TestContext { get; set; }
+
         [TestInitialize]
         public void TestInitialize()
         {
@@ -92,7 +94,5 @@ namespace PixUITests.Controls.ContextMenu
 
             BaseViewSnapshot.Snapshot(sut, TestContext);
         }
-
-        public TestContext TestContext { get; set; }
     }
 }
