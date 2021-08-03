@@ -112,14 +112,16 @@ namespace PixUI.Controls.ContextMenu
         {
             base.RenderBackground(context);
 
+            var area = Bounds.WithSize(LeftMarginWidth, Bounds.Height).Inset(1);
+
             var bodyFillBrush = context.Renderer.CreateLinearGradientBrush(new[]
             {
                 new PixGradientStop(BackColor.Faded(Color.White, 0.2f), 0),
                 new PixGradientStop(BackColor, 1)
-            }, Vector.Zero, new Vector(0, Bounds.Height));
+            }, area.TopLeft, area.BottomLeft);
 
             context.Renderer.SetFillBrush(bodyFillBrush);
-            context.Renderer.FillArea(Bounds.WithSize(LeftMarginWidth, Bounds.Height));
+            context.Renderer.FillArea(area);
         }
 
         public override void Layout()

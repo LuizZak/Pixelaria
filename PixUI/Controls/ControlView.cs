@@ -644,8 +644,8 @@ namespace PixUI.Controls
         /// A value store that can store different values depending on the state
         /// of the control.
         /// 
-        /// When requesting a value for a state that is not specified, the <see cref="ControlViewState.Normal"/>'s version
-        /// of the value is returned. If that state is not present, the default type for T is finally returned instead.
+        /// When requesting a value for a state that is not specified, the <see cref="ControlViewState.Normal"/> version
+        /// of the value is returned. If that state is not present, the default type for T is returned instead.
         /// </summary>
         protected class StatedValueStore<T>
         {

@@ -179,8 +179,7 @@ namespace PixelariaTests.Views.ExportPipeline.ExportPipelineFeatures
 
             Assert.IsFalse(control.DidCallOnMouseUp);
         }
-
-
+        
         [TestMethod]
         public void TestOnMouseUpIsFiredWhenMouseIsNoLongerOverControlToo()
         {
