@@ -733,7 +733,7 @@ namespace PixDirectX.Rendering.DirectX
             if (bitmap.renderTarget == _state.D2DRenderTarget)
                 return;
 
-            Debug.WriteLine("Attempted to render DirectXBitmap in a different RenderTarget w/ WrappedDirect2DRenderer. Re-creating bitmap with current RenderTarget and continuing...");
+            Debug.WriteLine($"Attempted to render DirectXBitmap in a different RenderTarget w/ {nameof(WrappedDirect2DRenderer)}. Re-creating bitmap with current RenderTarget and continuing...");
 
             bitmap.renderTarget = _state.D2DRenderTarget;
             bitmap.bitmap.Dispose();
@@ -1216,6 +1216,7 @@ namespace PixDirectX.Rendering.DirectX
             TextRenderer = textRenderer;
         }
     }
+
     internal class InnerTextRenderer : ITextRenderer
     {
         public TextColorRenderer TextColorRenderer { get; }
