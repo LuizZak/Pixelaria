@@ -29,7 +29,7 @@ namespace PixUI.LayoutSystem
     /// <summary>
     /// A rectangular area that can interact with the layout constraint system.
     /// </summary>
-    public class LayoutGuide : ISpatialReference, ILayoutVariablesContainer
+    public class LayoutGuide : ISpatialReference, ILayoutAnchorsContainer, ILayoutVariablesContainer
     {
         /// <summary>
         /// The view that this layout guide is currently contained within, or <c>null</c>, in case it is not
@@ -38,9 +38,9 @@ namespace PixUI.LayoutSystem
         [CanBeNull]
         internal BaseView ownerView;
 
-        private readonly LayoutVariables _layoutVariables;
+        internal readonly LayoutVariables layoutVariables;
 
-        LayoutVariables ILayoutVariablesContainer.LayoutVariables => _layoutVariables;
+        LayoutVariables ILayoutVariablesContainer.LayoutVariables => layoutVariables;
 
         internal Matrix2D Transform => Matrix2D.Translation(FrameOnParent.Left, FrameOnParent.Top);
 
@@ -50,11 +50,16 @@ namespace PixUI.LayoutSystem
 
         public BaseView ViewInHierarchy => ownerView;
 
+        public LayoutAnchors Anchors { get; }
+
         List<LayoutConstraint> ILayoutVariablesContainer.AffectingConstraints { get; } = new List<LayoutConstraint>();
+
+        public IReadOnlyList<LayoutConstraint> AffectingConstraints => ((ILayoutVariablesContainer)this).AffectingConstraints;
 
         public LayoutGuide()
         {
-            _layoutVariables = new LayoutVariables(this);
+            layoutVariables = new LayoutVariables(this);
+            Anchors = new LayoutAnchors(this);
         }
 
         public BaseView ViewForFirstBaseline()
@@ -66,8 +71,7 @@ namespace PixUI.LayoutSystem
         {
             ownerView?.SetNeedsLayout();
         }
-
-
+        
         /// <summary>
         /// Converts a point from a given <see cref="ISpatialReference"/>'s local coordinates to this
         /// layout guide's coordinates.

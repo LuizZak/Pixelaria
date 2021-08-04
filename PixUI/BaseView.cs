@@ -51,6 +51,7 @@ namespace PixUI
         private float _rotation;
         private Matrix2D _localTransform;
 
+        private readonly List<LayoutGuide> _layoutGuides = new List<LayoutGuide>();
         private readonly InternalLayoutEvents _layoutEvents;
 
         protected bool needsLayout = true;
@@ -157,6 +158,11 @@ namespace PixUI
         /// Gets all children of this base view
         /// </summary>
         public BaseView[] Children => children.ToArray();
+
+        /// <summary>
+        /// Gets all layout guides added to this view
+        /// </summary>
+        public IReadOnlyList<LayoutGuide> LayoutGuides => _layoutGuides.ToArray();
 
         /// <summary>
         /// Top-left location of view, in pixels
@@ -567,6 +573,40 @@ namespace PixUI
 
             return null;
         }
+
+        #region Layout Guide
+
+        /// <summary>
+        /// Adds a layout guide to this view.
+        /// </summary>
+        public void AddLayoutGuide([NotNull] LayoutGuide layoutGuide)
+        {
+            layoutGuide.ownerView?.RemoveLayoutGuide(layoutGuide);
+
+            _layoutGuides.Add(layoutGuide);
+            layoutGuide.ownerView = this;
+
+            layoutGuide.SetNeedsLayout();
+        }
+
+        /// <summary>
+        /// Removes a given layout guide from this view.
+        /// </summary>
+        public void RemoveLayoutGuide([NotNull] LayoutGuide layoutGuide)
+        {
+            if (layoutGuide.ownerView != this)
+                return;
+
+            layoutGuide.ownerView = null;
+            _layoutGuides.Remove(layoutGuide);
+
+            foreach (var constraint in ((ILayoutVariablesContainer)layoutGuide).AffectingConstraints.ToArray())
+            {
+                constraint.RemoveConstraint();
+            }
+        }
+
+        #endregion
 
         /// <summary>
         /// Performs a hit test operation on the area of this, and all child

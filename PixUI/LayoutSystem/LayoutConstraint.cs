@@ -101,8 +101,8 @@ namespace PixUI.LayoutSystem
             IsEnabled = false;
 
             Container?.ViewInHierarchy?.LayoutConstraints.Remove(this);
-            FirstAnchor.container.ViewInHierarchy.AffectingConstraints.Remove(this);
-            SecondAnchor?.container.ViewInHierarchy.AffectingConstraints.Remove(this);
+            FirstAnchor.container.ViewInHierarchy?.AffectingConstraints.Remove(this);
+            SecondAnchor?.container.ViewInHierarchy?.AffectingConstraints.Remove(this);
 
             FirstAnchor.container.SetNeedsLayout();
             SecondAnchor?.container.SetNeedsLayout();
