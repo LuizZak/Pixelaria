@@ -224,6 +224,24 @@ namespace PixUITests
         }
 
         [TestMethod]
+        public void TestRemoveChild_RemovesAffectedConstraintsOnParents()
+        {
+            var sut = new BaseView();
+            var parent = new BaseView();
+            var child = new BaseView();
+            parent.AddChild(sut);
+            sut.AddChild(child);
+            LayoutConstraint.Create(parent.Anchors.Left, child.Anchors.Left);
+
+            sut.RemoveChild(child);
+
+            Assert.AreEqual(0, parent.LayoutConstraints.Count);
+            Assert.AreEqual(0, parent.AffectingConstraints.Count);
+            Assert.AreEqual(0, child.LayoutConstraints.Count);
+            Assert.AreEqual(0, child.AffectingConstraints.Count);
+        }
+
+        [TestMethod]
         public void TestRemoveChild_DoesNotRemoveChildOnlyConstraints()
         {
             var sut = new BaseView();
