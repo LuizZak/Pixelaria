@@ -70,10 +70,9 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
         public ControlViewFeature([NotNull] IExportPipelineControl control, [NotNull] IRenderManager renderManager) : base(control)
         {
-            BaseControl = new RootControlView(this)
+            BaseControl = new RootControlView(this, this)
             {
-                Size = control.Size,
-                InvalidateRegionDelegate = this
+                Size = control.Size
             };
 
             renderManager.AddRenderListener(this);

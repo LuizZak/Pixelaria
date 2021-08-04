@@ -36,14 +36,15 @@ namespace PixUI.Controls
     {
         [CanBeNull]
         public IInvalidateRegionDelegate InvalidateRegionDelegate { get; set; }
+        [NotNull]
         private readonly IFirstResponderDelegate<IEventHandler> _firstResponderDelegate;
 
-        public RootControlView(IFirstResponderDelegate<IEventHandler> firstResponderDelegate)
+        public RootControlView([NotNull] IFirstResponderDelegate<IEventHandler> firstResponderDelegate)
         {
             _firstResponderDelegate = firstResponderDelegate;
         }
 
-        public RootControlView(IFirstResponderDelegate<IEventHandler> firstResponderDelegate, IInvalidateRegionDelegate invalidateRegionDelegate)
+        public RootControlView([NotNull] IFirstResponderDelegate<IEventHandler> firstResponderDelegate, IInvalidateRegionDelegate invalidateRegionDelegate)
         {
             _firstResponderDelegate = firstResponderDelegate;
             InvalidateRegionDelegate = invalidateRegionDelegate;

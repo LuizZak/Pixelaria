@@ -24,121 +24,9 @@ using System;
 using System.Linq.Expressions;
 using Cassowary;
 using JetBrains.Annotations;
-using PixCore.Geometry;
 
 namespace PixUI.LayoutSystem
 {
-    /// <summary>
-    /// Produces variables for constraint resolution for left/top/right/bottom and width/height for a specific view
-    /// </summary>
-    internal class ViewLayoutConstraintVariables
-    {
-        private readonly BaseView _view;
-
-        internal readonly ClVariable Left;
-        internal readonly ClVariable Top;
-        internal readonly ClVariable Width;
-        internal readonly ClVariable Height;
-        internal readonly ClVariable Right;
-        internal readonly ClVariable Bottom;
-        internal readonly ClVariable IntrinsicWidth;
-        internal readonly ClVariable IntrinsicHeight;
-
-        internal int HorizontalCompressResistance = 750;
-        internal int VerticalCompressResistance = 750;
-        internal int HorizontalHuggingPriority = 150;
-        internal int VerticalHuggingPriority = 150;
-
-        public ViewLayoutConstraintVariables([NotNull] BaseView view)
-        {
-            var name = GetUniqueName(view);
-
-            _view = view;
-            Left = new ClVariable($"{name}_left", view.X);
-            Top = new ClVariable($"{name}_top", view.Y);
-            Width = new ClVariable($"{name}_width", view.Width);
-            Height = new ClVariable($"{name}_height", view.Height);
-            Right = new ClVariable($"{name}_right", view.Bounds.Right);
-            Bottom = new ClVariable($"{name}_right", view.Bounds.Bottom);
-            IntrinsicWidth = new ClVariable($"{name}_intrinsicWidth", view.IntrinsicSize.X);
-            IntrinsicHeight = new ClVariable($"{name}_intrinsicHeight", view.IntrinsicSize.Y);
-        }
-
-        public void AddVariables([NotNull] ClSimplexSolver solver)
-        {
-            var hasIntrinsicSize = _view.IntrinsicSize != Vector.Zero;
-
-            var location = _view.ConvertTo(Vector.Zero, null);
-
-            if (_view.TranslateBoundsIntoConstraints)
-            {
-                solver.AddStay(Left, ClStrength.Medium);
-                solver.AddStay(Width, ClStrength.Medium);
-                solver.AddStay(Top, ClStrength.Medium);
-                solver.AddStay(Height, ClStrength.Medium);
-            }
-            if (hasIntrinsicSize)
-            {
-                solver.AddStay(IntrinsicWidth, ClStrength.Medium);
-                solver.AddStay(IntrinsicHeight, ClStrength.Medium);
-            }
-
-            solver.BeginEdit(Left, Width, IntrinsicWidth)
-                .SuggestValue(Left, location.X)
-                .SuggestValue(Width, _view.Width)
-                .SuggestValue(IntrinsicWidth, _view.IntrinsicSize.X)
-                .EndEdit();
-
-            solver.BeginEdit(Top, Height, IntrinsicHeight)
-                .SuggestValue(Top, location.Y)
-                .SuggestValue(Height, _view.Height)
-                .SuggestValue(IntrinsicHeight, _view.IntrinsicSize.Y)
-                .EndEdit();
-        }
-
-        public void BuildConstraints([NotNull] ClSimplexSolver solver)
-        {
-            var hasIntrinsicSize = _view.IntrinsicSize != Vector.Zero;
-
-            solver.AddConstraint(new ClLinearEquation(new ClLinearExpression(Width).Plus(Left), new ClLinearExpression(Right), ClStrength.Required));
-            solver.AddConstraint(new ClLinearEquation(new ClLinearExpression(Height).Plus(Top), new ClLinearExpression(Bottom), ClStrength.Required));
-
-            if (hasIntrinsicSize)
-            {
-                // Compression resistance
-                solver.AddConstraint(Width, IntrinsicWidth, (d, d1) => d >= d1, LayoutConstraintHelpers.StrengthFromPriority(HorizontalCompressResistance));
-                // Content hugging priority
-                solver.AddConstraint(Width, IntrinsicWidth, (d, d1) => d <= d1, LayoutConstraintHelpers.StrengthFromPriority(HorizontalHuggingPriority));
-                // Compression resistance
-                solver.AddConstraint(Height, IntrinsicHeight, (d, d1) => d >= d1, LayoutConstraintHelpers.StrengthFromPriority(VerticalCompressResistance));
-                // Content hugging priority
-                solver.AddConstraint(Height, IntrinsicHeight, (d, d1) => d <= d1, LayoutConstraintHelpers.StrengthFromPriority(VerticalHuggingPriority));
-            }
-        }
-
-        public void ApplyVariables()
-        {
-            if (_view.TranslateBoundsIntoConstraints)
-                return;
-
-            var location = new Vector((float)Left.Value, (float)Top.Value);
-            if (_view.Parent != null)
-            {
-                location = _view.Parent.ConvertFrom(location, null);
-            }
-
-            _view.X = location.X;
-            _view.Y = location.Y;
-            _view.Width = (float) Width.Value;
-            _view.Height = (float) Height.Value;
-        }
-
-        private static string GetUniqueName([NotNull] BaseView view)
-        {
-            return $"{view}_{view.GetHashCode()}";
-        }
-    }
-
     /// <summary>
     /// A layout constraint
     /// </summary>
@@ -150,7 +38,7 @@ namespace PixUI.LayoutSystem
         /// within its layout constraints list.
         /// </summary>
         [CanBeNull]
-        internal BaseView Container;
+        internal ILayoutVariablesContainer Container;
 
         /// <summary>
         /// Gets or sets the constant target value for this constraint
@@ -193,7 +81,7 @@ namespace PixUI.LayoutSystem
         {
             if (secondAnchor != null)
             {
-                if (ReferenceEquals(firstAnchor.Target, secondAnchor.Value.Target))
+                if (ReferenceEquals(firstAnchor.container, secondAnchor.Value.container))
                 {
                     throw new ArgumentException($"Cannot create constraints that relate a view to itself: ${firstAnchor.Variable().Name} and ${secondAnchor.Value.Variable().Name}");
                 }
@@ -212,12 +100,12 @@ namespace PixUI.LayoutSystem
         {
             IsEnabled = false;
 
-            Container?.LayoutConstraints.Remove(this);
-            FirstAnchor.Target.AffectingConstraints.Remove(this);
-            SecondAnchor?.Target.AffectingConstraints.Remove(this);
+            Container?.ViewInHierarchy?.LayoutConstraints.Remove(this);
+            FirstAnchor.container.ViewInHierarchy.AffectingConstraints.Remove(this);
+            SecondAnchor?.container.ViewInHierarchy.AffectingConstraints.Remove(this);
 
-            FirstAnchor.Target.SetNeedsLayout();
-            SecondAnchor?.Target.SetNeedsLayout();
+            FirstAnchor.container.SetNeedsLayout();
+            SecondAnchor?.container.SetNeedsLayout();
         }
 
         internal void BuildConstraints([NotNull] ClSimplexSolver solver)
@@ -235,7 +123,7 @@ namespace PixUI.LayoutSystem
                 //
                 // first [==|<=|>=] (second - containerLocation) * multiplier + containerLocation + offset
                 //
-                // The container is a reference to the direct parent of the second anchor's view,
+                // The container is a reference to the first common ancestor between each anchor,
                 // or the second anchor's view itself in case it has no parents, and is used to
                 // apply proper multiplication of the constraints.
                 // For width/height constraints, containerLocation is zero, for left/right
@@ -253,7 +141,7 @@ namespace PixUI.LayoutSystem
                 // first [==|<=|>=] second + offset
                 //
 
-                var container = secondAnchor.Target.Parent ?? secondAnchor.Target;
+                var container = Container ?? secondAnchor.container;
 
                 ClLinearExpression secondExpression;
 
@@ -321,37 +209,68 @@ namespace PixUI.LayoutSystem
 
         public static LayoutConstraint Create(LayoutAnchor firstAnchor, LayoutRelationship relationship = LayoutRelationship.Equal, ClStrength priority = null, float constant = 0, float multiplier = 1)
         {
-            return Create(firstAnchor, null, relationship, priority, constant, multiplier);
+            var constraint = new LayoutConstraint(firstAnchor, null, relationship, priority ?? ClStrength.Strong)
+            {
+                Constant = constant,
+                Multiplier = multiplier
+            };
+
+            firstAnchor.container.AffectingConstraints.Add(constraint);
+            firstAnchor.container.ViewInHierarchy?.LayoutConstraints.Add(constraint);
+            
+            constraint.Container = firstAnchor.container;
+
+            firstAnchor.container.SetNeedsLayout();
+
+            return constraint;
         }
 
-        public static LayoutConstraint Create(LayoutAnchor firstAnchor, LayoutAnchor? secondAnchor, LayoutRelationship relationship = LayoutRelationship.Equal, ClStrength priority = null, float constant = 0, float multiplier = 1)
+        public static LayoutConstraint Create(LayoutAnchor firstAnchor, LayoutAnchor secondAnchor, LayoutRelationship relationship = LayoutRelationship.Equal, ClStrength priority = null, float constant = 0, float multiplier = 1)
         {
+            var view1 = firstAnchor.container.ViewInHierarchy;
+            var view2 = secondAnchor.container.ViewInHierarchy;
+
+            if (view1 == null)
+            {
+                if (firstAnchor.container is LayoutGuide)
+                {
+                    throw new ArgumentException($"Attempting to create constraint referencing {nameof(LayoutGuide)} not added to a view");
+                }
+                else
+                {
+                    throw new ArgumentException($"Attempting to create constraint referencing invalid {nameof(ILayoutVariablesContainer)}");
+                }
+            }
+            if (view2 == null)
+            {
+                if (secondAnchor.container is LayoutGuide)
+                {
+                    throw new ArgumentException($"Attempting to create constraint referencing {nameof(LayoutGuide)} not added to a view");
+                }
+                else
+                {
+                    throw new ArgumentException($"Attempting to create constraint referencing invalid {nameof(ILayoutVariablesContainer)}");
+                }
+            }
+            
+            var ancestor = view1.CommonAncestor(view2);
+            
             var constraint = new LayoutConstraint(firstAnchor, secondAnchor, relationship, priority ?? ClStrength.Strong)
             {
                 Constant = constant, Multiplier = multiplier
             };
 
-            firstAnchor.Target.AffectingConstraints.Add(constraint);
-            secondAnchor?.Target.AffectingConstraints.Add(constraint);
+            firstAnchor.container.AffectingConstraints.Add(constraint);
+            secondAnchor.container.AffectingConstraints.Add(constraint);
 
-            if (secondAnchor != null)
-            {
-                var ancestor = firstAnchor.Target.CommonAncestor(secondAnchor.Value.Target);
+            if (ancestor == null)
+                throw new ArgumentException("Cannot create constraints between views in different hierarchies");
 
-                if (ancestor == null)
-                    throw new ArgumentException("Cannot create constraints between views in different hierarchies");
+            ancestor.LayoutConstraints.Add(constraint);
+            constraint.Container = ancestor;
 
-                ancestor.LayoutConstraints.Add(constraint);
-                constraint.Container = ancestor;
-            }
-            else
-            {
-                firstAnchor.Target.LayoutConstraints.Add(constraint);
-                constraint.Container = firstAnchor.Target;
-            }
-            
-            firstAnchor.Target.SetNeedsLayout();
-            secondAnchor?.Target.SetNeedsLayout();
+            firstAnchor.container.SetNeedsLayout();
+            secondAnchor.container.SetNeedsLayout();
 
             return constraint;
         }

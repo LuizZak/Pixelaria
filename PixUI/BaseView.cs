@@ -41,7 +41,7 @@ namespace PixUI
     /// 
     /// Used to render Export Pipeline UI elements.
     /// </summary>
-    public class BaseView : IEquatable<BaseView>, ISpatialReference, IRegionInvalidateable
+    public class BaseView : IEquatable<BaseView>, ISpatialReference, IRegionInvalidateable, ILayoutVariablesContainer
     {
         private Vector _size;
         private Vector _location;
@@ -55,7 +55,7 @@ namespace PixUI
 
         protected bool needsLayout = true;
 
-        internal ViewLayoutConstraintVariables LayoutVariables;
+        internal LayoutVariables LayoutVariables;
 
         /// <summary>
         /// If <c>true</c>, location and size values are translated into required
@@ -89,7 +89,7 @@ namespace PixUI
         /// view hierarchy.
         /// </summary>
         internal List<LayoutConstraint> AffectingConstraints = new List<LayoutConstraint>();
-
+        
         internal LayoutAnchors Anchors => new LayoutAnchors(this);
 
         /// <summary>
@@ -303,13 +303,21 @@ namespace PixUI
         /// </summary>
         public virtual AABB Bounds => new AABB(Vector.Zero, Size);
 
+        LayoutVariables ILayoutVariablesContainer.LayoutVariables => LayoutVariables;
+        
+        ISpatialReference ILayoutVariablesContainer.ParentSpatialReference => Parent;
+
+        BaseView ILayoutVariablesContainer.ViewInHierarchy => this;
+
+        List<LayoutConstraint> ILayoutVariablesContainer.AffectingConstraints => AffectingConstraints;
+
         /// <summary>
         /// Returns the local bounds of this view, converted to the parent's frame coordinates.
         /// 
         /// If no parent is present, <see cref="Bounds"/> is returned instead.
         /// </summary>
         public virtual AABB FrameOnParent => Parent == null ? Bounds : ConvertTo(Bounds, Parent);
-        
+
         /// <summary>
         /// Gets the layout events object which contains the events that are triggered when the layout
         /// properties of this view change.
@@ -331,7 +339,7 @@ namespace PixUI
             RecreateLocalTransformMatrix();
 
             _layoutEvents = new InternalLayoutEvents(this);
-            LayoutVariables = new ViewLayoutConstraintVariables(this);
+            LayoutVariables = new LayoutVariables(this);
         }
 
         /// <summary>
@@ -396,7 +404,7 @@ namespace PixUI
         }
 
         /// <summary>
-        /// Called by <see cref="BaseView"/> when it's size has changed to request re-layouting.
+        /// Called by <see cref="BaseView"/> when it's size has changed to request a re-layout.
         /// Can also be called by clients to force a re-layout of this control.
         /// 
         /// Avoid making any changes to <see cref="Size"/> on this method as to not trigger an infinite
@@ -407,6 +415,11 @@ namespace PixUI
         public virtual void Layout()
         {
             needsLayout = false;
+        }
+
+        BaseView ILayoutVariablesContainer.ViewForFirstBaseline()
+        {
+            return null;
         }
 
         /// <summary>
@@ -990,7 +1003,12 @@ namespace PixUI
         {
             Parent?.Invalidate(region, reference);
         }
-        
+
+        AABB ILayoutVariablesContainer.BoundsForRedrawOnScreen()
+        {
+            return BoundsForInvalidateFullBounds();
+        }
+
         #endregion
 
         public bool Equals(BaseView other)

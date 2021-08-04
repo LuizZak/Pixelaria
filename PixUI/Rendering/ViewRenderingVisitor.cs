@@ -52,16 +52,15 @@ namespace PixUI.Rendering
             return VisitViewResult.VisitChildren;
         }
 
-        public bool ShouldVisitView(ControlRenderingContext state, BaseView view)
+        public bool ShouldVisitView(ControlRenderingContext context, BaseView view)
         {
-            if (!(view is SelfRenderingBaseView selfRendering)) 
+            if (!(view is SelfRenderingBaseView selfRendering))
                 return true;
 
-            if (selfRendering.ClipToBounds && !state.ClippingRegion.IsVisibleInClippingRegion(selfRendering.Bounds, selfRendering))
+            if (selfRendering.ClipToBounds && !context.ClippingRegion.IsVisibleInClippingRegion(selfRendering.Bounds, selfRendering))
                 return false;
 
             return selfRendering.Visible;
-
         }
 
         public void OnVisitorExit([NotNull] ControlRenderingContext context, BaseView view)

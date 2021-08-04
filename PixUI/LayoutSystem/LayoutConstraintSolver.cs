@@ -35,11 +35,14 @@ namespace PixUI.LayoutSystem
     /// </summary>
     internal sealed class LayoutConstraintSolver
     {
+        /// <summary>
+        /// Updates all constraints from a given view's hierarchy.
+        /// </summary>
         public void Solve([NotNull] BaseView view)
         {
             var visitor = new BaseViewVisitor<LayoutConstraintTraversalResult>((constraintList, baseView) =>
             {
-                // No need to add layout variables for views not affected by any constraints
+                // Only add layout variables for views affected by at least one constraint
                 if (!baseView.TranslateBoundsIntoConstraints || baseView.AffectingConstraints.Count > 0)
                 {
                     constraintList.AffectedViews.Add(baseView.LayoutVariables);
@@ -64,7 +67,7 @@ namespace PixUI.LayoutSystem
             }
         }
 
-        private static void Solve([NotNull] IEnumerable<LayoutConstraint> constraints, [NotNull] IEnumerable<ViewLayoutConstraintVariables> affectedViews)
+        private static void Solve([NotNull] IEnumerable<LayoutConstraint> constraints, [NotNull] IEnumerable<LayoutVariables> affectedViews)
         {
             var solver = new ClSimplexSolver();
 
@@ -92,7 +95,7 @@ namespace PixUI.LayoutSystem
 
         private class LayoutConstraintTraversalResult
         {
-            public readonly List<ViewLayoutConstraintVariables> AffectedViews = new List<ViewLayoutConstraintVariables>();
+            public readonly List<LayoutVariables> AffectedViews = new List<LayoutVariables>();
 
             public readonly List<LayoutConstraint> Constraints = new List<LayoutConstraint>();
         }
