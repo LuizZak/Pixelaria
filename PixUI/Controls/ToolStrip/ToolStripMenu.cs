@@ -21,8 +21,10 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using JetBrains.Annotations;
+using PixCore.Geometry;
 using PixUI.LayoutSystem;
 
 namespace PixUI.Controls.ToolStrip
@@ -32,14 +34,18 @@ namespace PixUI.Controls.ToolStrip
     /// </summary>
     public class ToolStripMenu : ControlView
     {
-        private readonly StatedValueStore<ToolStripMenuVisualStyleParameters> _statesStyles = new StatedValueStore<ToolStripMenuVisualStyleParameters>();
-
         /// <summary>
         /// Default size of tool strip bar depth.
         ///
         /// Can either be used as a width or a height, depending on the bar's orientation while anchored in a view.
         /// </summary>
         public const float BarSize = 25;
+
+        private readonly StatedValueStore<ToolStripMenuVisualStyleParameters> _statesStyles = new StatedValueStore<ToolStripMenuVisualStyleParameters>();
+        private readonly List<ToolStripButton> _menuItems = new List<ToolStripButton>();
+        private readonly ToolStripMenuViewManager _manager = new ToolStripMenuViewManager();
+
+        internal float barSize = BarSize;
 
         /// <summary>
         /// Gets the orientation of this tool strip menu within its parent view.
@@ -129,6 +135,56 @@ namespace PixUI.Controls.ToolStrip
             BackColor = style.BackgroundColor;
             
             Invalidate();
+        }
+
+        #endregion
+
+        #region Item Management
+        
+        /// <summary>
+        /// Called to invalidate the layout and display of a given tool strip menu item
+        /// </summary>
+        internal virtual void InvalidateItem([NotNull] ToolStripButton item)
+        {
+            
+        }
+
+        /// <summary>
+        /// Adds a new menu item to this tool strip, placing the item at the very end of the item list
+        /// </summary>
+        public void AddItem([NotNull] ToolStripButton item)
+        {
+            _menuItems.Add(item);
+
+            InvalidateItem(item);
+        }
+
+        /// <summary>
+        /// Removes a given tool strip menu item from this menu
+        /// </summary>
+        public void RemoveItem([NotNull] ToolStripButton item)
+        {
+            if (!_menuItems.Contains(item))
+                return;
+
+            InvalidateItem(item);
+
+            _menuItems.Remove(item);
+        }
+
+        /// <summary>
+        /// Returns the display bounds for a given tool strip menu item.
+        ///
+        /// Returns <see cref="AABB.Invalid"/> for items not contained within this menu or hidden.
+        /// </summary>
+        internal AABB BoundsForItem([NotNull] ToolStripButton item)
+        {
+            if(!_menuItems.Contains(item))
+                return AABB.Invalid;
+
+
+
+            return AABB.Invalid;
         }
 
         #endregion

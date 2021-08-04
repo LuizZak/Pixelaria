@@ -40,7 +40,7 @@ namespace PixUITests.Controls.ToolStrip
         {
             ControlView.UiDispatcher = Dispatcher.CurrentDispatcher;
 
-            BaseViewSnapshot.RecordMode = true;
+            // BaseViewSnapshot.RecordMode = true;
         }
 
         #region Layout Tests
@@ -48,7 +48,7 @@ namespace PixUITests.Controls.ToolStrip
         [TestMethod]
         public void TestAnchorIntoView_Top()
         {
-            var sut = CreateToolStripMenu();
+            var sut = CreateSut();
             var view = new BaseView();
             
             sut.AnchorIntoView(view, ToolStripAnchorPosition.Top);
@@ -63,7 +63,7 @@ namespace PixUITests.Controls.ToolStrip
         [TestMethod]
         public void TestAnchorIntoView_Left()
         {
-            var sut = CreateToolStripMenu();
+            var sut = CreateSut();
             var view = new BaseView();
 
             sut.AnchorIntoView(view, ToolStripAnchorPosition.Left);
@@ -78,7 +78,7 @@ namespace PixUITests.Controls.ToolStrip
         [TestMethod]
         public void TestAnchorIntoView_Right()
         {
-            var sut = CreateToolStripMenu();
+            var sut = CreateSut();
             var view = new BaseView();
 
             sut.AnchorIntoView(view, ToolStripAnchorPosition.Right);
@@ -93,7 +93,7 @@ namespace PixUITests.Controls.ToolStrip
         [TestMethod]
         public void TestAnchorIntoView_Bottom()
         {
-            var sut = CreateToolStripMenu();
+            var sut = CreateSut();
             var view = new BaseView();
 
             sut.AnchorIntoView(view, ToolStripAnchorPosition.Bottom);
@@ -108,12 +108,11 @@ namespace PixUITests.Controls.ToolStrip
         #endregion
 
         #region Rendering
-
-
+        
         [TestMethod]
         public void TestEmptyRendering()
         {
-            var sut = CreateToolStripMenu();
+            var sut = CreateSut();
             sut.Size = new Vector(100, ToolStripMenu.BarSize);
 
             BaseViewSnapshot.Snapshot(sut, TestContext);
@@ -121,7 +120,7 @@ namespace PixUITests.Controls.ToolStrip
 
         #endregion
         
-        private static ToolStripMenu CreateToolStripMenu()
+        private static ToolStripMenu CreateSut()
         {
             return ToolStripMenu.Create();
         }
