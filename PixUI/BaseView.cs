@@ -491,13 +491,27 @@ namespace PixUI
             
             child.InvalidateFullBounds();
 
+            // Remove all constraints that involve the child view, or one of its subviews.
+            // We check parent views only because the way LayoutConstraints are
+            // stored, each constraint is guaranteed to only affect the view itself
+            // or one of its subviews, thus we check the parent hierarchy for
+            // constraints involving this view tree, but not the children hierarchy.
+            VisitParentViews(view =>
+            {
+                for (var i = 0; i < view.LayoutConstraints.Count; i++)
+                {
+                    var constraint = view.LayoutConstraints[i];
+
+                    if (constraint.FirstAnchor.container?.ViewInHierarchy?.IsDescendentOf(child) == true || constraint.SecondAnchor?.container?.ViewInHierarchy?.IsDescendentOf(child) == true)
+                    {
+                        constraint.RemoveConstraint();
+                        i -= 1;
+                    }
+                }
+            });
+
             child.Parent = null;
             children.Remove(child);
-
-            foreach (var constraint in child.AffectingConstraints)
-            {
-                constraint.RemoveConstraint();
-            }
         }
 
         /// <summary>
@@ -777,7 +791,7 @@ namespace PixUI
         }
 
         /// <summary>
-        /// Converts a point from a given <see cref="BaseView"/>'s local coordinates to this
+        /// Converts a point from a given <see cref="ISpatialReference"/>'s local coordinates to this
         /// base view's coordinates.
         /// 
         /// If <see cref="from"/> is null, converts from screen coordinates.
@@ -794,7 +808,7 @@ namespace PixUI
         }
 
         /// <summary>
-        /// Converts a point from this <see cref="BaseView"/>'s local coordinates to a given
+        /// Converts a point from this <see cref="ISpatialReference"/>'s local coordinates to a given
         /// base view's coordinates.
         /// 
         /// If <see cref="to"/> is null, converts from this node to screen coordinates.
@@ -808,7 +822,7 @@ namespace PixUI
         }
 
         /// <summary>
-        /// Converts an AABB from a given <see cref="BaseView"/>'s local coordinates to this
+        /// Converts an AABB from a given <see cref="ISpatialReference"/>'s local coordinates to this
         /// base view's coordinates.
         /// 
         /// If <see cref="from"/> is null, converts from screen coordinates.
@@ -825,7 +839,7 @@ namespace PixUI
         }
 
         /// <summary>
-        /// Converts an AABB from this <see cref="BaseView"/>'s local coordinates to a given
+        /// Converts an AABB from this <see cref="ISpatialReference"/>'s local coordinates to a given
         /// base view's coordinates.
         /// 
         /// If <see cref="to"/> is null, converts from this node to screen coordinates.
@@ -1011,6 +1025,27 @@ namespace PixUI
 
         #endregion
 
+        #region Traversal
+        
+        /// <summary>
+        /// Visits all parent views, including this <see cref="BaseView"/> itself, calling <see cref="visitor"/>
+        /// with each step, until the root of this view's hierarchy is reached.
+        /// </summary>
+        private void VisitParentViews([NotNull] Action<BaseView> visitor)
+        {
+            var next = this;
+
+            while (next != null)
+            {
+                visitor(next);
+                next = next.Parent;
+            }
+        }
+
+        #endregion
+
+        #region Equality
+
         public bool Equals(BaseView other)
         {
             return ReferenceEquals(this, other);
@@ -1030,6 +1065,8 @@ namespace PixUI
         {
             return ReferenceEquals(this, obj);
         }
+
+        #endregion
 
         public override int GetHashCode()
         {

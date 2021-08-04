@@ -208,6 +208,40 @@ namespace PixUITests
         }
 
         [TestMethod]
+        public void TestRemoveChild_RemovesAffectedConstraints()
+        {
+            var sut = new BaseView();
+            var child = new BaseView();
+            sut.AddChild(child);
+            LayoutConstraint.Create(sut.Anchors.Left, child.Anchors.Left);
+
+            sut.RemoveChild(child);
+
+            Assert.AreEqual(0, sut.LayoutConstraints.Count);
+            Assert.AreEqual(0, sut.AffectingConstraints.Count);
+            Assert.AreEqual(0, child.LayoutConstraints.Count);
+            Assert.AreEqual(0, child.AffectingConstraints.Count);
+        }
+
+        [TestMethod]
+        public void TestRemoveChild_DoesNotRemoveChildOnlyConstraints()
+        {
+            var sut = new BaseView();
+            var child = new BaseView();
+            var subChild = new BaseView();
+            child.AddChild(subChild);
+            sut.AddChild(child);
+            LayoutConstraint.Create(subChild.Anchors.Left, child.Anchors.Left);
+
+            sut.RemoveChild(child);
+            
+            Assert.AreEqual(1, child.LayoutConstraints.Count);
+            Assert.AreEqual(1, child.AffectingConstraints.Count);
+            Assert.AreEqual(0, subChild.LayoutConstraints.Count);
+            Assert.AreEqual(1, subChild.AffectingConstraints.Count);
+        }
+
+        [TestMethod]
         public void TestInvalidate()
         {
             var root = new TestInvalidateBaseView { Location = new Vector(5, 5) };
