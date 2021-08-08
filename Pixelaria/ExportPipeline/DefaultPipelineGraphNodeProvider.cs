@@ -32,6 +32,7 @@ using Pixelaria.Filters;
 using Pixelaria.Properties;
 using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline;
+using PixLib.Filters;
 using PixPipelineGraph;
 
 namespace Pixelaria.ExportPipeline

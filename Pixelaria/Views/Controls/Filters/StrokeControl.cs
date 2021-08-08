@@ -23,8 +23,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-
-using Pixelaria.Filters;
+using PixLib.Filters;
 
 namespace Pixelaria.Views.Controls.Filters
 {

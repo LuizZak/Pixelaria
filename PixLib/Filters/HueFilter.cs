@@ -20,31 +20,31 @@
     base directory of this project.
 */
 
-using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Reflection;
 using FastBitmapLib;
 using JetBrains.Annotations;
+using PixCore.Colors;
 
-namespace Pixelaria.Filters
+namespace PixLib.Filters
 {
     /// <summary>
-    /// Implements a Transparency filter
+    /// Implements a Hue alteration filter
     /// </summary>
-    internal class TransparencyFilter : IFilter
+    public class HueFilter : IFilter
     {
         /// <summary>
         /// Gets a value indicating whether this IFilter instance will modify any of the pixels
         /// of the bitmap it is applied on with the current settings
         /// </summary>
-        public bool Modifying => Transparency < 1;
+        public bool Modifying => !(Hue == 0 && Relative);
 
         /// <summary>
         /// Gets the unique display name of this filter
         /// </summary>
-        public string Name => "Transparency";
+        public string Name => "Hue";
 
         /// <summary>
         /// Gets the version of the filter to be used during persistence operations
@@ -52,22 +52,19 @@ namespace Pixelaria.Filters
         public int Version => 1;
 
         /// <summary>
-        /// Gets or sets the Transparency component as a floating point value ranging from [0 - 1]
+        /// HUE value ranging from 0 - 360
         /// </summary>
-        public float Transparency { get; set; }
+        public int Hue { get; set; }
 
         /// <summary>
-        /// Initializes a new instance of the TransparencyFilter class
+        /// Gets or sets whether the changes made by this HSL filter are relative to current values
         /// </summary>
-        public TransparencyFilter()
-        {
-            Transparency = 1;
-        }
+        public bool Relative { get; set; }
 
         /// <summary>
-        /// Applies this TransparencyFilter to a Bitmap
+        /// Applies this HueFilter to a Bitmap
         /// </summary>
-        /// <param name="bitmap">The bitmap to apply this TransparencyFilter to</param>
+        /// <param name="bitmap">The bitmap to apply this HueFilter to</param>
         public unsafe void ApplyToBitmap(Bitmap bitmap)
         {
             // 
@@ -78,53 +75,36 @@ namespace Pixelaria.Filters
             if (!Modifying || bitmap.PixelFormat != PixelFormat.Format32bppArgb)
                 return;
 
-            if (Transparency <= 0)
-                Transparency = 0;
-
+            // Lock the bitmap
             using (var fastBitmap = bitmap.FastLock())
             {
-                // ReSharper disable once InconsistentNaming
-                byte* scan0b = (byte*)fastBitmap.Scan0;
-
-                const int loopUnroll = 8;
+                int* scan0 = (int*) fastBitmap.Scan0;
                 int count = bitmap.Width * bitmap.Height;
-                int rem = count % loopUnroll;
-                count /= loopUnroll;
 
-                // Pre-align to the alpha offset
-                scan0b += 3;
+                float hueF = Hue / 360.0f;
 
-                // Unrolled loop for faster operations
                 while (count-- > 0)
                 {
-                    *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
-                    *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
-                    *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
-                    *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
+                    var ahsl = AhslColor.FromArgb(*scan0);
 
-                    *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
-                    *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
-                    *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
-                    *scan0b = (byte)(*scan0b * Transparency); scan0b += 4;
-                }
-                while (rem-- > 0)
-                {
-                    *scan0b = (byte)(*scan0b * Transparency);
-                    scan0b += 4;
+                    var newHue = Relative ? (ahsl.FloatHue + hueF) % 1.0f : hueF;
+
+                    * scan0++ = new AhslColor(ahsl.FloatAlpha, newHue, ahsl.FloatSaturation, ahsl.FloatLightness).ToArgb();
                 }
             }
         }
 
         /// <summary>
-        /// Array of property infosfrom this <see cref="IFilter"/> that can be inspected and set using reflection.
+        /// Array of property infos from this <see cref="IFilter"/> that can be inspected and set using reflection.
         /// 
-        /// Used by export pipeline UI to streamling process of creating pipeline nodes based off of filters.
+        /// Used by export pipeline UI to streamlining process of creating pipeline nodes based off of filters.
         /// </summary>
         public PropertyInfo[] InspectableProperties()
         {
-            return new []
+            return new[]
             {
-                GetType().GetProperty(nameof(Transparency))
+                GetType().GetProperty(nameof(Hue)),
+                GetType().GetProperty(nameof(Relative))
             };
         }
 
@@ -136,7 +116,8 @@ namespace Pixelaria.Filters
         {
             var writer = new BinaryWriter(stream);
 
-            writer.Write(Transparency);
+            writer.Write(Hue);
+            writer.Write(Relative);
         }
 
         /// <summary>
@@ -148,12 +129,13 @@ namespace Pixelaria.Filters
         {
             var reader = new BinaryReader(stream);
 
-            Transparency = reader.ReadSingle();
+            Hue = reader.ReadInt32();
+            Relative = reader.ReadBoolean();
         }
 
         public bool Equals(IFilter filter)
         {
-            return filter is TransparencyFilter other && Math.Abs(Transparency - other.Transparency) < float.Epsilon && Version == other.Version;
+            return filter is HueFilter other && Hue == other.Hue && Relative == other.Relative && Version == other.Version;
         }
     }
 }

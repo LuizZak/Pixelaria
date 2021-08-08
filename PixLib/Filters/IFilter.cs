@@ -24,7 +24,7 @@ using System.Drawing;
 using System.IO;
 using System.Reflection;
 
-namespace Pixelaria.Filters
+namespace PixLib.Filters
 {
     /// <summary>
     /// Interface to be implemented by filters.

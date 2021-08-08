@@ -23,7 +23,7 @@
 using System;
 using System.Drawing;
 using PixCore.Controls.ColorControls;
-using Pixelaria.Filters;
+using PixLib.Filters;
 
 namespace Pixelaria.Views.Controls.Filters
 {

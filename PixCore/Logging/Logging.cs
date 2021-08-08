@@ -25,7 +25,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
 
-namespace Pixelaria.Utils
+namespace PixCore.Logging
 {
     /// <summary>
     /// A basic static class to support runtime logging

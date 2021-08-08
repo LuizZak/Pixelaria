@@ -29,6 +29,7 @@ using System.Linq;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using Pixelaria.Views.Controls.Filters;
+using PixLib.Filters;
 
 namespace Pixelaria.Filters
 {

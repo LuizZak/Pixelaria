@@ -26,6 +26,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
+using PixCore.Logging;
 using Pixelaria.Data.Persistence.PixelariaFileBlocks;
 using Pixelaria.Utils;
 

@@ -25,9 +25,9 @@ using System.Drawing.Imaging;
 using FastBitmapLib;
 using PixCore.Imaging;
 using Pixelaria.Controllers.LayerControlling;
-using Pixelaria.Filters;
 using Pixelaria.Views.Controls;
 using Pixelaria.Views.Controls.LayerControls;
+using PixLib.Filters;
 
 namespace Pixelaria.Views.ModelViews.Decorators
 {

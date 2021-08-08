@@ -27,23 +27,23 @@ using System.IO;
 using System.Reflection;
 using JetBrains.Annotations;
 
-namespace Pixelaria.Filters
+namespace PixLib.Filters
 {
     /// <summary>
-    /// Implements a Scaling filter
+    /// Implements a Rotation filter
     /// </summary>
-    internal class ScaleFilter : IFilter
+    public class RotationFilter : IFilter
     {
         /// <summary>
         /// Gets a value indicating whether this IFilter instance will modify any of the pixels
         /// of the bitmap it is applied on with the current settings
         /// </summary>
-        public bool Modifying => Math.Abs(ScaleX - 1) > float.Epsilon || Math.Abs(ScaleY - 1) > float.Epsilon;
+        public bool Modifying => Math.Abs(Rotation % 360) > float.Epsilon;
 
         /// <summary>
         /// Gets the unique display name of this filter
         /// </summary>
-        public string Name => "Scale";
+        public string Name => "Rotation";
 
         /// <summary>
         /// Gets the version of the filter to be used during persistence operations
@@ -51,19 +51,14 @@ namespace Pixelaria.Filters
         public int Version => 1;
 
         /// <summary>
-        /// Gets or sets the X scale component as a floating point value
+        /// Gets or sets the Rotation component as a floating point value ranging from [0 - 360]
         /// </summary>
-        public float ScaleX { get; set; }
+        public float Rotation { get; set; }
 
         /// <summary>
-        /// Gets or sets the Y scale component as a floating point value
+        /// Gets or sets whether to rotate around the center of the image
         /// </summary>
-        public float ScaleY { get; set; }
-
-        /// <summary>
-        /// Gets or sets whether to center the scaled image
-        /// </summary>
-        public bool Centered { get; set; }
+        public bool RotateAroundCenter { get; set; }
 
         /// <summary>
         /// Gets or sets whether to use nearest-neighbor quality
@@ -71,63 +66,55 @@ namespace Pixelaria.Filters
         public bool PixelQuality { get; set; }
 
         /// <summary>
-        /// Initializes a new instance of the ScaleFilter class
+        /// Applies this RotationFilter to a Bitmap
         /// </summary>
-        public ScaleFilter()
-        {
-            ScaleX = 1;
-            ScaleY = 1;
-        }
-
-        /// <summary>
-        /// Applies this ScaleFilter to a Bitmap
-        /// </summary>
-        /// <param name="bitmap">The bitmap to apply this TransparencyFilter to</param>
+        /// <param name="bitmap">The bitmap to apply this RotationFilter to</param>
         public void ApplyToBitmap(Bitmap bitmap)
         {
             if (!Modifying)
                 return;
 
             using (var bit = (Bitmap) bitmap.Clone())
-            using (var g = Graphics.FromImage(bitmap))
+            using (var gfx = Graphics.FromImage(bitmap))
             {
-                g.Clear(Color.Transparent);
+                gfx.Clear(Color.Transparent);
 
-                g.InterpolationMode = PixelQuality
+                if (RotateAroundCenter)
+                {
+                    gfx.TranslateTransform(bitmap.Width / 2.0f, bitmap.Height / 2.0f);
+                }
+
+                gfx.InterpolationMode = PixelQuality
                     ? InterpolationMode.NearestNeighbor
                     : InterpolationMode.HighQualityBicubic;
 
-                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                gfx.PixelOffsetMode = PixelOffsetMode.HighQuality;
 
-                var rec = new RectangleF(0, 0, bitmap.Width, bitmap.Height);
+                gfx.RotateTransform(Rotation);
 
-                rec.Width *= ScaleX;
-                rec.Height *= ScaleY;
-
-                if (Centered)
+                if (RotateAroundCenter)
                 {
-                    rec.X = (float) Math.Round(bitmap.Width / 2.0f - rec.Width / 2.0f);
-                    rec.Y = (float) Math.Round(bitmap.Height / 2.0f - rec.Height / 2.0f);
+                    gfx.TranslateTransform(-bitmap.Width / 2.0f, -bitmap.Height / 2.0f);
                 }
 
-                g.DrawImage(bit, rec, new RectangleF(0, 0, bitmap.Width, bitmap.Height), GraphicsUnit.Pixel);
+                var pivot = new Point();
+                gfx.DrawImage(bit, pivot);
 
-                g.Flush();
+                gfx.Flush();
             }
         }
 
         /// <summary>
-        /// Array of property infosfrom this <see cref="IFilter"/> that can be inspected and set using reflection.
+        /// Array of property infos from this <see cref="IFilter"/> that can be inspected and set using reflection.
         /// 
-        /// Used by export pipeline UI to streamling process of creating pipeline nodes based off of filters.
+        /// Used by export pipeline UI to streamlining process of creating pipeline nodes based off of filters.
         /// </summary>
         public PropertyInfo[] InspectableProperties()
         {
             return new[]
             {
-                GetType().GetProperty(nameof(ScaleX)),
-                GetType().GetProperty(nameof(ScaleY)),
-                GetType().GetProperty(nameof(Centered)),
+                GetType().GetProperty(nameof(Rotation)),
+                GetType().GetProperty(nameof(RotateAroundCenter)),
                 GetType().GetProperty(nameof(PixelQuality))
             };
         }
@@ -140,10 +127,8 @@ namespace Pixelaria.Filters
         {
             var writer = new BinaryWriter(stream);
 
-            writer.Write(ScaleX);
-            writer.Write(ScaleY);
-
-            writer.Write(Centered);
+            writer.Write(Rotation);
+            writer.Write(RotateAroundCenter);
             writer.Write(PixelQuality);
         }
 
@@ -156,18 +141,16 @@ namespace Pixelaria.Filters
         {
             var reader = new BinaryReader(stream);
 
-            ScaleX = reader.ReadSingle();
-            ScaleY = reader.ReadSingle();
-
-            Centered = reader.ReadBoolean();
+            Rotation = reader.ReadSingle();
+            RotateAroundCenter = reader.ReadBoolean();
             PixelQuality = reader.ReadBoolean();
         }
 
         public bool Equals(IFilter filter)
         {
-            return filter is ScaleFilter other && Math.Abs(ScaleX - other.ScaleX) < float.Epsilon &&
-                   Math.Abs(ScaleY - other.ScaleY) < float.Epsilon && Centered == other.Centered &&
-                   PixelQuality == other.PixelQuality && Version == other.Version;
+            return filter is RotationFilter other && Math.Abs(Rotation - other.Rotation) < float.Epsilon &&
+                   RotateAroundCenter == other.RotateAroundCenter && PixelQuality == other.PixelQuality &&
+                   Version == other.Version;
         }
     }
 }

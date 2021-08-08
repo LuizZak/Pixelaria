@@ -44,6 +44,7 @@ using Pixelaria.Utils;
 
 using Pixelaria.Views.Controls;
 using Pixelaria.Views.MiscViews;
+using PixLib.Filters;
 
 namespace Pixelaria.Views.ModelViews
 {

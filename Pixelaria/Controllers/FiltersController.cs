@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Pixelaria.Filters;
+using PixLib.Filters;
 
 namespace Pixelaria.Controllers
 {

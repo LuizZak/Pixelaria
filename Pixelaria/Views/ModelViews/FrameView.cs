@@ -46,6 +46,7 @@ using Pixelaria.Views.ModelViews.Decorators;
 
 using Pixelaria.Utils;
 using Pixelaria.Views.Controls.PaintTools.Abstracts;
+using PixLib.Filters;
 
 namespace Pixelaria.Views.ModelViews
 {

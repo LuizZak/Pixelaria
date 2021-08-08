@@ -22,8 +22,7 @@
 
 using System;
 using System.Drawing;
-
-using Pixelaria.Filters;
+using PixLib.Filters;
 
 namespace Pixelaria.Views.Controls.Filters
 {

@@ -29,6 +29,7 @@ using FastBitmapLib;
 using JetBrains.Annotations;
 using Pixelaria.Filters;
 using Pixelaria.Views.Controls.Filters;
+using PixLib.Filters;
 
 namespace Pixelaria.Views.Controls
 {
@@ -83,7 +84,7 @@ namespace Pixelaria.Views.Controls
         private ContainerDragForm _dragForm;
 
         /// <summary>
-        /// Panel used to temporarely replace the current FilterContainer being dragged
+        /// Panel used to temporarily replace the current FilterContainer being dragged
         /// </summary>
         private Panel _containerReplacePanel;
 

@@ -21,7 +21,7 @@
 */
 
 using Pixelaria.Data;
-using Pixelaria.Filters;
+using PixLib.Filters;
 
 namespace Pixelaria.Algorithms.FrameOperations
 {

@@ -26,12 +26,12 @@ using System.IO;
 using System.Reflection;
 using JetBrains.Annotations;
 
-namespace Pixelaria.Filters
+namespace PixLib.Filters
 {
     /// <summary>
-    /// Implements an Offseting filter
+    /// Implements an Offsetting filter
     /// </summary>
-    internal class OffsetFilter : IFilter
+    public class OffsetFilter : IFilter
     {
         /// <summary>
         /// Gets a value indicating whether this IFilter instance will modify any of the pixels
@@ -155,9 +155,9 @@ namespace Pixelaria.Filters
         }
 
         /// <summary>
-        /// Array of property infosfrom this <see cref="IFilter"/> that can be inspected and set using reflection.
+        /// Array of property infos from this <see cref="IFilter"/> that can be inspected and set using reflection.
         /// 
-        /// Used by export pipeline UI to streamling process of creating pipeline nodes based off of filters.
+        /// Used by export pipeline UI to streamlining process of creating pipeline nodes based off of filters.
         /// </summary>
         public PropertyInfo[] InspectableProperties()
         {

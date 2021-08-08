@@ -496,7 +496,7 @@ namespace Pixelaria.Controllers.DataControllers
         {
             if (!frame.Initialized)
             {
-                throw new ArgumentException("The frame provided has not been intialized");
+                throw new ArgumentException("The frame provided has not been initialized");
             }
 
             if (_animation.Frames.ContainsReference(frame))

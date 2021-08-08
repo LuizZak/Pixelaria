@@ -22,6 +22,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.Filters;
+using PixLib.Filters;
 
 namespace PixelariaTests.Filters
 {
