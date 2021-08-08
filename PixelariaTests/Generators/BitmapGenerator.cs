@@ -20,12 +20,14 @@
     base directory of this project.
 */
 
+// TODO: Reduce copying this file around in PixelariaTests and PixLibTests
+
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using FastBitmapLib;
 using JetBrains.Annotations;
-using Pixelaria.Controllers.DataControllers;
+using PixLib.Controllers.DataControllers;
 
 namespace PixelariaTests.Generators
 {

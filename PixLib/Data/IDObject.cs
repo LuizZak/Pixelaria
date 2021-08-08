@@ -23,7 +23,7 @@
 namespace PixLib.Data
 {
     /// <summary>
-    /// Interface to be implemented by all objects that need an unique identifier throught their lifetime
+    /// Interface to be implemented by all objects that need an unique identifier through their lifetime
     /// </summary>
     public interface IDObject
     {

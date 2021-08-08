@@ -33,8 +33,7 @@ using System.Threading;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using PixCore.Imaging;
-using Pixelaria.Data;
-using Pixelaria.Data.Exports;
+using PixLib.Data;
 
 using Pixelaria.Controllers;
 using Pixelaria.Localization;
@@ -42,6 +41,7 @@ using Pixelaria.Properties;
 using Pixelaria.Utils;
 using Pixelaria.Views.Controls;
 using Pixelaria.Views.Controls.PaintTools;
+using PixLib.Data.Exports;
 
 namespace Pixelaria.Views.ModelViews
 {

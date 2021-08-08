@@ -27,7 +27,7 @@ namespace PixLib.Algorithms.FrameOperations
     /// <summary>
     /// Represents an operation that applies on top of Frame objects.
     /// </summary>
-    internal interface IFrameOperation
+    public interface IFrameOperation
     {
         /// <summary>
         /// Returns whether this operation can be applied to a specific frame

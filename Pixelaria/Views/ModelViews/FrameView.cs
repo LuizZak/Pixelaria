@@ -25,20 +25,22 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using FastBitmapLib;
 using JetBrains.Annotations;
+using PixCore.Controls.ColorControls;
+using PixCore.Undo;
+using PixLib.Controllers.DataControllers;
+using PixLib.Data;
+using PixLib.Data.Clipboard;
+using PixLib.Filters;
 using Pixelaria.Algorithms.PaintOperations.Abstracts;
 using Pixelaria.Controllers;
-using Pixelaria.Controllers.DataControllers;
 using Pixelaria.Controllers.LayerControlling;
-using Pixelaria.Data;
-using Pixelaria.Data.Clipboard;
 using Pixelaria.Filters;
 
 using Pixelaria.Views.Controls;
-using PixCore.Controls.ColorControls;
-using PixCore.Undo;
 using Pixelaria.Views.Controls.PaintTools;
 using Pixelaria.Views.Controls.PaintTools.Interfaces;
 using Pixelaria.Views.MiscViews;
@@ -46,7 +48,6 @@ using Pixelaria.Views.ModelViews.Decorators;
 
 using Pixelaria.Utils;
 using Pixelaria.Views.Controls.PaintTools.Abstracts;
-using PixLib.Filters;
 
 namespace Pixelaria.Views.ModelViews
 {
@@ -2020,7 +2021,7 @@ namespace Pixelaria.Views.ModelViews
         private void OnColorPicked(object sender, [NotNull] PaintToolColorPickedEventArgs args)
         {
             // Pick the color from the composed bitmap
-            using(var composed = FrameRenderer.ComposeFrame(_viewFrameController, lcp_layers.LayerStatuses, !ModifierKeys.HasFlag(Keys.Control)))
+            using(var composed = FrameRenderer.ComposeFrame(_viewFrameController, lcp_layers.LayerStatuses.Cast<ILayerStatus>().ToList(), !ModifierKeys.HasFlag(Keys.Control)))
             {
                 Color colorAt = composed.GetPixel(args.ImagePoint.X, args.ImagePoint.Y);
 

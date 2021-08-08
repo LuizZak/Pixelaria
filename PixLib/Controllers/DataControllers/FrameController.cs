@@ -137,7 +137,7 @@ namespace PixLib.Controllers.DataControllers
         /// <summary>
         /// Returns the result of <see cref="IFrameOperation.CanApply"/> on this frame.
         /// </summary>
-        internal bool CanApplyOperation([NotNull] IFrameOperation operation)
+        public bool CanApplyOperation([NotNull] IFrameOperation operation)
         {
             return operation.CanApply(_frame);
         }
@@ -147,7 +147,7 @@ namespace PixLib.Controllers.DataControllers
         /// 
         /// Returns false, if <see cref="IFrameOperation.CanApply"/> returns false for this frame.
         /// </summary>
-        internal bool ApplyOperation([NotNull] IFrameOperation operation)
+        public bool ApplyOperation([NotNull] IFrameOperation operation)
         {
             if (!operation.CanApply(_frame))
                 return false;

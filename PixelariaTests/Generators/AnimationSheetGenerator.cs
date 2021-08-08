@@ -20,8 +20,10 @@
     base directory of this project.
 */
 
+// TODO: Reduce copying this file around in PixelariaTests and PixLibTests
+
 using System.Collections.Generic;
-using Pixelaria.Data;
+using PixLib.Data;
 
 namespace PixelariaTests.Generators
 {

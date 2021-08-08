@@ -30,7 +30,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixSnapshotTests", "PixSnap
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixRendering", "PixRendering\PixRendering.csproj", "{D810554B-8C4A-4382-8244-54DCC7B16610}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixLib", "PixLib\PixLib.csproj", "{50BCD06A-EFF9-4084-8256-3B297F074B42}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixLib", "PixLib\PixLib.csproj", "{50BCD06A-EFF9-4084-8256-3B297F074B42}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixLibTests", "PixLibTests\PixLibTests.csproj", "{C094A61B-7E57-4D04-9444-CAD93B3E35AE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -268,6 +270,22 @@ Global
 		{50BCD06A-EFF9-4084-8256-3B297F074B42}.Release|x64.Build.0 = Release|Any CPU
 		{50BCD06A-EFF9-4084-8256-3B297F074B42}.Release|x86.ActiveCfg = Release|Any CPU
 		{50BCD06A-EFF9-4084-8256-3B297F074B42}.Release|x86.Build.0 = Release|Any CPU
+		{C094A61B-7E57-4D04-9444-CAD93B3E35AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C094A61B-7E57-4D04-9444-CAD93B3E35AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C094A61B-7E57-4D04-9444-CAD93B3E35AE}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{C094A61B-7E57-4D04-9444-CAD93B3E35AE}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{C094A61B-7E57-4D04-9444-CAD93B3E35AE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C094A61B-7E57-4D04-9444-CAD93B3E35AE}.Debug|x64.Build.0 = Debug|Any CPU
+		{C094A61B-7E57-4D04-9444-CAD93B3E35AE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C094A61B-7E57-4D04-9444-CAD93B3E35AE}.Debug|x86.Build.0 = Debug|Any CPU
+		{C094A61B-7E57-4D04-9444-CAD93B3E35AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C094A61B-7E57-4D04-9444-CAD93B3E35AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C094A61B-7E57-4D04-9444-CAD93B3E35AE}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{C094A61B-7E57-4D04-9444-CAD93B3E35AE}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{C094A61B-7E57-4D04-9444-CAD93B3E35AE}.Release|x64.ActiveCfg = Release|Any CPU
+		{C094A61B-7E57-4D04-9444-CAD93B3E35AE}.Release|x64.Build.0 = Release|Any CPU
+		{C094A61B-7E57-4D04-9444-CAD93B3E35AE}.Release|x86.ActiveCfg = Release|Any CPU
+		{C094A61B-7E57-4D04-9444-CAD93B3E35AE}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

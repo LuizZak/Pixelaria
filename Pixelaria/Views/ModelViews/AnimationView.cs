@@ -30,13 +30,18 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Subjects;
 using System.Windows.Forms;
+
 using JetBrains.Annotations;
+
 using PixCore.Undo;
-using Pixelaria.Algorithms.FrameOperations;
+
+using PixLib.Algorithms.FrameOperations;
+using PixLib.Controllers.DataControllers;
+using PixLib.Data;
+using PixLib.Data.Clipboard;
+using PixLib.Filters;
+
 using Pixelaria.Controllers;
-using Pixelaria.Controllers.DataControllers;
-using Pixelaria.Data;
-using Pixelaria.Data.Clipboard;
 
 using Pixelaria.Filters;
 
@@ -44,7 +49,6 @@ using Pixelaria.Utils;
 
 using Pixelaria.Views.Controls;
 using Pixelaria.Views.MiscViews;
-using PixLib.Filters;
 
 namespace Pixelaria.Views.ModelViews
 {

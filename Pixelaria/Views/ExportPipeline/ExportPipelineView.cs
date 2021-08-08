@@ -23,7 +23,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Linq;
 using System.Reactive.Disposables;
@@ -31,19 +30,20 @@ using System.Windows.Forms;
 using System.Windows.Threading;
 using JetBrains.Annotations;
 using PixCore.Geometry;
+using PixLib.Data.Persistence;
+using PixRendering;
 using PixDirectX.Rendering.DirectX;
 using PixUI;
 using PixUI.Controls;
+using PixUI.Animation;
 
-using Pixelaria.Data.Persistence;
 using Pixelaria.ExportPipeline;
 using Pixelaria.Properties;
 using Pixelaria.Utils;
 using Pixelaria.Views.Direct2D;
 using Pixelaria.Views.ExportPipeline.PipelineNodePanel;
 using Pixelaria.Views.ExportPipeline.PipelineView;
-using PixRendering;
-using PixUI.Animation;
+
 
 namespace Pixelaria.Views.ExportPipeline
 {

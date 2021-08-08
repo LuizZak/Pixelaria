@@ -31,15 +31,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using JetBrains.Annotations;
-using Pixelaria.Controllers.DataControllers;
-using Pixelaria.Controllers.Exporters;
+using PixLib.Controllers.DataControllers;
+using PixLib.Data;
+using PixLib.Data.Exports;
+using PixLib.Data.Factories;
+using PixLib.Data.Persistence;
 using Pixelaria.Controllers.Importers;
 using Pixelaria.Controllers.Validators;
-
-using Pixelaria.Data;
-using Pixelaria.Data.Exports;
-using Pixelaria.Data.Factories;
-using Pixelaria.Data.Persistence;
 
 using Pixelaria.Properties;
 
@@ -48,7 +46,7 @@ using Pixelaria.Views.MiscViews;
 using Pixelaria.Views.ModelViews;
 
 using Pixelaria.Utils;
-
+using PixLib.Controllers.Exporters;
 using Settings = Pixelaria.Utils.Settings;
 
 namespace Pixelaria.Controllers
@@ -1093,7 +1091,7 @@ namespace Pixelaria.Controllers
         ////////// Misc Methods
         //////////
         /////
-        ///// Miscelaneous methods not strictly related to bundles or interface
+        ///// Miscellaneous methods not strictly related to bundles or interface
         /////
         ////////////////////////////////////////////////////////////////////////////////
 

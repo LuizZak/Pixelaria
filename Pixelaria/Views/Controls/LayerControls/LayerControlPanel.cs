@@ -27,7 +27,7 @@ using System.Linq;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using Pixelaria.Controllers.LayerControlling;
-using Pixelaria.Data;
+using PixLib.Data;
 
 namespace Pixelaria.Views.Controls.LayerControls
 {
@@ -52,7 +52,7 @@ namespace Pixelaria.Views.Controls.LayerControls
         private bool _movingControls;
 
         /// <summary>
-        /// Whether to ignore layer stauts change events comming from the LayerControls
+        /// Whether to ignore layer status change events coming from the LayerControls
         /// </summary>
         private bool _ignoreLayerStatusEvents;
 

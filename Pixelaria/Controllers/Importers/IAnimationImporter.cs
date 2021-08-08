@@ -22,7 +22,7 @@
 
 using System.Drawing;
 using JetBrains.Annotations;
-using Pixelaria.Data;
+using PixLib.Data;
 
 namespace Pixelaria.Controllers.Importers
 {

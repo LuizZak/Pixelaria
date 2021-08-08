@@ -25,8 +25,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Pixelaria.Controllers.DataControllers;
-using Pixelaria.Data;
+using PixLib.Controllers.DataControllers;
+using PixLib.Data;
 using Pixelaria.Utils;
 using PixelariaTests.Generators;
 

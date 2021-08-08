@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PixCore.Geometry;
 using PixSnapshot;
@@ -336,7 +337,7 @@ namespace PixCoreTests.Geometry
         /// to allow for acceptance of polygons that are the same, but start on different point
         /// on the point list.
         /// </summary>
-        public void AssertPolygonsMatch(Vector[] actual, Vector[] expected)
+        public void AssertPolygonsMatch([NotNull] Vector[] actual, [NotNull] Vector[] expected)
         {
             for (int i = 0; i < actual.Length; i++)
             {
@@ -352,22 +353,22 @@ namespace PixCoreTests.Geometry
         /// <summary>
         /// Asserts that a polygon with a given set of vertices has an expected area.
         /// </summary>
-        public void AssertArea(Vector[] polygon, float expected, float tolerance)
+        public void AssertArea([NotNull] Vector[] polygon, float expected, float tolerance)
         {
             float area = 0;
 
             for (int i = 0; i < polygon.Length; i++)
             {
-                var curr = polygon[i];
+                var cur = polygon[i];
                 var next = polygon[(i + 1) % polygon.Length];
 
-                area += curr.Cross(next);
+                area += cur.Cross(next);
             }
 
             Assert.AreEqual(area / 2, expected, tolerance);
         }
 
-        private static Bitmap ToBitmap(PolyGeometry geometry, int width, int height, Color backColor, Color fillColor)
+        private static Bitmap ToBitmap([NotNull] PolyGeometry geometry, int width, int height, Color backColor, Color fillColor)
         {
             var bitmap = new Bitmap(width, height);
 
@@ -389,7 +390,7 @@ namespace PixCoreTests.Geometry
             return bitmap;
         }
 
-        private static string PolyToString(IEnumerable<Vector> points)
+        private static string PolyToString([NotNull] IEnumerable<Vector> points)
         {
             return string.Join(", ", points.Select(v => $"({v.X}, {v.Y})"));
         }

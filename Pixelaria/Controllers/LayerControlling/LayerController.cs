@@ -24,8 +24,8 @@ using System;
 using System.Drawing;
 using JetBrains.Annotations;
 using PixCore.Imaging;
-using Pixelaria.Controllers.DataControllers;
-using Pixelaria.Data;
+using PixLib.Controllers.DataControllers;
+using PixLib.Data;
 
 namespace Pixelaria.Controllers.LayerControlling
 {

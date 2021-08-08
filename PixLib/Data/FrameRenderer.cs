@@ -20,6 +20,8 @@
     base directory of this project.
 */
 
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using JetBrains.Annotations;
@@ -40,37 +42,42 @@ namespace PixLib.Data
         /// <param name="statuses">The layer status information to use when composing the frame</param>
         /// <param name="ignoreStatusTransparency">Whether to ignore the Transparency of a layer when composing</param>
         /// <returns>A new Bitmap object that represents the composed frame</returns>
-        public static Bitmap ComposeFrame([NotNull] FrameController frame, ILayerStatus[] statuses, bool ignoreStatusTransparency = false)
+        public static Bitmap ComposeFrame([NotNull] FrameController frame, [NotNull] IEnumerable<ILayerStatus> statuses, bool ignoreStatusTransparency = false)
         {
             var bitmap = new Bitmap(frame.Width, frame.Height, PixelFormat.Format32bppArgb);
+            using var statusEnumerator = statuses.GetEnumerator();
 
             for (int i = 0; i < frame.LayerCount; i++)
             {
-                if (!statuses[i].Visible || (!ignoreStatusTransparency && !(statuses[i].Transparency > 0)))
+                var status = statusEnumerator.Current;
+                statusEnumerator.MoveNext();
+
+                Debug.Assert(status != null, nameof(status) + " != null");
+
+                if (!status.Visible || (!ignoreStatusTransparency && !(status.Transparency > 0)))
                     continue;
 
                 var layerBitmap = frame.GetLayerAt(i).LayerBitmap;
 
-                if (ignoreStatusTransparency || statuses[i].Transparency >= 1)
+                if (ignoreStatusTransparency || status.Transparency >= 1)
                 {
                     ImageUtilities.FlattenBitmaps(bitmap, layerBitmap, false);
                 }
                 else
                 {
-                    using (var g = Graphics.FromImage(bitmap))
+                    using var g = Graphics.FromImage(bitmap);
+
+                    var cm = new ColorMatrix
                     {
-                        var cm = new ColorMatrix
-                        {
-                            Matrix33 = statuses[i].Transparency
-                        };
+                        Matrix33 = status.Transparency
+                    };
 
-                        var attributes = new ImageAttributes();
-                        attributes.SetColorMatrix(cm, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+                    var attributes = new ImageAttributes();
+                    attributes.SetColorMatrix(cm, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
 
-                        g.DrawImage(layerBitmap, new Rectangle(Point.Empty, layerBitmap.Size), 0, 0, layerBitmap.Width, layerBitmap.Height, GraphicsUnit.Pixel, attributes);
+                    g.DrawImage(layerBitmap, new Rectangle(Point.Empty, layerBitmap.Size), 0, 0, layerBitmap.Width, layerBitmap.Height, GraphicsUnit.Pixel, attributes);
 
-                        g.Flush();
-                    }
+                    g.Flush();
                 }
             }
 

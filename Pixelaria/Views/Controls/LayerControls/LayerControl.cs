@@ -28,9 +28,8 @@ using System.Windows.Forms;
 using JetBrains.Annotations;
 using PixCore.Controls.ColorControls;
 using PixCore.Geometry;
-using Pixelaria.Data;
+using PixLib.Data;
 using Pixelaria.Properties;
-
 using Utilities = Pixelaria.Utils.Utilities;
 
 namespace Pixelaria.Views.Controls.LayerControls
@@ -203,10 +202,10 @@ namespace Pixelaria.Views.Controls.LayerControls
         /// <summary>
         /// Gets the display status for this layer control
         /// </summary>
-        public LayerStatus LayerStatus => new LayerStatus(_layerVisible, _layerLocked, _transparency);
+        public LayerStatus LayerStatus => new LayerStatus(_layerVisible, _transparency, _layerLocked);
 
         /// <summary>
-        /// Gets the layer this layer control is binded to
+        /// Gets the layer this layer control is bound to
         /// </summary>
         public IFrameLayer Layer { get; }
 
@@ -706,12 +705,17 @@ namespace Pixelaria.Views.Controls.LayerControls
     /// <summary>
     /// Represents the display status of a layer on a layer control
     /// </summary>
-    public readonly struct LayerStatus
+    public readonly struct LayerStatus : ILayerStatus
     {
         /// <summary>
         /// Whether the layer is visible
         /// </summary>
-        public readonly bool Visible;
+        public bool Visible { get; }
+
+        /// <summary>
+        /// The display transparency for the layer, ranging from 0 - 1
+        /// </summary>
+        public float Transparency { get; }
 
         /// <summary>
         /// Whether the layer is locked
@@ -719,21 +723,16 @@ namespace Pixelaria.Views.Controls.LayerControls
         public readonly bool Locked;
 
         /// <summary>
-        /// The display transparency for the layer, ranging from 0 - 1
-        /// </summary>
-        public readonly float Transparency;
-
-        /// <summary>
         /// Creates a new LayerStatus struct
         /// </summary>
         /// <param name="visible">Whether the layer is currently visible</param>
-        /// <param name="locked">Whether the layer is currently locked</param>
         /// <param name="transparency">The display transparency for the layer, ranging from 0 - 1</param>
-        public LayerStatus(bool visible, bool locked, float transparency)
+        /// <param name="locked">Whether the layer is currently locked</param>
+        public LayerStatus(bool visible, float transparency, bool locked)
         {
             Visible = visible;
-            Locked = locked;
             Transparency = transparency;
+            Locked = locked;
         }
     }
 

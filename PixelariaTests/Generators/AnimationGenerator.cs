@@ -20,8 +20,10 @@
     base directory of this project.
 */
 
-using Pixelaria.Controllers.DataControllers;
-using Pixelaria.Data;
+// TODO: Reduce copying this file around in PixelariaTests and PixLibTests
+
+using PixLib.Controllers.DataControllers;
+using PixLib.Data;
 
 namespace PixelariaTests.Generators
 {

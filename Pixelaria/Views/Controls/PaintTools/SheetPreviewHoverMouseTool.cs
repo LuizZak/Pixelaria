@@ -27,9 +27,9 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using FastBitmapLib;
 using JetBrains.Annotations;
+using PixLib.Data;
+using PixLib.Data.Exports;
 using Pixelaria.Controllers.Importers;
-using Pixelaria.Data;
-using Pixelaria.Data.Exports;
 using Pixelaria.Views.Controls.PaintTools.Abstracts;
 
 namespace Pixelaria.Views.Controls.PaintTools

@@ -20,7 +20,7 @@
     base directory of this project.
 */
 
-using Pixelaria.Data;
+using PixLib.Data;
 
 namespace Pixelaria.Controllers.Validators
 {

@@ -23,7 +23,7 @@
 using System;
 using System.Windows.Forms;
 
-using Pixelaria.Data;
+using PixLib.Data;
 
 namespace Pixelaria.Views.MiscViews
 {

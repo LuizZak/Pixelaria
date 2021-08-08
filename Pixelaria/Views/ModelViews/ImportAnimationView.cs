@@ -27,9 +27,10 @@ using System.Windows.Forms;
 
 using JetBrains.Annotations;
 
+using PixLib.Data;
+
 using Pixelaria.Controllers;
 using Pixelaria.Controllers.Importers;
-using Pixelaria.Data;
 using Pixelaria.Views.Controls;
 using Pixelaria.Views.Controls.PaintTools;
 

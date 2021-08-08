@@ -30,8 +30,8 @@ using FastBitmapLib;
 
 using JetBrains.Annotations;
 
-using Pixelaria.Controllers.DataControllers;
-using Pixelaria.Data;
+using PixLib.Controllers.DataControllers;
+using PixLib.Data;
 
 namespace Pixelaria.Controllers.Importers
 {

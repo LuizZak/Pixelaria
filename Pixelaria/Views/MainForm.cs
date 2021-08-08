@@ -32,12 +32,12 @@ using System.Reflection;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using Pixelaria.Controllers;
-using Pixelaria.Controllers.DataControllers;
-using Pixelaria.Data;
 using Pixelaria.Properties;
 using Pixelaria.Views.ModelViews;
 using Pixelaria.Views.SettingsViews;
 using Pixelaria.Views.Controls;
+using PixLib.Controllers.DataControllers;
+using PixLib.Data;
 
 namespace Pixelaria.Views
 {

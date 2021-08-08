@@ -24,8 +24,8 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using JetBrains.Annotations;
+using PixLib.Controllers.DataControllers;
 using Pixelaria.Controllers;
-using Pixelaria.Controllers.DataControllers;
 
 using Pixelaria.Filters;
 
