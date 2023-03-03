@@ -113,7 +113,7 @@ namespace PixCore.Geometry.Algorithms
         public static RectangleF[] MergeRectangles([NotNull] IReadOnlyList<RectangleF> rects)
         {
             if (rects.Count == 0)
-                return new RectangleF[0];
+                return Array.Empty<RectangleF>();
             if (rects.Count == 1)
                 return rects.ToArray();
 
