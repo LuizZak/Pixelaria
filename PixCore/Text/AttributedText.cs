@@ -299,6 +299,11 @@ namespace PixCore.Text
             CallModifiedEvent();
         }
 
+        public void ClearAttributes()
+        {
+            SetText(String);
+        }
+
         public ITextSegment[] GetTextSegments()
         {
             return _segments.OfType<ITextSegment>().ToArray();
