@@ -92,7 +92,7 @@ namespace PixUITests.TestUtils
         /// </summary>
         public void IsConstrained(LayoutAnchor anchor1, LayoutAnchor anchor2, LayoutRelationship relationship = LayoutRelationship.Equal, float constant = 0)
         {
-            if (Equals(_view, anchor1.Target) && Equals(_view, anchor2.Target))
+            if (Equals(_view, anchor1.container) && Equals(_view, anchor2.container))
             {
                 Assert.Fail($"Expected one of the anchors to belong to view {_view}");
                 return;
@@ -121,7 +121,7 @@ namespace PixUITests.TestUtils
         /// </summary>
         public void IsConstrained(LayoutAnchor anchor, LayoutRelationship relationship = LayoutRelationship.Equal, float constant = 0)
         {
-            if (Equals(_view, anchor.Target))
+            if (Equals(_view, anchor.container))
             {
                 Assert.Fail($"Expected anchor {anchor} to belong to view {_view}");
                 return;

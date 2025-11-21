@@ -41,7 +41,7 @@ namespace PixUI
     /// 
     /// Used to render Export Pipeline UI elements.
     /// </summary>
-    public class BaseView : IEquatable<BaseView>, ISpatialReference, IRegionInvalidateable
+    public class BaseView : IEquatable<BaseView>, ISpatialReference, IRegionInvalidateable, ILayoutVariablesContainer
     {
         private Vector _size;
         private Vector _location;
@@ -51,11 +51,12 @@ namespace PixUI
         private float _rotation;
         private Matrix2D _localTransform;
 
+        private readonly List<LayoutGuide> _layoutGuides = new List<LayoutGuide>();
         private readonly InternalLayoutEvents _layoutEvents;
 
         protected bool needsLayout = true;
 
-        internal ViewLayoutConstraintVariables LayoutVariables;
+        internal LayoutVariables LayoutVariables;
 
         /// <summary>
         /// If <c>true</c>, location and size values are translated into required
@@ -160,6 +161,11 @@ namespace PixUI
         /// Gets all children of this base view
         /// </summary>
         public BaseView[] Children => children.ToArray();
+
+        /// <summary>
+        /// Gets all layout guides added to this view
+        /// </summary>
+        public IReadOnlyList<LayoutGuide> LayoutGuides => _layoutGuides.ToArray();
 
         /// <summary>
         /// Top-left location of view, in pixels
@@ -306,13 +312,21 @@ namespace PixUI
         /// </summary>
         public virtual AABB Bounds => new AABB(Vector.Zero, Size);
 
+        LayoutVariables ILayoutVariablesContainer.LayoutVariables => LayoutVariables;
+        
+        ISpatialReference ILayoutVariablesContainer.ParentSpatialReference => Parent;
+
+        BaseView ILayoutVariablesContainer.ViewInHierarchy => this;
+
+        List<LayoutConstraint> ILayoutVariablesContainer.AffectingConstraints => AffectingConstraints;
+
         /// <summary>
         /// Returns the local bounds of this view, converted to the parent's frame coordinates.
         /// 
         /// If no parent is present, <see cref="Bounds"/> is returned instead.
         /// </summary>
         public virtual AABB FrameOnParent => Parent == null ? Bounds : ConvertTo(Bounds, Parent);
-        
+
         /// <summary>
         /// Gets the layout events object which contains the events that are triggered when the layout
         /// properties of this view change.
@@ -334,7 +348,7 @@ namespace PixUI
             RecreateLocalTransformMatrix();
 
             _layoutEvents = new InternalLayoutEvents(this);
-            LayoutVariables = new ViewLayoutConstraintVariables(this);
+            LayoutVariables = new LayoutVariables(this);
         }
 
         /// <summary>
@@ -399,7 +413,7 @@ namespace PixUI
         }
 
         /// <summary>
-        /// Called by <see cref="BaseView"/> when it's size has changed to request re-layouting.
+        /// Called by <see cref="BaseView"/> when it's size has changed to request a re-layout.
         /// Can also be called by clients to force a re-layout of this control.
         /// 
         /// Avoid making any changes to <see cref="Size"/> on this method as to not trigger an infinite
@@ -410,6 +424,11 @@ namespace PixUI
         public virtual void Layout()
         {
             needsLayout = false;
+        }
+
+        BaseView ILayoutVariablesContainer.ViewForFirstBaseline()
+        {
+            return null;
         }
 
         /// <summary>
@@ -481,13 +500,27 @@ namespace PixUI
             
             child.InvalidateFullBounds();
 
+            // Remove all constraints that involve the child view, or one of its subviews.
+            // We check parent views only because the way LayoutConstraints are
+            // stored, each constraint is guaranteed to only affect the view itself
+            // or one of its subviews, thus we check the parent hierarchy for
+            // constraints involving this view tree, but not the children hierarchy.
+            VisitParentViews(view =>
+            {
+                for (var i = 0; i < view.LayoutConstraints.Count; i++)
+                {
+                    var constraint = view.LayoutConstraints[i];
+
+                    if (constraint.FirstAnchor.container?.ViewInHierarchy?.IsDescendentOf(child) == true || constraint.SecondAnchor?.container?.ViewInHierarchy?.IsDescendentOf(child) == true)
+                    {
+                        constraint.RemoveConstraint();
+                        i -= 1;
+                    }
+                }
+            });
+
             child.Parent = null;
             children.Remove(child);
-
-            foreach (var constraint in child.AffectingConstraints)
-            {
-                constraint.RemoveConstraint();
-            }
         }
 
         /// <summary>
@@ -543,6 +576,40 @@ namespace PixUI
 
             return null;
         }
+
+        #region Layout Guide
+
+        /// <summary>
+        /// Adds a layout guide to this view.
+        /// </summary>
+        public void AddLayoutGuide([NotNull] LayoutGuide layoutGuide)
+        {
+            layoutGuide.ownerView?.RemoveLayoutGuide(layoutGuide);
+
+            _layoutGuides.Add(layoutGuide);
+            layoutGuide.ownerView = this;
+
+            layoutGuide.SetNeedsLayout();
+        }
+
+        /// <summary>
+        /// Removes a given layout guide from this view.
+        /// </summary>
+        public void RemoveLayoutGuide([NotNull] LayoutGuide layoutGuide)
+        {
+            if (layoutGuide.ownerView != this)
+                return;
+
+            layoutGuide.ownerView = null;
+            _layoutGuides.Remove(layoutGuide);
+
+            foreach (var constraint in ((ILayoutVariablesContainer)layoutGuide).AffectingConstraints.ToArray())
+            {
+                constraint.RemoveConstraint();
+            }
+        }
+
+        #endregion
 
         /// <summary>
         /// Performs a hit test operation on the area of this, and all child
@@ -767,7 +834,7 @@ namespace PixUI
         }
 
         /// <summary>
-        /// Converts a point from a given <see cref="BaseView"/>'s local coordinates to this
+        /// Converts a point from a given <see cref="ISpatialReference"/>'s local coordinates to this
         /// base view's coordinates.
         /// 
         /// If <see cref="from"/> is null, converts from screen coordinates.
@@ -784,7 +851,7 @@ namespace PixUI
         }
 
         /// <summary>
-        /// Converts a point from this <see cref="BaseView"/>'s local coordinates to a given
+        /// Converts a point from this <see cref="ISpatialReference"/>'s local coordinates to a given
         /// base view's coordinates.
         /// 
         /// If <see cref="to"/> is null, converts from this node to screen coordinates.
@@ -798,7 +865,7 @@ namespace PixUI
         }
 
         /// <summary>
-        /// Converts an AABB from a given <see cref="BaseView"/>'s local coordinates to this
+        /// Converts an AABB from a given <see cref="ISpatialReference"/>'s local coordinates to this
         /// base view's coordinates.
         /// 
         /// If <see cref="from"/> is null, converts from screen coordinates.
@@ -815,7 +882,7 @@ namespace PixUI
         }
 
         /// <summary>
-        /// Converts an AABB from this <see cref="BaseView"/>'s local coordinates to a given
+        /// Converts an AABB from this <see cref="ISpatialReference"/>'s local coordinates to a given
         /// base view's coordinates.
         /// 
         /// If <see cref="to"/> is null, converts from this node to screen coordinates.
@@ -993,8 +1060,34 @@ namespace PixUI
         {
             Parent?.Invalidate(region, reference);
         }
-        
+
+        AABB ILayoutVariablesContainer.BoundsForRedrawOnScreen()
+        {
+            return BoundsForInvalidateFullBounds();
+        }
+
         #endregion
+
+        #region Traversal
+        
+        /// <summary>
+        /// Visits all parent views, including this <see cref="BaseView"/> itself, calling <see cref="visitor"/>
+        /// with each step, until the root of this view's hierarchy is reached.
+        /// </summary>
+        private void VisitParentViews([NotNull] Action<BaseView> visitor)
+        {
+            var next = this;
+
+            while (next != null)
+            {
+                visitor(next);
+                next = next.Parent;
+            }
+        }
+
+        #endregion
+
+        #region Equality
 
         public bool Equals(BaseView other)
         {
@@ -1015,6 +1108,8 @@ namespace PixUI
         {
             return ReferenceEquals(this, obj);
         }
+
+        #endregion
 
         public override int GetHashCode()
         {

@@ -29,12 +29,17 @@ namespace PixUI.LayoutSystem
     /// <summary>
     /// A layout anchor in a view
     /// </summary>
-    [DebuggerDisplay("[{Target}:{AnchorKind}]")]
+    [DebuggerDisplay("[{Owner}:{AnchorKind}]")]
     public readonly struct LayoutAnchor
     {
-        public BaseView Target { get; }
-
+        internal readonly ILayoutVariablesContainer container;
+        
         public LayoutAnchorKind AnchorKind { get; }
+
+        /// <summary>
+        /// Gets the generic owner of this layout anchor.
+        /// </summary>
+        public object Owner { get; }
 
         internal LayoutAnchorOrientationFlags Orientation
         {
@@ -57,9 +62,10 @@ namespace PixUI.LayoutSystem
             }
         }
 
-        internal LayoutAnchor(BaseView target, LayoutAnchorKind anchorKind)
+        internal LayoutAnchor(ILayoutVariablesContainer target, LayoutAnchorKind anchorKind)
         {
-            Target = target;
+            container = target;
+            Owner = target;
             AnchorKind = anchorKind;
         }
 
@@ -68,34 +74,34 @@ namespace PixUI.LayoutSystem
             switch (AnchorKind)
             {
                 case LayoutAnchorKind.Left:
-                    return Target.LayoutVariables.Left;
+                    return container.LayoutVariables.Left;
                 case LayoutAnchorKind.Top:
-                    return Target.LayoutVariables.Top;
+                    return container.LayoutVariables.Top;
                 case LayoutAnchorKind.Right:
-                    return Target.LayoutVariables.Right;
+                    return container.LayoutVariables.Right;
                 case LayoutAnchorKind.Bottom:
-                    return Target.LayoutVariables.Bottom;
+                    return container.LayoutVariables.Bottom;
                 case LayoutAnchorKind.Width:
-                    return Target.LayoutVariables.Width;
+                    return container.LayoutVariables.Width;
                 case LayoutAnchorKind.Height:
-                    return Target.LayoutVariables.Height;
+                    return container.LayoutVariables.Height;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        internal ClLinearExpression RelativeExpression(BaseView relativeView)
+        internal ClLinearExpression RelativeExpression(ILayoutVariablesContainer relativeContainer)
         {
             switch (AnchorKind)
             {
                 case LayoutAnchorKind.Left:
-                    return new ClLinearExpression(relativeView.LayoutVariables.Left);
+                    return new ClLinearExpression(relativeContainer.LayoutVariables.Left);
                 case LayoutAnchorKind.Top:
-                    return new ClLinearExpression(relativeView.LayoutVariables.Top);
+                    return new ClLinearExpression(relativeContainer.LayoutVariables.Top);
                 case LayoutAnchorKind.Right:
-                    return new ClLinearExpression(relativeView.LayoutVariables.Left);
+                    return new ClLinearExpression(relativeContainer.LayoutVariables.Left);
                 case LayoutAnchorKind.Bottom:
-                    return new ClLinearExpression(relativeView.LayoutVariables.Bottom);
+                    return new ClLinearExpression(relativeContainer.LayoutVariables.Bottom);
                 case LayoutAnchorKind.Width:
                     return new ClLinearExpression(0);
                 case LayoutAnchorKind.Height:
@@ -107,7 +113,7 @@ namespace PixUI.LayoutSystem
 
         public bool Equals(LayoutAnchor other)
         {
-            return Equals(Target, other.Target) && AnchorKind == other.AnchorKind;
+            return ReferenceEquals(container, other.container) && AnchorKind == other.AnchorKind;
         }
 
         public override bool Equals(object obj)
@@ -119,7 +125,7 @@ namespace PixUI.LayoutSystem
         {
             unchecked
             {
-                return ((Target != null ? Target.GetHashCode() : 0) * 397) ^ (int)AnchorKind;
+                return ((container != null ? container.GetHashCode() : 0) * 397) ^ (int)AnchorKind;
             }
         }
 
@@ -135,27 +141,7 @@ namespace PixUI.LayoutSystem
 
         public override string ToString()
         {
-            return $"[{Target}:{AnchorKind}]";
-        }
-    }
-
-    /// <summary>
-    /// Returns layout anchors for a view
-    /// </summary>
-    public class LayoutAnchors
-    {
-        private readonly BaseView _target;
-        
-        public LayoutAnchor Top => new LayoutAnchor(_target, LayoutAnchorKind.Top);
-        public LayoutAnchor Left => new LayoutAnchor(_target, LayoutAnchorKind.Left);
-        public LayoutAnchor Right => new LayoutAnchor(_target, LayoutAnchorKind.Right);
-        public LayoutAnchor Bottom => new LayoutAnchor(_target, LayoutAnchorKind.Bottom);
-        public LayoutAnchor Width => new LayoutAnchor(_target, LayoutAnchorKind.Width);
-        public LayoutAnchor Height => new LayoutAnchor(_target, LayoutAnchorKind.Height);
-
-        internal LayoutAnchors(BaseView target)
-        {
-            _target = target;
+            return $"[{container}:{AnchorKind}]";
         }
     }
 }
