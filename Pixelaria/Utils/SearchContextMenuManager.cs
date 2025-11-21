@@ -136,7 +136,7 @@ namespace Pixelaria.Utils
                     if (searchTerm.Length > 0 && index > -1)
                     {
                         item.AttributedText.SetAttributes(new TextRange(index, searchTerm.Length), new ITextAttribute[] {
-                            new BackgroundColorAttribute(Color.LightSkyBlue)
+                            new BackgroundColorAttribute(Color.Cyan)
                         });
                     }
                 }
@@ -263,8 +263,6 @@ namespace Pixelaria.Utils
 
             protected override void OnPaint(PaintEventArgs e)
             {
-                //base.OnPaint(e);
-
                 if (Selected)
                 {
                     e.Graphics.FillRectangle(new SolidBrush(Color.LightBlue), e.ClipRectangle);
@@ -276,6 +274,7 @@ namespace Pixelaria.Utils
 
                 var text = AttributedText.String;
 
+                // TODO: Improve character ranges construction to include full background color spans instead of all individual characters.
                 var characterRanges = new CharacterRange[text.Length];
                 for (int i = 0; i < text.Length; i++)
                 {
@@ -318,47 +317,6 @@ namespace Pixelaria.Utils
                 }
 
                 e.Graphics.DrawString(AttributedText.String, Font, new SolidBrush(Color.Black), lastPoint);
-
-                /*
-                foreach (var segment in AttributedText.GetTextSegments())
-                {
-                    Font font = Font;
-                    Brush brush = new SolidBrush(ForeColor);
-
-                    var fontAttribute = segment.GetAttributeNullable<TextFontAttribute>();
-                    if (fontAttribute != null && fontAttribute?.Font != null)
-                    {
-                        font = fontAttribute.Value.Font;
-                    }
-
-                    var foreColorAttribute = segment.GetAttributeNullable<ForegroundColorAttribute>();
-                    if (foreColorAttribute != null)
-                    {
-                        brush = new SolidBrush(foreColorAttribute.Value.ForeColor);
-                    }
-
-                    var size = e.Graphics.MeasureString(segment.Text, font);
-
-                    var backColorAttribute = segment.GetAttributeNullable<BackgroundColorAttribute>();
-                    if (backColorAttribute != null)
-                    {
-                        var backBrush = new SolidBrush(backColorAttribute.Value.BackColor);
-                        var inflatedSize = size + new SizeF(backColorAttribute.Value.Inflation.X, backColorAttribute.Value.Inflation.Y);
-                        var inflatedPoint = lastPoint - new SizeF(backColorAttribute.Value.Inflation.X / 2, backColorAttribute.Value.Inflation.Y / 2);
-
-                        e.Graphics.FillRectangle(backBrush, new RectangleF(inflatedPoint, inflatedSize));
-                    }
-                    else
-                    {
-                        var backBrush = new SolidBrush(Color.Beige);
-                        e.Graphics.FillRectangle(backBrush, new RectangleF(lastPoint, size));
-                    }
-
-                    e.Graphics.DrawString(segment.Text, font, brush, lastPoint);
-
-                    lastPoint.X += size.Width;
-                }
-                */
             }
 
             public override Size GetPreferredSize(Size constrainingSize)
