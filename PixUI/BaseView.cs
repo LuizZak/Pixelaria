@@ -66,7 +66,7 @@ namespace PixUI
         ///
         /// Defaults to <c>true</c>.
         /// </summary>
-        internal bool TranslateBoundsIntoConstraints = true;
+        public bool TranslateBoundsIntoConstraints { get; set; } = true;
 
         /// <summary>
         /// List of layout constraints active on this view.
@@ -90,7 +90,10 @@ namespace PixUI
         /// </summary>
         internal List<LayoutConstraint> AffectingConstraints = new List<LayoutConstraint>();
 
-        internal LayoutAnchors Anchors => new LayoutAnchors(this);
+        /// <summary>
+        /// Gets the anchors available for this vieww.
+        /// </summary>
+        public LayoutAnchors Anchors => new LayoutAnchors(this);
 
         /// <summary>
         /// Gets an intrinsic size for this view.

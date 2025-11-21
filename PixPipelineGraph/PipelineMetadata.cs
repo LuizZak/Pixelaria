@@ -20,8 +20,9 @@
     base directory of this project.
 */
 
-using System.Collections.Generic;
 using JetBrains.Annotations;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PixPipelineGraph
 {
@@ -42,7 +43,12 @@ namespace PixPipelineGraph
         /// </summary>
         [CanBeNull]
         object GetValue([NotNull] string key);
-        
+
+        /// <summary>
+        /// Sets a value flag within this pipeline metadata.
+        /// </summary>
+        void SetFlag([NotNull] string flag, bool state);
+
         /// <summary>
         /// Returns whether a flag with a given key exists on this metadata object.
         /// </summary>
@@ -88,6 +94,18 @@ namespace PixPipelineGraph
         public object GetValue(string key)
         {
             return Metadata.TryGetValue(key, out object value) ? value : null;
+        }
+
+        public void SetFlag(string flag, bool state)
+        {
+            if (state)
+            {
+                Flags.Add(flag);
+            }
+            else
+            {
+                Flags.Remove(flag);
+            }
         }
 
         public bool HasFlag(string flag)

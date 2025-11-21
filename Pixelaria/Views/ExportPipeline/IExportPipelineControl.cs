@@ -85,6 +85,7 @@ namespace Pixelaria.Views.ExportPipeline
         AnimationsManager AnimationsManager { get; }
 
         Size Size { get; }
+        Rectangle Bounds { get; }
 
         void SetPanAndZoom(Vector pan, Vector zoom);
 
@@ -198,9 +199,21 @@ namespace Pixelaria.Views.ExportPipeline
         event PipelineNodeViewEventHandler NodeRemoved;
 
         /// <summary>
+        /// Shows a view as a dialog view, with a container behind the view that serves
+        /// as a mouse click area that hides the view in case the user clicks it.
+        /// </summary>
+        void ShowAsDialog(ControlView dialogView);
+
+        /// <summary>
         /// Removes all views on this pipeline container
         /// </summary>
         void RemoveAllViews();
+
+        /// <summary>
+        /// Creates a node view from a given node descriptor, optionally located at a given screen position.
+        /// </summary>
+        [CanBeNull]
+        PipelineNodeView CreateNodeView(PipelineNodeKind nodeKind, Bitmap icon, Vector? screenPosition);
 
         /// <summary>
         /// Adds a new node view.

@@ -20,10 +20,12 @@
     base directory of this project.
 */
 
-using System.Reactive.Subjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pixelaria.ExportPipeline;
 using PixPipelineGraph;
+using System;
+using System.Collections.Generic;
+using System.Reactive.Subjects;
 
 namespace PixelariaTests.ExportPipeline
 {
@@ -144,6 +146,11 @@ namespace PixelariaTests.ExportPipeline
             public bool CreateNode(PipelineNodeKind nodeKind, PipelineNodeBuilder builder)
             {
                 return false;
+            }
+
+            public IReadOnlyList<PipelineNodeInputOutputConnectionOpportunity> PotentialConnectionsForConnectionType(Type valueType, bool isInput)
+            {
+                return new PipelineNodeInputOutputConnectionOpportunity[] { };
             }
         }
     }

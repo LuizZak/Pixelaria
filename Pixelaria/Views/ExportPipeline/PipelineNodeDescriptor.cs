@@ -29,13 +29,27 @@ using PixPipelineGraph;
 
 namespace Pixelaria.Views.ExportPipeline
 {
+    /// <summary>
+    /// Describes an instantiable pipeline node in descriptor form.
+    /// </summary>
     public class PipelineNodeDescriptor
     {
+        /// <summary>
+        /// Node kind for this node descriptor.
+        /// </summary>
         public PipelineNodeKind NodeKind { get; set; }
 
+        /// <summary>
+        /// Display icon for the node.
+        /// 
+        /// If <c>null</c>, indicates no icon is to be displayed.
+        /// </summary>
         [CanBeNull]
         public Bitmap Icon { get; set; }
 
+        /// <summary>
+        /// Display title for the node.
+        /// </summary>
         public string Title { get; set; } = "";
 
         [CanBeNull]

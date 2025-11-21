@@ -1,0 +1,383 @@
+﻿using PixCore.Text;
+using PixCore.Text.Attributes;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Linq;
+using System.Windows.Forms;
+
+namespace Pixelaria.Utils
+{
+    /// <summary>
+    /// Provides scaffolding for generating a searching context menu control.
+    /// </summary>
+    internal class SearchContextMenuManager
+    {
+        public delegate void ItemClickEventHandler(object sender, SearchContextMenuItemSelectedEventArgs e);
+        public delegate void ItemSelectedEventHandler(object sender, SearchContextMenuItemSelectedEventArgs e);
+        public delegate void ItemMouseEnterEventHandler(object sender, SearchContextMenuItemSelectedEventArgs e);
+        public delegate void ItemMouseLeaveEventHandler(object sender, SearchContextMenuItemSelectedEventArgs e);
+
+        private readonly string[] _items;
+
+        /// <summary>
+        /// Event issued when an item from the context menu is clicked.
+        /// 
+        /// Is also issued when the 'enter' key is pressed while an item is highlighted.
+        /// </summary>
+        public event ItemClickEventHandler ItemClick;
+
+        /// <summary>
+        /// Event issued when an item has been selected, either by highlighting with the mouse, or with the
+        /// arrow keys.
+        /// </summary>
+        public event ItemSelectedEventHandler ItemSelected;
+
+        /// <summary>
+        /// Event issued when the mouse has entered a particular toolstrip menu item.
+        /// 
+        /// This event is not raised for the search textbox item itself.
+        /// </summary>
+        public event ItemMouseEnterEventHandler ItemMouseEnter;
+
+        /// <summary>
+        /// Event issued when the mouse has left a particular toolstrip menu item.
+        /// 
+        /// This event is not raised for the search textbox item itself.
+        /// </summary>
+        public event ItemMouseLeaveEventHandler ItemMouseLeave;
+
+        public SearchContextMenuManager(IEnumerable<string> items)
+        {
+            _items = items.ToArray();
+        }
+
+        public SearchContextMenuManager(params string[] items)
+        {
+            _items = items;
+        }
+
+        /// <summary>
+        /// Generates the context menu to display.
+        /// </summary>
+        public ContextMenuStrip GenerateContextMenu()
+        {
+            var contextMenu = new ContextMenuStrip();
+
+            var searchBox = new ToolStripTextBox();
+            contextMenu.Items.Add(searchBox);
+
+            var allItems = new List<ToolStripRichTextLabel>();
+            var visibleItems = new List<ToolStripRichTextLabel>();
+
+            // Add individual items
+            for (int i = 0; i < _items.Length; i++)
+            {
+                string item = _items[i];
+                var index = i;
+                var menuItem = new ToolStripRichTextLabel(item);
+                contextMenu.Items.Add(menuItem);
+
+                allItems.Add(menuItem);
+                visibleItems.Add(menuItem);
+
+                menuItem.MouseEnter += (sender, args) =>
+                {
+                    ItemMouseEnter?.Invoke(sender, new SearchContextMenuItemSelectedEventArgs(index));
+                };
+                menuItem.MouseLeave += (sender, args) =>
+                {
+                    ItemMouseLeave?.Invoke(sender, new SearchContextMenuItemSelectedEventArgs(index));
+                };
+                menuItem.Click += (sender, args) =>
+                {
+                    ItemClick?.Invoke(sender, new SearchContextMenuItemSelectedEventArgs(index));
+                };
+            }
+
+            int toAllItemsIndex(int visibleItemIndex)
+            {
+                for (int i = 0; i < allItems.Count; i++)
+                {
+                    if (allItems[i].Visible)
+                        visibleItemIndex -= 1;
+
+                    if (visibleItemIndex < 0)
+                        return i;
+                }
+
+                return -1;
+            }
+
+            // Auto-focus search box on open
+            contextMenu.Opened += (sender, args) =>
+            {
+                searchBox.TextBox.Focus();
+            };
+
+            searchBox.TextChanged += (sender, args) =>
+            {
+                var searchTerm = searchBox.Text;
+                visibleItems.Clear();
+
+                foreach (var item in allItems)
+                {
+                    var visible = item.Text.ToLower().Contains(searchTerm.ToLower());
+                    
+                    if (visible)
+                    {
+                        visibleItems.Add(item);
+                    }
+
+                    item.Visible = visible;
+                    item.AttributedText.ClearAttributes();
+
+                    var index = item.Text.IndexOf(searchTerm, System.StringComparison.InvariantCultureIgnoreCase);
+                    if (searchTerm.Length > 0 && index > -1)
+                    {
+                        item.AttributedText.SetAttributes(new TextRange(index, searchTerm.Length), new ITextAttribute[] {
+                            new BackgroundColorAttribute(Color.LightSkyBlue)
+                        });
+                    }
+                }
+            };
+            searchBox.TextBox.KeyDown += (sender, args) =>
+            {
+                if (args.KeyCode == Keys.Escape)
+                {
+                    args.SuppressKeyPress = true;
+                    args.Handled = true;
+                    contextMenu.Close();
+                }
+                else if (args.KeyCode == Keys.Down)
+                {
+                    args.SuppressKeyPress = true;
+                    args.Handled = true;
+
+                    int selectedIndex = -1;
+
+                    for (int i = 0; i < visibleItems.Count; i++)
+                    {
+                        if (visibleItems[i].Selected)
+                        {
+                            selectedIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (selectedIndex < visibleItems.Count - 1)
+                        selectedIndex++;
+                    
+                    if (selectedIndex > -1 && selectedIndex < visibleItems.Count)
+                    {
+                        var item = visibleItems[selectedIndex];
+
+                        item.Select();
+
+                        var allItemsIndex = toAllItemsIndex(selectedIndex);
+                        if (allItemsIndex != -1)
+                            ItemSelected?.Invoke(sender, new SearchContextMenuItemSelectedEventArgs(allItemsIndex));
+                    }
+                }
+                else if (args.KeyCode == Keys.Up)
+                {
+                    args.SuppressKeyPress = true;
+                    args.Handled = true;
+
+                    int selectedIndex = -1;
+
+                    for (int i = 0; i < visibleItems.Count; i++)
+                    {
+                        if (visibleItems[i].Selected)
+                        {
+                            selectedIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (selectedIndex > 0)
+                        selectedIndex--;
+
+                    if (selectedIndex > -1 && visibleItems.Count > 0)
+                    {
+                        var item = visibleItems[selectedIndex];
+
+                        item.Select();
+
+                        var allItemsIndex = toAllItemsIndex(selectedIndex);
+                        if (allItemsIndex != -1)
+                            ItemSelected?.Invoke(sender, new SearchContextMenuItemSelectedEventArgs(allItemsIndex));
+                    }
+                }
+                else if (args.KeyCode == Keys.Enter)
+                {
+                    foreach (var item in allItems)
+                    {
+                        if (item.Visible && item.Selected)
+                        {
+                            item.PerformClick();
+                            args.SuppressKeyPress = true;
+                            args.Handled = true;
+                            break;
+                        }
+                    }
+                }
+            };
+
+            return contextMenu;
+        }
+
+        private class ToolStripRichTextLabel : ToolStripMenuItem
+        {
+            AttributedText _attributedText;
+
+            public AttributedText AttributedText
+            {
+                get
+                {
+                    return _attributedText;
+                }
+                set
+                {
+                    _attributedText = value;
+                    Invalidate();
+                }
+            }
+
+            public ToolStripRichTextLabel() : base()
+            {
+                _attributedText = new AttributedText();
+            }
+
+            public ToolStripRichTextLabel(string text) : this()
+            {
+                _attributedText = new AttributedText(text);
+                Text = text;
+            }
+
+            public ToolStripRichTextLabel(AttributedText text) : this()
+            {
+                AttributedText = text;
+                Text = text.String;
+            }
+
+            protected override void OnPaint(PaintEventArgs e)
+            {
+                //base.OnPaint(e);
+
+                if (Selected)
+                {
+                    e.Graphics.FillRectangle(new SolidBrush(Color.LightBlue), e.ClipRectangle);
+                }
+
+                var lastPoint = PointF.Empty;
+                lastPoint.X += 34;
+                lastPoint.Y += 2;
+
+                var text = AttributedText.String;
+
+                var characterRanges = new CharacterRange[text.Length];
+                for (int i = 0; i < text.Length; i++)
+                {
+                    characterRanges[i] = new CharacterRange(i, 1);
+                }
+
+                var stringFormat = new StringFormat();
+                stringFormat.FormatFlags = StringFormatFlags.NoClip;
+                stringFormat.SetMeasurableCharacterRanges(characterRanges);
+
+                var charRegions = e.Graphics.MeasureCharacterRanges(text, Font, new RectangleF(PointF.Empty, Size), stringFormat);
+                var lastCharIndex = 0;
+
+                var backBoxPoint = lastPoint;
+
+                // Draw background
+                foreach (var segment in AttributedText.GetTextSegments())
+                {
+                    var backColorAttribute = segment.GetAttributeNullable<BackgroundColorAttribute>();
+                    if (backColorAttribute != null)
+                    {
+                        var range = charRegions.Skip(lastCharIndex).Take(segment.Text.Length).ToArray();
+                        
+                        var sumRegion = range[0].Clone();
+                        foreach (var charBox in range)
+                        {
+                            sumRegion.Union(charBox);
+                        }
+
+                        var sumRect = sumRegion.GetBounds(e.Graphics);
+
+                        var backBrush = new SolidBrush(backColorAttribute.Value.BackColor);
+                        var inflatedSize = sumRect.Size + new SizeF(backColorAttribute.Value.Inflation.X, backColorAttribute.Value.Inflation.Y);
+                        var inflatedPoint = sumRect.Location + new SizeF(backBoxPoint) - new SizeF(backColorAttribute.Value.Inflation.X / 2, backColorAttribute.Value.Inflation.Y / 2);
+
+                        e.Graphics.FillRectangle(backBrush, new RectangleF(inflatedPoint, inflatedSize));
+                    }
+
+                    lastCharIndex += segment.Text.Length;
+                }
+
+                e.Graphics.DrawString(AttributedText.String, Font, new SolidBrush(Color.Black), lastPoint);
+
+                /*
+                foreach (var segment in AttributedText.GetTextSegments())
+                {
+                    Font font = Font;
+                    Brush brush = new SolidBrush(ForeColor);
+
+                    var fontAttribute = segment.GetAttributeNullable<TextFontAttribute>();
+                    if (fontAttribute != null && fontAttribute?.Font != null)
+                    {
+                        font = fontAttribute.Value.Font;
+                    }
+
+                    var foreColorAttribute = segment.GetAttributeNullable<ForegroundColorAttribute>();
+                    if (foreColorAttribute != null)
+                    {
+                        brush = new SolidBrush(foreColorAttribute.Value.ForeColor);
+                    }
+
+                    var size = e.Graphics.MeasureString(segment.Text, font);
+
+                    var backColorAttribute = segment.GetAttributeNullable<BackgroundColorAttribute>();
+                    if (backColorAttribute != null)
+                    {
+                        var backBrush = new SolidBrush(backColorAttribute.Value.BackColor);
+                        var inflatedSize = size + new SizeF(backColorAttribute.Value.Inflation.X, backColorAttribute.Value.Inflation.Y);
+                        var inflatedPoint = lastPoint - new SizeF(backColorAttribute.Value.Inflation.X / 2, backColorAttribute.Value.Inflation.Y / 2);
+
+                        e.Graphics.FillRectangle(backBrush, new RectangleF(inflatedPoint, inflatedSize));
+                    }
+                    else
+                    {
+                        var backBrush = new SolidBrush(Color.Beige);
+                        e.Graphics.FillRectangle(backBrush, new RectangleF(lastPoint, size));
+                    }
+
+                    e.Graphics.DrawString(segment.Text, font, brush, lastPoint);
+
+                    lastPoint.X += size.Width;
+                }
+                */
+            }
+
+            public override Size GetPreferredSize(Size constrainingSize)
+            {
+                return base.GetPreferredSize(constrainingSize);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Event args for a <see cref="SearchContextMenuManager.ItemClicked"/> event.
+    /// </summary>
+    internal class SearchContextMenuItemSelectedEventArgs
+    {
+        public int Index { get; }
+
+        public SearchContextMenuItemSelectedEventArgs(int index)
+        {
+            Index = index;
+        }
+    }
+}

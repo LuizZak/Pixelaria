@@ -58,7 +58,7 @@ namespace PixPipelineGraph
             _stepCollection.AddClosureBuilderStep(node =>
             {
                 var body = _nodeProvider.GetBody(bodyId);
-                if(body == null)
+                if (body == null)
                     throw new ArgumentException($"No pipeline body node found for body ID {bodyId}", nameof(bodyId));
 
                 node.Body = body;
@@ -126,14 +126,19 @@ namespace PixPipelineGraph
             return CreateOutput(name, builder => { builder.SetOutputType(type); });
         }
 
-        /// <summary>
-        /// Adds an entry for a metadata value for the created node.
-        /// </summary>
         public void AddMetadataEntry(string key, object value)
         {
             _stepCollection.AddClosureBuilderStep(node =>
             {
                 node.PipelineMetadata.SetValue(key, value);
+            });
+        }
+
+        public void AddMetadataFlag(string flag, bool state)
+        {
+            _stepCollection.AddClosureBuilderStep(node =>
+            {
+                node.PipelineMetadata.SetFlag(flag, state);
             });
         }
 
@@ -156,5 +161,10 @@ namespace PixPipelineGraph
         /// Adds an entry for a metadata value for the created node.
         /// </summary>
         void AddMetadataEntry(string key, object value);
+
+        /// <summary>
+        /// Adds a flag for a metadata value for the created node.
+        /// </summary>
+        void AddMetadataFlag([NotNull] string flag, bool state);
     }
 }

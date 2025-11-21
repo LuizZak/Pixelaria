@@ -138,8 +138,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
             AdjustSize();
 
             SetupReactiveSearch();
-            var nodeProvider = new DefaultPipelineGraphNodeProvider();
-            LoadCreatablePipelineNodes(nodeProvider.NodeDescriptors);
+            LoadCreatablePipelineNodes(DefaultPipelineGraphNodeProvider.Instance.NodeDescriptors);
         }
 
         private void SetupReactiveSearch()

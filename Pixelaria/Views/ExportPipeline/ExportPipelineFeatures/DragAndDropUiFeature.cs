@@ -32,6 +32,12 @@ using PixUI;
 
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using PixPipelineGraph;
+using PixUI.Controls.ContextMenu;
+using Pixelaria.ExportPipeline;
+using System;
+using System.Numerics;
+using Pixelaria.Utils;
+using System.Diagnostics;
 
 namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 {
@@ -138,7 +144,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 }
                 else
                 {
-                    var operation = new LinkConnectionDragOperation(container, links);
+                    var operation = new LinkConnectionDragOperation(container, Control, links);
                     _operations.Add(operation);
                 }
             }
@@ -155,7 +161,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 }
                 else if (viewUnder is PipelineNodeLinkView linkView)
                 {
-                    var operation = new LinkConnectionDragOperation(container, new[] { linkView });
+                    var operation = new LinkConnectionDragOperation(container, Control, new[] { linkView });
                     _operations.Add(operation);
                 }
             }
@@ -337,6 +343,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             /// Container used to detect drop of link connections
             /// </summary>
             private readonly IPipelineContainer _container;
+            private readonly IExportPipelineControl _control;
 
             [NotNull, ItemNotNull]
             private readonly BezierPathView[] _linkDrawingPaths;
@@ -353,11 +360,11 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
             public IReadOnlyList<object> TargetObjects => LinkViews;
 
-            public LinkConnectionDragOperation([NotNull] IPipelineContainer container, [NotNull] PipelineNodeLinkView[] linkViews)
+            public LinkConnectionDragOperation([NotNull] IPipelineContainer container, [NotNull] IExportPipelineControl control, [NotNull] PipelineNodeLinkView[] linkViews)
             {
                 LinkViews = linkViews;
                 _container = container;
-
+                _control = control;
                 _linkDrawingPaths = new BezierPathView[linkViews.Length];
                 _linkConnectingPaths = new BezierPathView[linkViews.Length];
                 _linkConnectionLabels = new LabelView[linkViews.Length];
@@ -471,12 +478,166 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             /// </summary>
             public void Finish(Vector mousePosition)
             {
-                RemoveAuxiliaryViews();
-
                 var rootPosition = _container.ContentsView.ConvertFrom(mousePosition, null);
 
                 // We pick any link that isn't one of the ones that we're dragging
                 var targets = _container.FindTargetsForLinkViews(LinkViews, rootPosition);
+
+                if (LinkViews.Length > 0 && targets.Count(e => e != null) == 0)
+                {
+                    /* TODO: Ideally will be managed in-engine with ContextMenuControl
+                    var _dropDown = new ContextMenuDropDownItem("root");
+                    _dropDown.DropDownItems.Add("Item 1");
+                    _dropDown.DropDownItems.Add("Item 2");
+                    var _contextMenu = ContextMenuControl.Create(_dropDown);
+                    _contextMenu.Layout();
+                    _contextMenu.AutoSize();
+
+                    _container.ShowAsDialog(_contextMenu);
+                    */
+
+                    // Find common type
+                    Type commonType = LinkViews[0].LinkType;
+                    bool isInput = LinkViews[0] is PipelineNodeInputLinkView;
+                    foreach (PipelineNodeLinkView linkView in LinkViews)
+                    {
+                        // If any unmatching type is found, abort the operation and cancel.
+                        if (linkView.LinkType != commonType || (linkView is PipelineNodeInputLinkView) != isInput)
+                        {
+                            RemoveAuxiliaryViews();
+                            return;
+                        }
+                    }
+
+                    PipelineNodeView currentDisplayNode = null;
+                    bool isApplied = false;
+                    var targetPoint = _control.MousePoint;
+
+                    var potentialNodes = DefaultPipelineGraphNodeProvider.Instance.PotentialConnectionsForConnectionType(commonType, !isInput);
+
+                    var itemNames = potentialNodes.Select(n => n.NodeDisplayName);
+                    var contextMenuManager = new SearchContextMenuManager(itemNames);
+
+                    var allItems = new List<ToolStripItem>();
+
+                    void createPreviewNode(int potentialNodeIndex)
+                    {
+                        var potentialNode = potentialNodes[potentialNodeIndex];
+
+                        currentDisplayNode = _container.CreateNodeView(potentialNode.NodeKind, potentialNode.Icon, targetPoint);
+                        BaseView targetView;
+
+                        if (potentialNode.IsInput)
+                        {
+                            targetView = currentDisplayNode.InputViews[potentialNode.LinkIndex];
+                        }
+                        else
+                        {
+                            targetView = currentDisplayNode.OutputViews[potentialNode.LinkIndex];
+                        }
+
+                        var linkOffset = targetView.ConvertTo(targetView.Size / 2, currentDisplayNode);
+                        currentDisplayNode.Location -= linkOffset;
+                    }
+
+                    void destroyPreviewNode()
+                    {
+                        if (!isApplied && currentDisplayNode != null)
+                        {
+                            _container.RemoveNodeView(currentDisplayNode);
+                            currentDisplayNode = null;
+                        }
+                    }
+
+                    void applyPreviewNode(int potentialNodeIndex)
+                    {
+                        var potentialNode = potentialNodes[potentialNodeIndex];
+
+                        isApplied = true;
+
+                        if (currentDisplayNode == null)
+                        {
+                            createPreviewNode(potentialNodeIndex);
+                        }
+
+                        // Create links
+                        foreach (var linkView in LinkViews)
+                        {
+                            PipelineInput? start;
+                            PipelineOutput? end;
+
+                            // Figure out direction of connection
+                            if (linkView is PipelineNodeInputLinkView input && !potentialNode.IsInput)
+                            {
+                                start = input.InputId;
+                                end = currentDisplayNode.OutputViews[potentialNode.LinkIndex].OutputId;
+                            }
+                            else if (linkView is PipelineNodeOutputLinkView output && potentialNode.IsInput)
+                            {
+                                start = currentDisplayNode.InputViews[potentialNode.LinkIndex].InputId;
+                                end = output.OutputId;
+                            }
+                            else
+                            {
+                                continue;
+                            }
+
+                            if (start.HasValue && end.HasValue)
+                                _container.AddConnection(start.Value, end.Value);
+                        }
+                    }
+
+                    contextMenuManager.ItemSelected += (sender, args) =>
+                    {
+                        destroyPreviewNode();
+                        createPreviewNode(args.Index);
+                    };
+                    contextMenuManager.ItemMouseEnter += (sender, args) =>
+                    {
+                        destroyPreviewNode();
+                        createPreviewNode(args.Index);
+                    };
+                    contextMenuManager.ItemMouseLeave += (sender, args) =>
+                    {
+                        destroyPreviewNode();
+                    };
+                    contextMenuManager.ItemClick += (sender, args) =>
+                    {
+                        applyPreviewNode(args.Index);
+                    };
+
+                    if (_control is Control control)
+                    {
+                        var menu = contextMenuManager.GenerateContextMenu();
+
+                        menu.Closing += (sender, args) =>
+                        {
+                            if (!isApplied)
+                            {
+                                destroyPreviewNode();
+                            }
+
+                            RemoveAuxiliaryViews();
+                        };
+
+                        if (!isInput)
+                        {
+                            menu.Show(control, targetPoint, ToolStripDropDownDirection.BelowLeft);
+                        }
+                        else
+                        {
+                            menu.Show(control, targetPoint, ToolStripDropDownDirection.BelowRight);
+                        }
+                    }
+                    else
+                    {
+                        RemoveAuxiliaryViews();
+                    }
+
+                    return;
+                }
+
+                RemoveAuxiliaryViews();
 
                 // Create links
                 foreach (var (linkView, target) in LinkViews.Zip(targets, (lv, t) => (lv, t)))

@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
 using FastBitmapLib;
 using JetBrains.Annotations;
@@ -37,8 +38,16 @@ using PixPipelineGraph;
 
 namespace Pixelaria.ExportPipeline
 {
+    /// <summary>
+    /// Provides pipeline graph nodes that can be created in an editor.
+    /// </summary>
     internal class DefaultPipelineGraphNodeProvider : IPipelineGraphNodeProvider
     {
+        /// <summary>
+        /// Singleton instance of <see cref="DefaultPipelineGraphNodeProvider"/>.
+        /// </summary>
+        public static DefaultPipelineGraphNodeProvider Instance { get; } = new DefaultPipelineGraphNodeProvider();
+
         private readonly List<PipelineNodeDescriptor> _nodeDescriptors = new List<PipelineNodeDescriptor>();
 
         public IReadOnlyList<PipelineNodeDescriptor> NodeDescriptors => _nodeDescriptors;
@@ -89,6 +98,13 @@ namespace Pixelaria.ExportPipeline
             RegisterFilterNode<StrokeFilter>(PipelineNodeKinds.StrokeFilter, Resources.filter_stroke);
             RegisterFilterNode<ScaleFilter>(PipelineNodeKinds.ScaleFilter, Resources.filter_scale_icon);
             RegisterFilterNode<RotationFilter>(PipelineNodeKinds.RotationFilter, Resources.filter_rotation_icon);
+
+            // Static nodes
+            RegisterStaticNode(PipelineNodeKinds.StaticInt, Resources.accessories_calculator, "int32", 0);
+            RegisterStaticNode(PipelineNodeKinds.StaticFloat, Resources.accessories_calculator, "float", 0.0f);
+            RegisterStaticNode(PipelineNodeKinds.StaticDouble, Resources.accessories_calculator, "double", 0.0);
+            RegisterStaticNode(PipelineNodeKinds.StaticString, Resources.accessories_calculator, "string", "");
+            RegisterStaticNode(PipelineNodeKinds.StaticBool, Resources.accessories_calculator, "bool", false);
         }
 
         private void RegisterNode([NotNull] PipelineNodeDescriptor descriptor)
@@ -96,6 +112,31 @@ namespace Pixelaria.ExportPipeline
             Debug.Assert(_nodeDescriptors.All(node => node.NodeKind != descriptor.NodeKind), $"Registering duplicated node kind ${descriptor.NodeKind}");
 
             _nodeDescriptors.Add(descriptor);
+        }
+
+        private void RegisterStaticNode<T>(PipelineNodeKind nodeKind, Bitmap icon, string name, T defaultValue)
+        {
+            var nodeDesc = new PipelineNodeDescriptor
+            {
+                NodeKind = nodeKind,
+                Title = $"{name}",
+                Icon = icon,
+            };
+
+            nodeDesc.Outputs.Add(new PipelineOutputDescriptor("value", typeof(T)));
+
+            nodeDesc.Body
+                = new PipelineBody(
+                    new PipelineBodyId(nodeKind.Id),
+                    new Type[] { },
+                    new [] { typeof(T) },
+                    context =>
+                    {
+                        return AnyObservable.Return(defaultValue);
+                    }
+                );
+
+            RegisterNode(nodeDesc);
         }
 
         private void RegisterFilterNode<T>(PipelineNodeKind nodeKind, Bitmap icon) where T: IFilter, new()
@@ -124,8 +165,8 @@ namespace Pixelaria.ExportPipeline
                 = new PipelineBody(
                     new PipelineBodyId(nodeKind.Id), 
                     nodeDesc.Inputs.Select(i => i.InputType).ToArray(), 
-                    new [] {typeof(Bitmap)}, context =>
-                    {
+                    new [] {typeof(Bitmap)},
+                    context => {
                         var bitmapInput = context.GetIndexedInput<Bitmap>(0);
                         if (bitmapInput == null)
                             return AnyObservable.Empty;
@@ -188,6 +229,37 @@ namespace Pixelaria.ExportPipeline
 
             return true;
         }
+
+        public IReadOnlyList<PipelineNodeInputOutputConnectionOpportunity> PotentialConnectionsForConnectionType(Type valueType, bool isInput)
+        {
+            var result = new List<PipelineNodeInputOutputConnectionOpportunity>();
+
+            foreach (var node in _nodeDescriptors)
+            {
+                if (isInput)
+                {
+                    for (int i = 0; i < node.Inputs.Count; i++)
+                    {
+                        if (node.Inputs[i].InputType == valueType)
+                        {
+                            result.Add(new PipelineNodeInputOutputConnectionOpportunity(node.NodeKind, node.Title, node.Icon, true, i));
+                        }
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < node.Outputs.Count; i++)
+                    {
+                        if (node.Outputs[i].OutputType == valueType)
+                        {
+                            result.Add(new PipelineNodeInputOutputConnectionOpportunity(node.NodeKind, node.Title, node.Icon, false, i));
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
     }
 
     public static class PipelineNodeKinds
@@ -204,5 +276,11 @@ namespace Pixelaria.ExportPipeline
         public static PipelineNodeKind LightnessFilter { get; } = new PipelineNodeKind("lightnessFilter");
         public static PipelineNodeKind ScaleFilter { get; } = new PipelineNodeKind("scaleFilter");
         public static PipelineNodeKind RotationFilter { get; } = new PipelineNodeKind("rotationFilter");
+
+        public static PipelineNodeKind StaticFloat { get; } = new PipelineNodeKind("staticFloat");
+        public static PipelineNodeKind StaticDouble { get; } = new PipelineNodeKind("staticDouble");
+        public static PipelineNodeKind StaticString { get; } = new PipelineNodeKind("staticString");
+        public static PipelineNodeKind StaticInt { get; } = new PipelineNodeKind("staticInt");
+        public static PipelineNodeKind StaticBool { get; } = new PipelineNodeKind("staticBool");
     }
 }

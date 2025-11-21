@@ -20,8 +20,9 @@
     base directory of this project.
 */
 
-using System;
 using JetBrains.Annotations;
+using System;
+using System.Windows.Input;
 
 namespace PixPipelineGraph
 {
@@ -59,14 +60,19 @@ namespace PixPipelineGraph
             });
         }
 
-        /// <summary>
-        /// Adds an entry for a metadata value for the created input.
-        /// </summary>
         public void AddMetadataEntry(string key, object value)
         {
             _stepCollection.AddClosureBuilderStep(input =>
             {
                 input.Metadata.SetValue(key, value);
+            });
+        }
+
+        public void AddMetadataFlag(string flag, bool state)
+        {
+            _stepCollection.AddClosureBuilderStep(input =>
+            {
+                input.Metadata.SetFlag(flag, state);
             });
         }
 

@@ -202,55 +202,7 @@ namespace Pixelaria.Views.ExportPipeline
         {
             var container = exportPipelineControl.PipelineContainer;
 
-            var node = container.PipelineGraph.CreateNode(descriptor.NodeKind);
-            if (!node.HasValue)
-                return;
-            var nodeView = container.PipelineGraph.GetViewForPipelineNode(node.Value);
-            if (nodeView == null)
-                return;
-
-            var view = PipelineNodeView.Create(nodeView);
-            view.Icon = ExportPipelineNodesPanelManager.IconForPipelineNodeKind(descriptor.NodeKind, exportPipelineControl.ImageResources);
-            view.ManagedIcon = _panelManager.IconForPipelineNode(descriptor);
-
-            // Rename bitmap preview steps w/ numbers so they are easily identifiable
-            if (descriptor.NodeKind == PipelineNodeKinds.BitmapPreview)
-            {
-                var bitmapPreviewNodes = container.Nodes
-                    .Select(n => container.PipelineGraph.GetViewForPipelineNode(n))
-                    .Where(n => n != null)
-                    .Where(n => n.NodeKind == PipelineNodeKinds.BitmapPreview)
-                    .ToArray();
-
-                bool HasPreviewWithName(string name)
-                {
-                    return bitmapPreviewNodes.Any(n => n.Title == name);
-                }
-
-                int count = bitmapPreviewNodes.Length + 1;
-
-                // Ensure unique names
-                while (HasPreviewWithName($"Bitmap Preview #{count}"))
-                    count += 1;
-
-                container.PipelineGraph.SetNodeTitle(node.Value, $"Bitmap Preview #{count}");
-            }
-
-            container.AddNodeView(view);
-            container.AutoSizeNode(view);
-
-            // Automatically adjust view to be on center of view port, if no location was informed
-            if (screenPosition == null)
-            {
-                var center = exportPipelineControl.Bounds.Center();
-                var centerCont = container.ContentsView.ConvertFrom(center, null);
-
-                view.Location = centerCont - view.Size / 2;
-            }
-            else
-            {
-                view.Location = container.ContentsView.ConvertFrom(screenPosition.Value, null);
-            }
+            container.CreateNodeView(descriptor.NodeKind, descriptor.Icon, screenPosition);
         }
 
         private void tsb_sortSelected_Click(object sender, EventArgs e)

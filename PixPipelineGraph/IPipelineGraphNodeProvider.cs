@@ -21,6 +21,8 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Drawing;
 using JetBrains.Annotations;
 
 namespace PixPipelineGraph
@@ -48,6 +50,12 @@ namespace PixPipelineGraph
         /// the provided builder.
         /// </summary>
         bool CreateNode(PipelineNodeKind nodeKind, PipelineNodeBuilder builder);
+
+        /// <summary>
+        /// Returns a list of potential connections that can be created from a given input/output value type, based on the nodes that
+        /// can be created by this <see cref="IPipelineGraphNodeProvider"/>.
+        /// </summary>
+        IReadOnlyList<PipelineNodeInputOutputConnectionOpportunity> PotentialConnectionsForConnectionType(Type valueType, bool isInput);
     }
 
     /// <summary>
@@ -85,6 +93,46 @@ namespace PixPipelineGraph
         public static bool operator !=(PipelineBodyId left, PipelineBodyId right)
         {
             return !left.Equals(right);
+        }
+    }
+
+    /// <summary>
+    /// Specifies an opportunity to connect a new pipeline node input/output based on an input type.
+    /// </summary>
+    public readonly struct PipelineNodeInputOutputConnectionOpportunity
+    {
+        /// <summary>
+        /// Gets the node kind associated with this object.
+        /// </summary>
+        public PipelineNodeKind NodeKind { get; }
+
+        /// <summary>
+        /// Gets the display name of the node associated with this object.
+        /// </summary>
+        public string NodeDisplayName { get; }
+
+        /// <summary>
+        /// Gets the icon of the node associated with this object.
+        /// </summary>
+        public Bitmap Icon { get; }
+
+        /// <summary>
+        /// Whether the connection is to an input, or output.
+        /// </summary>
+        public bool IsInput { get; }
+
+        /// <summary>
+        /// Together with <see cref="IsInput"/>, specifies the input or output to connect.
+        /// </summary>
+        public int LinkIndex { get; }
+
+        public PipelineNodeInputOutputConnectionOpportunity(PipelineNodeKind nodeKind, string nodeDisplayName, Bitmap icon, bool isInput, int linkIndex)
+        {
+            NodeKind = nodeKind;
+            NodeDisplayName = nodeDisplayName;
+            Icon = icon;
+            IsInput = isInput;
+            LinkIndex = linkIndex;
         }
     }
 }

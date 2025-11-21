@@ -59,14 +59,19 @@ namespace PixPipelineGraph
             });
         }
 
-        /// <summary>
-        /// Adds an entry for a metadata value for the created output.
-        /// </summary>
         public void AddMetadataEntry(string key, object value)
         {
             _stepCollection.AddClosureBuilderStep(output =>
             {
                 output.Metadata.SetValue(key, value);
+            });
+        }
+
+        public void AddMetadataFlag(string flag, bool state)
+        {
+            _stepCollection.AddClosureBuilderStep(output =>
+            {
+                output.Metadata.SetFlag(flag, state);
             });
         }
 

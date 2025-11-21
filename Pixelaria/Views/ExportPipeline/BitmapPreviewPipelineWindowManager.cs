@@ -132,8 +132,11 @@ namespace Pixelaria.Views.ExportPipeline
             //step.Renamed -= OnBitmapStepOnRenamed;
 
             _previewSteps.Remove(step);
-            _latestPreviews[step]?.Dispose();
-            _latestPreviews.Remove(step);
+            if (_latestPreviews.TryGetValue(step, out var value))
+            {
+                value?.Dispose();
+                _latestPreviews.Remove(step);
+            }
 
             ReloadBoundsCache();
         }

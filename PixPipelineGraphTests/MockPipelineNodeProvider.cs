@@ -61,18 +61,18 @@ namespace PixPipelineGraphTests
         {
             var bodyId = new PipelineBodyId(Guid.NewGuid().ToString());
 
-            var pipelineBody = new PipelineBody(bodyId, inputTypes, new[] {typeof(T)}, context =>
+            var pipelineBody = new PipelineBody(bodyId, inputTypes, new[] { typeof(T) }, context =>
             {
                 try
                 {
                     var subject = new ReplaySubject<T>();
                     subject.OnNext(body(context));
                     subject.OnCompleted();
-                    return new []{AnyObservable.FromObservable(subject)};
+                    return new[] { AnyObservable.FromObservable(subject) };
                 }
                 catch (Exception e)
                 {
-                    return new []{AnyObservable.FromObservable(new AnonymousObservable<T>(observer =>
+                    return new[]{AnyObservable.FromObservable(new AnonymousObservable<T>(observer =>
                     {
                         observer.OnError(e);
                         return Disposable.Empty;
@@ -92,7 +92,7 @@ namespace PixPipelineGraphTests
                 return value;
             }
 
-            return new PipelineBody(id, new[] { typeof(int) }, new[] {typeof(int)}, o => new []{AnyObservable.FromObservable(new Subject<object>())});
+            return new PipelineBody(id, new[] { typeof(int) }, new[] { typeof(int) }, o => new[] { AnyObservable.FromObservable(new Subject<object>()) });
         }
 
         public bool CanCreateNode(PipelineNodeKind kind)
@@ -109,6 +109,11 @@ namespace PixPipelineGraphTests
             }
 
             return false;
+        }
+
+        public IReadOnlyList<PipelineNodeInputOutputConnectionOpportunity> PotentialConnectionsForConnectionType(Type valueType, bool isInput)
+        {
+            return new PipelineNodeInputOutputConnectionOpportunity[] { };
         }
     }
 }

@@ -64,6 +64,8 @@ namespace PixUI.Controls.ContextMenu
         {
             _rootItem = rootItem;
             _visibleItem = rootItem;
+
+            SetNeedsLayout();
         }
 
         protected virtual void Initialize()

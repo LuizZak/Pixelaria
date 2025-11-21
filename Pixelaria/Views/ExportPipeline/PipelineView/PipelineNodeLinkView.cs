@@ -51,9 +51,15 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
         /// </summary>
         public LabelView LinkLabel { get; } = new LabelView();
 
-        protected PipelineNodeLinkView(string title)
+        /// <summary>
+        /// Gets the type of this link, either as an input or an output link.
+        /// </summary>
+        public Type LinkType { get; }
+
+        protected PipelineNodeLinkView(string title, Type linkType)
         {
             Title = title;
+            LinkType = linkType;
         }
 
         protected void Initialize()
@@ -109,7 +115,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             return view;
         }
 
-        private PipelineNodeInputLinkView([NotNull] IPipelineInput input, [NotNull] Type inputType) : base(input.Name)
+        private PipelineNodeInputLinkView([NotNull] IPipelineInput input, [NotNull] Type inputType) : base(input.Name, inputType)
         {
             InputId = input.Id;
             InputType = inputType;
@@ -140,7 +146,7 @@ namespace Pixelaria.Views.ExportPipeline.PipelineView
             return view;
         }
 
-        private PipelineNodeOutputLinkView([NotNull] IPipelineOutput output, [NotNull] Type outputType) : base(output.Name)
+        private PipelineNodeOutputLinkView([NotNull] IPipelineOutput output, [NotNull] Type outputType) : base(output.Name, outputType)
         {
             OutputId = output.Id;
             OutputType = outputType;

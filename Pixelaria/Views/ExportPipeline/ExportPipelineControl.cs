@@ -25,12 +25,14 @@ using PixCore.Colors;
 using PixCore.Geometry;
 using Pixelaria.ExportPipeline;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
+using Pixelaria.Views.ExportPipeline.PipelineNodePanel;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using PixPipelineGraph;
 using PixRendering;
 using PixUI;
 using PixUI.Animation;
 using PixUI.Controls;
+using PixUI.LayoutSystem;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -536,6 +538,22 @@ namespace Pixelaria.Views.ExportPipeline
                 _connectionViews.Remove(view);
             }
 
+            public void ShowAsDialog(ControlView dialogView)
+            {
+                var clickTrap = new ControlView();
+                clickTrap.BackColor = Color.Black.WithTransparency(0.1f);
+                clickTrap.TranslateBoundsIntoConstraints = false;
+
+                _control.ControlContainer.AddControl(clickTrap);
+
+                LayoutConstraint.Create(clickTrap.Anchors.Left, clickTrap.Parent.Anchors.Left);
+                LayoutConstraint.Create(clickTrap.Anchors.Top, clickTrap.Parent.Anchors.Top);
+                LayoutConstraint.Create(clickTrap.Anchors.Right, clickTrap.Parent.Anchors.Right);
+                LayoutConstraint.Create(clickTrap.Anchors.Bottom, clickTrap.Parent.Anchors.Bottom);
+
+                _control.ControlContainer.AddControl(dialogView);
+            }
+
             public void RemoveAllViews()
             {
                 ClearSelection();
@@ -559,6 +577,62 @@ namespace Pixelaria.Views.ExportPipeline
 
                 _nodeViews.Clear();
                 _connectionViews.Clear();
+            }
+
+            public PipelineNodeView CreateNodeView(PipelineNodeKind nodeKind, Bitmap icon, Vector? screenPosition)
+            {
+                var node = PipelineGraph.CreateNode(nodeKind);
+                if (!node.HasValue)
+                    return null;
+                var nodeView = PipelineGraph.GetViewForPipelineNode(node.Value);
+                if (nodeView == null)
+                    return null;
+
+                var view = PipelineNodeView.Create(nodeView);
+                view.Icon = ExportPipelineNodesPanelManager.IconForPipelineNodeKind(nodeKind, _control.ImageResources);
+                if (icon != null)
+                    view.ManagedIcon = _control.ImageResources.CreateManagedImageResource(icon);
+
+                // Rename bitmap preview steps w/ numbers so they are easily identifiable
+                if (nodeKind == PipelineNodeKinds.BitmapPreview)
+                {
+                    var bitmapPreviewNodes = Nodes
+                        .Select(n => PipelineGraph.GetViewForPipelineNode(n))
+                        .Where(n => n != null)
+                        .Where(n => n.NodeKind == PipelineNodeKinds.BitmapPreview)
+                        .ToArray();
+
+                    bool HasPreviewWithName(string name)
+                    {
+                        return bitmapPreviewNodes.Any(n => n.Title == name);
+                    }
+
+                    int count = bitmapPreviewNodes.Length + 1;
+
+                    // Ensure unique names
+                    while (HasPreviewWithName($"Bitmap Preview #{count}"))
+                        count += 1;
+
+                    PipelineGraph.SetNodeTitle(node.Value, $"Bitmap Preview #{count}");
+                }
+
+                AddNodeView(view);
+                AutoSizeNode(view);
+
+                // Automatically adjust view to be on center of view port, if no location was informed
+                if (screenPosition == null)
+                {
+                    var center = _control.Bounds.Center();
+                    var centerCont = ContentsView.ConvertFrom(center, null);
+
+                    view.Location = centerCont - view.Size / 2;
+                }
+                else
+                {
+                    view.Location = ContentsView.ConvertFrom(screenPosition.Value, null);
+                }
+
+                return view;
             }
 
             public void AddNodeView(PipelineNodeView nodeView)

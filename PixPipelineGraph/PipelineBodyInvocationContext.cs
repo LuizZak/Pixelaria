@@ -343,6 +343,11 @@ namespace PixPipelineGraph
             return list.Concat();
         }
 
+        public static AnyObservable Return<T>(T value)
+        {
+            return new AnyObservable(value, Observable.Return((object)value));
+        }
+
         public static AnyObservable Combine([NotNull] AnyObservable first, [NotNull] AnyObservable second)
         {
             return new AnyObservable(first._underlying.Concat(second._underlying).ToArray(), first._underlyingErased.Concat(second._underlyingErased).ToArray());

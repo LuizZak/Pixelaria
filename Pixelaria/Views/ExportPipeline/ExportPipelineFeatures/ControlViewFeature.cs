@@ -119,10 +119,15 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
             traverser.Visit(BaseControl);
         }
 
+        public void Layout()
+        {
+            BaseControl.Layout();
+        }
+
         public void Render(IRenderListenerParameters parameters)
         {
             // Apply layout events first
-            BaseControl.Layout();
+            Layout();
 
             var context = new ControlRenderingContext(parameters);
 
