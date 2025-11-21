@@ -32,12 +32,10 @@ using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixLib.Data.Persistence;
 using PixRendering;
-using PixDirectX.Rendering.DirectX;
 using PixUI;
 using PixUI.Controls;
 using PixUI.Animation;
 
-using Pixelaria.ExportPipeline;
 using Pixelaria.Properties;
 using Pixelaria.Utils;
 using Pixelaria.Views.Direct2D;
@@ -150,9 +148,7 @@ namespace Pixelaria.Views.ExportPipeline
 
         private void ConfigureForm([NotNull] IRenderManager renderer, [NotNull] IRenderLoopState state)
         {
-            // InitTest();
-
-            ControlView.TextLayoutRenderer = new Direct2DRenderManager();
+            ControlView.TextLayoutRenderer = renderer;
 
             ConfigurePipelineControl(state);
             ConfigureNodesPanel(renderer);

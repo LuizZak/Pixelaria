@@ -118,7 +118,7 @@ namespace PixCore.Geometry
             return _paths.Select(p => p.vertices.ToArray()).ToArray();
         }
 
-        private List<List<IntPoint>> PolygonPoints()
+        private PolyList PolygonPoints()
         {
             return _paths.Select(p => p.ToPoints(Scale)).ToList();
         }
