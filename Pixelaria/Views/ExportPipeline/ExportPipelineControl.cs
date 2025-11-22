@@ -24,6 +24,7 @@ using JetBrains.Annotations;
 using PixCore.Colors;
 using PixCore.Geometry;
 using Pixelaria.ExportPipeline;
+using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline.ExportPipelineFeatures;
 using Pixelaria.Views.ExportPipeline.PipelineNodePanel;
 using Pixelaria.Views.ExportPipeline.PipelineView;
@@ -38,6 +39,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Windows.Forms;
 using Color = System.Drawing.Color;
 using Point = System.Drawing.Point;
@@ -470,15 +472,15 @@ namespace Pixelaria.Views.ExportPipeline
         /// 
         /// Also aids in position calculations for rendering
         /// </summary>
-        private class InternalPipelineContainer : IPipelineContainer, IFirstResponderDelegate<IEventHandler>, IInvalidateRegionDelegate
+        private class InternalPipelineContainer : IPipelineContainer, IFirstResponderDelegate<IEventHandler>, IInvalidateRegionDelegate, IDisposable
         {
             private readonly RootControlView _root;
             private readonly List<object> _selection = new List<object>();
             private readonly List<PipelineNodeView> _nodeViews = new List<PipelineNodeView>();
-            private readonly List<PipelineNodeConnectionLineView> _connectionViews =
-                new List<PipelineNodeConnectionLineView>();
+            private readonly List<PipelineNodeConnectionLineView> _connectionViews = new List<PipelineNodeConnectionLineView>();
             private readonly InternalSelection _sel;
             private readonly IExportPipelineControl _control;
+            private CompositeDisposable _disposeBag = new CompositeDisposable();
             
             public event PipelineNodeViewEventHandler NodeAdded;
 
@@ -515,6 +517,11 @@ namespace Pixelaria.Views.ExportPipeline
                 _root.InvalidateRegionDelegate = this;
             }
 
+            public void Dispose()
+            {
+                _disposeBag.Dispose();
+            }
+
             private void PipelineGraphOnConnectionWasAdded(object sender, [NotNull] ConnectionEventArgs args)
             {
                 var inpView = ViewForPipelineInput(args.Connection.End);
@@ -538,11 +545,12 @@ namespace Pixelaria.Views.ExportPipeline
                 _connectionViews.Remove(view);
             }
 
-            public void ShowAsDialog(ControlView dialogView)
+            public void ShowAsDialog<Dialog>(Dialog dialogView) where Dialog : ControlView, IDialogControl
             {
                 var clickTrap = new ControlView();
                 clickTrap.BackColor = Color.Black.WithTransparency(0.1f);
-                clickTrap.TranslateBoundsIntoConstraints = false;
+                clickTrap.AreaIntoConstraintsMask = BoundsConstraintMask.None;
+                clickTrap.InteractionEnabled = true;
 
                 _control.ControlContainer.AddControl(clickTrap);
 
@@ -551,7 +559,30 @@ namespace Pixelaria.Views.ExportPipeline
                 LayoutConstraint.Create(clickTrap.Anchors.Right, clickTrap.Parent.Anchors.Right);
                 LayoutConstraint.Create(clickTrap.Anchors.Bottom, clickTrap.Parent.Anchors.Bottom);
 
+                void closeDialog()
+                {
+                    clickTrap.RemoveFromParent();
+                    dialogView.RemoveFromParent();
+                }
+
                 _control.ControlContainer.AddControl(dialogView);
+
+                if (dialogView.DialogContextFlags.HasFlag(DialogControlContextFlags.ContextMenu))
+                {
+                    clickTrap
+                        .Rx
+                        .MouseClick
+                        .Subscribe(e =>
+                        {
+                            dialogView.Close(DialogControlCloseReason.AppFocusChange);
+                        })
+                        .AddToDisposable(_disposeBag);
+                }
+
+                dialogView.Closing += (sender, e) =>
+                {
+                    closeDialog();
+                };
             }
 
             public void RemoveAllViews()

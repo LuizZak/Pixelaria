@@ -21,57 +21,103 @@
 */
 
 using JetBrains.Annotations;
+using PixCore.Text;
 using PixRendering;
+using System;
+using System.Windows.Forms;
 
 namespace PixUI.Controls.ContextMenu
 {
     /// <summary>
-    /// An item for a <see cref="ContextMenuControl"/>.
+    /// An item for a <see cref="ContextMenuControl"/> that displays a label, with an optional image attached.
     /// </summary>
-    public class ContextMenuItem
+    public class ContextMenuItem: ContextMenuItemBase
     {
+        private bool _selected = false;
+        private AttributedText _attributedName = new AttributedText();
+
         /// <summary>
-        /// Gets or sets the display name for this context menu item
+        /// Gets or sets the display name for this context menu item.
+        /// 
+        /// Setting this value resets <see cref="AttributedName"/>.
         /// </summary>
         [NotNull]
-        public string Name { get; set; }
-
-        /// <summary>
-        /// The image displayed alongside this drop down item
-        /// </summary>
-        public ImageResource? Image { get; set; }
-
-        /// <summary>
-        /// The managed image to render alongside this drop down item.
-        ///
-        /// Overrides the value configured in <see cref="Image"/>.
-        /// </summary>
-        [CanBeNull]
-        public IManagedImageResource ManagedImage { get; set; }
-
-        /// <summary>
-        /// The drop down item that contains this menu item.
-        ///
-        /// May be null, in case this context menu item has no parent.
-        /// </summary>
-        [CanBeNull]
-        public ContextMenuDropDownItem DropDownItem { get; internal set; }
-
-        /// <summary>
-        /// Gets the index of this context menu item on its parent drop down item.
-        /// 
-        /// If this item is not added to a parent, -1 is returned.
-        /// </summary>
-        public int Index => DropDownItem?.DropDownItems.IndexOf(this) ?? -1;
-
-        public ContextMenuItem([NotNull] string value)
+        public string Name
         {
-            Name = value;
+            get { return AttributedName.String; }
+            set { AttributedName = new AttributedText(value); }
         }
 
-        public ContextMenuItem([NotNull] string value, ImageResource image)
+        /// <summary>
+        /// Gets or sets the attributed name for this context menu item.
+        /// </summary>
+        [NotNull]
+        public AttributedText AttributedName
         {
-            Name = value;
+            get { return _attributedName; }
+            set
+            {
+                _attributedName.Modified -= AttributedName_modified;
+                _attributedName = value;
+                _attributedName.Modified += AttributedName_modified;
+                AttributedNameChanged?.Invoke(this, _attributedName);
+            }
+        }
+
+        /// <summary>
+        /// Changes the selected status of this context menu item.
+        /// </summary>
+        public bool Selected
+        {
+            get { return _selected; }
+            set {
+                if (_selected == value)
+                    return;
+
+                _selected = value;
+                SelectChange?.Invoke(this, _selected);
+            }
+        }
+
+        #region Events
+
+        public delegate void SelectChangeEventHandler(object sender, bool selected);
+        public delegate void AttributedNameChangedEventHandler(object sender, AttributedText attributedName);
+
+        /// <summary>
+        /// Event raised when <see cref="AttributedName"/> or <see cref="Name"/> changes.
+        /// </summary>
+        public event AttributedNameChangedEventHandler AttributedNameChanged;
+
+        /// <summary>
+        /// Event raised when <see cref="Selected"/> changes.
+        /// </summary>
+        public event SelectChangeEventHandler SelectChange;
+
+        /// <summary>
+        /// Event raised when the mouse has entered this context menu item.
+        /// </summary>
+        public event EventHandler MouseEnter;
+
+        /// <summary>
+        /// Event raised when the moust has left this context menu item.
+        /// </summary>
+        public event EventHandler MouseLeave;
+
+        /// <summary>
+        /// Event raised when the user has selected this context menu item with the mouse.
+        /// </summary>
+        public event MouseEventHandler Click;
+
+        #endregion
+
+        public ContextMenuItem([NotNull] string value) : this(value, null)
+        {
+
+        }
+
+        public ContextMenuItem([NotNull] string value, ImageResource image) : this(value, null)
+        {
             Image = image;
         }
 
@@ -79,6 +125,42 @@ namespace PixUI.Controls.ContextMenu
         {
             Name = value;
             ManagedImage = managedImage;
+
+            _attributedName.Modified += AttributedName_modified;
+        }
+
+        /// <summary>
+        /// Raises the <see cref="MouseEnter"/> event.
+        /// </summary>
+        internal void OnMouseEnter(object sender, EventArgs e)
+        {
+            MouseEnter?.Invoke(this, e);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="MouseLeave"/> event.
+        /// </summary>
+        internal void OnMouseLeave(object sender, EventArgs e)
+        {
+            MouseLeave?.Invoke(this, e);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="Click"/> event.
+        /// </summary>
+        internal void OnClick(object sender, MouseEventArgs e)
+        {
+            Click?.Invoke(this, e);
+        }
+
+        void AttributedName_modified(object sender, EventArgs args)
+        {
+            AttributedNameChanged?.Invoke(this, AttributedName);
+        }
+
+        internal override ContextMenuControl.ContextMenuItemViewBase CreateContextMenuItemView()
+        {
+            return ContextMenuControl.ContextMenuItemView.Create(this);
         }
     }
 }

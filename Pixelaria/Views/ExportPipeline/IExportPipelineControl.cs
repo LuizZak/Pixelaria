@@ -202,7 +202,7 @@ namespace Pixelaria.Views.ExportPipeline
         /// Shows a view as a dialog view, with a container behind the view that serves
         /// as a mouse click area that hides the view in case the user clicks it.
         /// </summary>
-        void ShowAsDialog(ControlView dialogView);
+        void ShowAsDialog<Dialog>(Dialog dialogView) where Dialog: ControlView, IDialogControl;
 
         /// <summary>
         /// Removes all views on this pipeline container

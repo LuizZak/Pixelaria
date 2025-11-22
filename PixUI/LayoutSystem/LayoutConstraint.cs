@@ -207,6 +207,8 @@ namespace PixUI.LayoutSystem
             }
         }
 
+        // TODO: Make own struct for priority representation that allows binary operations with double/ints.
+
         public static LayoutConstraint Create(LayoutAnchor firstAnchor, LayoutRelationship relationship = LayoutRelationship.Equal, ClStrength priority = null, float constant = 0, float multiplier = 1)
         {
             var constraint = new LayoutConstraint(firstAnchor, null, relationship, priority ?? ClStrength.Strong)
@@ -254,7 +256,9 @@ namespace PixUI.LayoutSystem
             }
             
             var ancestor = view1.CommonAncestor(view2);
-            
+            if (ancestor == null)
+                throw new ArgumentException("Cannot create constraints between views in different hierarchies");
+
             var constraint = new LayoutConstraint(firstAnchor, secondAnchor, relationship, priority ?? ClStrength.Strong)
             {
                 Constant = constant, Multiplier = multiplier
@@ -262,9 +266,6 @@ namespace PixUI.LayoutSystem
 
             firstAnchor.container.AffectingConstraints.Add(constraint);
             secondAnchor.container.AffectingConstraints.Add(constraint);
-
-            if (ancestor == null)
-                throw new ArgumentException("Cannot create constraints between views in different hierarchies");
 
             ancestor.LayoutConstraints.Add(constraint);
             constraint.Container = ancestor;
@@ -296,7 +297,7 @@ namespace PixUI.LayoutSystem
     [Flags]
     internal enum LayoutAnchorOrientationFlags
     {
-        Horizontal = 0b1,
-        Vertical = 0b10
+        Horizontal = 0b001,
+        Vertical = 0b0010
     }
 }

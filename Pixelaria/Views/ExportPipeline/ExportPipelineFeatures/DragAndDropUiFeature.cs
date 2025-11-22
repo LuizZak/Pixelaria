@@ -20,24 +20,27 @@
     base directory of this project.
 */
 
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Windows.Forms;
-
 using JetBrains.Annotations;
 using PixCore.Colors;
 using PixCore.Geometry;
-using PixUI;
-
+using PixCore.Text;
+using PixCore.Text.Attributes;
+using Pixelaria.ExportPipeline;
+using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline.PipelineView;
 using PixPipelineGraph;
+using PixUI;
+using PixUI.Controls;
 using PixUI.Controls.ContextMenu;
-using Pixelaria.ExportPipeline;
+using PixUI.LayoutSystem;
 using System;
-using System.Numerics;
-using Pixelaria.Utils;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
+using System.Linq;
+using System.Numerics;
+using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 {
@@ -485,17 +488,6 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
                 if (LinkViews.Length > 0 && targets.Count(e => e != null) == 0)
                 {
-                    /* TODO: Ideally will be managed in-engine with ContextMenuControl
-                    var _dropDown = new ContextMenuDropDownItem("root");
-                    _dropDown.DropDownItems.Add("Item 1");
-                    _dropDown.DropDownItems.Add("Item 2");
-                    var _contextMenu = ContextMenuControl.Create(_dropDown);
-                    _contextMenu.Layout();
-                    _contextMenu.AutoSize();
-
-                    _container.ShowAsDialog(_contextMenu);
-                    */
-
                     // Find common type
                     Type commonType = LinkViews[0].LinkType;
                     bool isInput = LinkViews[0] is PipelineNodeInputLinkView;
@@ -509,16 +501,11 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                         }
                     }
 
-                    PipelineNodeView currentDisplayNode = null;
-                    bool isApplied = false;
                     var targetPoint = _control.MousePoint;
-
                     var potentialNodes = DefaultPipelineGraphNodeProvider.Instance.PotentialConnectionsForConnectionType(commonType, !isInput);
 
-                    var itemNames = potentialNodes.Select(n => n.NodeDisplayName);
-                    var contextMenuManager = new SearchContextMenuManager(itemNames);
-
-                    var allItems = new List<ToolStripItem>();
+                    PipelineNodeView currentDisplayNode = null;
+                    bool isApplied = false;
 
                     void createPreviewNode(int potentialNodeIndex)
                     {
@@ -586,6 +573,109 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                                 _container.AddConnection(start.Value, end.Value);
                         }
                     }
+
+                    /* TODO: Ideally will be managed in-engine with ContextMenuControl
+                    */
+
+                    var _dropDown = new ContextMenuDropDownItem("root");
+
+                    var allItems = new List<ContextMenuDropDownItem>();
+
+                    var searchBox = TextField.Create(true);
+                    searchBox.Layout();
+                    searchBox.Size = new Vector(100, 26);
+                    searchBox.TextChanged += (sender, args) =>
+                    {
+                        if (string.IsNullOrEmpty(args.Text))
+                        {
+                            foreach (var item in allItems)
+                            {
+                                item.Visible = true;
+                                item.AttributedName.ClearAttributes();
+                            }
+                        }
+                        else
+                        {
+                            foreach (var item in allItems)
+                            {
+                                var index = item.Name.IndexOf(args.Text, StringComparison.InvariantCultureIgnoreCase);
+
+                                if (index != -1)
+                                {
+                                    item.Visible = true;
+                                    item.AttributedName.ClearAttributes();
+                                    item.AttributedName.SetAttributes(new TextRange(index, args.Text.Length), new ITextAttribute[]
+                                    {
+                                        new BackgroundColorAttribute(Color.Blue)
+                                    });
+                                }
+                                else
+                                {
+                                    item.Visible = false;
+                                    item.AttributedName.ClearAttributes();
+                                }
+                            }
+                        }
+                    };
+
+                    _dropDown.DropDownItems.Add(new ContextMenuControlHostItem(searchBox) { CreateConstraints = false });
+
+                    for (int i = 0; i < potentialNodes.Count; i++)
+                    {
+                        int index = i;
+                        var potentialNode = potentialNodes[i];
+                        var item = _dropDown.DropDownItems.Add(potentialNode.NodeDisplayName);
+
+                        allItems.Add(item);
+
+                        item.SelectChange += (sender, e) =>
+                        {
+                            destroyPreviewNode();
+                            createPreviewNode(index);
+                        };
+                        item.MouseEnter += (sender, e) =>
+                        {
+                            destroyPreviewNode();
+                            createPreviewNode(index);
+                        };
+                        item.MouseLeave += (sender, e) =>
+                        {
+                            destroyPreviewNode();
+                        };
+                        item.Click += (sender, e) =>
+                        {
+                            applyPreviewNode(index);
+                        };
+                    }
+
+                    var _contextMenu = ContextMenuControl.Create(_dropDown);
+                    _contextMenu.AreaIntoConstraintsMask = BoundsConstraintMask.Size;
+                    _contextMenu.Layout();
+                    _contextMenu.Closed += (sender, e) =>
+                    {
+                        if (!isApplied)
+                        {
+                            destroyPreviewNode();
+                        }
+
+                        RemoveAuxiliaryViews();
+                    };
+
+                    _container.ShowAsDialog(_contextMenu);
+
+                    LayoutConstraint.Create(_contextMenu.Anchors.Left, _contextMenu.Parent.Anchors.Left, LayoutRelationship.GreaterThanOrEqual, priority: Cassowary.ClStrength.Strong);
+                    LayoutConstraint.Create(_contextMenu.Anchors.Top, _contextMenu.Parent.Anchors.Top, LayoutRelationship.GreaterThanOrEqual, priority: Cassowary.ClStrength.Strong);
+                    LayoutConstraint.Create(_contextMenu.Anchors.Bottom, _contextMenu.Parent.Anchors.Bottom, LayoutRelationship.LessThanOrEqual, priority: Cassowary.ClStrength.Strong);
+                    LayoutConstraint.Create(_contextMenu.Anchors.Right, _contextMenu.Parent.Anchors.Right, LayoutRelationship.LessThanOrEqual, priority: Cassowary.ClStrength.Strong);
+
+                    LayoutConstraint.Create(_contextMenu.Anchors.Left, priority: Cassowary.ClStrength.Weak, constant: targetPoint.X);
+                    LayoutConstraint.Create(_contextMenu.Anchors.Top, priority: Cassowary.ClStrength.Weak, constant: targetPoint.Y);
+
+                    return;
+
+                    var itemNames = potentialNodes.Select(n => n.NodeDisplayName);
+
+                    var contextMenuManager = new SearchContextMenuManager(itemNames);
 
                     contextMenuManager.ItemSelected += (sender, args) =>
                     {

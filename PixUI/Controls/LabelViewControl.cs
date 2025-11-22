@@ -75,7 +75,12 @@ namespace PixUI.Controls
             set
             {
                 _labelViewBacking.TextFont = value;
+
+                if (AutoResize)
+                    CalculateBounds();
+
                 ResetTextFormat();
+                Invalidate();
             }
         }
 
@@ -85,20 +90,34 @@ namespace PixUI.Controls
             get => _labelViewBacking.Text;
             set
             {
-                if (AutoResize)
-                    Layout();
-
                 _labelViewBacking.Text = value;
 
+                if (AutoResize)
+                    CalculateBounds();
+
                 ResetTextFormat();
+                Invalidate();
             }
         }
 
         /// <summary>
-        /// Gets the attributed text for this label view control
+        /// Gets or sets the attributed text for this label view control
         /// </summary>
         [NotNull]
-        public IAttributedText AttributedText => _labelViewBacking.AttributedText;
+        public AttributedText AttributedText
+        {
+            get { return _labelViewBacking.AttributedText; }
+            set
+            {
+                _labelViewBacking.AttributedText = value;
+
+                if (AutoResize)
+                    CalculateBounds();
+
+                ResetTextFormat();
+                Invalidate();
+            }
+        }
 
         public HorizontalTextAlignment HorizontalTextAlignment
         {
@@ -155,6 +174,12 @@ namespace PixUI.Controls
         {
             InteractionEnabled = false;
             _labelViewBacking.BoundsInvalidated += (sender, args) =>
+            {
+                SetNeedsLayout();
+                CalculateBounds();
+                Invalidate();
+            };
+            _labelViewBacking.AttributedText.Modified += (sender, args) =>
             {
                 SetNeedsLayout();
                 CalculateBounds();

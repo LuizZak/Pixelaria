@@ -23,17 +23,40 @@
 namespace PixUI.LayoutSystem
 {
     /// <summary>
-    /// Returns layout anchors for a <see cref="BaseView"/> or <see cref="LayoutGuide"/>
+    /// Returns layout anchors for a <see cref="BaseView"/> or <see cref="LayoutGuide"/>.
     /// </summary>
     public class LayoutAnchors
     {
         private readonly ILayoutVariablesContainer _target;
-        
+
+        /// <summary>
+        /// The top anchor, or Y value.
+        /// </summary>
         public LayoutAnchor Top => new LayoutAnchor(_target, LayoutAnchorKind.Top);
+        
+        /// <summary>
+        /// The left anchor, or X value.
+        /// </summary>
         public LayoutAnchor Left => new LayoutAnchor(_target, LayoutAnchorKind.Left);
+        
+        /// <summary>
+        /// The Right anchor, or X + Width value.
+        /// </summary>
         public LayoutAnchor Right => new LayoutAnchor(_target, LayoutAnchorKind.Right);
+        
+        /// <summary>
+        /// The Bottom anchor, or Y + Height value.
+        /// </summary>
         public LayoutAnchor Bottom => new LayoutAnchor(_target, LayoutAnchorKind.Bottom);
+        
+        /// <summary>
+        /// The Height anchor.
+        /// </summary>
         public LayoutAnchor Width => new LayoutAnchor(_target, LayoutAnchorKind.Width);
+
+        /// <summary>
+        /// The Width anchor.
+        /// </summary>
         public LayoutAnchor Height => new LayoutAnchor(_target, LayoutAnchorKind.Height);
 
         internal LayoutAnchors(ILayoutVariablesContainer target)

@@ -63,12 +63,12 @@ namespace PixUI.Controls.ContextMenu
         /// <summary>
         /// A collection of drop down menu items on this drop down item
         /// </summary>
-        public class ContextMenuItemCollection : IList<ContextMenuItem>
+        public class ContextMenuItemCollection : IList<ContextMenuItemBase>
         {
             private readonly ContextMenuDropDownItem _dropDownItem;
-            private readonly List<ContextMenuItem> _items = new List<ContextMenuItem>();
+            private readonly List<ContextMenuItemBase> _items = new List<ContextMenuItemBase>();
 
-            public ContextMenuItem this[int index]
+            public ContextMenuItemBase this[int index]
             {
                 get => _items[index];
                 set => _items[index] = value;
@@ -82,7 +82,7 @@ namespace PixUI.Controls.ContextMenu
                 _dropDownItem = dropDownItem;
             }
 
-            public IEnumerator<ContextMenuItem> GetEnumerator()
+            public IEnumerator<ContextMenuItemBase> GetEnumerator()
             {
                 return _items.GetEnumerator();
             }
@@ -92,7 +92,7 @@ namespace PixUI.Controls.ContextMenu
                 return GetEnumerator();
             }
 
-            public void Add(ContextMenuItem dropDownItem)
+            public void Add(ContextMenuItemBase dropDownItem)
             {
                 Debug.Assert(dropDownItem != null);
 
@@ -138,17 +138,17 @@ namespace PixUI.Controls.ContextMenu
                 _dropDownItem.ItemsCollectionChanged();
             }
 
-            public bool Contains(ContextMenuItem dropDownItem)
+            public bool Contains(ContextMenuItemBase dropDownItem)
             {
                 return _items.Contains(dropDownItem);
             }
 
-            public void CopyTo(ContextMenuItem[] array, int arrayIndex)
+            public void CopyTo(ContextMenuItemBase[] array, int arrayIndex)
             {
                 _items.CopyTo(array, arrayIndex);
             }
 
-            public bool Remove(ContextMenuItem dropDownItem)
+            public bool Remove(ContextMenuItemBase dropDownItem)
             {
                 bool removed = _items.Remove(dropDownItem);
 
@@ -157,12 +157,12 @@ namespace PixUI.Controls.ContextMenu
                 return removed;
             }
 
-            public int IndexOf(ContextMenuItem item)
+            public int IndexOf(ContextMenuItemBase item)
             {
                 return _items.IndexOf(item);
             }
 
-            public void Insert(int index, ContextMenuItem item)
+            public void Insert(int index, ContextMenuItemBase item)
             {
                 Debug.Assert(item != null);
 
@@ -178,7 +178,7 @@ namespace PixUI.Controls.ContextMenu
                 _items.RemoveAt(index);
             }
 
-            private void CheckRecursive(ContextMenuItem item)
+            private void CheckRecursive(ContextMenuItemBase item)
             {
                 var current = item;
                 while (current != null)

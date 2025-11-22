@@ -43,7 +43,7 @@ namespace PixUI.LayoutSystem
             var visitor = new BaseViewVisitor<LayoutConstraintTraversalResult>((constraintList, baseView) =>
             {
                 // Only add layout variables for views affected by at least one constraint
-                if (!baseView.TranslateBoundsIntoConstraints || baseView.AffectingConstraints.Count > 0)
+                if (baseView.AreaIntoConstraintsMask != BoundsConstraintMask.LocationAndSize || baseView.AffectingConstraints.Count > 0)
                 {
                     constraintList.Variables.Add(baseView.LayoutVariables);
                 }
@@ -78,6 +78,7 @@ namespace PixUI.LayoutSystem
         private static void Solve([NotNull] IEnumerable<LayoutConstraint> constraints, [NotNull] IEnumerable<LayoutVariables> affectedVariables)
         {
             var solver = new ClSimplexSolver();
+            solver.AutoSolve = false;
 
             foreach (var variables in affectedVariables)
             {

@@ -59,15 +59,20 @@ namespace PixUI
         internal LayoutVariables LayoutVariables;
 
         /// <summary>
-        /// If <c>true</c>, location and size values are translated into required
-        /// constraints that are not mutable.
-        ///
-        /// Setting this value to <c>false</c> allows location and size to be computed
-        /// based on the constraints attached to this view.
-        ///
-        /// Defaults to <c>true</c>.
+        /// Specifies the dimensions of area (either location, size, both, or none) to turn
+        /// into constraints into the constraint system.
+        /// 
+        /// Setting this value to <see cref="BoundsConstraintMask.None"/> allows location
+        /// and size to be computed based on the constraints attached to this view.
+        /// 
+        /// Note that if this value is <see cref="BoundsConstraintMask.LocationAndSize"/>,
+        /// constraints do not affect this view's location and size at all, such that this
+        /// value must be set to some other value of <see cref="BoundsConstraintMask"/> for
+        /// layout constraints to be effective.
+        /// 
+        /// Defaults to <see cref="BoundsConstraintMask.LocationAndSize"/>.
         /// </summary>
-        public bool TranslateBoundsIntoConstraints { get; set; } = true;
+        public BoundsConstraintMask AreaIntoConstraintsMask { get; set; } = BoundsConstraintMask.LocationAndSize;
 
         /// <summary>
         /// List of layout constraints active on this view.
@@ -92,9 +97,11 @@ namespace PixUI
         internal List<LayoutConstraint> AffectingConstraints = new List<LayoutConstraint>();
 
         /// <summary>
-        /// Gets the anchors available for this vieww.
+        /// Gets the anchors available for this view.
         /// </summary>
         public LayoutAnchors Anchors => new LayoutAnchors(this);
+
+        // TODO: Refactor IntrinsicSize to allow specifying only width/only height/width+height sizes independently.
 
         /// <summary>
         /// Gets an intrinsic size for this view.
@@ -556,7 +563,7 @@ namespace PixUI
         /// In case the views are not located in the same hierarchy, <c>null</c>
         /// is returned, instead.
         ///
-        /// In case <see cref="other"/> is a reference to this view, <c>this</c>
+        /// In case <c>other</c> is a reference to this view, <c>this</c>
         /// is returned.
         /// </summary>
         [CanBeNull]
@@ -1142,6 +1149,53 @@ namespace PixUI
             }
         }
     }
+
+    /// <summary>
+    /// Used by <see cref="BaseView"/> to specify which dimensions it should turn into constraints implicitly in the constraint system.
+    /// </summary>
+    [Flags]
+    public enum BoundsConstraintMask
+    {
+        None = 0b0000,
+        Location = 0b001,
+        Size = 0b0010,
+        LocationAndSize = Location | Size
+    }
+
+    /*
+    /// <summary>
+    /// Used by <see cref="BaseView"/> to specify which dimensions it should turn into constraints implicitly in the constraint system.
+    /// </summary>
+    public struct BoundsConstraintMask : IEquatable<BoundsConstraintMask>
+    {
+        public static BoundsConstraintMask Location = new BoundsConstraintMask(0b1);
+        public static BoundsConstraintMask Size = new BoundsConstraintMask(0b10);
+
+        private int _mask;
+
+        private BoundsConstraintMask(int mask)
+        {
+            this._mask = mask;
+        }
+
+        public bool Equals(BoundsConstraintMask other)
+        {
+            return other._mask == _mask;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is BoundsConstraintMask mask)
+                return mask._mask == _mask;
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return _mask;
+        }
+    }
+    */
 
     /// <summary>
     /// Exposes layout events triggered by a <see cref="BaseView"/> when its display

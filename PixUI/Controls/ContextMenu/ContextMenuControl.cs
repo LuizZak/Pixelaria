@@ -20,26 +20,29 @@
     base directory of this project.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
 using JetBrains.Annotations;
 using PixCore.Colors;
 using PixCore.Geometry;
 using PixRendering;
+using PixUI.LayoutSystem;
 using PixUI.Utils.Layout;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Reflection.Emit;
+using System.Windows.Forms;
 
 namespace PixUI.Controls.ContextMenu
 {
     /// <summary>
     /// An inline context menu-like control
     /// </summary>
-    public class ContextMenuControl: ControlView
+    public class ContextMenuControl: ControlView, IDialogControl
     {
         private const float LeftMarginWidth = 24;
 
-        private List<ContextMenuItemView> _itemViews;
+        private List<ContextMenuItemViewBase> _itemViews;
 
         private ContextMenuDropDownItem _rootItem;
 
@@ -50,7 +53,13 @@ namespace PixUI.Controls.ContextMenu
         /// </summary>
         private ContextMenuItem _visibleItem;
 
+        public event DialogControlClosing Closing;
+
+        public event DialogControlClosed Closed;
+
         public override bool CanBecomeFirstResponder => true;
+
+        public DialogControlContextFlags DialogContextFlags => DialogControlContextFlags.ContextMenu;
 
         public static ContextMenuControl Create(ContextMenuDropDownItem rootItem)
         {
@@ -73,8 +82,27 @@ namespace PixUI.Controls.ContextMenu
             BackColor = Color.Black;
             StrokeColor = Color.Transparent;
 
-            _itemViews = new List<ContextMenuItemView>();
+            _itemViews = new List<ContextMenuItemViewBase>();
             RecreateItemViews();
+        }
+
+        /// <summary>
+        /// Raises the <see cref="Closing"/> and later <see cref="Closed"/> event.
+        /// </summary>
+        protected virtual void OnClose(DialogControlCloseReason reason)
+        {
+            Closing?.Invoke(this, reason);
+            Closed?.Invoke(this, reason);
+        }
+
+        public void Close()
+        {
+            Close(DialogControlCloseReason.CloseCalled);
+        }
+
+        public void Close(DialogControlCloseReason reason)
+        {
+            OnClose(reason);
         }
 
         private void RecreateItemViews()
@@ -88,11 +116,19 @@ namespace PixUI.Controls.ContextMenu
 
             foreach (var item in _rootItem.DropDownItems)
             {
-                var itemView = ContextMenuItemView.Create(item);
+                var itemViewBase = item.CreateContextMenuItemView();
 
-                AddChild(itemView);
+                AddChild(itemViewBase);
 
-                _itemViews.Add(itemView);
+                _itemViews.Add(itemViewBase);
+
+                if (item is ContextMenuItem menuItem)
+                {
+                    menuItem.Click += (sender, e) =>
+                    {
+                        Close(DialogControlCloseReason.ItemClicked);
+                    };
+                }
             }
         }
 
@@ -133,21 +169,23 @@ namespace PixUI.Controls.ContextMenu
 
             base.Layout();
 
-            float maxWidth = _itemViews.Aggregate(24.0f, (d, view) => Math.Max(d, view.Bounds.Width));
+            float maxWidth = _itemViews.Where(view => view.Visible).Aggregate(LeftMarginWidth, (d, view) => Math.Max(d, view.Bounds.Width));
             float y = 0.0f;
 
-            foreach (var itemView in _itemViews)
+            foreach (var itemView in _itemViews.Where(view => view.Visible))
             {
                 itemView.Size = new Vector(maxWidth, itemView.Size.Y);
                 itemView.Location = new Vector(0, y);
                 y += itemView.Height;
             }
+
+            AutoSize();
         }
 
         public void AutoSize()
         {
-            float maxWidth = _itemViews.Aggregate(24.0f, (d, view) => Math.Max(d, view.Bounds.Width));
-            float totalHeight = _itemViews.Aggregate(0.0f, (d, view) => d + view.Bounds.Height);
+            float maxWidth = _itemViews.Where(view => view.Visible).Aggregate(LeftMarginWidth, (d, view) => Math.Max(d, view.Bounds.Width));
+            float totalHeight = _itemViews.Where(view => view.Visible).Aggregate(0.0f, (d, view) => d + view.Bounds.Height);
 
             Size = new Vector(maxWidth, totalHeight);
         }
@@ -165,7 +203,137 @@ namespace PixUI.Controls.ContextMenu
             return _itemViews[item.Index].FrameOnParent;
         }
 
-        private class ContextMenuItemView : ControlView
+        internal class ContextMenuItemViewBase : ControlView
+        {
+            private readonly ContextMenuItemBase _item;
+
+            protected ContextMenuItemViewBase(ContextMenuItemBase item)
+            {
+                _item = item;
+                Visible = _item.Visible;
+
+                _item.VisibleChanged += (sender, visible) =>
+                {
+                    Visible = visible;
+                    ParentContextMenu()?.SetNeedsLayout();
+                    ParentContextMenu()?.Layout();
+                };
+            }
+
+            protected virtual AABB BoundsForSelectionHighlight()
+            {
+                return Bounds.Inflated(0, 0);
+            }
+
+            [CanBeNull]
+            protected ContextMenuControl ParentContextMenu()
+            {
+                BaseView view = this;
+
+                while (view != null)
+                {
+                    if (view is ContextMenuControl contextMenuControl)
+                        return contextMenuControl;
+
+                    view = view.Parent;
+                }
+
+                return null;
+            }
+        }
+
+        internal class ContextMenuControlHostItemView : ContextMenuItemViewBase
+        {
+            private readonly ContextMenuControlHostItem _item;
+
+            public static ContextMenuControlHostItemView Create([NotNull] ContextMenuControlHostItem item)
+            {
+                var view = new ContextMenuControlHostItemView(item);
+                view.Initialize();
+
+                return view;
+            }
+
+            protected ContextMenuControlHostItemView(ContextMenuControlHostItem item) : base(item)
+            {
+                _item = item;
+            }
+
+            protected void Initialize()
+            {
+                MouseOverHighlight = true;
+                BackColor = Color.Transparent;
+                StrokeColor = Color.Transparent;
+
+                AddChild(_item.control);
+
+                if (_item.CreateConstraints)
+                {
+                    LayoutConstraint.Create(_item.control.Anchors.Left, Anchors.Left, LayoutRelationship.Equal, constant: LeftMarginWidth + 4);
+                    LayoutConstraint.Create(_item.control.Anchors.Right, Anchors.Right, LayoutRelationship.LessThanOrEqual, constant: -4);
+                    LayoutConstraint.Create(_item.control.Anchors.Top, Anchors.Top, LayoutRelationship.Equal, constant: 4);
+                    LayoutConstraint.Create(_item.control.Anchors.Bottom, Anchors.Bottom, LayoutRelationship.Equal, constant: -4);
+                    LayoutConstraint.Create(_item.control.Anchors.Width, LayoutRelationship.GreaterThanOrEqual, constant: _item.MinimumWidth);
+                }
+
+                Layout();
+                AutoSize();
+            }
+
+            public override void Layout()
+            {
+                base.Layout();
+
+                if (!_item.CreateConstraints)
+                {
+                    _item.control.Layout();
+                    _item.control.Location = new Vector(LeftMarginWidth + 4, Height / 2 - _item.control.Height / 2);
+                }
+            }
+
+            public void AutoSize()
+            {
+                if (!_item.CreateConstraints)
+                {
+                    Size = Bounds.Union(_item.control.FrameOnParent).Size;
+                }
+            }
+        }
+
+        internal class ContextMenuSeparatorItemView : ContextMenuItemViewBase
+        {
+            private readonly ContextMenuSeparatorItem _item;
+
+            public static ContextMenuSeparatorItemView Create([NotNull] ContextMenuSeparatorItem item)
+            {
+                var view = new ContextMenuSeparatorItemView(item);
+                view.Initialize();
+
+                return view;
+            }
+
+            protected ContextMenuSeparatorItemView(ContextMenuSeparatorItem item) : base(item)
+            {
+                _item = item;
+            }
+
+            protected void Initialize()
+            {
+                MouseOverHighlight = false;
+                BackColor = Color.Transparent;
+                StrokeColor = Color.Transparent;
+
+                AutoSize();
+                Layout();
+            }
+
+            public void AutoSize()
+            {
+                Size = new Vector(0, 8);
+            }
+        }
+
+        internal class ContextMenuItemView : ContextMenuItemViewBase
         {
             private const float SubItemsArrowBounds = 16;
             private static readonly Vector SubItemsArrowSize = new Vector(6, 8);
@@ -185,14 +353,20 @@ namespace PixUI.Controls.ContextMenu
                 return view;
             }
 
-            protected ContextMenuItemView(ContextMenuItem item)
+            protected ContextMenuItemView(ContextMenuItem item) : base(item)
             {
                 _item = item;
                 _label = LabelViewControl.Create(_item.Name);
                 if (_item.Image != null)
+                {
                     _imageView = ImageViewControl.Create(_item.Image.Value);
+                    _imageView.InteractionEnabled = false;
+                }
                 else
+                {
                     _imageView = ImageViewControl.Create(_item.ManagedImage);
+                    _imageView.InteractionEnabled = false;
+                }
             }
             
             protected override void OnChangedState(ControlViewState newState)
@@ -223,8 +397,47 @@ namespace PixUI.Controls.ContextMenu
                     AddChild(_imageView);
                 }
 
+                _item.AttributedNameChanged += (sender, name) =>
+                {
+                    _label.AttributedText = name;
+
+                    AutoSize();
+                    Layout();
+
+                    ParentContextMenu()?.SetNeedsLayout();
+                    ParentContextMenu()?.Layout();
+                };
+
+                SetupEvents();
+
                 AutoSize();
                 Layout();
+            }
+
+            protected void SetupEvents()
+            {
+                
+            }
+
+            public override void OnMouseEnter()
+            {
+                base.OnMouseEnter();
+
+                _item.OnMouseEnter(this, new EventArgs());
+            }
+
+            public override void OnMouseLeave()
+            {
+                base.OnMouseLeave();
+
+                _item.OnMouseLeave(this, new EventArgs());
+            }
+
+            public override void OnMouseClick(MouseEventArgs e)
+            {
+                base.OnMouseClick(e);
+
+                _item.OnClick(this, e);
             }
 
             public override void Layout()
@@ -290,7 +503,7 @@ namespace PixUI.Controls.ContextMenu
                 }
             }
 
-            private AABB BoundsForSelectionHighlight()
+            protected override AABB BoundsForSelectionHighlight()
             {
                 return Bounds.Inflated(0, 0);
             }

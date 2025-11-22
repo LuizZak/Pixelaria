@@ -29,7 +29,6 @@ using System.Reactive;
 using System.Reactive.Linq;
 using FastBitmapLib;
 using JetBrains.Annotations;
-using Pixelaria.Filters;
 using Pixelaria.Properties;
 using Pixelaria.Utils;
 using Pixelaria.Views.ExportPipeline;
@@ -105,6 +104,7 @@ namespace Pixelaria.ExportPipeline
             RegisterStaticNode(PipelineNodeKinds.StaticDouble, Resources.accessories_calculator, "double", 0.0);
             RegisterStaticNode(PipelineNodeKinds.StaticString, Resources.accessories_calculator, "string", "");
             RegisterStaticNode(PipelineNodeKinds.StaticBool, Resources.accessories_calculator, "bool", false);
+            RegisterStaticNode(PipelineNodeKinds.StaticColor, Resources.accessories_calculator, "color", Color.White);
         }
 
         private void RegisterNode([NotNull] PipelineNodeDescriptor descriptor)
@@ -282,5 +282,6 @@ namespace Pixelaria.ExportPipeline
         public static PipelineNodeKind StaticString { get; } = new PipelineNodeKind("staticString");
         public static PipelineNodeKind StaticInt { get; } = new PipelineNodeKind("staticInt");
         public static PipelineNodeKind StaticBool { get; } = new PipelineNodeKind("staticBool");
+        public static PipelineNodeKind StaticColor { get; } = new PipelineNodeKind("staticColor");
     }
 }

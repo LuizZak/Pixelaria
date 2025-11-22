@@ -147,6 +147,7 @@ namespace PixCore.Text
         {
             _segments.Clear();
             _stringBuilder.Clear();
+
             Append(text, new ITextAttribute[0]);
         }
 
@@ -231,6 +232,8 @@ namespace PixCore.Text
             {
                 _segments[index] = segment.CloneWithAttributes(attributes);
             }
+
+            CallModifiedEvent();
         }
 
         private TextSegment[] SplitSegments(TextRange range)

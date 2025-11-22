@@ -94,11 +94,14 @@ namespace PixUI.LayoutSystem
         {
             var hasIntrinsicSize = view.IntrinsicSize != Vector.Zero;
 
-            if (view.TranslateBoundsIntoConstraints)
+            if (view.AreaIntoConstraintsMask.HasFlag(BoundsConstraintMask.Location))
             {
                 solver.AddStay(Left, ClStrength.Medium);
-                solver.AddStay(Width, ClStrength.Medium);
                 solver.AddStay(Top, ClStrength.Medium);
+            }
+            if (view.AreaIntoConstraintsMask.HasFlag(BoundsConstraintMask.Size))
+            {
+                solver.AddStay(Width, ClStrength.Medium);
                 solver.AddStay(Height, ClStrength.Medium);
             }
             if (hasIntrinsicSize)
@@ -183,19 +186,22 @@ namespace PixUI.LayoutSystem
 
         private void ApplyVariables([NotNull] BaseView view)
         {
-            if (view.TranslateBoundsIntoConstraints)
-                return;
-
             var location = new Vector((float)Left.Value, (float)Top.Value);
             if (view.Parent != null)
             {
                 location = view.Parent.ConvertFrom(location, null);
             }
 
-            view.X = location.X;
-            view.Y = location.Y;
-            view.Width = (float)Width.Value;
-            view.Height = (float)Height.Value;
+            if (!view.AreaIntoConstraintsMask.HasFlag(BoundsConstraintMask.Location))
+            {
+                view.X = location.X;
+                view.Y = location.Y;
+            }
+            if (!view.AreaIntoConstraintsMask.HasFlag(BoundsConstraintMask.Size))
+            {
+                view.Width = (float)Width.Value;
+                view.Height = (float)Height.Value;
+            }
         }
 
         private void ApplyVariables([NotNull] LayoutGuide guide)

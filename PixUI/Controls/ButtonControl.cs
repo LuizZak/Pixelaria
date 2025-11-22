@@ -129,7 +129,17 @@ namespace PixUI.Controls
         /// <summary>
         /// Gets the attributed text for this <see cref="ButtonControl"/>.
         /// </summary>
-        public IAttributedText AttributedText => _label.AttributedText;
+        public AttributedText AttributedText
+        {
+            get
+            {
+                return _label.AttributedText;
+            }
+            set
+            {
+                _label.AttributedText = value;
+            }
+        }
 
         /// <summary>
         /// Color for button's label

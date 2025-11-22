@@ -41,15 +41,28 @@ namespace PixUI
         
         private InsetBounds _textInsetBounds;
         private Color _backgroundColor;
+        private AttributedText _attributedText = new AttributedText();
 
         /// <summary>
         /// Event triggered whenever the bound-related properties for this label view
         /// backing are changed and require bounds recalculation/rendering.
         /// </summary>
         public event EventHandler BoundsInvalidated;
-        
+
+        /// <summary>
+        /// Gets or sets the attributed text this label represents.
+        /// </summary>
         [NotNull]
-        public AttributedText AttributedText { get; } = new AttributedText();
+        public AttributedText AttributedText
+        {
+            get => _attributedText;
+            set
+            {
+                _attributedText = value;
+
+                BoundsInvalidated?.Invoke(this, EventArgs.Empty);
+            }
+        }
 
         /// <summary>
         /// Gets or sets the background color that is drawn around the label.
@@ -68,7 +81,7 @@ namespace PixUI
         }
 
         /// <summary>
-        /// Gets or sets the string this label represents
+        /// Gets or sets the string this label represents.
         /// </summary>
         [NotNull]
         public string Text
