@@ -101,7 +101,7 @@ namespace PixUI.Controls
         {
             var views = children.OfType<ControlView>();
 
-            foreach (var controlView in views)
+            foreach (var controlView in views.Reverse())
             {
                 var local = controlView.ConvertFrom(point, null);
 
