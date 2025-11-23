@@ -614,6 +614,8 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
 
                     LayoutConstraint.Create(contextMenu.Anchors.Left, priority: Cassowary.ClStrength.Weak, constant: targetPoint.X);
                     LayoutConstraint.Create(contextMenu.Anchors.Top, priority: Cassowary.ClStrength.Weak, constant: targetPoint.Y);
+
+                    return;
                 }
 
                 RemoveAuxiliaryViews();
