@@ -20,11 +20,15 @@
     base directory of this project.
 */
 
+using PixCore.Geometry;
 using PixCore.Text;
 using PixCore.Text.Attributes;
+using PixUI;
+using PixUI.Controls;
+using PixUI.Controls.ContextMenu;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -77,6 +81,172 @@ namespace Pixelaria.Utils
         public SearchContextMenuManager(params string[] items)
         {
             _items = items;
+        }
+
+        /// <summary>
+        /// Generates the context menu control to display.
+        /// </summary>
+        public ContextMenuControl GenerateContextMenuControl()
+        {
+            var _dropDown = new ContextMenuDropDownItem("root");
+
+            var allItems = new List<ContextMenuDropDownItem>();
+            var visibleItems = new List<ContextMenuDropDownItem>();
+
+            var searchBox = TextField.Create(true);
+            searchBox.Layout();
+            searchBox.Size = new Vector(100, 26);
+            searchBox.TextChanged += (sender, args) =>
+            {
+                visibleItems.Clear();
+
+                if (string.IsNullOrEmpty(args.Text))
+                {
+                    foreach (var item in allItems)
+                    {
+                        item.Visible = true;
+                        item.AttributedName = new AttributedText(item.Name);
+                        visibleItems.Add(item);
+                    }
+                }
+                else
+                {
+                    foreach (var item in allItems)
+                    {
+                        var index = item.Name.IndexOf(args.Text, StringComparison.InvariantCultureIgnoreCase);
+                        var textBuilder = new AttributedTextBuilder(item.Name);
+
+                        if (index != -1)
+                        {
+                            item.Visible = true;
+                            textBuilder.SetAttributes(new TextRange(index, args.Text.Length), new ITextAttribute[]
+                            {
+                                        new BackgroundColorAttribute(Color.Blue)
+                            });
+
+                            visibleItems.Add(item);
+                        }
+                        else
+                        {
+                            item.Visible = false;
+                        }
+
+                        item.AttributedName = textBuilder.MakeAttributedText();
+                    }
+                }
+            };
+            searchBox.KeyDown += (sender, args) =>
+            {
+                if (args.KeyCode == Keys.Down)
+                {
+                    args.Handled = true;
+                    args.SuppressKeyPress = true;
+
+                    int selectedIndex = -1;
+
+                    for (int i = 0; i < visibleItems.Count; i++)
+                    {
+                        if (visibleItems[i].Selected)
+                        {
+                            selectedIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (selectedIndex < visibleItems.Count - 1)
+                        selectedIndex++;
+
+                    if (selectedIndex > -1 && selectedIndex < visibleItems.Count)
+                    {
+                        var item = visibleItems[selectedIndex];
+
+                        item.Select();
+                    }
+                }
+                else if (args.KeyCode == Keys.Up)
+                {
+                    args.Handled = true;
+                    args.SuppressKeyPress = true;
+                    int selectedIndex = -1;
+
+                    for (int i = 0; i < visibleItems.Count; i++)
+                    {
+                        if (visibleItems[i].Selected)
+                        {
+                            selectedIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (selectedIndex > 0)
+                        selectedIndex--;
+
+                    if (selectedIndex > -1 && visibleItems.Count > 0)
+                    {
+                        var item = visibleItems[selectedIndex];
+
+                        item.Select();
+                    }
+                }
+                else if (args.KeyCode == Keys.Enter)
+                {
+                    args.Handled = true;
+                    args.SuppressKeyPress = true;
+
+                    foreach (var item in allItems)
+                    {
+                        if (item.Visible && item.Selected)
+                        {
+                            item.PerformClick();
+                            args.SuppressKeyPress = true;
+                            args.Handled = true;
+                            break;
+                        }
+                    }
+                }
+            };
+
+            _dropDown.DropDownItems.Add(new ContextMenuControlHostItem(searchBox) { CreateConstraints = false });
+
+            for (int i = 0; i < _items.Length; i++)
+            {
+                int index = i;
+                var potentialNode = _items[i];
+                var item = _dropDown.DropDownItems.Add(potentialNode);
+
+                allItems.Add(item);
+                visibleItems.Add(item);
+
+                item.SelectChange += (sender, e) =>
+                {
+                    if (item.Selected)
+                    {
+                        ItemSelected?.Invoke(this, new SearchContextMenuItemSelectedEventArgs(index));
+                    }
+                };
+                item.MouseEnter += (sender, e) =>
+                {
+                    ItemMouseEnter?.Invoke(this, new SearchContextMenuItemSelectedEventArgs(index));
+                };
+                item.MouseLeave += (sender, e) =>
+                {
+                    ItemMouseLeave?.Invoke(this, new SearchContextMenuItemSelectedEventArgs(index));
+                };
+                item.Click += (sender, e) =>
+                {
+                    ItemClick?.Invoke(this, new SearchContextMenuItemSelectedEventArgs(index));
+                };
+            }
+
+            var contextMenu = ContextMenuControl.Create(_dropDown);
+            contextMenu.AreaIntoConstraintsMask = BoundsConstraintMask.Size;
+            contextMenu.Layout();
+            contextMenu.Opened += (sender, e) =>
+            {
+                searchBox.BecomeFirstResponder();
+            };
+
+            return contextMenu;
         }
 
         /// <summary>

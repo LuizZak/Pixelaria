@@ -46,6 +46,11 @@ namespace PixUI.Controls
         event DialogControlClosed Closed;
 
         /// <summary>
+        /// Event raised when this dialog control has been opened.
+        /// </summary>
+        event EventHandler Opened;
+
+        /// <summary>
         /// Closes this dialog control.
         /// 
         /// Issues <see cref="Closing"/> and <see cref="Closed"/> events with the reason
@@ -60,6 +65,11 @@ namespace PixUI.Controls
         /// reason.
         /// </summary>
         void Close(DialogControlCloseReason reason);
+
+        /// <summary>
+        /// Raises the <see cref="Opened"/> event.
+        /// </summary>
+        void Show();
     }
 
     /// <summary>

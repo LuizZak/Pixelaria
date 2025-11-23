@@ -583,6 +583,8 @@ namespace Pixelaria.Views.ExportPipeline
                 {
                     closeDialog();
                 };
+
+                dialogView.Show();
             }
 
             public void RemoveAllViews()

@@ -574,188 +574,6 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                         }
                     }
 
-                    /* TODO: Ideally will be managed in-engine with ContextMenuControl
-                    */
-
-                    var _dropDown = new ContextMenuDropDownItem("root");
-
-                    var allItems = new List<ContextMenuDropDownItem>();
-                    var visibleItems = new List<ContextMenuDropDownItem>();
-
-                    var searchBox = TextField.Create(true);
-                    searchBox.Layout();
-                    searchBox.Size = new Vector(100, 26);
-                    searchBox.TextChanged += (sender, args) =>
-                    {
-                        visibleItems.Clear();
-
-                        if (string.IsNullOrEmpty(args.Text))
-                        {
-                            foreach (var item in allItems)
-                            {
-                                item.Visible = true;
-                                item.AttributedName = new AttributedText(item.Name);
-                                visibleItems.Add(item);
-                            }
-                        }
-                        else
-                        {
-                            foreach (var item in allItems)
-                            {
-                                var index = item.Name.IndexOf(args.Text, StringComparison.InvariantCultureIgnoreCase);
-                                var textBuilder = new AttributedTextBuilder(item.Name);
-
-                                if (index != -1)
-                                {
-                                    item.Visible = true;
-                                    textBuilder.SetAttributes(new TextRange(index, args.Text.Length), new ITextAttribute[]
-                                    {
-                                        new BackgroundColorAttribute(Color.Blue)
-                                    });
-
-                                    visibleItems.Add(item);
-                                }
-                                else
-                                {
-                                    item.Visible = false;
-                                }
-
-                                item.AttributedName = textBuilder.MakeAttributedText();
-                            }
-                        }
-                    };
-                    searchBox.KeyDown += (sender, args) =>
-                    {
-                        if (args.KeyCode == Keys.Down)
-                        {
-                            args.Handled = true;
-                            args.SuppressKeyPress = true;
-
-                            int selectedIndex = -1;
-
-                            for (int i = 0; i < visibleItems.Count; i++)
-                            {
-                                if (visibleItems[i].Selected)
-                                {
-                                    selectedIndex = i;
-                                    break;
-                                }
-                            }
-
-                            if (selectedIndex < visibleItems.Count - 1)
-                                selectedIndex++;
-
-                            if (selectedIndex > -1 && selectedIndex < visibleItems.Count)
-                            {
-                                var item = visibleItems[selectedIndex];
-
-                                item.Select();
-                            }
-                        }
-                        else if (args.KeyCode == Keys.Up)
-                        {
-                            args.Handled = true;
-                            args.SuppressKeyPress = true;
-                            int selectedIndex = -1;
-
-                            for (int i = 0; i < visibleItems.Count; i++)
-                            {
-                                if (visibleItems[i].Selected)
-                                {
-                                    selectedIndex = i;
-                                    break;
-                                }
-                            }
-
-                            if (selectedIndex > 0)
-                                selectedIndex--;
-
-                            if (selectedIndex > -1 && visibleItems.Count > 0)
-                            {
-                                var item = visibleItems[selectedIndex];
-
-                                item.Select();
-                            }
-                        }
-                        else if (args.KeyCode == Keys.Enter)
-                        {
-                            args.Handled = true;
-                            args.SuppressKeyPress = true;
-
-                            foreach (var item in allItems)
-                            {
-                                if (item.Visible && item.Selected)
-                                {
-                                    item.PerformClick();
-                                    args.SuppressKeyPress = true;
-                                    args.Handled = true;
-                                    break;
-                                }
-                            }
-                        }
-                    };
-
-                    _dropDown.DropDownItems.Add(new ContextMenuControlHostItem(searchBox) { CreateConstraints = false });
-
-                    for (int i = 0; i < potentialNodes.Count; i++)
-                    {
-                        int index = i;
-                        var potentialNode = potentialNodes[i];
-                        var item = _dropDown.DropDownItems.Add(potentialNode.NodeDisplayName);
-
-                        allItems.Add(item);
-                        visibleItems.Add(item);
-
-                        item.SelectChange += (sender, e) =>
-                        {
-                            if (item.Selected)
-                            {
-                                destroyPreviewNode();
-                                createPreviewNode(index);
-                            }
-                        };
-                        item.MouseEnter += (sender, e) =>
-                        {
-                            destroyPreviewNode();
-                            createPreviewNode(index);
-                        };
-                        item.MouseLeave += (sender, e) =>
-                        {
-                            destroyPreviewNode();
-                        };
-                        item.Click += (sender, e) =>
-                        {
-                            applyPreviewNode(index);
-                        };
-                    }
-
-                    var _contextMenu = ContextMenuControl.Create(_dropDown);
-                    _contextMenu.AreaIntoConstraintsMask = BoundsConstraintMask.Size;
-                    _contextMenu.Layout();
-                    _contextMenu.Closed += (sender, e) =>
-                    {
-                        if (!isApplied)
-                        {
-                            destroyPreviewNode();
-                        }
-
-                        RemoveAuxiliaryViews();
-                    };
-
-                    _container.ShowAsDialog(_contextMenu);
-
-                    searchBox.BecomeFirstResponder();
-
-                    LayoutConstraint.Create(_contextMenu.Anchors.Left, _contextMenu.Parent.Anchors.Left, LayoutRelationship.GreaterThanOrEqual, priority: Cassowary.ClStrength.Strong);
-                    LayoutConstraint.Create(_contextMenu.Anchors.Top, _contextMenu.Parent.Anchors.Top, LayoutRelationship.GreaterThanOrEqual, priority: Cassowary.ClStrength.Strong);
-                    LayoutConstraint.Create(_contextMenu.Anchors.Bottom, _contextMenu.Parent.Anchors.Bottom, LayoutRelationship.LessThanOrEqual, priority: Cassowary.ClStrength.Strong);
-                    LayoutConstraint.Create(_contextMenu.Anchors.Right, _contextMenu.Parent.Anchors.Right, LayoutRelationship.LessThanOrEqual, priority: Cassowary.ClStrength.Strong);
-
-                    LayoutConstraint.Create(_contextMenu.Anchors.Left, priority: Cassowary.ClStrength.Weak, constant: targetPoint.X);
-                    LayoutConstraint.Create(_contextMenu.Anchors.Top, priority: Cassowary.ClStrength.Weak, constant: targetPoint.Y);
-
-                    return;
-
                     var itemNames = potentialNodes.Select(n => n.NodeDisplayName);
 
                     var contextMenuManager = new SearchContextMenuManager(itemNames);
@@ -779,35 +597,23 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                         applyPreviewNode(args.Index);
                     };
 
-                    if (_control is Control control)
+                    var contextMenu = contextMenuManager.GenerateContextMenuControl();
+                    contextMenu.Closed += (sender, e) =>
                     {
-                        var menu = contextMenuManager.GenerateContextMenu();
+                        if (!isApplied)
+                            destroyPreviewNode();
 
-                        menu.Closing += (sender, args) =>
-                        {
-                            if (!isApplied)
-                            {
-                                destroyPreviewNode();
-                            }
-
-                            RemoveAuxiliaryViews();
-                        };
-
-                        if (!isInput)
-                        {
-                            menu.Show(control, targetPoint, ToolStripDropDownDirection.BelowLeft);
-                        }
-                        else
-                        {
-                            menu.Show(control, targetPoint, ToolStripDropDownDirection.BelowRight);
-                        }
-                    }
-                    else
-                    {
                         RemoveAuxiliaryViews();
-                    }
+                    };
+                    _container.ShowAsDialog(contextMenu);
 
-                    return;
+                    LayoutConstraint.Create(contextMenu.Anchors.Left, contextMenu.Parent.Anchors.Left, LayoutRelationship.GreaterThanOrEqual, priority: Cassowary.ClStrength.Strong);
+                    LayoutConstraint.Create(contextMenu.Anchors.Top, contextMenu.Parent.Anchors.Top, LayoutRelationship.GreaterThanOrEqual, priority: Cassowary.ClStrength.Strong);
+                    LayoutConstraint.Create(contextMenu.Anchors.Bottom, contextMenu.Parent.Anchors.Bottom, LayoutRelationship.LessThanOrEqual, priority: Cassowary.ClStrength.Strong);
+                    LayoutConstraint.Create(contextMenu.Anchors.Right, contextMenu.Parent.Anchors.Right, LayoutRelationship.LessThanOrEqual, priority: Cassowary.ClStrength.Strong);
+
+                    LayoutConstraint.Create(contextMenu.Anchors.Left, priority: Cassowary.ClStrength.Weak, constant: targetPoint.X);
+                    LayoutConstraint.Create(contextMenu.Anchors.Top, priority: Cassowary.ClStrength.Weak, constant: targetPoint.Y);
                 }
 
                 RemoveAuxiliaryViews();

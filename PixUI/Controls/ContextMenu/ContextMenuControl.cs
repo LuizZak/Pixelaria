@@ -30,7 +30,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Reflection.Emit;
 using System.Windows.Forms;
 
 namespace PixUI.Controls.ContextMenu
@@ -56,6 +55,8 @@ namespace PixUI.Controls.ContextMenu
         public event DialogControlClosing Closing;
 
         public event DialogControlClosed Closed;
+
+        public event EventHandler Opened;
 
         public override bool CanBecomeFirstResponder => true;
 
@@ -103,6 +104,11 @@ namespace PixUI.Controls.ContextMenu
         public void Close(DialogControlCloseReason reason)
         {
             OnClose(reason);
+        }
+
+        public void Show()
+        {
+            Opened?.Invoke(this, EventArgs.Empty);
         }
 
         private void RecreateItemViews()
