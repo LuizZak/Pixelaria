@@ -580,18 +580,22 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                     var _dropDown = new ContextMenuDropDownItem("root");
 
                     var allItems = new List<ContextMenuDropDownItem>();
+                    var visibleItems = new List<ContextMenuDropDownItem>();
 
                     var searchBox = TextField.Create(true);
                     searchBox.Layout();
                     searchBox.Size = new Vector(100, 26);
                     searchBox.TextChanged += (sender, args) =>
                     {
+                        visibleItems.Clear();
+
                         if (string.IsNullOrEmpty(args.Text))
                         {
                             foreach (var item in allItems)
                             {
                                 item.Visible = true;
-                                item.AttributedName = new AttributedText(item.AttributedName.String);
+                                item.AttributedName = new AttributedText(item.Name);
+                                visibleItems.Add(item);
                             }
                         }
                         else
@@ -599,8 +603,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                             foreach (var item in allItems)
                             {
                                 var index = item.Name.IndexOf(args.Text, StringComparison.InvariantCultureIgnoreCase);
-                                var textBuilder = new AttributedTextBuilder(item.AttributedName);
-                                textBuilder.ClearAttributes();
+                                var textBuilder = new AttributedTextBuilder(item.Name);
 
                                 if (index != -1)
                                 {
@@ -609,6 +612,8 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                                     {
                                         new BackgroundColorAttribute(Color.Blue)
                                     });
+
+                                    visibleItems.Add(item);
                                 }
                                 else
                                 {
@@ -616,6 +621,76 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                                 }
 
                                 item.AttributedName = textBuilder.MakeAttributedText();
+                            }
+                        }
+                    };
+                    searchBox.KeyDown += (sender, args) =>
+                    {
+                        if (args.KeyCode == Keys.Down)
+                        {
+                            args.Handled = true;
+                            args.SuppressKeyPress = true;
+
+                            int selectedIndex = -1;
+
+                            for (int i = 0; i < visibleItems.Count; i++)
+                            {
+                                if (visibleItems[i].Selected)
+                                {
+                                    selectedIndex = i;
+                                    break;
+                                }
+                            }
+
+                            if (selectedIndex < visibleItems.Count - 1)
+                                selectedIndex++;
+
+                            if (selectedIndex > -1 && selectedIndex < visibleItems.Count)
+                            {
+                                var item = visibleItems[selectedIndex];
+
+                                item.Select();
+                            }
+                        }
+                        else if (args.KeyCode == Keys.Up)
+                        {
+                            args.Handled = true;
+                            args.SuppressKeyPress = true;
+                            int selectedIndex = -1;
+
+                            for (int i = 0; i < visibleItems.Count; i++)
+                            {
+                                if (visibleItems[i].Selected)
+                                {
+                                    selectedIndex = i;
+                                    break;
+                                }
+                            }
+
+                            if (selectedIndex > 0)
+                                selectedIndex--;
+
+                            if (selectedIndex > -1 && visibleItems.Count > 0)
+                            {
+                                var item = visibleItems[selectedIndex];
+
+                                item.Select();
+                            }
+                        }
+                        else if (args.KeyCode == Keys.Enter)
+                        {
+                            args.Handled = true;
+                            args.SuppressKeyPress = true;
+
+                            foreach (var item in allItems)
+                            {
+                                if (item.Visible && item.Selected)
+                                {
+                                    item.PerformClick();
+                                    args.SuppressKeyPress = true;
+                                    args.Handled = true;
+                                    break;
+                                }
                             }
                         }
                     };
@@ -629,11 +704,15 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                         var item = _dropDown.DropDownItems.Add(potentialNode.NodeDisplayName);
 
                         allItems.Add(item);
+                        visibleItems.Add(item);
 
                         item.SelectChange += (sender, e) =>
                         {
-                            destroyPreviewNode();
-                            createPreviewNode(index);
+                            if (item.Selected)
+                            {
+                                destroyPreviewNode();
+                                createPreviewNode(index);
+                            }
                         };
                         item.MouseEnter += (sender, e) =>
                         {
@@ -664,6 +743,8 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                     };
 
                     _container.ShowAsDialog(_contextMenu);
+
+                    searchBox.BecomeFirstResponder();
 
                     LayoutConstraint.Create(_contextMenu.Anchors.Left, _contextMenu.Parent.Anchors.Left, LayoutRelationship.GreaterThanOrEqual, priority: Cassowary.ClStrength.Strong);
                     LayoutConstraint.Create(_contextMenu.Anchors.Top, _contextMenu.Parent.Anchors.Top, LayoutRelationship.GreaterThanOrEqual, priority: Cassowary.ClStrength.Strong);
