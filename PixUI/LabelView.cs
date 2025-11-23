@@ -36,8 +36,10 @@ namespace PixUI
     /// </summary>
     public sealed class LabelViewBacking : IDisposable
     {
+        public static Font DefaultFont = new Font(FontFamily.GenericSansSerif.Name, 10);
+
         [NotNull]
-        private Font _font = new Font(FontFamily.GenericSansSerif.Name, 10);
+        private Font _font = DefaultFont;
         
         private InsetBounds _textInsetBounds;
         private Color _backgroundColor;
@@ -170,6 +172,8 @@ namespace PixUI
     /// </summary>
     public sealed class LabelView : BaseView, IDisposable
     {
+        public static Font DefaultFont => LabelViewBacking.DefaultFont;
+
         private readonly LabelViewBacking _labelViewBacking = new LabelViewBacking();
 
         [NotNull]

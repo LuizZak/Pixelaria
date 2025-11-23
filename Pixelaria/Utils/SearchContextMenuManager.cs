@@ -121,7 +121,7 @@ namespace Pixelaria.Utils
                             item.Visible = true;
                             textBuilder.SetAttributes(new TextRange(index, args.Text.Length), new ITextAttribute[]
                             {
-                                        new BackgroundColorAttribute(Color.Blue)
+                                new BackgroundColorAttribute(Color.Blue),
                             });
 
                             visibleItems.Add(item);
@@ -208,6 +208,8 @@ namespace Pixelaria.Utils
 
             _dropDown.DropDownItems.Add(new ContextMenuControlHostItem(searchBox) { CreateConstraints = false });
 
+            _dropDown.DropDownItems.Add(new ContextMenuSeparatorItem());
+
             for (int i = 0; i < _items.Length; i++)
             {
                 int index = i;
@@ -220,9 +222,7 @@ namespace Pixelaria.Utils
                 item.SelectChange += (sender, e) =>
                 {
                     if (item.Selected)
-                    {
                         ItemSelected?.Invoke(this, new SearchContextMenuItemSelectedEventArgs(index));
-                    }
                 };
                 item.MouseEnter += (sender, e) =>
                 {

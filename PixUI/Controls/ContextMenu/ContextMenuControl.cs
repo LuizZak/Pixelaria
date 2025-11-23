@@ -39,6 +39,8 @@ namespace PixUI.Controls.ContextMenu
     /// </summary>
     public class ContextMenuControl: ControlView, IDialogControl
     {
+        public static Font DefaultItemFont = new Font(FontFamily.GenericSansSerif, 14);
+
         private const float LeftMarginWidth = 24;
 
         private List<ContextMenuItemViewBase> _itemViews;
@@ -389,6 +391,14 @@ namespace PixUI.Controls.ContextMenu
             {
                 Size = new Vector(0, 8);
             }
+
+            public override void RenderBackground(ControlRenderingContext context)
+            {
+                base.RenderBackground(context);
+
+                context.Renderer.SetStrokeColor(Color.DimGray);
+                context.Renderer.StrokeLine(new Vector(LeftMarginWidth + 4, Bounds.Height / 2), new Vector(Bounds.Width - 8, Bounds.Height / 2));
+            }
         }
 
         internal class ContextMenuItemView : ContextMenuItemViewBase
@@ -441,7 +451,7 @@ namespace PixUI.Controls.ContextMenu
                 StrokeColor = Color.Transparent;
 
                 _label.AutoResize = true;
-                _label.TextFont = new Font(FontFamily.GenericSansSerif, 14);
+                _label.TextFont = DefaultItemFont;
                 _label.ForeColor = Color.White;
                 _label.StrokeColor = Color.Transparent;
                 _label.BackColor = Color.Transparent;
