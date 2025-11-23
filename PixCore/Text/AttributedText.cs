@@ -28,6 +28,7 @@ using JetBrains.Annotations;
 
 namespace PixCore.Text
 {
+    /*
     // TODO: Consider removing redundant IAttributedText and use AttributedText class instead.
 
     public interface IAttributedText
@@ -101,11 +102,12 @@ namespace PixCore.Text
         /// </summary>
         ITextSegment[] GetTextSegments();
     }
+    */
 
     /// <summary>
-    /// A structure to contain a text and associated attribute strings
+    /// A builder for <see cref="AttributedText"/> objects.
     /// </summary>
-    public sealed class AttributedText : IEquatable<AttributedText>, ICloneable, IAttributedText
+    public class AttributedTextBuilder
     {
         private readonly StringBuilder _stringBuilder = new StringBuilder();
         private readonly List<TextSegment> _segments = new List<TextSegment>();
@@ -114,35 +116,67 @@ namespace PixCore.Text
         /// Called every time the string content of this attributed text changes
         /// </summary>
         public EventHandler Modified;
-        
+
         public int Length => _stringBuilder.Length;
-        
+
         public string String => _stringBuilder.ToString();
-        
+
         public bool HasAttributes => _segments.Any(s => s.TextAttributes.Length > 0);
 
         public bool IsEmpty => _segments.Count == 0 || _segments.All(s => s.Text.Length == 0);
 
-        public AttributedText()
+        /// <summary>
+        /// Instantiates a new empty attributed text builder instance.
+        /// </summary>
+        public AttributedTextBuilder()
         {
 
         }
 
-        public AttributedText([NotNull] string text)
+        /// <summary>
+        /// Instantiates a new attributed text builder instance with the given attributed text.
+        /// </summary>
+        public AttributedTextBuilder([NotNull] AttributedText attributedText) : this()
+        {
+            Append(attributedText);
+        }
+
+        /// <summary>
+        /// Instantiates a new attributed text builder instance with the given text.
+        /// </summary>
+        public AttributedTextBuilder([NotNull] string text)
         {
             SetText(text);
         }
 
-        public AttributedText([NotNull] string text, [NotNull] ITextAttribute[] attributes)
+        /// <summary>
+        /// Instantiates a new attributed text builder instance with the given text and attributes.
+        /// </summary>
+        public AttributedTextBuilder([NotNull] string text, [NotNull] ITextAttribute[] attributes)
         {
             Append(text, attributes);
         }
 
-        public AttributedText([NotNull] string text, [NotNull] ITextAttribute attribute)
+        /// <summary>
+        /// Instantiates a new attributed text builder instance with the given text and attribute.
+        /// </summary>
+        public AttributedTextBuilder([NotNull] string text, [NotNull] ITextAttribute attribute)
         {
             Append(text, attribute);
         }
 
+        /// <summary>
+        /// Constructs an attributed text from the contents of this <see cref="AttributedTextBuilder"/>.
+        /// </summary>
+        public AttributedText MakeAttributedText()
+        {
+            return new AttributedText(_segments.Select(segment => (ITextSegment)segment));
+        }
+
+        /// <summary>
+        /// Resets the properties of this attributed text and sets the given string
+        /// as its contents.
+        /// </summary>
         public void SetText(string text)
         {
             _segments.Clear();
@@ -151,7 +185,11 @@ namespace PixCore.Text
             Append(text, new ITextAttribute[0]);
         }
 
-        public void SetText(IAttributedText attributedText)
+        /// <summary>
+        /// Resets the properties of this attributed text and sets the given <see href="AttributedText"/>
+        /// as its contents.
+        /// </summary>
+        public void SetText(AttributedText attributedText)
         {
             _segments.Clear();
             _stringBuilder.Clear();
@@ -159,65 +197,56 @@ namespace PixCore.Text
             Append(attributedText);
         }
 
+        /// <summary>
+        /// Appends a string this attributed text object
+        /// </summary>
         public void Append(string text)
         {
             Append(text, new ITextAttribute[0]);
         }
 
+        /// <summary>
+        /// Appends a string with a given attribute to this attributed text object
+        /// </summary>
         public void Append(string text, ITextAttribute[] attributes)
         {
             var segment = new TextSegment(text, attributes, new TextRange(_stringBuilder.Length, text.Length));
 
             _segments.Add(segment);
             _stringBuilder.Append(text);
-
-            CallModifiedEvent();
         }
 
+        /// <summary>
+        /// Appends a string with a given set of attributes to this attributed text object
+        /// </summary>
         public void Append(string text, ITextAttribute attribute)
         {
             Append(text, new[] { attribute });
         }
 
         /// <summary>
-        /// Appends another attributed text's contents into this attributed text.
+        /// Appends another <see cref="AttributedText"/> with a given set of attributes to this attributed text object.
         /// </summary>
-        public void Append(IAttributedText attributedText)
+        public void Append(AttributedText attributedText)
         {
-            // Small time saver: Avoid going through computed properties if the other
-            // object is also an AttributedText instance
-            if (attributedText is AttributedText attr)
-            {
-                // Adjust segments' text rages
-                int newLimit = _stringBuilder.Length;
+            // Adjust segments' text rages
+            int newLimit = _stringBuilder.Length;
 
-                _segments.AddRange(
-                    attr._segments.Select(seg =>
-                        new TextSegment(seg.Text, seg.TextAttributes,
-                            new TextRange(seg.TextRange.Start + newLimit, seg.TextRange.Length)
-                        )
-                    ));
+            _segments.AddRange(
+                attributedText.GetTextSegments().Select(seg =>
+                    new TextSegment(seg.Text, seg.TextAttributes,
+                        new TextRange(seg.TextRange.Start + newLimit, seg.TextRange.Length)
+                    )
+                ));
 
-                _stringBuilder.Append(attr._stringBuilder);
-            }
-            else
-            {
-                // Adjust segments' text rages
-                int newLimit = _stringBuilder.Length;
-
-                _segments.AddRange(
-                    attributedText.GetTextSegments().Select(seg =>
-                        new TextSegment(seg.Text, seg.TextAttributes,
-                            new TextRange(seg.TextRange.Start + newLimit, seg.TextRange.Length)
-                        )
-                    ));
-
-                _stringBuilder.Append(attributedText.String);
-            }
-            
-            CallModifiedEvent();
+            _stringBuilder.Append(attributedText.String);
         }
 
+        /// <summary>
+        /// Sets the text attribute at a given range of this attributed string.
+        /// 
+        /// Attributes that may be present at the ranges are removed before adding the new attributes.
+        /// </summary>
         public void SetAttributes(TextRange range, params ITextAttribute[] attributes)
         {
             if (range.Length == 0)
@@ -232,13 +261,11 @@ namespace PixCore.Text
             {
                 _segments[index] = segment.CloneWithAttributes(attributes);
             }
-
-            CallModifiedEvent();
         }
 
         private TextSegment[] SplitSegments(TextRange range)
         {
-            if(range.Length == 0)
+            if (range.Length == 0)
                 throw new ArgumentException(@"Range must have length > 0", nameof(range));
 
             // Splits segments like so:
@@ -260,7 +287,7 @@ namespace PixCore.Text
 
             return SegmentsIntersecting(range).ToArray();
         }
-        
+
         private void SplitSegmentUnder(int position)
         {
             if (position < 0 || position > Length)
@@ -275,7 +302,7 @@ namespace PixCore.Text
 
             var firstHalfSeg = TextRange.FromOffsets(segment.TextRange.Start, position);
             var secondHalfSeg = TextRange.FromOffsets(position, segment.TextRange.End);
-            
+
             // Clone attributes as well
             var attr1 = segment.TextAttributes.Select(att => att.Clone()).OfType<ITextAttribute>().ToArray();
             var attr2 = segment.TextAttributes.Select(att => att.Clone()).OfType<ITextAttribute>().ToArray();
@@ -294,17 +321,158 @@ namespace PixCore.Text
                 _segments.Insert(index + 1, secondHalf);
         }
 
+        /// <summary>
+        /// Clears all text and attributes on this <see cref="AttributedTextBuilder"/>
+        /// </summary>
         public void Clear()
         {
             _segments.Clear();
             _stringBuilder.Clear();
-
-            CallModifiedEvent();
         }
 
+        /// <summary>
+        /// Clears all attributes on this <see cref="AttributedTextBuilder"/>, while keeping the underlying text the same.
+        /// </summary>
         public void ClearAttributes()
         {
             SetText(String);
+        }
+
+        private TextSegment SegmentUnder(int position)
+        {
+            return _segments.First(seg => seg.TextRange.Contains(position));
+        }
+
+        private IEnumerable<TextSegment> SegmentsIntersecting(TextRange range)
+        {
+            return _segments.Where(seg => seg.TextRange.Intersects(range));
+        }
+
+        private readonly struct TextSegment : ITextSegment
+        {
+            public string Text { get; }
+            public ITextAttribute[] TextAttributes { get; }
+            public TextRange TextRange { get; }
+
+            public TextSegment(string text, [NotNull] ITextAttribute[] textAttributes, TextRange textRange) : this()
+            {
+                Text = text;
+                TextAttributes = textAttributes;
+                TextRange = textRange;
+            }
+
+            public TextSegment(ITextSegment other)
+            {
+                Text = other.Text;
+                TextAttributes = other.TextAttributes;
+                TextRange = other.TextRange;
+            }
+
+            public void ConsumeAttributes(ITextAttributeConsumer consumer)
+            {
+                foreach (var textAttribute in TextAttributes)
+                {
+                    textAttribute.Consume(consumer);
+                }
+            }
+
+            public bool HasAttribute<T>() where T : ITextAttribute
+            {
+                return TextAttributes.Any(t => t is T);
+            }
+
+            public T GetAttribute<T>() where T : ITextAttribute
+            {
+                return TextAttributes.OfType<T>().FirstOrDefault();
+            }
+
+            public T? GetAttributeNullable<T>() where T : struct, ITextAttribute
+            {
+                var array = TextAttributes.OfType<T>().ToArray();
+                if (array.Length == 0)
+                    return null;
+
+                return array[0];
+            }
+
+            public TextSegment CloneWithAttributes([NotNull] ITextAttribute[] textAttributes)
+            {
+                return new TextSegment(Text, textAttributes, TextRange);
+            }
+
+            public object Clone()
+            {
+                return new TextSegment(Text, TextAttributes, TextRange);
+            }
+        }
+    }
+
+    /// <summary>
+    /// A structure to contain a text and associated attribute strings
+    /// </summary>
+    public class AttributedText : IEquatable<AttributedText>, ICloneable
+    {
+        private readonly StringBuilder _stringBuilder;
+        private readonly IReadOnlyList<TextSegment> _segments;
+
+        public int Length => _stringBuilder.Length;
+        
+        public string String => _stringBuilder.ToString();
+        
+        public bool HasAttributes => _segments.Any(s => s.TextAttributes.Length > 0);
+
+        public bool IsEmpty => _segments.Count == 0 || _segments.All(s => s.Text.Length == 0);
+
+        internal AttributedText(StringBuilder stringBuilder, IReadOnlyList<TextSegment> segments)
+        {
+            _stringBuilder = stringBuilder;
+            _segments = segments;
+        }
+
+        public AttributedText()
+        {
+            _stringBuilder = new StringBuilder();
+            _segments = new List<TextSegment>();
+        }
+
+        public AttributedText([NotNull] string text) : this()
+        {
+            _stringBuilder.Append(text);
+            _segments = new List<TextSegment>
+            {
+                new TextSegment(text, new ITextAttribute[0], new TextRange(0, text.Length))
+            };
+        }
+
+        public AttributedText([NotNull] string text, [NotNull] ITextAttribute[] attributes) : this()
+        {
+            _stringBuilder.Append(text);
+            _segments = new List<TextSegment>
+            {
+                new TextSegment(text, attributes, new TextRange(0, text.Length))
+            };
+        }
+
+        public AttributedText([NotNull] string text, [NotNull] ITextAttribute attribute) : this()
+        {
+            _stringBuilder.Append(text);
+            _segments = new List<TextSegment>
+            {
+                new TextSegment(text, new ITextAttribute[] { attribute }, new TextRange(0, text.Length))
+            };
+        }
+
+        public AttributedText([NotNull] IEnumerable<ITextSegment> textSegments) : this()
+        {
+            var segments = new List<TextSegment>();
+
+            foreach (var segment in textSegments)
+            {
+                segments.Add(new TextSegment(segment));
+                _stringBuilder.Append(segment.Text);
+            }
+
+            _segments = segments;
         }
 
         public ITextSegment[] GetTextSegments()
@@ -312,16 +480,6 @@ namespace PixCore.Text
             return _segments.OfType<ITextSegment>().ToArray();
         }
         
-        private TextSegment SegmentUnder(int position)
-        {
-            return _segments.First(seg => seg.TextRange.Contains(position));
-        }
-        
-        private IEnumerable<TextSegment> SegmentsIntersecting(TextRange range)
-        {
-            return _segments.Where(seg => seg.TextRange.Intersects(range));
-        }
-
         public bool Equals(AttributedText other)
         {
             if (ReferenceEquals(null, other)) return false;
@@ -344,11 +502,10 @@ namespace PixCore.Text
 
         public object Clone()
         {
-            var text = new AttributedText();
+            var stringBuilder = new StringBuilder();
+            stringBuilder.Append(_stringBuilder);
 
-            text._segments.AddRange(_segments);
-            text._stringBuilder.Append(_stringBuilder);
-
+            var text = new AttributedText(stringBuilder, _segments);
             return text;
         }
 
@@ -359,26 +516,23 @@ namespace PixCore.Text
 
         public static AttributedText operator +([NotNull] AttributedText lhs, [NotNull] AttributedText rhs)
         {
-            var copyLeft = (AttributedText)lhs.Clone();
-            copyLeft.Append(rhs);
+            var builder = new AttributedTextBuilder();
+            builder.Append(lhs);
+            builder.Append(rhs);
 
-            return copyLeft;
+            return builder.MakeAttributedText();
         }
 
         public static AttributedText operator +([NotNull] AttributedText lhs, [NotNull] string rhs)
         {
-            var copyLeft = (AttributedText)lhs.Clone();
-            copyLeft.Append(rhs);
+            var builder = new AttributedTextBuilder();
+            builder.Append(lhs);
+            builder.Append(rhs);
 
-            return copyLeft;
+            return builder.MakeAttributedText();
         }
 
-        private void CallModifiedEvent()
-        {
-            Modified?.Invoke(this, EventArgs.Empty);
-        }
-
-        private struct TextSegment : ITextSegment, IEquatable<TextSegment>
+        internal readonly struct TextSegment : ITextSegment, IEquatable<TextSegment>
         {
             public string Text { get; }
             public ITextAttribute[] TextAttributes { get; }
@@ -389,6 +543,13 @@ namespace PixCore.Text
                 Text = text;
                 TextAttributes = textAttributes;
                 TextRange = textRange;
+            }
+
+            public TextSegment(ITextSegment other)
+            {
+                Text = other.Text;
+                TextAttributes = other.TextAttributes;
+                TextRange = other.TextRange;
             }
 
             public void ConsumeAttributes(ITextAttributeConsumer consumer)

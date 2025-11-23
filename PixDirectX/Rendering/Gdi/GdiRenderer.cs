@@ -358,7 +358,7 @@ namespace PixDirectX.Rendering.Gdi
             _graphics.DrawString(text, castFont.Font, BrushForFill(), (RectangleF) area);
         }
 
-        public void DrawAttributedText(IAttributedText text, TextFormatAttributes attributes, AABB area)
+        public void DrawAttributedText(AttributedText text, TextFormatAttributes attributes, AABB area)
         {
             var textRenderer = new GdiTextRenderer(_graphics, Color.Black)
             {

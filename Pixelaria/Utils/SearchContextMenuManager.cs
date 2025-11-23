@@ -152,15 +152,19 @@ namespace Pixelaria.Utils
                     }
 
                     item.Visible = visible;
-                    item.AttributedText.ClearAttributes();
+
+                    var textBuilder = new AttributedTextBuilder(item.AttributedText);
+                    textBuilder.ClearAttributes();
 
                     var index = item.Text.IndexOf(searchTerm, System.StringComparison.InvariantCultureIgnoreCase);
                     if (searchTerm.Length > 0 && index > -1)
                     {
-                        item.AttributedText.SetAttributes(new TextRange(index, searchTerm.Length), new ITextAttribute[] {
+                        textBuilder.SetAttributes(new TextRange(index, searchTerm.Length), new ITextAttribute[] {
                             new BackgroundColorAttribute(Color.Cyan)
                         });
                     }
+
+                    item.AttributedText = textBuilder.MakeAttributedText();
                 }
             };
             searchBox.TextBox.KeyDown += (sender, args) =>

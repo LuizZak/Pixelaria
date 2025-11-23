@@ -267,7 +267,7 @@ namespace PixRendering
         /// <summary>
         /// Draws an attributed text on a given area with a given font.
         /// </summary>
-        void DrawAttributedText([NotNull] IAttributedText text, TextFormatAttributes attributes, AABB area);
+        void DrawAttributedText([NotNull] AttributedText text, TextFormatAttributes attributes, AABB area);
 
         #endregion
     }

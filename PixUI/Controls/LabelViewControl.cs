@@ -179,12 +179,6 @@ namespace PixUI.Controls
                 CalculateBounds();
                 Invalidate();
             };
-            _labelViewBacking.AttributedText.Modified += (sender, args) =>
-            {
-                SetNeedsLayout();
-                CalculateBounds();
-                Invalidate();
-            };
 
             Text = text;
         }

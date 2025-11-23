@@ -92,7 +92,7 @@ namespace PixUI
                 if (!AttributedText.HasAttributes && AttributedText.String == value)
                     return;
 
-                AttributedText.SetText(value);
+                AttributedText = new AttributedText(value);
             }
         }
 
@@ -144,10 +144,7 @@ namespace PixUI
 
         public LabelViewBacking()
         {
-            AttributedText.Modified += (sender, args) =>
-            {
-                BoundsInvalidated?.Invoke(this, args);
-            };
+
         }
         
         /// <summary>
@@ -201,7 +198,17 @@ namespace PixUI
         /// Gets the attributed text for this label view
         /// </summary>
         [NotNull]
-        public IAttributedText AttributedText => _labelViewBacking.AttributedText;
+        public AttributedText AttributedText
+        {
+            get
+            {
+                return _labelViewBacking.AttributedText;
+            }
+            set
+            {
+                _labelViewBacking.AttributedText = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the text color of this label view
@@ -268,17 +275,15 @@ namespace PixUI
 
         public LabelView()
         {
-            _labelViewBacking.AttributedText.Modified += AttributedTextModified;
+            _labelViewBacking.BoundsInvalidated += (sender, args) =>
+            {
+                CalculateBounds();
+            };
         }
         
         public void Dispose()
         {
             _labelViewBacking.Dispose();
-        }
-
-        private void AttributedTextModified(object sender, EventArgs eventArgs)
-        {
-            CalculateBounds();
         }
 
         private void CalculateBounds()

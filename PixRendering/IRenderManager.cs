@@ -96,7 +96,7 @@ namespace PixRendering
         /// <summary>
         /// Creates a new text layout using a given set of attributes.
         /// </summary>
-        ITextLayout CreateTextLayout([NotNull] IAttributedText text, TextLayoutAttributes attributes);
+        ITextLayout CreateTextLayout([NotNull] AttributedText text, TextLayoutAttributes attributes);
     }
 
     /// <summary>
@@ -112,7 +112,7 @@ namespace PixRendering
         /// <summary>
         /// Gets the string associated with this text layout.
         /// </summary>
-        IAttributedText Text { get; }
+        AttributedText Text { get; }
 
         /// <summary>
         /// Performs a hit test operation at a given location on this text layout, relative to the top-left location of the layout box.
@@ -161,7 +161,7 @@ namespace PixRendering
         /// <summary>
         /// Draws an attributed text with a given set of attributes, on a given area with a given color.
         /// </summary>
-        void Draw([NotNull] IAttributedText text, TextFormatAttributes textFormatAttributes, AABB area, Color color);
+        void Draw([NotNull] AttributedText text, TextFormatAttributes textFormatAttributes, AABB area, Color color);
 
         /// <summary>
         /// Draws a string of text with a given set of attributes, on a given area with a given color.

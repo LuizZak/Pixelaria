@@ -49,7 +49,7 @@ namespace PixDirectX.Rendering.Gdi
             Draw(textLayout.Text, textLayout.Attributes.TextFormatAttributes, AABB.FromRectangle(x, y, textLayout.Attributes.AvailableWidth, textLayout.Attributes.AvailableHeight), _textColor);
         }
 
-        public void Draw(IAttributedText text, TextFormatAttributes textFormatAttributes, AABB area, Color color)
+        public void Draw(AttributedText text, TextFormatAttributes textFormatAttributes, AABB area, Color color)
         {
             var layoutRect = (RectangleF) area;
 

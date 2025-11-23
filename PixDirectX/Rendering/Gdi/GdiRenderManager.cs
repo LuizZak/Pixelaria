@@ -157,7 +157,7 @@ namespace PixDirectX.Rendering.Gdi
 
         #endregion
 
-        public void WithPreparedTextLayout(Color textColor, IAttributedText text, ref ITextLayout layout, TextLayoutAttributes attributes, Action<ITextLayout, ITextRenderer> perform)
+        public void WithPreparedTextLayout(Color textColor, AttributedText text, ref ITextLayout layout, TextLayoutAttributes attributes, Action<ITextLayout, ITextRenderer> perform)
         {
             if(!(layout is GdiTextLayout))
             {
@@ -168,7 +168,7 @@ namespace PixDirectX.Rendering.Gdi
             perform(layout, textRenderer);
         }
 
-        public ITextLayout CreateTextLayout(IAttributedText text, TextLayoutAttributes attributes)
+        public ITextLayout CreateTextLayout(AttributedText text, TextLayoutAttributes attributes)
         {
             return new GdiTextLayout(attributes, text);
         }

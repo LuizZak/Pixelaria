@@ -57,9 +57,7 @@ namespace PixUI.Controls.ContextMenu
             get { return _attributedName; }
             set
             {
-                _attributedName.Modified -= AttributedName_modified;
                 _attributedName = value;
-                _attributedName.Modified += AttributedName_modified;
                 AttributedNameChanged?.Invoke(this, _attributedName);
             }
         }
@@ -125,8 +123,6 @@ namespace PixUI.Controls.ContextMenu
         {
             Name = value;
             ManagedImage = managedImage;
-
-            _attributedName.Modified += AttributedName_modified;
         }
 
         /// <summary>

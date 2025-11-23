@@ -36,9 +36,9 @@ namespace PixDirectX.Rendering.Gdi
 
         public TextLayoutAttributes Attributes { get; }
 
-        public IAttributedText Text { get; }
+        public AttributedText Text { get; }
 
-        public GdiTextLayout(TextLayoutAttributes attributes, IAttributedText text)
+        public GdiTextLayout(TextLayoutAttributes attributes, AttributedText text)
         {
             Attributes = attributes;
             Text = text;

@@ -38,7 +38,7 @@ namespace PixDirectX.Rendering.Gdi
             _dummy.Dispose();
         }
 
-        public AABB LocationOfCharacter(int offset, IAttributedText text, TextLayoutAttributes textLayoutAttributes)
+        public AABB LocationOfCharacter(int offset, AttributedText text, TextLayoutAttributes textLayoutAttributes)
         {
             if (text.IsEmpty)
                 return new AABB(0, 0, textLayoutAttributes.AvailableWidth, textLayoutAttributes.AvailableHeight);
@@ -60,7 +60,7 @@ namespace PixDirectX.Rendering.Gdi
             }
         }
 
-        public AABB[] LocationOfCharacters(int offset, int length, IAttributedText text, TextLayoutAttributes textLayoutAttributes)
+        public AABB[] LocationOfCharacters(int offset, int length, AttributedText text, TextLayoutAttributes textLayoutAttributes)
         {
             if (text.IsEmpty)
                 return new[] { new AABB(0, 0, textLayoutAttributes.AvailableWidth, textLayoutAttributes.AvailableHeight) };

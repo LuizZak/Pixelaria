@@ -34,11 +34,11 @@ namespace PixRendering
         /// <summary>
         /// Gets the bounding box for a single character at a given absolute string offset
         /// </summary>
-        AABB LocationOfCharacter(int offset, [NotNull] IAttributedText text, TextLayoutAttributes textLayoutAttributes);
+        AABB LocationOfCharacter(int offset, [NotNull] AttributedText text, TextLayoutAttributes textLayoutAttributes);
 
         /// <summary>
         /// Gets the bounding box for a set of characters at a given absolute string offset + length
         /// </summary>
-        AABB[] LocationOfCharacters(int offset, int length, [NotNull] IAttributedText text, TextLayoutAttributes textLayoutAttributes);
+        AABB[] LocationOfCharacters(int offset, int length, [NotNull] AttributedText text, TextLayoutAttributes textLayoutAttributes);
     }
 }

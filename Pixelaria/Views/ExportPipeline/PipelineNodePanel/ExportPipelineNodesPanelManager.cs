@@ -166,7 +166,9 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
                             continue;
 
                         int index = descriptor.Title.IndexOf(s, StringComparison.InvariantCultureIgnoreCase);
-                        button.AttributedText.SetAttributes(new TextRange(index, s.Length), highlightAttribute);
+                        var textBuilder = new AttributedTextBuilder(button.AttributedText);
+                        textBuilder.SetAttributes(new TextRange(index, s.Length), highlightAttribute);
+                        button.AttributedText = textBuilder.MakeAttributedText();
                     }
                     
                     ArrangeButtons(visible.Select(p => p.Item1).ToArray());

@@ -45,12 +45,12 @@ namespace PixDirectX.Rendering.DirectX
             return CalculateTextSize(new AttributedText(text), font);
         }
 
-        public SizeF CalculateTextSize(IAttributedText text, Font font)
+        public SizeF CalculateTextSize(AttributedText text, Font font)
         {
             return CalculateTextSize(text, font.Name, font.Size);
         }
 
-        public SizeF CalculateTextSize(IAttributedText text, string font, float fontSize)
+        public SizeF CalculateTextSize(AttributedText text, string font, float fontSize)
         {
             var format = new TextFormat(_directWriteFactory, font, fontSize)
             {

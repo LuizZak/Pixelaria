@@ -591,7 +591,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                             foreach (var item in allItems)
                             {
                                 item.Visible = true;
-                                item.AttributedName.ClearAttributes();
+                                item.AttributedName = new AttributedText(item.AttributedName.String);
                             }
                         }
                         else
@@ -599,12 +599,13 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                             foreach (var item in allItems)
                             {
                                 var index = item.Name.IndexOf(args.Text, StringComparison.InvariantCultureIgnoreCase);
+                                var textBuilder = new AttributedTextBuilder(item.AttributedName);
+                                textBuilder.ClearAttributes();
 
                                 if (index != -1)
                                 {
                                     item.Visible = true;
-                                    item.AttributedName.ClearAttributes();
-                                    item.AttributedName.SetAttributes(new TextRange(index, args.Text.Length), new ITextAttribute[]
+                                    textBuilder.SetAttributes(new TextRange(index, args.Text.Length), new ITextAttribute[]
                                     {
                                         new BackgroundColorAttribute(Color.Blue)
                                     });
@@ -612,8 +613,9 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                                 else
                                 {
                                     item.Visible = false;
-                                    item.AttributedName.ClearAttributes();
                                 }
+
+                                item.AttributedName = textBuilder.MakeAttributedText();
                             }
                         }
                     };

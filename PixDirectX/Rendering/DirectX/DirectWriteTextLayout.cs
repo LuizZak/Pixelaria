@@ -36,9 +36,9 @@ namespace PixDirectX.Rendering.DirectX
         [CanBeNull]
         public EllipsisTrimming EllipsisTrimming { get; }
         public TextLayoutAttributes Attributes { get; }
-        public IAttributedText Text { get; }
+        public AttributedText Text { get; }
 
-        public DirectWriteTextLayout(Factory directWriteFactory, [NotNull] IAttributedText text, TextLayoutAttributes attributes)
+        public DirectWriteTextLayout(Factory directWriteFactory, [NotNull] AttributedText text, TextLayoutAttributes attributes)
         {
             _textFormat = new TextFormat(directWriteFactory, attributes.TextFormatAttributes.Font, attributes.TextFormatAttributes.FontSize);
             TextLayout = new TextLayout(directWriteFactory, text.String, _textFormat, attributes.AvailableWidth, attributes.AvailableHeight);

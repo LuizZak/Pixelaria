@@ -207,7 +207,7 @@ namespace PixDirectX.Rendering.DirectX
             return _lastRenderingState;
         }
 
-        public ITextLayout CreateTextLayout(IAttributedText text, TextLayoutAttributes attributes)
+        public ITextLayout CreateTextLayout(AttributedText text, TextLayoutAttributes attributes)
         {
             if (directWriteFactory == null)
                 throw new InvalidOperationException("Direct2D renderer has no previous rendering state to derive a DirectWrite factory from.");
@@ -370,7 +370,7 @@ namespace PixDirectX.Rendering.DirectX
                 _renderer = renderer;
             }
 
-            public AABB LocationOfCharacter(int offset, IAttributedText text, TextLayoutAttributes textLayoutAttributes)
+            public AABB LocationOfCharacter(int offset, AttributedText text, TextLayoutAttributes textLayoutAttributes)
             {
                 var renderState = _renderer.GetLatestValidRenderingState();
                 if (renderState == null)
@@ -385,7 +385,7 @@ namespace PixDirectX.Rendering.DirectX
                     });
             }
 
-            public AABB[] LocationOfCharacters(int offset, int length, IAttributedText text, TextLayoutAttributes textLayoutAttributes)
+            public AABB[] LocationOfCharacters(int offset, int length, AttributedText text, TextLayoutAttributes textLayoutAttributes)
             {
                 var renderState = _renderer.GetLatestValidRenderingState();
                 if (renderState == null)
@@ -401,7 +401,7 @@ namespace PixDirectX.Rendering.DirectX
                     });
             }
 
-            private static T WithTemporaryTextFormat<T>([NotNull] IDirect2DRenderingState renderState, [NotNull] IAttributedText text, TextLayoutAttributes textLayoutAttributes,
+            private static T WithTemporaryTextFormat<T>([NotNull] IDirect2DRenderingState renderState, [NotNull] AttributedText text, TextLayoutAttributes textLayoutAttributes,
                 [NotNull] Func<TextFormat, TextLayout, T> action)
             {
                 var format = new TextFormat(renderState.DirectWriteFactory, textLayoutAttributes.TextFormatAttributes.Font,
@@ -441,9 +441,9 @@ namespace PixDirectX.Rendering.DirectX
             [CanBeNull]
             public EllipsisTrimming EllipsisTrimming { get; }
             public TextLayoutAttributes Attributes { get; }
-            public IAttributedText Text { get; }
+            public AttributedText Text { get; }
 
-            public InnerTextLayout(TextLayout textLayout, IAttributedText text, EllipsisTrimming ellipsisTrimming, TextLayoutAttributes attributes)
+            public InnerTextLayout(TextLayout textLayout, AttributedText text, EllipsisTrimming ellipsisTrimming, TextLayoutAttributes attributes)
             {
                 TextLayout = textLayout;
                 EllipsisTrimming = ellipsisTrimming;
@@ -929,7 +929,7 @@ namespace PixDirectX.Rendering.DirectX
             }
         }
 
-        public void DrawAttributedText(IAttributedText text, TextFormatAttributes attributes, AABB area)
+        public void DrawAttributedText(AttributedText text, TextFormatAttributes attributes, AABB area)
         {
             var textRenderer = new TextColorRenderer();
             textRenderer.AssignResources(_state.D2DRenderTarget, BrushForFill());
@@ -1265,7 +1265,7 @@ namespace PixDirectX.Rendering.DirectX
             layout.TextLayout.Draw(TextColorRenderer, x, y);
         }
 
-        public void Draw(IAttributedText text, TextFormatAttributes textFormatAttributes, AABB area, Color color)
+        public void Draw(AttributedText text, TextFormatAttributes textFormatAttributes, AABB area, Color color)
         {
             EllipsisTrimming trimming = null;
 

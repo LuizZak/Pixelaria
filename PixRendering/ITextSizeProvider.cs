@@ -39,11 +39,11 @@ namespace PixRendering
         /// <summary>
         /// Calculates the text size for a given pair of attributed string/font
         /// </summary>
-        SizeF CalculateTextSize([NotNull] IAttributedText text, [NotNull] Font font);
+        SizeF CalculateTextSize([NotNull] AttributedText text, [NotNull] Font font);
 
         /// <summary>
         /// Calculates the text size for a given pair of attributed string/font/font size
         /// </summary>
-        SizeF CalculateTextSize([NotNull] IAttributedText text, [NotNull] string font, float fontSize);
+        SizeF CalculateTextSize([NotNull] AttributedText text, [NotNull] string font, float fontSize);
     }
 }

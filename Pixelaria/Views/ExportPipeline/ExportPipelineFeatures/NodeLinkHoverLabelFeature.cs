@@ -124,7 +124,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                     type = input.DataType;
             }
 
-            var labelText = new AttributedText();
+            var labelText = new AttributedTextBuilder();
 
             // Assign label text
             bool isOutput = linkView is PipelineNodeOutputLinkView;
@@ -161,7 +161,7 @@ namespace Pixelaria.Views.ExportPipeline.ExportPipelineFeatures
                 }
             }
 
-            _labelView.AttributedText.SetText(labelText);
+            _labelView.AttributedText = labelText.MakeAttributedText();
 
             var absoluteLinkBounds = uiContainerView.ConvertFrom(linkView.Bounds, linkView);
 
