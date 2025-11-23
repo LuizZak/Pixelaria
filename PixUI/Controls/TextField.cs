@@ -60,6 +60,42 @@ namespace PixUI.Controls
         private bool _mouseDown;
         private bool _editable;
 
+        #region Events
+
+        /// <summary>
+        /// Event fired whenever the text contents of this text field are updated.
+        /// </summary>
+        public event TextFieldTextChangedEventHandler TextChanged;
+
+        /// <summary>
+        /// Event fired whenever the user presses down the Enter key while <see cref="AcceptsEnterKey"/> is true
+        /// </summary>
+        public event EventHandler EnterKey;
+
+        /// <summary>
+        /// Event issued when the user presses down a keyboard key while this text field has focus.
+        /// </summary>
+        public event KeyEventHandler KeyDown;
+
+        /// <summary>
+        /// Event issued when the user releases a keyboard key while this text field has focus.
+        /// </summary>
+        public event KeyEventHandler KeyUp;
+
+        /// <summary>
+        /// Event issued when the user presses a keyboard key while this text field has focus.
+        /// 
+        /// This event is not raised if <see cref="Editable"/> is <c>false</c>.
+        /// </summary>
+        public event KeyPressEventHandler KeyPress;
+
+        /// <summary>
+        /// Event issued when the preview key down event has been received while this text field has focus.
+        /// </summary>
+        public event PreviewKeyDownEventHandler PreviewKeyDown;
+
+        #endregion
+
         public override Color ForeColor
         {
             get => base.ForeColor;
@@ -156,16 +192,6 @@ namespace PixUI.Controls
                 }
             }
         }
-
-        /// <summary>
-        /// Event fired whenever the text contents of this text field are updated.
-        /// </summary>
-        public event TextFieldTextChangedEventHandler TextChanged;
-
-        /// <summary>
-        /// Event fired whenever the user presses down the Enter key while <see cref="AcceptsEnterKey"/> is true
-        /// </summary>
-        public event EventHandler EnterKey;
 
         public override bool CanBecomeFirstResponder => true;
 
@@ -408,6 +434,11 @@ namespace PixUI.Controls
             if (!Editable)
                 return;
 
+            KeyPress?.Invoke(this, e);
+
+            if (e.Handled)
+                return;
+
             if (!AllowLineBreaks)
             {
                 if (e.KeyChar == '\n' || e.KeyChar == '\r')
@@ -422,6 +453,10 @@ namespace PixUI.Controls
 
         public void OnKeyDown(KeyEventArgs e)
         {
+            KeyDown?.Invoke(this, e);
+            if (e.Handled)
+                return;
+
             // Enter key
             if (e.KeyCode == Keys.Enter && AcceptsEnterKey)
             {
@@ -548,11 +583,13 @@ namespace PixUI.Controls
 
         public void OnKeyUp(KeyEventArgs e)
         {
-            
+            KeyUp?.Invoke(this, e);
         }
 
         public void OnPreviewKeyDown(PreviewKeyDownEventArgs e)
         {
+            PreviewKeyDown?.Invoke(this, e);
+
             HandleCaretMoveEvent(e.KeyCode, e.Modifiers);
         }
 

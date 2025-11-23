@@ -30,6 +30,11 @@ namespace PixUI.Controls
     /// </summary>
     public interface IKeyboardEventHandler: IEventHandler
     {
+        event KeyEventHandler KeyDown;
+        event KeyEventHandler KeyUp;
+        event KeyPressEventHandler KeyPress;
+        event PreviewKeyDownEventHandler PreviewKeyDown;
+
         void OnKeyPress([NotNull] KeyPressEventArgs e);
 
         void OnKeyDown([NotNull] KeyEventArgs e);
