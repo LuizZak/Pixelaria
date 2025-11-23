@@ -105,7 +105,7 @@ namespace PixUI.Controls.ContextMenu
         /// <summary>
         /// Event raised when the user has selected this context menu item with the mouse.
         /// </summary>
-        public event MouseEventHandler Click;
+        public event EventHandler Click;
 
         #endregion
 
@@ -123,6 +123,22 @@ namespace PixUI.Controls.ContextMenu
         {
             Name = value;
             ManagedImage = managedImage;
+        }
+
+        /// <summary>
+        /// Changes the selection state of this context menu item to be selected.
+        /// </summary>
+        public void Select()
+        {
+            Selected = true;
+        }
+
+        /// <summary>
+        /// Invokes <see cref="Click"/> event handler for this item.
+        /// </summary>
+        public void PerformClick()
+        {
+            Click?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -144,7 +160,7 @@ namespace PixUI.Controls.ContextMenu
         /// <summary>
         /// Raises the <see cref="Click"/> event.
         /// </summary>
-        internal void OnClick(object sender, MouseEventArgs e)
+        internal void OnClick(object sender, EventArgs e)
         {
             Click?.Invoke(this, e);
         }

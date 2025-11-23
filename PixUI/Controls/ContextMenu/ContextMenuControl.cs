@@ -124,6 +124,38 @@ namespace PixUI.Controls.ContextMenu
 
                 if (item is ContextMenuItem menuItem)
                 {
+                    menuItem.SelectChange += (sender, e) =>
+                    {
+                        var itemView = (itemViewBase as ContextMenuItemView);
+
+                        if (e)
+                        {
+                            // Deselect all other items
+                            foreach (var selectableItemView in SelectableItemViews())
+                            {
+                                if (selectableItemView == itemViewBase)
+                                    continue;
+
+                                selectableItemView.Selected = false;
+                            }
+                            foreach (var selectableItem in SelectableItems())
+                            {
+                                if (selectableItem == item)
+                                    continue;
+
+                                selectableItem.Selected = false;
+                            }
+
+                            if (itemView != null)
+                                itemView.Selected = true;
+                        }
+                        else
+                        {
+                            if (itemView != null)
+                                itemView.Selected = false;
+                        }
+                    };
+
                     menuItem.Click += (sender, e) =>
                     {
                         Close(DialogControlCloseReason.ItemClicked);
@@ -144,6 +176,26 @@ namespace PixUI.Controls.ContextMenu
             }
 
             return items;
+        }
+
+        private IEnumerable<ContextMenuItemView> SelectableItemViews()
+        {
+            return _itemViews.OfType<ContextMenuItemView>();
+        }
+
+        private IEnumerable<ContextMenuItem> SelectableItems()
+        {
+            var result = new List<ContextMenuItem>();
+
+            foreach (var itemBase in _rootItem.DropDownItems)
+            {
+                if (itemBase is ContextMenuItem item)
+                {
+                    result.Add(item);
+                }
+            }
+
+            return result;
         }
 
         public override void RenderBackground(ControlRenderingContext context)
@@ -437,7 +489,7 @@ namespace PixUI.Controls.ContextMenu
             {
                 base.OnMouseClick(e);
 
-                _item.OnClick(this, e);
+                _item.OnClick(this, EventArgs.Empty);
             }
 
             public override void Layout()
@@ -460,7 +512,7 @@ namespace PixUI.Controls.ContextMenu
                 }
                 else
                 {
-                    if (Highlighted)
+                    if (Highlighted || Selected)
                     {
                         var bounds = BoundsForSelectionHighlight();
 

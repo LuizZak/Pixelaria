@@ -38,21 +38,21 @@ namespace PixUI.Controls.ContextMenu
         /// <summary>
         /// Gets the collection of sub-items on this context menu item
         /// </summary>
-        public ContextMenuItemCollection DropDownItems { get; }
+        public ContextMenuItemBaseCollection DropDownItems { get; }
 
         public ContextMenuDropDownItem([NotNull] string name) : base(name)
         {
-            DropDownItems = new ContextMenuItemCollection(this);
+            DropDownItems = new ContextMenuItemBaseCollection(this);
         }
 
         public ContextMenuDropDownItem([NotNull] string name, ImageResource image) : base(name, image)
         {
-            DropDownItems = new ContextMenuItemCollection(this);
+            DropDownItems = new ContextMenuItemBaseCollection(this);
         }
 
         public ContextMenuDropDownItem([NotNull] string name, IManagedImageResource managedImage) : base(name, managedImage)
         {
-            DropDownItems = new ContextMenuItemCollection(this);
+            DropDownItems = new ContextMenuItemBaseCollection(this);
         }
 
         protected void ItemsCollectionChanged()
@@ -63,7 +63,7 @@ namespace PixUI.Controls.ContextMenu
         /// <summary>
         /// A collection of drop down menu items on this drop down item
         /// </summary>
-        public class ContextMenuItemCollection : IList<ContextMenuItemBase>
+        public class ContextMenuItemBaseCollection : IList<ContextMenuItemBase>
         {
             private readonly ContextMenuDropDownItem _dropDownItem;
             private readonly List<ContextMenuItemBase> _items = new List<ContextMenuItemBase>();
@@ -77,7 +77,7 @@ namespace PixUI.Controls.ContextMenu
             public int Count => _items.Count;
             public bool IsReadOnly => false;
 
-            public ContextMenuItemCollection(ContextMenuDropDownItem dropDownItem)
+            public ContextMenuItemBaseCollection(ContextMenuDropDownItem dropDownItem)
             {
                 _dropDownItem = dropDownItem;
             }
