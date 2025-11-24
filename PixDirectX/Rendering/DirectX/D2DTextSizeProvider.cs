@@ -67,15 +67,48 @@ namespace PixDirectX.Rendering.DirectX
                         continue;
 
                     var fontAttr = textSegment.GetAttribute<TextFontAttribute>();
+                    var textRange = new SharpDX.DirectWrite.TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length);
 
-                    textLayout.SetFontFamilyName(fontAttr.Font.FontFamily.Name,
-                        new SharpDX.DirectWrite.TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
-                    textLayout.SetFontSize(fontAttr.Font.Size,
-                        new SharpDX.DirectWrite.TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
+                    ApplyFont(textLayout, fontAttr.Font, textRange);
                 }
 
                 return new SizeF(textLayout.Metrics.Width, textLayout.Metrics.Height);
             }
+        }
+
+        // TODO: Reduce duplication with InnerTextRenderer
+
+        private void ApplyFont(TextLayout textLayout, Font font, SharpDX.DirectWrite.TextRange textRange)
+        {
+            textLayout.SetFontFamilyName(font.FontFamily.Name, textRange);
+            textLayout.SetFontStyle(FontStyleFromSystemFontStyle(font.Style), textRange);
+            textLayout.SetFontWeight(FontWeightFromFontStyle(font.Style), textRange);
+            textLayout.SetFontSize(font.Size, textRange);
+
+            if (font.Style.HasFlag(System.Drawing.FontStyle.Underline))
+            {
+                textLayout.SetUnderline(true, textRange);
+            }
+            if (font.Style.HasFlag(System.Drawing.FontStyle.Strikeout))
+            {
+                textLayout.SetStrikethrough(true, textRange);
+            }
+        }
+
+        private SharpDX.DirectWrite.FontStyle FontStyleFromSystemFontStyle(System.Drawing.FontStyle fontStyle)
+        {
+            if (fontStyle.HasFlag(System.Drawing.FontStyle.Italic))
+                return SharpDX.DirectWrite.FontStyle.Italic;
+
+            return SharpDX.DirectWrite.FontStyle.Normal;
+        }
+
+        private FontWeight FontWeightFromFontStyle(System.Drawing.FontStyle fontStyle)
+        {
+            if (fontStyle.HasFlag(System.Drawing.FontStyle.Bold))
+                return FontWeight.Bold;
+
+            return FontWeight.Normal;
         }
     }
 }

@@ -1280,6 +1280,8 @@ namespace PixDirectX.Rendering.DirectX
                     var consumer = new CollectingTextAttributeConsumer();
                     textSegment.ConsumeAttributes(consumer);
 
+                    var textRange = new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length);
+
                     if (consumer.ForeColor.HasValue)
                     {
                         var segmentBrush =
@@ -1287,15 +1289,11 @@ namespace PixDirectX.Rendering.DirectX
 
                         disposes.Add(segmentBrush);
 
-                        textLayout.SetDrawingEffect(segmentBrush,
-                            new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
+                        textLayout.SetDrawingEffect(segmentBrush, textRange);
                     }
                     if (consumer.Font != null)
                     {
-                        textLayout.SetFontFamilyName(consumer.Font.FontFamily.Name,
-                            new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
-                        textLayout.SetFontSize(consumer.Font.Size,
-                            new TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length));
+                        ApplyFont(textLayout, consumer.Font, textRange);
                     }
                 }
 
@@ -1337,6 +1335,25 @@ namespace PixDirectX.Rendering.DirectX
             }
         }
 
+        // TODO: Reduce duplication with D2DTextSizeProvider
+
+        private void ApplyFont(TextLayout textLayout, System.Drawing.Font font, TextRange textRange)
+        {
+            textLayout.SetFontFamilyName(font.FontFamily.Name, textRange);
+            textLayout.SetFontStyle(FontStyleFromSystemFontStyle(font.Style), textRange);
+            textLayout.SetFontWeight(FontWeightFromFontStyle(font.Style), textRange);
+            textLayout.SetFontSize(font.Size, textRange);
+
+            if (font.Style.HasFlag(System.Drawing.FontStyle.Underline))
+            {
+                textLayout.SetUnderline(true, textRange);
+            }
+            if (font.Style.HasFlag(System.Drawing.FontStyle.Strikeout))
+            {
+                textLayout.SetStrikethrough(true, textRange);
+            }
+        }
+
         public void Draw(string text, TextFormatAttributes textFormatAttributes, AABB area, Color color)
         {
             EllipsisTrimming trimming = null;
@@ -1366,6 +1383,22 @@ namespace PixDirectX.Rendering.DirectX
             }
 
             return textFormat;
+        }
+
+        private FontStyle FontStyleFromSystemFontStyle(System.Drawing.FontStyle fontStyle)
+        {
+            if (fontStyle.HasFlag(System.Drawing.FontStyle.Italic))
+                return FontStyle.Italic;
+
+            return FontStyle.Normal;
+        }
+
+        private FontWeight FontWeightFromFontStyle(System.Drawing.FontStyle fontStyle)
+        {
+            if (fontStyle.HasFlag(System.Drawing.FontStyle.Bold))
+                return FontWeight.Bold;
+
+            return FontWeight.Normal;
         }
     }
 
