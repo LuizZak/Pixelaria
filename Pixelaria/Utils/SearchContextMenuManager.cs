@@ -122,6 +122,7 @@ namespace Pixelaria.Utils
                             textBuilder.SetAttributes(new TextRange(index, args.Text.Length), new ITextAttribute[]
                             {
                                 new BackgroundColorAttribute(Color.Blue),
+                                new TextFontAttribute(new Font(ContextMenuControl.DefaultItemFont, FontStyle.Bold)),
                             });
 
                             visibleItems.Add(item);

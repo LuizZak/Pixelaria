@@ -24,7 +24,6 @@ using JetBrains.Annotations;
 using PixCore.Text;
 using PixRendering;
 using System;
-using System.Windows.Forms;
 
 namespace PixUI.Controls.ContextMenu
 {

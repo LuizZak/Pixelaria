@@ -229,6 +229,11 @@ namespace PixUI.Controls.ContextMenu
 
             base.Layout();
 
+            foreach (var itemView in _itemViews.Where(view => view.Visible))
+            {
+                itemView.AutoSize();
+            }
+
             float maxWidth = _itemViews.Where(view => view.Visible).Aggregate(LeftMarginWidth, (d, view) => Math.Max(d, view.Bounds.Width));
             float y = 0.0f;
 
@@ -278,6 +283,11 @@ namespace PixUI.Controls.ContextMenu
                     ParentContextMenu()?.SetNeedsLayout();
                     ParentContextMenu()?.Layout();
                 };
+            }
+
+            public virtual void AutoSize()
+            {
+
             }
 
             protected virtual AABB BoundsForSelectionHighlight()
@@ -351,7 +361,7 @@ namespace PixUI.Controls.ContextMenu
                 }
             }
 
-            public void AutoSize()
+            public override void AutoSize()
             {
                 if (!_item.CreateConstraints)
                 {
@@ -387,7 +397,7 @@ namespace PixUI.Controls.ContextMenu
                 Layout();
             }
 
-            public void AutoSize()
+            public override void AutoSize()
             {
                 Size = new Vector(0, 8);
             }
@@ -459,12 +469,17 @@ namespace PixUI.Controls.ContextMenu
                 _imageView.StrokeColor = Color.Transparent;
                 _imageView.BackColor = Color.Transparent;
 
-                if(!IsSeparator())
-                {
-                    AddChild(_label);
-                    AddChild(_imageView);
-                }
+                AddChild(_label);
+                AddChild(_imageView);
 
+                SetupEvents();
+
+                AutoSize();
+                Layout();
+            }
+
+            protected void SetupEvents()
+            {
                 _item.AttributedNameChanged += (sender, name) =>
                 {
                     _label.AttributedText = name;
@@ -475,16 +490,6 @@ namespace PixUI.Controls.ContextMenu
                     ParentContextMenu()?.SetNeedsLayout();
                     ParentContextMenu()?.Layout();
                 };
-
-                SetupEvents();
-
-                AutoSize();
-                Layout();
-            }
-
-            protected void SetupEvents()
-            {
-                
             }
 
             public override void OnMouseEnter()
@@ -521,54 +526,39 @@ namespace PixUI.Controls.ContextMenu
             {
                 base.RenderBackground(context);
 
-                if (IsSeparator())
+                if (Highlighted || Selected)
                 {
-                    context.Renderer.SetStrokeColor(Color.DimGray);
-                    context.Renderer.StrokeLine(new Vector(LeftMarginWidth + 4, Bounds.Height / 2), new Vector(Bounds.Width - 8, Bounds.Height / 2));
+                    var bounds = BoundsForSelectionHighlight();
+
+                    context.Renderer.SetFillColor(Color.DodgerBlue.WithTransparency(0.5f));
+                    context.Renderer.SetStrokeColor(Color.LightBlue);
+
+                    context.Renderer.FillArea(bounds);
+                    context.Renderer.StrokeArea(bounds);
                 }
-                else
+
+                if (HasSubItems)
                 {
-                    if (Highlighted || Selected)
+                    var bounds = BoundsForSubItemsArrow();
+
+                    var path = context.Renderer.CreatePath(p =>
                     {
-                        var bounds = BoundsForSelectionHighlight();
+                        p.MoveTo(bounds.Left, bounds.Top);
+                        p.LineTo(bounds.Right, bounds.Center.Y);
+                        p.LineTo(bounds.Left, bounds.Bottom);
+                        p.EndFigure(true);
+                    });
 
-                        context.Renderer.SetFillColor(Color.DodgerBlue.WithTransparency(0.5f));
-                        context.Renderer.SetStrokeColor(Color.LightBlue);
-
-                        context.Renderer.FillArea(bounds);
-                        context.Renderer.StrokeArea(bounds);
-                    }
-
-                    if (HasSubItems)
-                    {
-                        var bounds = BoundsForSubItemsArrow();
-
-                        var path = context.Renderer.CreatePath(p =>
-                        {
-                            p.MoveTo(bounds.Left, bounds.Top);
-                            p.LineTo(bounds.Right, bounds.Center.Y);
-                            p.LineTo(bounds.Left, bounds.Bottom);
-                            p.EndFigure(true);
-                        });
-
-                        context.Renderer.SetFillColor(Color.White);
-                        context.Renderer.FillPath(path);
-                    }
+                    context.Renderer.SetFillColor(Color.White);
+                    context.Renderer.FillPath(path);
                 }
             }
 
-            public void AutoSize()
+            public override void AutoSize()
             {
                 _label.AutoSize();
 
-                if (IsSeparator())
-                {
-                    Size = new Vector(0, 8);
-                }
-                else
-                {
-                    Size = new Vector(_label.Bounds.Width + 38 + (HasSubItems ? SubItemsArrowBounds : 0), Math.Max(24, _label.Bounds.Height + 12));
-                }
+                Size = new Vector(_label.Bounds.Width + 38 + (HasSubItems ? SubItemsArrowBounds : 0), Math.Max(24, _label.Bounds.Height + 12));
             }
 
             protected override AABB BoundsForSelectionHighlight()
@@ -582,11 +572,6 @@ namespace PixUI.Controls.ContextMenu
                 var arrowBounds = AABB.FromRectangle(Vector.Zero, SubItemsArrowSize);
                 
                 return arrowBounds.WithCenterOn(totalBounds.Center);
-            }
-
-            private bool IsSeparator()
-            {
-                return _label.Text == "-";
             }
         }
     }
