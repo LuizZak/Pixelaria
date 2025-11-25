@@ -42,8 +42,8 @@ using PixPipelineGraph;
 using PixRendering;
 using PixUI;
 using PixUI.Controls;
-using SharpDX.WIC;
-using Bitmap = SharpDX.WIC.Bitmap;
+using Vortice.WIC;
+using Bitmap = Vortice.WIC.IWICBitmap;
 using Color = System.Drawing.Color;
 
 namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
@@ -420,9 +420,9 @@ namespace Pixelaria.Views.ExportPipeline.PipelineNodePanel
             var bitmapSize = view.Size + margins * 2;
 
             // Automatically adjust view to be on center of view port
-            using (var imgFactory = new ImagingFactory())
+            using (var imgFactory = new IWICImagingFactory())
             {
-                var wicBitmap = new Bitmap(imgFactory, (int)bitmapSize.X, (int)bitmapSize.Y, pixelFormat, bitmapCreateCacheOption);
+                var wicBitmap = imgFactory.CreateBitmap((int)bitmapSize.X, (int)bitmapSize.Y, pixelFormat, bitmapCreateCacheOption);
 
                 using (var renderLoop = new Direct2DWicBitmapRenderManager(wicBitmap, DxSupport.D2DFactory, DxSupport.D3DDevice))
                 using (var renderer = new Direct2DRenderManager())

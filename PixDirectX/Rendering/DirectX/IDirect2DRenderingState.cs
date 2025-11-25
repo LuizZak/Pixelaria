@@ -24,8 +24,12 @@ using System;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixRendering;
-using SharpDX;
-using SharpDX.Direct2D1;
+
+using DXFactory = Vortice.Direct2D1.ID2D1Factory;
+using DXWriteFactory = Vortice.DirectWrite.IDWriteFactory;
+using DXRenderTarget = Vortice.Direct2D1.ID2D1RenderTarget;
+using DXDeviceContext = Vortice.Direct2D1.ID2D1DeviceContext;
+using DXMatrix3x2 = System.Numerics.Matrix3x2;
 
 namespace PixDirectX.Rendering.DirectX
 {
@@ -34,22 +38,22 @@ namespace PixDirectX.Rendering.DirectX
         /// <summary>
         /// Direct2D factory instance
         /// </summary>
-        Factory D2DFactory { get; }
+        DXFactory D2DFactory { get; }
 
         /// <summary>
         /// DirectWrite factory instance
         /// </summary>
-        SharpDX.DirectWrite.Factory DirectWriteFactory { get; }
+        DXWriteFactory DirectWriteFactory { get; }
 
         /// <summary>
         /// Gets the render target for this rendering state
         /// </summary>
-        RenderTarget D2DRenderTarget { get; }
+        DXRenderTarget D2DRenderTarget { get; }
 
         /// <summary>
         /// Gets the device context for this rendering state
         /// </summary>
-        DeviceContext DeviceContext { get; }
+        DXDeviceContext DeviceContext { get; }
 
         /// <summary>
         /// Gets the scaling factor for the currently active Desktop DPI (Dots-per-inch).
@@ -59,11 +63,11 @@ namespace PixDirectX.Rendering.DirectX
         /// <summary>
         /// Gets or sets the current transformation matrix
         /// </summary>
-        Matrix3x2 Transform { get; set; }
+        DXMatrix3x2 Transform { get; set; }
 
         void PushingTransform([InstantHandle, NotNull] Action execute);
         void PushMatrix();
-        void PushMatrix(Matrix3x2 matrix);
+        void PushMatrix(DXMatrix3x2 matrix);
         void PopMatrix();
         void WithTemporaryClipping(AABB clipping, [InstantHandle, NotNull] Action execute);
     }

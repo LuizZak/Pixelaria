@@ -22,12 +22,12 @@
 
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using SharpDX.IO;
-using SharpDX.Mathematics.Interop;
-using SharpDX.Win32;
+
+using Vortice.Win32;
 
 // ReSharper disable InconsistentNaming
 
@@ -512,5 +512,292 @@ namespace Pixelaria.Views.Direct2D
 
         [DllImport("kernel32.dll", EntryPoint = "GetModuleHandle", CharSet = CharSet.Unicode)]
         public static extern IntPtr GetModuleHandle(string lpModuleName);
+    }
+
+    /// <summary>
+    /// Native File access flags.
+    /// </summary>
+    [Flags]
+    internal enum NativeFileAccess : uint
+    {
+        /// <summary>
+        /// Read access.
+        /// </summary>
+        Read = 0x80000000,
+
+        /// <summary>
+        /// Write access.
+        /// </summary>
+        Write = 0x40000000,
+
+        /// <summary>
+        /// Read/Write Access,
+        /// </summary>
+        ReadWrite = Read | Write,
+
+        /// <summary>
+        /// Execute access.
+        /// </summary>
+        Execute = 0x20000000,
+
+        /// <summary>
+        /// All access
+        /// </summary>
+        All = 0x10000000
+    }
+
+    /// <summary>
+    /// Native file share.
+    /// </summary>
+    [Flags]
+    internal enum NativeFileShare : uint
+    {
+        /// <summary>
+        /// None flag.
+        /// </summary>
+        None = 0x00000000,
+
+        /// <summary>
+        /// Enables subsequent open operations on an object to request read access.
+        /// Otherwise, other processes cannot open the object if they request read access.
+        /// If this flag is not specified, but the object has been opened for read access, the function fails.
+        /// </summary>
+        Read = 0x00000001,
+
+        /// <summary>
+        /// Enables subsequent open operations on an object to request write access.
+        /// Otherwise, other processes cannot open the object if they request write access.
+        /// If this flag is not specified, but the object has been opened for write access, the function fails.
+        /// </summary>
+        Write = 0x00000002,
+
+        /// <summary>
+        /// Read and Write flags.
+        /// </summary>
+        ReadWrite = Read | Write,
+
+        /// <summary>
+        /// Enables subsequent open operations on an object to request delete access.
+        /// Otherwise, other processes cannot open the object if they request delete access.
+        /// If this flag is not specified, but the object has been opened for delete access, the function fails.
+        /// </summary>
+        Delete = 0x00000004
+    }
+
+    /// <summary>
+    /// Native file creation disposition.
+    /// </summary>
+    internal enum NativeFileMode : uint
+    {
+        /// <summary>
+        /// Creates a new file. The function fails if a specified file exists.
+        /// </summary>
+        CreateNew = 1,
+
+        /// <summary>
+        /// Creates a new file, always.
+        /// If a file exists, the function overwrites the file, clears the existing attributes, combines the specified file attributes,
+        /// and flags with FILE_ATTRIBUTE_ARCHIVE, but does not set the security descriptor that the SECURITY_ATTRIBUTES structure specifies.
+        /// </summary>
+        Create = 2,
+
+        /// <summary>
+        /// Opens a file. The function fails if the file does not exist.
+        /// </summary>
+        Open = 3,
+
+        /// <summary>
+        /// Opens a file, always.
+        /// If a file does not exist, the function creates a file as if dwCreationDisposition is CREATE_NEW.
+        /// </summary>
+        OpenOrCreate = 4,
+
+        /// <summary>
+        /// Opens a file and truncates it so that its size is 0 (zero) bytes. The function fails if the file does not exist.
+        /// The calling process must open the file with the GENERIC_WRITE access right.
+        /// </summary>
+        Truncate = 5
+    }
+
+    /// <summary>
+    /// Native file attributes.
+    /// </summary>
+    [Flags]
+    internal enum NativeFileOptions : uint
+    {
+        /// <summary>
+        /// None attribute.
+        /// </summary>
+        None = 0x00000000,
+
+        /// <summary>
+        /// Read only attribute.
+        /// </summary>
+        Readonly = 0x00000001,
+
+        /// <summary>
+        /// Hidden attribute.
+        /// </summary>
+        Hidden = 0x00000002,
+
+        /// <summary>
+        /// System attribute.
+        /// </summary>
+        System = 0x00000004,
+
+        /// <summary>
+        /// Directory attribute.
+        /// </summary>
+        Directory = 0x00000010,
+
+        /// <summary>
+        /// Archive attribute.
+        /// </summary>
+        Archive = 0x00000020,
+
+        /// <summary>
+        /// Device attribute.
+        /// </summary>
+        Device = 0x00000040,
+
+        /// <summary>
+        /// Normal attribute.
+        /// </summary>
+        Normal = 0x00000080,
+
+        /// <summary>
+        /// Temporary attribute.
+        /// </summary>
+        Temporary = 0x00000100,
+
+        /// <summary>
+        /// Sparse file attribute.
+        /// </summary>
+        SparseFile = 0x00000200,
+
+        /// <summary>
+        /// ReparsePoint attribute.
+        /// </summary>
+        ReparsePoint = 0x00000400,
+
+        /// <summary>
+        /// Compressed attribute.
+        /// </summary>
+        Compressed = 0x00000800,
+
+        /// <summary>
+        /// Offline attribute.
+        /// </summary>
+        Offline = 0x00001000,
+
+        /// <summary>
+        /// Not content indexed attribute.
+        /// </summary>
+        NotContentIndexed = 0x00002000,
+
+        /// <summary>
+        /// Encrypted attribute.
+        /// </summary>
+        Encrypted = 0x00004000,
+
+        /// <summary>
+        /// Write through attribute.
+        /// </summary>
+        Write_Through = 0x80000000,
+
+        /// <summary>
+        /// Overlapped attribute.
+        /// </summary>
+        Overlapped = 0x40000000,
+
+        /// <summary>
+        /// No buffering attribute.
+        /// </summary>
+        NoBuffering = 0x20000000,
+
+        /// <summary>
+        /// Random access attribute.
+        /// </summary>
+        RandomAccess = 0x10000000,
+
+        /// <summary>
+        /// Sequential scan attribute.
+        /// </summary>
+        SequentialScan = 0x08000000,
+
+        /// <summary>
+        /// Delete on close attribute.
+        /// </summary>
+        DeleteOnClose = 0x04000000,
+
+        /// <summary>
+        /// Backup semantics attribute.
+        /// </summary>
+        BackupSemantics = 0x02000000,
+
+        /// <summary>
+        /// Post semantics attribute.
+        /// </summary>
+        PosixSemantics = 0x01000000,
+
+        /// <summary>
+        /// Open reparse point attribute.
+        /// </summary>
+        OpenReparsePoint = 0x00200000,
+
+        /// <summary>
+        /// Open no recall attribute.
+        /// </summary>
+        OpenNoRecall = 0x00100000,
+
+        /// <summary>
+        /// First pipe instance attribute.
+        /// </summary>
+        FirstPipeInstance = 0x00080000
+    }
+
+    /// <summary>
+    /// Interop type for a Rectangle (4 ints).
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential, Pack = 4)]
+    [DebuggerDisplay("Left: {Left}, Top: {Top}, Right: {Right}, Bottom: {Bottom}")]
+    internal struct RawRectangle
+    {
+        public RawRectangle(int left, int top, int right, int bottom)
+        {
+            Left = left;
+            Top = top;
+            Right = right;
+            Bottom = bottom;
+        }
+
+        /// <summary>
+        /// The left position.
+        /// </summary>
+        public int Left;
+
+        /// <summary>
+        /// The top position.
+        /// </summary>
+        public int Top;
+
+        /// <summary>
+        /// The right position
+        /// </summary>
+        public int Right;
+
+        /// <summary>
+        /// The bottom position.
+        /// </summary>
+        public int Bottom;
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is empty.
+        /// </summary>
+        /// <value><c>true</c> if this instance is empty; otherwise, <c>false</c>.</value>
+        public bool IsEmpty
+        {
+            get { return Left == 0 && Top == 0 && Right == 0 && Bottom == 0; }
+        }
     }
 }

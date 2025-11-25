@@ -30,20 +30,21 @@ using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixDirectX.Utils;
 using PixRendering;
-using SharpDX;
-using SharpDX.Direct2D1;
-using SharpDX.Direct3D;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-using SharpDX.Mathematics.Interop;
-using SharpDX.Windows;
-using AlphaMode = SharpDX.Direct2D1.AlphaMode;
-using Device = SharpDX.Direct3D11.Device;
-using DeviceContext = SharpDX.Direct2D1.DeviceContext;
-using Factory = SharpDX.Direct2D1.Factory;
-using Factory2 = SharpDX.DXGI.Factory2;
-using FeatureLevel = SharpDX.Direct3D.FeatureLevel;
-using Resource = SharpDX.Direct3D11.Resource;
+
+using Vortice.Direct3D11;
+
+using AlphaMode = Vortice.DCommon.AlphaMode;
+using Device = Vortice.Direct3D11.ID3D11Device;
+using DeviceContext = Vortice.Direct2D1.ID2D1DeviceContext;
+using Factory = Vortice.Direct2D1.ID2D1Factory;
+using Factory2 = Vortice.DXGI.IDXGIFactory2;
+using FeatureLevel = Vortice.Direct3D.FeatureLevel;
+using Vortice.DXGI;
+using Vortice.Direct2D1;
+using Vortice.DCommon;
+using Vortice.DirectWrite;
+using Vortice;
+using System.Drawing;
 
 namespace PixDirectX.Rendering.DirectX
 {
@@ -57,8 +58,6 @@ namespace PixDirectX.Rendering.DirectX
         private readonly Direct2DRenderingState _renderingState = new Direct2DRenderingState();
         private readonly Factory _d2DFactory;
         private readonly Device _d3DDevice;
-        [CanBeNull]
-        private DeviceDebug _deviceDebug;
 
         private int _refreshRate = 60;
         private int _refreshTimerDelay = 1000 / 60;
@@ -107,7 +106,7 @@ namespace PixDirectX.Rendering.DirectX
             creationFlags |= DeviceCreationFlags.Debug;
 #endif
 
-            _d3DDevice = new Device(DriverType.Hardware, creationFlags, featureLevels);
+            D3D11.D3D11CreateDevice(IntPtr.Zero, Vortice.Direct3D.DriverType.Hardware, creationFlags, featureLevels, out _d3DDevice);
 
             _target = target;
             _target.Resize += target_Resize;
@@ -117,7 +116,6 @@ namespace PixDirectX.Rendering.DirectX
         {
             _frameDeltaTimer.Stop();
             _renderingState.Dispose();
-            _deviceDebug?.Dispose();
         }
         
         /// <summary>
@@ -125,16 +123,12 @@ namespace PixDirectX.Rendering.DirectX
         /// </summary>
         public void Initialize()
         {
-#if DEBUG
-            _deviceDebug = new DeviceDebug(_d3DDevice);
-#endif
+            var d3Device1 = _d3DDevice.QueryInterface<ID3D11Device1>();
 
-            var d3Device1 = _d3DDevice.QueryInterface<SharpDX.Direct3D11.Device1>();
-
-            var dxgiDevice = d3Device1.QueryInterface<SharpDX.DXGI.Device1>();
-            var dxgiFactory = dxgiDevice.Adapter.GetParent<Factory2>();
-            var d2dDevice = new SharpDX.Direct2D1.Device(dxgiDevice);
-            var d2dContext = new DeviceContext(d2dDevice, DeviceContextOptions.None);
+            var dxgiDevice = d3Device1.QueryInterface<IDXGIDevice1>();
+            var dxgiFactory = dxgiDevice.GetAdapter().GetParent<Factory2>();
+            var d2dDevice = D2D1.D2D1CreateDevice(dxgiDevice);
+            var d2dContext = d2dDevice.CreateDeviceContext();
 
             var swapChainDescription = new SwapChainDescription1
             {
@@ -143,23 +137,23 @@ namespace PixDirectX.Rendering.DirectX
                 Format = Format.B8G8R8A8_UNorm,
                 Stereo = false,
                 SampleDescription = new SampleDescription(1, 0),
-                Usage = Usage.BackBuffer | Usage.RenderTargetOutput,
+                BufferUsage = Usage.Backbuffer | Usage.RenderTargetOutput,
                 BufferCount = 1,
                 Scaling = Scaling.Stretch,
                 SwapEffect = SwapEffect.Sequential,
                 Flags = SwapChainFlags.AllowModeSwitch
             };
-            
-            var swapChain = new SwapChain1(dxgiFactory, d3Device1, _target.Handle, ref swapChainDescription);
+
+            var swapChain = dxgiFactory.CreateSwapChainForHwnd(d3Device1, _target.Handle, swapChainDescription);
 
             // Ignore all windows events
             var factory = swapChain.GetParent<Factory2>();
             factory.MakeWindowAssociation(_target.Handle, WindowAssociationFlags.IgnoreAll);
-            
-            // New RenderTargetView from the back-buffer
-            var backBuffer = Resource.FromSwapChain<Texture2D>(swapChain, 0);
 
-            var dxgiSurface = backBuffer.QueryInterface<Surface>();
+            // New RenderTargetView from the back-buffer
+            var backBuffer = swapChain.GetBuffer<ID3D11Texture2D>(0);
+
+            var dxgiSurface = backBuffer.QueryInterface<IDXGISurface>();
             
             var pixelFormat = new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied);
             var settings = new RenderTargetProperties(pixelFormat)
@@ -167,16 +161,14 @@ namespace PixDirectX.Rendering.DirectX
                 Type = RenderTargetType.Hardware, 
                 Usage = RenderTargetUsage.None
             };
-            var renderTarget =
-                new RenderTarget(_d2DFactory, dxgiSurface, settings)
-                {
-                    TextAntialiasMode = TextAntialiasMode.Cleartype
-                };
 
-            var directWriteFactory = new SharpDX.DirectWrite.Factory();
+            var renderTarget = _d2DFactory.CreateDxgiSurfaceRenderTarget(dxgiSurface, settings);
+            renderTarget.TextAntialiasMode = Vortice.Direct2D1.TextAntialiasMode.Cleartype;
+
+            var directWriteFactory = DWrite.DWriteCreateFactory<IDWriteFactory>();
 
             var desktopScale =
-                new Vector(_d2DFactory.DesktopDpi.Width, _d2DFactory.DesktopDpi.Height) / new Vector(96.0f, 96.0f);
+                new Vector(_d2DFactory.DesktopDpi.X, _d2DFactory.DesktopDpi.Y) / new Vector(96.0f, 96.0f);
             
             _renderingState.D2DFactory = _d2DFactory;
             _renderingState.D2DRenderTarget = renderTarget;
@@ -241,7 +233,7 @@ namespace PixDirectX.Rendering.DirectX
                     _renderingState.D2DRenderTarget.BeginDraw();
 
                     var results = loop(RenderingState);
-                    var rects = results.RedrawRegions.Select(r => (RawRectangle) new Rectangle(r.X, r.Y, r.Width, r.Height)).ToArray();
+                    var rects = results.RedrawRegions.Select(r => (RawRect) new Rectangle(r.X, r.Y, r.Width, r.Height)).ToArray();
 
                     quitLoop = results.QuitRenderLoop;
 
@@ -315,14 +307,11 @@ namespace PixDirectX.Rendering.DirectX
 
             _renderingState.SwapChain.ResizeBuffers(0, _target.Width, _target.Height, Format.Unknown, SwapChainFlags.None);
 
-            _renderingState.BackBuffer = Resource.FromSwapChain<Texture2D>(_renderingState.SwapChain, 0);
-            _renderingState.DxgiSurface = _renderingState.BackBuffer.QueryInterface<Surface>();
+            _renderingState.BackBuffer = _renderingState.SwapChain.GetBuffer<ID3D11Texture2D>(0);
+            _renderingState.DxgiSurface = _renderingState.BackBuffer.QueryInterface<IDXGISurface>();
             var settings = new RenderTargetProperties(new PixelFormat(Format.Unknown, AlphaMode.Premultiplied));
-            _renderingState.D2DRenderTarget =
-                new RenderTarget(_d2DFactory, _renderingState.DxgiSurface, settings)
-                {
-                    TextAntialiasMode = TextAntialiasMode.Cleartype
-                };
+            _renderingState.D2DRenderTarget = _d2DFactory.CreateDxgiSurfaceRenderTarget(_renderingState.DxgiSurface, settings);
+            _renderingState.D2DRenderTarget.TextAntialiasMode = Vortice.Direct2D1.TextAntialiasMode.Cleartype;
         }
 
         private void target_Resize(object sender, EventArgs e)
@@ -342,17 +331,17 @@ namespace PixDirectX.Rendering.DirectX
 
         private class Direct2DRenderingState : IDirect2DRenderingState
         {
-            private readonly Stack<Matrix3x2> _matrixStack = new Stack<Matrix3x2>();
+            private readonly Stack<System.Numerics.Matrix3x2> _matrixStack = new Stack<System.Numerics.Matrix3x2>();
 
-            public SwapChain1 SwapChain;
+            public IDXGISwapChain1 SwapChain;
 
-            public Surface DxgiSurface { set; get; }
+            public IDXGISurface DxgiSurface { set; get; }
             public Factory D2DFactory { set; get; }
-            public Texture2D BackBuffer { set; get; }
+            public ID3D11Texture2D BackBuffer { set; get; }
 
-            public RenderTarget D2DRenderTarget { set; get; }
+            public ID2D1RenderTarget D2DRenderTarget { set; get; }
             public DeviceContext DeviceContext { get; set; }
-            public SharpDX.DirectWrite.Factory DirectWriteFactory { get; set; }
+            public IDWriteFactory DirectWriteFactory { get; set; }
 
             /// <summary>
             /// Gets the time span since the last frame rendered
@@ -361,7 +350,7 @@ namespace PixDirectX.Rendering.DirectX
 
             public Vector DesktopDpiScaling { get; set; }
 
-            public Matrix3x2 Transform
+            public System.Numerics.Matrix3x2 Transform
             {
                 get => D2DRenderTarget.Transform;
                 set => D2DRenderTarget.Transform = value;
@@ -382,7 +371,7 @@ namespace PixDirectX.Rendering.DirectX
 
             public void WithTemporaryClipping(AABB clipping, [InstantHandle] Action execute)
             {
-                D2DRenderTarget.PushAxisAlignedClip(clipping.ToRawRectangleF(), AntialiasMode.Aliased);
+                D2DRenderTarget.PushAxisAlignedClip(clipping.ToRawRectF(), AntialiasMode.Aliased);
 
                 execute();
 
@@ -401,7 +390,7 @@ namespace PixDirectX.Rendering.DirectX
                 _matrixStack.Push(Transform);
             }
 
-            public void PushMatrix(Matrix3x2 matrix)
+            public void PushMatrix(System.Numerics.Matrix3x2 matrix)
             {
                 _matrixStack.Push(Transform);
 
@@ -425,7 +414,7 @@ namespace PixDirectX.Rendering.DirectX
         /// 
         /// If set to a non-empty list, the caller <i>must</i> have drawn content on all pixels that where reported on all redraw regions.
         /// </summary>
-        public IReadOnlyList<System.Drawing.Rectangle> RedrawRegions { get; }
+        public IReadOnlyList<Rectangle> RedrawRegions { get; }
 
         /// <summary>
         /// If set to true, <see cref="Direct2DRenderLoopManager"/> will stop its rendering loop and return control to the caller of
@@ -435,16 +424,21 @@ namespace PixDirectX.Rendering.DirectX
         /// </summary>
         public bool QuitRenderLoop { get; }
         
-        public Direct2DRenderLoopResponse(IReadOnlyList<System.Drawing.Rectangle> redrawRegions)
+        public Direct2DRenderLoopResponse(IReadOnlyList<Rectangle> redrawRegions)
         {
             RedrawRegions = redrawRegions;
             QuitRenderLoop = false;
         }
 
-        public Direct2DRenderLoopResponse(IReadOnlyList<System.Drawing.Rectangle> redrawRegions, bool quitRenderLoop)
+        public Direct2DRenderLoopResponse(IReadOnlyList<Rectangle> redrawRegions, bool quitRenderLoop)
         {
             RedrawRegions = redrawRegions;
             QuitRenderLoop = quitRenderLoop;
         }
+    }
+
+    enum DXGIStatus
+    {
+        Occluded = 0x087A0001
     }
 }

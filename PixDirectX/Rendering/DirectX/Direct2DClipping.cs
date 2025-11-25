@@ -23,12 +23,13 @@
 using System;
 using System.Drawing;
 using System.Linq;
+using System.Numerics;
 using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixDirectX.Utils;
 using PixRendering;
-using SharpDX;
-using SharpDX.Direct2D1;
+using Vortice;
+using Vortice.Direct2D1;
 
 namespace PixDirectX.Rendering.DirectX
 {
@@ -42,19 +43,19 @@ namespace PixDirectX.Rendering.DirectX
         /// </summary>
         public static IDirect2DClippingState PushDirect2DClipping([NotNull] IDirect2DRenderingState state, [NotNull] ClippingRegion clippingRegion)
         {
-            var size = new Size((int) state.D2DRenderTarget.Size.Width, (int) state.D2DRenderTarget.Size.Height);
+            var size = new Size(state.D2DRenderTarget.PixelSize.Width, state.D2DRenderTarget.PixelSize.Height);
 
             var aabbClips = clippingRegion.RedrawRegionRectangles(size).Select(rect => (AABB) rect).ToArray();
 
             // If we're only working with a single rectangular clip, use a plain axis-aligned clip
             if (aabbClips.Length == 1)
             {
-                state.D2DRenderTarget.PushAxisAlignedClip(aabbClips[0].ToRawRectangleF(), AntialiasMode.Aliased);
+                state.D2DRenderTarget.PushAxisAlignedClip(aabbClips[0].ToRawRectF(), AntialiasMode.Aliased);
 
                 return new Direct2DAxisAlignedClippingState();
             }
 
-            var geom = new PathGeometry(state.D2DFactory);
+            var geom = state.D2DFactory.CreatePathGeometry();
             using (var sink = geom.Open())
             {
                 sink.SetFillMode(FillMode.Winding);
@@ -68,11 +69,11 @@ namespace PixDirectX.Rendering.DirectX
 
                 foreach (var polygon in poly.Polygons())
                 {
-                    sink.BeginFigure(polygon[0].ToRawVector2(), FigureBegin.Filled);
+                    sink.BeginFigure(polygon[0].ToVector2(), FigureBegin.Filled);
 
                     foreach (var corner in polygon.Skip(1))
                     {
-                        sink.AddLine(corner.ToRawVector2());
+                        sink.AddLine(corner.ToVector2());
                     }
 
                     sink.EndFigure(FigureEnd.Closed);
@@ -80,10 +81,10 @@ namespace PixDirectX.Rendering.DirectX
 
                 sink.Close();
             }
-
+            
             var layerParams = new LayerParameters
             {
-                ContentBounds = SharpDX.RectangleF.Infinite,
+                ContentBounds = new RawRectF(float.NegativeInfinity, float.NegativeInfinity, float.PositiveInfinity, float.PositiveInfinity),
                 MaskAntialiasMode = AntialiasMode.Aliased,
                 Opacity = 1f,
                 GeometricMask = geom,
@@ -91,8 +92,8 @@ namespace PixDirectX.Rendering.DirectX
                 LayerOptions = LayerOptions.InitializeForCleartype
             };
 
-            var layer = new Layer(state.D2DRenderTarget, state.D2DRenderTarget.Size);
-            state.D2DRenderTarget.PushLayer(ref layerParams, layer);
+            var layer = state.D2DRenderTarget.CreateLayer(state.D2DRenderTarget.Size);
+            state.D2DRenderTarget.PushLayer(layerParams, layer);
 
             return new Direct2DGeometryClippingState(geom, layer);
         }
@@ -126,10 +127,10 @@ namespace PixDirectX.Rendering.DirectX
 
         private struct Direct2DGeometryClippingState : IDirect2DClippingState, IDisposable
         {
-            private Geometry Geometry { get; }
-            private Layer Layer { get; }
+            private ID2D1PathGeometry Geometry { get; }
+            private ID2D1Layer Layer { get; }
 
-            public Direct2DGeometryClippingState(Geometry geometry, Layer layer)
+            public Direct2DGeometryClippingState(ID2D1PathGeometry geometry, ID2D1Layer layer)
             {
                 Geometry = geometry;
                 Layer = layer;

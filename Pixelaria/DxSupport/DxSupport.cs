@@ -27,17 +27,17 @@ namespace Pixelaria.DXSupport
     /// </summary>
     public static class DxSupport
     {
-        private static SharpDX.Direct3D11.Device _d3DDevice;
+        private static Vortice.Direct3D11.ID3D11Device _d3DDevice;
 
         /// <summary>
         /// A global <see cref="SharpDX.Direct2D1.Factory"/> instance to use on all Direct2D-related calls
         /// </summary>
-        public static readonly SharpDX.Direct2D1.Factory D2DFactory = new SharpDX.Direct2D1.Factory();
+        public static readonly Vortice.Direct2D1.ID2D1Factory D2DFactory = Vortice.Direct2D1.D2D1.D2D1CreateFactory<Vortice.Direct2D1.ID2D1Factory>();
 
         /// <summary>
         /// A global <see cref="SharpDX.Direct3D11.Device"/> instance to use on all Direct2D-related calls
         /// </summary>
-        public static SharpDX.Direct3D11.Device D3DDevice
+        public static Vortice.Direct3D11.ID3D11Device D3DDevice
         {
             get
             {
@@ -46,19 +46,18 @@ namespace Pixelaria.DXSupport
 
                 var featureLevels = new[]
                 {
-                    SharpDX.Direct3D.FeatureLevel.Level_11_1,
-                    SharpDX.Direct3D.FeatureLevel.Level_11_0,
-                    SharpDX.Direct3D.FeatureLevel.Level_10_1,
-                    SharpDX.Direct3D.FeatureLevel.Level_10_0,
-                    SharpDX.Direct3D.FeatureLevel.Level_9_3
+                    Vortice.Direct3D.FeatureLevel.Level_11_1,
+                    Vortice.Direct3D.FeatureLevel.Level_11_0,
+                    Vortice.Direct3D.FeatureLevel.Level_10_1,
+                    Vortice.Direct3D.FeatureLevel.Level_10_0,
+                    Vortice.Direct3D.FeatureLevel.Level_9_3
                 };
-                var creationFlags = SharpDX.Direct3D11.DeviceCreationFlags.BgraSupport;
+                var creationFlags = Vortice.Direct3D11.DeviceCreationFlags.BgraSupport;
 #if DEBUG
-                creationFlags |= SharpDX.Direct3D11.DeviceCreationFlags.Debug;
+                creationFlags |= Vortice.Direct3D11.DeviceCreationFlags.Debug;
 #endif
 
-                _d3DDevice = new SharpDX.Direct3D11.Device(SharpDX.Direct3D.DriverType.Hardware, creationFlags, featureLevels);
-
+                Vortice.Direct3D11.D3D11.D3D11CreateDevice(null, Vortice.Direct3D.DriverType.Hardware, creationFlags, featureLevels, out _d3DDevice);
                 return _d3DDevice;
             }
         }

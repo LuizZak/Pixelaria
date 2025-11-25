@@ -25,19 +25,24 @@ using JetBrains.Annotations;
 using PixCore.Text;
 using PixCore.Text.Attributes;
 using PixRendering;
-using SharpDX.DirectWrite;
+using Vortice.DirectWrite;
 using Font = System.Drawing.Font;
+
+using DXTextRange = Vortice.DirectWrite.TextRange;
+using DXTextLayout = Vortice.DirectWrite.IDWriteTextLayout;
+using DXFontStyle = Vortice.DirectWrite.FontStyle;
+using DXFontWeight = Vortice.DirectWrite.FontWeight;
 
 namespace PixDirectX.Rendering.DirectX
 {
     public class D2DTextSizeProvider : ITextSizeProvider
     {
         [CanBeNull]
-        private readonly Factory _directWriteFactory;
+        private readonly IDWriteFactory _directWriteFactory;
 
         public D2DTextSizeProvider()
         {
-            _directWriteFactory = new Factory();
+            _directWriteFactory = DWrite.DWriteCreateFactory<IDWriteFactory>();
         }
 
         public SizeF CalculateTextSize(string text, Font font)
@@ -52,14 +57,13 @@ namespace PixDirectX.Rendering.DirectX
 
         public SizeF CalculateTextSize(AttributedText text, string font, float fontSize)
         {
-            var format = new TextFormat(_directWriteFactory, font, fontSize)
-            {
-                TextAlignment = TextAlignment.Leading,
-                ParagraphAlignment = ParagraphAlignment.Center
-            };
+            var format = _directWriteFactory.CreateTextFormat(font, fontSize);
+
+            format.TextAlignment = TextAlignment.Leading;
+            format.ParagraphAlignment = ParagraphAlignment.Center;
 
             using (var textFormat = format)
-            using (var textLayout = new TextLayout(_directWriteFactory, text.String, textFormat, float.PositiveInfinity, float.PositiveInfinity))
+            using (var textLayout = _directWriteFactory.CreateTextLayout(text.String, format, float.PositiveInfinity, float.PositiveInfinity))
             {
                 foreach (var textSegment in text.GetTextSegments())
                 {
@@ -67,7 +71,7 @@ namespace PixDirectX.Rendering.DirectX
                         continue;
 
                     var fontAttr = textSegment.GetAttribute<TextFontAttribute>();
-                    var textRange = new SharpDX.DirectWrite.TextRange(textSegment.TextRange.Start, textSegment.TextRange.Length);
+                    var textRange = new DXTextRange(textSegment.TextRange.Start, textSegment.TextRange.Length);
 
                     ApplyFont(textLayout, fontAttr.Font, textRange);
                 }
@@ -78,7 +82,7 @@ namespace PixDirectX.Rendering.DirectX
 
         // TODO: Reduce duplication with InnerTextRenderer
 
-        private void ApplyFont(TextLayout textLayout, Font font, SharpDX.DirectWrite.TextRange textRange)
+        private void ApplyFont(DXTextLayout textLayout, Font font, DXTextRange textRange)
         {
             textLayout.SetFontFamilyName(font.FontFamily.Name, textRange);
             textLayout.SetFontStyle(FontStyleFromSystemFontStyle(font.Style), textRange);
@@ -95,20 +99,20 @@ namespace PixDirectX.Rendering.DirectX
             }
         }
 
-        private SharpDX.DirectWrite.FontStyle FontStyleFromSystemFontStyle(System.Drawing.FontStyle fontStyle)
+        private DXFontStyle FontStyleFromSystemFontStyle(System.Drawing.FontStyle fontStyle)
         {
             if (fontStyle.HasFlag(System.Drawing.FontStyle.Italic))
-                return SharpDX.DirectWrite.FontStyle.Italic;
+                return DXFontStyle.Italic;
 
-            return SharpDX.DirectWrite.FontStyle.Normal;
+            return DXFontStyle.Normal;
         }
 
-        private FontWeight FontWeightFromFontStyle(System.Drawing.FontStyle fontStyle)
+        private DXFontWeight FontWeightFromFontStyle(System.Drawing.FontStyle fontStyle)
         {
             if (fontStyle.HasFlag(System.Drawing.FontStyle.Bold))
-                return FontWeight.Bold;
+                return DXFontWeight.Bold;
 
-            return FontWeight.Normal;
+            return DXFontWeight.Normal;
         }
     }
 }

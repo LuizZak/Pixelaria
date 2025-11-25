@@ -24,12 +24,9 @@ using System;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using PixCore.Geometry;
 using PixDirectX.Rendering.DirectX;
-using PixDirectX.Utils;
 using Pixelaria.DXSupport;
 using PixRendering;
-using SharpDX.Direct2D1;
 
 namespace Pixelaria.Views.ExportPipeline
 {
@@ -88,9 +85,9 @@ namespace Pixelaria.Views.ExportPipeline
                     {
                         var renderState = (IDirect2DRenderingState) state;
 
-                        using (var brush = new SolidColorBrush(renderState.D2DRenderTarget, Color.Red.ToColor4()))
+                        using (var brush = renderState.D2DRenderTarget.CreateSolidColorBrush(Color.Red.ToColor4()))
                         {
-                            renderState.D2DRenderTarget.DrawRectangle(((AABB) rect).ToRawRectangleF(), brush);
+                            renderState.D2DRenderTarget.DrawRectangle(rect, brush);
                         }
                     }
                 }

@@ -22,9 +22,13 @@
 
 using System;
 using PixRendering;
-using SharpDX;
-using SharpDX.DirectWrite;
 using Color = System.Drawing.Color;
+
+using DXTextAlignment = Vortice.DirectWrite.TextAlignment;
+using DXParagraphAlignment = Vortice.DirectWrite.ParagraphAlignment;
+using DXWordWrapping = Vortice.DirectWrite.WordWrapping;
+using DXTRimmingGranularity = Vortice.DirectWrite.TrimmingGranularity;
+using DXColor4 = Vortice.Mathematics.Color4;
 
 namespace PixDirectX.Rendering.DirectX
 {
@@ -33,56 +37,56 @@ namespace PixDirectX.Rendering.DirectX
     /// </summary>
     public static class Direct2DConversionHelpers
     {
-        public static TextAlignment DirectWriteAlignmentFor(HorizontalTextAlignment alignment)
+        public static DXTextAlignment DirectWriteAlignmentFor(HorizontalTextAlignment alignment)
         {
-            return (TextAlignment) alignment;
+            return (DXTextAlignment) alignment;
         }
-        public static ParagraphAlignment DirectWriteAlignmentFor(VerticalTextAlignment alignment)
+        public static DXParagraphAlignment DirectWriteAlignmentFor(VerticalTextAlignment alignment)
         {
-            return (ParagraphAlignment) alignment;
+            return (DXParagraphAlignment) alignment;
         }
-        public static WordWrapping DirectWriteWordWrapFor(TextWordWrap wordWrap)
+        public static DXWordWrapping DirectWriteWordWrapFor(TextWordWrap wordWrap)
         {
             switch (wordWrap)
             {
                 case TextWordWrap.None:
-                    return WordWrapping.NoWrap;
+                    return DXWordWrapping.NoWrap;
                 case TextWordWrap.ByCharacter:
-                    return WordWrapping.Character;
+                    return DXWordWrapping.Character;
                 case TextWordWrap.ByWord:
-                    return WordWrapping.WholeWord;
+                    return DXWordWrapping.WholeWord;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(wordWrap), wordWrap, null);
             }
         }
-        public static TrimmingGranularity DirectWriteGranularityFor(TextTrimmingGranularity granularity)
+        public static DXTRimmingGranularity DirectWriteGranularityFor(TextTrimmingGranularity granularity)
         {
-            return (TrimmingGranularity) granularity;
+            return (DXTRimmingGranularity) granularity;
         }
 
-        public static HorizontalTextAlignment HorizontalTextAlignmentFor(TextAlignment alignment)
+        public static HorizontalTextAlignment HorizontalTextAlignmentFor(DXTextAlignment alignment)
         {
             return (HorizontalTextAlignment) alignment;
         }
-        public static VerticalTextAlignment VerticalTextAlignmentFor(ParagraphAlignment alignment)
+        public static VerticalTextAlignment VerticalTextAlignmentFor(DXParagraphAlignment alignment)
         {
             return (VerticalTextAlignment) alignment;
         }
-        public static TextWordWrap TextWordWrapFor(WordWrapping wordWrapping)
+        public static TextWordWrap TextWordWrapFor(DXWordWrapping wordWrapping)
         {
             switch (wordWrapping)
             {
-                case WordWrapping.NoWrap:
+                case DXWordWrapping.NoWrap:
                     return TextWordWrap.None;
-                case WordWrapping.Character:
+                case DXWordWrapping.Character:
                     return TextWordWrap.ByCharacter;
-                case WordWrapping.WholeWord:
+                case DXWordWrapping.WholeWord:
                     return TextWordWrap.ByWord;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(wordWrapping), wordWrapping, null);
             }
         }
-        public static TextTrimmingGranularity TextTrimmingGranularityFor(TrimmingGranularity granularity)
+        public static TextTrimmingGranularity TextTrimmingGranularityFor(DXTRimmingGranularity granularity)
         {
             return (TextTrimmingGranularity) granularity;
         }
@@ -90,14 +94,14 @@ namespace PixDirectX.Rendering.DirectX
         /// <summary>
         /// Converts a <see cref="Color"/> into a <see cref="Color4"/> structure for DirectX rendering.
         /// </summary>
-        public static Color4 ToColor4(this Color color)
+        public static DXColor4 ToColor4(this Color color)
         {
             float r = color.R / 255f;
             float g = color.G / 255f;
             float b = color.B / 255f;
             float a = color.A / 255f;
             
-            return new Color4(r, g, b, a);
+            return new DXColor4(r, g, b, a);
         }
     }
 }

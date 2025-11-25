@@ -21,7 +21,7 @@
 */
 
 using JetBrains.Annotations;
-using SharpDX.WIC;
+using Vortice.WIC;
 
 namespace Pixelaria.Views.ExportPipeline
 {
@@ -34,6 +34,6 @@ namespace Pixelaria.Views.ExportPipeline
         /// Requests a bitmap for a given pipeline node instance.
         /// </summary>
         [NotNull]
-        Bitmap BitmapForPipelineNode([NotNull] PipelineNodeDescriptor node);
+        IWICBitmap BitmapForPipelineNode([NotNull] PipelineNodeDescriptor node);
     }
 }

@@ -33,21 +33,25 @@ using PixCore.Text.Attributes;
 using PixDirectX.Rendering.Gdi;
 using PixDirectX.Utils;
 using PixRendering;
-using SharpDX;
-using SharpDX.Direct2D1;
-using SharpDX.DirectWrite;
-using SharpDX.DXGI;
-using SharpDX.Mathematics.Interop;
+
+using PixVector = PixCore.Geometry.Vector;
+
 using Bitmap = System.Drawing.Bitmap;
 using Color = System.Drawing.Color;
 using Rectangle = System.Drawing.Rectangle;
-using AlphaMode = SharpDX.Direct2D1.AlphaMode;
-using Brush = SharpDX.Direct2D1.Brush;
-using Factory = SharpDX.DirectWrite.Factory;
+using AlphaMode = Vortice.DCommon.AlphaMode;
+using Brush = Vortice.Direct2D1.ID2D1Brush;
+using Factory = Vortice.DirectWrite.IDWriteFactory;
 using HitTestMetrics = PixRendering.HitTestMetrics;
-using PixelFormat = SharpDX.Direct2D1.PixelFormat;
+using PixelFormat = Vortice.DCommon.PixelFormat;
 using RectangleF = System.Drawing.RectangleF;
-using TextRange = SharpDX.DirectWrite.TextRange;
+using TextRange = Vortice.DirectWrite.TextRange;
+using TextHitTestMetrics = Vortice.DirectWrite.HitTestMetrics;
+
+using Vortice.DirectWrite;
+using Vortice.Mathematics;
+using System.Numerics;
+using Vortice.Direct2D1;
 
 namespace PixDirectX.Rendering.DirectX
 {
@@ -71,7 +75,7 @@ namespace PixDirectX.Rendering.DirectX
         private readonly TextMetrics _textMetrics;
 
         [CanBeNull]
-        protected virtual Factory directWriteFactory { get; } = new Factory();
+        protected virtual Factory directWriteFactory { get; } = DWrite.DWriteCreateFactory<Factory>();
 
         /// <inheritdoc />
         /// <summary>
@@ -129,7 +133,7 @@ namespace PixDirectX.Rendering.DirectX
 
             RecreateState(state);
 
-            TextColorRenderer.AssignResources(state.D2DRenderTarget, new SolidColorBrush(state.D2DRenderTarget, Color4.White));
+            TextColorRenderer.AssignResources(state.D2DRenderTarget, state.D2DRenderTarget.CreateSolidColorBrush(Colors.White));
         }
 
         /// <summary>
@@ -180,7 +184,7 @@ namespace PixDirectX.Rendering.DirectX
             
             // Update text renderer's references
             TextColorRenderer.DefaultBrush.Dispose();
-            TextColorRenderer.AssignResources(state.D2DRenderTarget, new SolidColorBrush(state.D2DRenderTarget, Color4.White));
+            TextColorRenderer.AssignResources(state.D2DRenderTarget, state.D2DRenderTarget.CreateSolidColorBrush(Colors.White));
             
             ClippingRegion = clipping;
         }
@@ -219,24 +223,23 @@ namespace PixDirectX.Rendering.DirectX
             var wordWrap =
                 Direct2DConversionHelpers.DirectWriteWordWrapFor(attributes.TextFormatAttributes.WordWrap);
 
-            var textFormat = new TextFormat(directWriteFactory, attributes.TextFormatAttributes.Font, attributes.TextFormatAttributes.FontSize)
-            {
-                TextAlignment = horizontalAlign,
-                ParagraphAlignment = verticalAlign,
-                WordWrapping = wordWrap
-            };
+            var factory = DWrite.DWriteCreateFactory<Factory>();
 
-            EllipsisTrimming ellipsisTrimming = null;
+            var textFormat = factory.CreateTextFormat(attributes.TextFormatAttributes.Font, attributes.TextFormatAttributes.FontSize);
+            textFormat.TextAlignment = horizontalAlign;
+            textFormat.ParagraphAlignment = verticalAlign;
+            textFormat.WordWrapping = wordWrap;
+
+            IDWriteInlineObject ellipsisTrimming = null;
 
             if (attributes.TextFormatAttributes.TextEllipsisTrimming.HasValue)
             {
                 var trimming = CreateTrimming(attributes.TextFormatAttributes.TextEllipsisTrimming.Value);
-                ellipsisTrimming = new EllipsisTrimming(directWriteFactory, textFormat);
+                ellipsisTrimming = factory.CreateEllipsisTrimmingSign(textFormat);
                 textFormat.SetTrimming(trimming, ellipsisTrimming);
             }
 
-            var textLayout = new TextLayout(directWriteFactory, text.String, textFormat,
-                attributes.AvailableWidth, attributes.AvailableHeight);
+            var textLayout = directWriteFactory.CreateTextLayout(text.String, textFormat, attributes.AvailableWidth, attributes.AvailableHeight);
 
             return new InnerTextLayout(textLayout, text, ellipsisTrimming, attributes);
         }
@@ -314,16 +317,16 @@ namespace PixDirectX.Rendering.DirectX
         #region Static helpers
 
         [MustUseReturnValue]
-        public static unsafe SharpDX.Direct2D1.Bitmap CreateSharpDxBitmap([NotNull] RenderTarget renderTarget, [NotNull] Bitmap bitmap)
+        public static unsafe ID2D1Bitmap CreateSharpDxBitmap([NotNull] ID2D1RenderTarget renderTarget, [NotNull] Bitmap bitmap)
         {
             var bitmapProperties =
-                new BitmapProperties(new PixelFormat(Format.R8G8B8A8_UNorm, AlphaMode.Premultiplied));
+                new BitmapProperties(new PixelFormat(Vortice.DXGI.Format.R8G8B8A8_UNorm, AlphaMode.Premultiplied));
 
-            var size = new Size2(bitmap.Width, bitmap.Height);
+            var size = new System.Drawing.Size(bitmap.Width, bitmap.Height);
 
             // Transform pixels from BGRA to RGBA
             int stride = bitmap.Width * sizeof(int);
-            using (var tempStream = new DataStream(bitmap.Height * stride, true, true))
+            using (var tempStream = new Vortice.DataStream(bitmap.Height * stride, true, true))
             {
                 // Lock System.Drawing.Bitmap
                 var bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height),
@@ -349,14 +352,14 @@ namespace PixDirectX.Rendering.DirectX
                 bitmap.UnlockBits(bitmapData);
                 tempStream.Position = 0;
 
-                return new SharpDX.Direct2D1.Bitmap(renderTarget, size, tempStream, stride, bitmapProperties);
+                return renderTarget.CreateBitmap(size, tempStream.BasePointer, stride, bitmapProperties);
             }
         }
 
         [MustUseReturnValue]
-        public static SharpDX.Direct2D1.Bitmap CreateSharpDxBitmap([NotNull] RenderTarget renderTarget, [NotNull] SharpDX.WIC.Bitmap bitmap)
+        public static ID2D1Bitmap CreateSharpDxBitmap([NotNull] ID2D1RenderTarget renderTarget, [NotNull] Vortice.WIC.IWICBitmap bitmap)
         {
-            return SharpDX.Direct2D1.Bitmap.FromWicBitmap(renderTarget, bitmap);
+            return renderTarget.CreateBitmapFromWicBitmap(bitmap);
         }
 
         #endregion
@@ -379,7 +382,7 @@ namespace PixDirectX.Rendering.DirectX
                 return
                     WithTemporaryTextFormat(renderState, text, textLayoutAttributes, (format, layout) =>
                     {
-                        var metric = layout.HitTestTextPosition(offset, false, out float _, out float _);
+                        var metric = layout.HitTestTextPosition(offset, false, out Vector2 _);
 
                         return AABB.FromRectangle(metric.Left, float.IsInfinity(metric.Top) ? 0 : metric.Top, metric.Width, metric.Height);
                     });
@@ -402,20 +405,18 @@ namespace PixDirectX.Rendering.DirectX
             }
 
             private static T WithTemporaryTextFormat<T>([NotNull] IDirect2DRenderingState renderState, [NotNull] AttributedText text, TextLayoutAttributes textLayoutAttributes,
-                [NotNull] Func<TextFormat, TextLayout, T> action)
+                [NotNull] Func<IDWriteTextFormat, IDWriteTextLayout, T> action)
             {
-                var format = new TextFormat(renderState.DirectWriteFactory, textLayoutAttributes.TextFormatAttributes.Font,
-                    textLayoutAttributes.TextFormatAttributes.FontSize)
-                {
-                    TextAlignment =
-                        Direct2DConversionHelpers.DirectWriteAlignmentFor(textLayoutAttributes.TextFormatAttributes.HorizontalTextAlignment),
-                    ParagraphAlignment =
-                        Direct2DConversionHelpers.DirectWriteAlignmentFor(textLayoutAttributes.TextFormatAttributes.VerticalTextAlignment),
-                    WordWrapping = Direct2DConversionHelpers.DirectWriteWordWrapFor(textLayoutAttributes.TextFormatAttributes.WordWrap)
-                };
+                var format = renderState.DirectWriteFactory.CreateTextFormat(
+                    textLayoutAttributes.TextFormatAttributes.Font,
+                    textLayoutAttributes.TextFormatAttributes.FontSize
+                );
+                format.TextAlignment = Direct2DConversionHelpers.DirectWriteAlignmentFor(textLayoutAttributes.TextFormatAttributes.HorizontalTextAlignment);
+                format.ParagraphAlignment = Direct2DConversionHelpers.DirectWriteAlignmentFor(textLayoutAttributes.TextFormatAttributes.VerticalTextAlignment);
+                format.WordWrapping = Direct2DConversionHelpers.DirectWriteWordWrapFor(textLayoutAttributes.TextFormatAttributes.WordWrap);
 
                 using (var textFormat = format)
-                using (var textLayout = new TextLayout(renderState.DirectWriteFactory, text.String, textFormat, textLayoutAttributes.AvailableWidth, textLayoutAttributes.AvailableHeight))
+                using (var textLayout = renderState.DirectWriteFactory.CreateTextLayout(text.String, textFormat, textLayoutAttributes.AvailableWidth, textLayoutAttributes.AvailableHeight))
                 {
                     foreach (var textSegment in text.GetTextSegments())
                     {
@@ -437,13 +438,13 @@ namespace PixDirectX.Rendering.DirectX
 
         internal class InnerTextLayout : ITextLayout
         {
-            public TextLayout TextLayout { get; }
+            public IDWriteTextLayout TextLayout { get; }
             [CanBeNull]
-            public EllipsisTrimming EllipsisTrimming { get; }
+            public IDWriteInlineObject EllipsisTrimming { get; }
             public TextLayoutAttributes Attributes { get; }
             public AttributedText Text { get; }
 
-            public InnerTextLayout(TextLayout textLayout, AttributedText text, EllipsisTrimming ellipsisTrimming, TextLayoutAttributes attributes)
+            public InnerTextLayout(IDWriteTextLayout textLayout, AttributedText text, IDWriteInlineObject ellipsisTrimming, TextLayoutAttributes attributes)
             {
                 TextLayout = textLayout;
                 EllipsisTrimming = ellipsisTrimming;
@@ -468,11 +469,13 @@ namespace PixDirectX.Rendering.DirectX
 
             public HitTestMetrics HitTestTextPosition(int textPosition, bool isTrailingHit, out float x, out float y)
             {
-                var metrics = TextLayout.HitTestTextPosition(textPosition, isTrailingHit, out x, out y);
+                var metrics = TextLayout.HitTestTextPosition(textPosition, isTrailingHit, out Vector2 point);
+                x = point.X;
+                y = point.Y;
                 return MetricsFromDirectWrite(metrics);
             }
 
-            private static HitTestMetrics MetricsFromDirectWrite(SharpDX.DirectWrite.HitTestMetrics metrics)
+            private static HitTestMetrics MetricsFromDirectWrite(TextHitTestMetrics metrics)
             {
                 return new HitTestMetrics(metrics.TextPosition);
             }
@@ -521,19 +524,19 @@ namespace PixDirectX.Rendering.DirectX
 
         #region Stroke
 
-        public void StrokeLine(Vector start, Vector end, float strokeWidth = 1)
+        public void StrokeLine(PixVector start, PixVector end, float strokeWidth = 1)
         {
-            _state.D2DRenderTarget.DrawLine(start.ToRawVector2(), end.ToRawVector2(), BrushForStroke(), strokeWidth);
+            _state.D2DRenderTarget.DrawLine(start.ToVector2(), end.ToVector2(), BrushForStroke(), strokeWidth);
         }
 
-        public void StrokeCircle(Vector center, float radius, float strokeWidth = 1)
+        public void StrokeCircle(PixVector center, float radius, float strokeWidth = 1)
         {
-            StrokeEllipse(new AABB(center - new Vector(radius) * 2, center + new Vector(radius) * 2), strokeWidth);
+            StrokeEllipse(new AABB(center - new PixVector(radius) * 2, center + new PixVector(radius) * 2), strokeWidth);
         }
 
         public void StrokeEllipse(AABB ellipseArea, float strokeWidth = 1)
         {
-            var ellipse = new Ellipse(ellipseArea.Center.ToRawVector2(), ellipseArea.Width / 2, ellipseArea.Height / 2);
+            var ellipse = new Ellipse(ellipseArea.Center.ToVector2(), ellipseArea.Width / 2, ellipseArea.Height / 2);
 
             _state.D2DRenderTarget.DrawEllipse(ellipse, BrushForStroke(), strokeWidth);
         }
@@ -545,7 +548,7 @@ namespace PixDirectX.Rendering.DirectX
 
         public void StrokeArea(AABB area, float strokeWidth = 1)
         {
-            _state.D2DRenderTarget.DrawRectangle(area.ToRawRectangleF(), BrushForStroke(), strokeWidth);
+            _state.D2DRenderTarget.DrawRectangle(area.ToRawRectF(), BrushForStroke(), strokeWidth);
         }
 
         public void StrokeRoundedArea(AABB area, float radiusX, float radiusY, float strokeWidth = 1)
@@ -554,7 +557,7 @@ namespace PixDirectX.Rendering.DirectX
             {
                 RadiusX = radiusX,
                 RadiusY = radiusY,
-                Rect = area.ToRawRectangleF()
+                Rect = area.ToRawRectF()
             };
 
             _state.D2DRenderTarget.DrawRoundedRectangle(roundedRect, BrushForStroke(), strokeWidth);
@@ -562,15 +565,15 @@ namespace PixDirectX.Rendering.DirectX
 
         public void StrokeGeometry(PolyGeometry geometry, float strokeWidth = 1)
         {
-            using (var geom = new PathGeometry(_state.D2DFactory))
+            using (var geom = _state.D2DFactory.CreatePathGeometry())
             {
                 foreach (var polygon in geometry.Polygons())
                 {
                     var sink = geom.Open();
-                    sink.BeginFigure(polygon[0].ToRawVector2(), FigureBegin.Filled);
+                    sink.BeginFigure(polygon[0].ToVector2(), FigureBegin.Filled);
                     foreach (var vector in polygon.Skip(1))
                     {
-                        sink.AddLine(vector.ToRawVector2());
+                        sink.AddLine(vector.ToVector2());
                     }
                     sink.Close();
                 }
@@ -590,14 +593,14 @@ namespace PixDirectX.Rendering.DirectX
 
         #region Fill
 
-        public void FillCircle(Vector center, float radius)
+        public void FillCircle(PixVector center, float radius)
         {
-            FillEllipse(new AABB(center - new Vector(radius) * 2, center + new Vector(radius) * 2));
+            FillEllipse(new AABB(center - new PixVector(radius) * 2, center + new PixVector(radius) * 2));
         }
 
         public void FillEllipse(AABB ellipseArea)
         {
-            var ellipse = new Ellipse(ellipseArea.Center.ToRawVector2(), ellipseArea.Width / 2, ellipseArea.Height / 2);
+            var ellipse = new Ellipse(ellipseArea.Center.ToVector2(), ellipseArea.Width / 2, ellipseArea.Height / 2);
 
             _state.D2DRenderTarget.FillEllipse(ellipse, BrushForFill());
         }
@@ -609,7 +612,7 @@ namespace PixDirectX.Rendering.DirectX
 
         public void FillArea(AABB area)
         {
-            _state.D2DRenderTarget.FillRectangle(area.ToRawRectangleF(), BrushForFill());
+            _state.D2DRenderTarget.FillRectangle(area.ToRawRectF(), BrushForFill());
         }
 
         public void FillRoundedArea(AABB area, float radiusX, float radiusY)
@@ -618,7 +621,7 @@ namespace PixDirectX.Rendering.DirectX
             {
                 RadiusX = radiusX,
                 RadiusY = radiusY,
-                Rect = area.ToRawRectangleF()
+                Rect = area.ToRawRectF()
             };
 
             _state.D2DRenderTarget.FillRoundedRectangle(roundedRect, BrushForFill());
@@ -626,16 +629,16 @@ namespace PixDirectX.Rendering.DirectX
 
         public void FillGeometry(PolyGeometry geometry)
         {
-            using (var geom = new PathGeometry(_state.D2DFactory))
+            using (var geom = _state.D2DFactory.CreatePathGeometry())
             {
                 var sink = geom.Open();
 
                 foreach (var polygon in geometry.Polygons())
                 {
-                    sink.BeginFigure(polygon[0].ToRawVector2(), FigureBegin.Filled);
+                    sink.BeginFigure(polygon[0].ToVector2(), FigureBegin.Filled);
                     foreach (var vector in polygon.Skip(1))
                     {
-                        sink.AddLine(vector.ToRawVector2());
+                        sink.AddLine(vector.ToVector2());
                     }
                     sink.EndFigure(FigureEnd.Closed);
                 }
@@ -666,7 +669,7 @@ namespace PixDirectX.Rendering.DirectX
         /// </summary>
         public IPathGeometry CreatePath(Action<IPathInputSink> execute)
         {
-            var geom = new PathGeometry(_state.D2DFactory);
+            var geom = _state.D2DFactory.CreatePathGeometry();
 
             var sink = geom.Open();
 
@@ -708,22 +711,23 @@ namespace PixDirectX.Rendering.DirectX
             DrawBitmap(bitmap.bitmap, region, opacity, interpolationMode, tintColor);
         }
 
-        private void DrawBitmap(SharpDX.Direct2D1.Bitmap bitmap, RectangleF region, float opacity, ImageInterpolationMode interpolationMode, Color? tintColor = null)
+        private void DrawBitmap(ID2D1Bitmap bitmap, RectangleF region, float opacity, ImageInterpolationMode interpolationMode, Color? tintColor = null)
         {
             if (tintColor == null)
             {
-                _state.D2DRenderTarget.DrawBitmap(bitmap, ((AABB)region).ToRawRectangleF(), opacity, ToBitmapInterpolation(interpolationMode));
+                _state.D2DRenderTarget.DrawBitmap(bitmap, ((AABB)region).ToRawRectF(), opacity, ToBitmapInterpolation(interpolationMode), null);
             }
             else
             {
-                using (var context = _state.D2DRenderTarget.QueryInterface<DeviceContext>())
-                using (var effect = new Effect(context, Effect.Tint))
+                using (var context = _state.D2DRenderTarget.QueryInterface<ID2D1DeviceContext>())
+                using (var effect = new Vortice.Direct2D1.Effects.Tint(context))
                 {
                     effect.SetInput(0, bitmap, true);
-                    effect.SetValue(0, (RawColor4) tintColor.Value.ToColor4());
-                    effect.SetValue(1, true);
 
-                    context.DrawImage(effect, ((AABB) region).Minimum.ToRawVector2(), ToInterpolation(interpolationMode));
+                    effect.Color = tintColor.Value.ToColor4();
+                    effect.ClampOutput = true;
+
+                    context.DrawImage(effect, ((AABB) region).Minimum.ToVector2(), ToInterpolation(interpolationMode));
                 }
             }
         }
@@ -775,7 +779,7 @@ namespace PixDirectX.Rendering.DirectX
         /// </summary>
         public void PushClippingArea(AABB area)
         {
-            _state.D2DRenderTarget.PushAxisAlignedClip(area.ToRawRectangleF(), AntialiasMode.Aliased);
+            _state.D2DRenderTarget.PushAxisAlignedClip(area.ToRawRectF(), AntialiasMode.Aliased);
         }
 
         /// <summary>
@@ -883,7 +887,7 @@ namespace PixDirectX.Rendering.DirectX
         /// <summary>
         /// Creates a linear gradient brush for drawing.
         /// </summary>
-        public ILinearGradientBrush CreateLinearGradientBrush(IReadOnlyList<PixGradientStop> gradientStops, Vector start, Vector end)
+        public ILinearGradientBrush CreateLinearGradientBrush(IReadOnlyList<PixGradientStop> gradientStops, PixVector start, PixVector end)
         {
             return new InternalLinearBrush(gradientStops, start, end);
         }
@@ -919,8 +923,8 @@ namespace PixDirectX.Rendering.DirectX
 
         public void DrawText(string text, IFont font, AABB area)
         {
-            using (var textFormat = new TextFormat(_state.DirectWriteFactory, font.Name, font.FontSize))
-            using (var textLayout = new TextLayout(_state.DirectWriteFactory, text, textFormat, area.Width, area.Height))
+            using (var textFormat = _state.DirectWriteFactory.CreateTextFormat(font.Name, font.FontSize))
+            using (var textLayout = _state.DirectWriteFactory.CreateTextLayout(text, textFormat, area.Width, area.Height))
             {
                 var renderer = new TextColorRenderer();
                 renderer.AssignResources(_state.D2DRenderTarget, BrushForFill());
@@ -972,7 +976,7 @@ namespace PixDirectX.Rendering.DirectX
             internal bool IsLoaded { get; private set; }
             public Brush Brush { get; protected set; }
 
-            public virtual void LoadBrush(RenderTarget renderTarget)
+            public virtual void LoadBrush(ID2D1RenderTarget renderTarget)
             {
                 IsLoaded = true;
             }
@@ -996,46 +1000,46 @@ namespace PixDirectX.Rendering.DirectX
                 Color = color;
             }
 
-            public override void LoadBrush(RenderTarget renderTarget)
+            public override void LoadBrush(ID2D1RenderTarget renderTarget)
             {
                 if (IsLoaded)
                     return;
 
                 base.LoadBrush(renderTarget);
 
-                Brush = new SolidColorBrush(renderTarget, Color.ToColor4());
+                Brush = renderTarget.CreateSolidColorBrush(Color.ToColor4());
             }
         }
 
         private class InternalLinearBrush : InternalBrush, ILinearGradientBrush
         {
-            private GradientStopCollection _stopCollection;
+            private ID2D1GradientStopCollection _stopCollection;
             public IReadOnlyList<PixGradientStop> GradientStops { get; }
-            public Vector Start { get; }
-            public Vector End { get; }
+            public PixVector Start { get; }
+            public PixVector End { get; }
 
-            public InternalLinearBrush([NotNull] IReadOnlyList<PixGradientStop> gradientStops, Vector start, Vector end)
+            public InternalLinearBrush([NotNull] IReadOnlyList<PixGradientStop> gradientStops, PixVector start, PixVector end)
             {
                 GradientStops = gradientStops;
                 Start = start;
                 End = end;
             }
 
-            public override void LoadBrush(RenderTarget renderTarget)
+            public override void LoadBrush(ID2D1RenderTarget renderTarget)
             {
                 if (IsLoaded)
                     return;
 
                 base.LoadBrush(renderTarget);
 
-                var stops = new GradientStopCollection(renderTarget, GradientStops.Select(ToGradientStop).ToArray());
+                var stops = renderTarget.CreateGradientStopCollection(GradientStops.Select(ToGradientStop).ToArray());
                 var properties = new LinearGradientBrushProperties
                 {
-                    StartPoint = Start.ToRawVector2(),
-                    EndPoint = End.ToRawVector2()
+                    StartPoint = Start.ToVector2(),
+                    EndPoint = End.ToVector2()
                 };
 
-                Brush = new LinearGradientBrush(renderTarget, properties, stops);
+                Brush = renderTarget.CreateLinearGradientBrush(properties, stops);
                 _stopCollection = stops;
             }
 
@@ -1061,50 +1065,49 @@ namespace PixDirectX.Rendering.DirectX
 
         private class InternalBitmapBrush : InternalBrush
         {
-            public SharpDX.Direct2D1.Bitmap Bitmap { get; }
+            public ID2D1Bitmap Bitmap { get; }
 
-            public InternalBitmapBrush(SharpDX.Direct2D1.Bitmap bitmap)
+            public InternalBitmapBrush(ID2D1Bitmap bitmap)
             {
                 Bitmap = bitmap;
             }
 
-            public override void LoadBrush(RenderTarget renderTarget)
+            public override void LoadBrush(ID2D1RenderTarget renderTarget)
             {
                 if (IsLoaded)
                     return;
 
                 base.LoadBrush(renderTarget);
 
-                var brush = new BitmapBrush(renderTarget, Bitmap)
-                {
-                    ExtendModeX = ExtendMode.Wrap,
-                    ExtendModeY = ExtendMode.Wrap
-                };
+                var brush = renderTarget.CreateBitmapBrush(Bitmap);
+                brush.ExtendModeX = ExtendMode.Wrap;
+                brush.ExtendModeY = ExtendMode.Wrap;
+
                 Brush = brush;
             }
         }
 
         private class InternalPathSink : IPathInputSink
         {
-            private readonly GeometrySink _geometrySink;
+            private readonly ID2D1GeometrySink _geometrySink;
             private bool _startOfFigure = true;
-            private Vector _startLocation;
+            private PixVector _startLocation;
             private readonly FigureBegin _figureBegin;
 
-            public InternalPathSink(GeometrySink geometrySink, FigureBegin figureBegin)
+            public InternalPathSink(ID2D1GeometrySink geometrySink, FigureBegin figureBegin)
             {
                 _geometrySink = geometrySink;
                 _figureBegin = figureBegin;
             }
 
-            public void BeginFigure(Vector location, bool filled)
+            public void BeginFigure(PixVector location, bool filled)
             {
                 _startOfFigure = false;
-                _geometrySink.BeginFigure(location.ToRawVector2(), filled ? FigureBegin.Filled : FigureBegin.Hollow);
+                _geometrySink.BeginFigure(location.ToVector2(), filled ? FigureBegin.Filled : FigureBegin.Hollow);
                 _startLocation = location;
             }
 
-            public void MoveTo(Vector point)
+            public void MoveTo(PixVector point)
             {
                 if (!_startOfFigure)
                     _geometrySink.EndFigure(FigureEnd.Open);
@@ -1113,33 +1116,33 @@ namespace PixDirectX.Rendering.DirectX
                 _startOfFigure = true;
             }
 
-            public void LineTo(Vector point)
+            public void LineTo(PixVector point)
             {
                 EnsureBeginFigure();
 
-                _geometrySink.AddLine(point.ToRawVector2());
+                _geometrySink.AddLine(point.ToVector2());
                 _startLocation = point;
             }
 
             public void MoveTo(float x, float y)
             {
-                MoveTo(new Vector(x, y));
+                MoveTo(new PixVector(x, y));
             }
 
             public void LineTo(float x, float y)
             {
-                LineTo(new Vector(x, y));
+                LineTo(new PixVector(x, y));
             }
 
-            public void BezierTo(Vector anchor1, Vector anchor2, Vector endPoint)
+            public void BezierTo(PixVector anchor1, PixVector anchor2, PixVector endPoint)
             {
                 EnsureBeginFigure();
 
                 _geometrySink.AddBezier(new BezierSegment
                 {
-                    Point1 = anchor1.ToRawVector2(),
-                    Point2 = anchor2.ToRawVector2(),
-                    Point3 = endPoint.ToRawVector2(),
+                    Point1 = anchor1.ToVector2(),
+                    Point2 = anchor2.ToVector2(),
+                    Point3 = endPoint.ToVector2(),
                 });
 
                 _startLocation = endPoint;
@@ -1147,9 +1150,9 @@ namespace PixDirectX.Rendering.DirectX
 
             public void AddRectangle(AABB rectangle)
             {
-                _geometrySink.AddLine(new Vector(rectangle.Right, rectangle.Top).ToRawVector2());
-                _geometrySink.AddLine(new Vector(rectangle.Right, rectangle.Bottom).ToRawVector2());
-                _geometrySink.AddLine(new Vector(rectangle.Left, rectangle.Bottom).ToRawVector2());
+                _geometrySink.AddLine(new PixVector(rectangle.Right, rectangle.Top).ToVector2());
+                _geometrySink.AddLine(new PixVector(rectangle.Right, rectangle.Bottom).ToVector2());
+                _geometrySink.AddLine(new PixVector(rectangle.Left, rectangle.Bottom).ToVector2());
             }
 
             public void EndFigure(bool closePath)
@@ -1162,7 +1165,7 @@ namespace PixDirectX.Rendering.DirectX
                 if (!_startOfFigure)
                     return;
 
-                _geometrySink.BeginFigure(_startLocation.ToRawVector2(), _figureBegin);
+                _geometrySink.BeginFigure(_startLocation.ToVector2(), _figureBegin);
                 _startOfFigure = false;
             }
 
@@ -1178,9 +1181,9 @@ namespace PixDirectX.Rendering.DirectX
 
         private class InternalPathGeometry : IPathGeometry
         {
-            public PathGeometry PathGeometry { get; }
+            public ID2D1PathGeometry PathGeometry { get; }
 
-            public InternalPathGeometry(PathGeometry pathGeometry)
+            public InternalPathGeometry(ID2D1PathGeometry pathGeometry)
             {
                 PathGeometry = pathGeometry;
             }
@@ -1221,14 +1224,14 @@ namespace PixDirectX.Rendering.DirectX
     {
         public TextColorRenderer TextColorRenderer { get; }
         private readonly Factory _directWriteFactory;
-        private readonly RenderTarget _renderTarget;
+        private readonly ID2D1RenderTarget _renderTarget;
 
         /// <summary>
         /// TODO: ITextRenderers should take in IBrush instances; for now, we set custom brushes this way here.
         /// </summary>
         public Brush Brush { get; set; }
 
-        public InnerTextRenderer(TextColorRenderer textColorRenderer, Factory directWriteFactory, RenderTarget renderTarget)
+        public InnerTextRenderer(TextColorRenderer textColorRenderer, Factory directWriteFactory, ID2D1RenderTarget renderTarget)
         {
             TextColorRenderer = textColorRenderer;
             _directWriteFactory = directWriteFactory;
@@ -1253,11 +1256,11 @@ namespace PixDirectX.Rendering.DirectX
 
                 var bounds = metrics.Select(range => AABB.FromRectangle(range.Left, range.Top, range.Width, range.Height));
 
-                using (var backBrush = new SolidColorBrush(_renderTarget, attr.BackColor.ToColor4()))
+                using (var backBrush = _renderTarget.CreateSolidColorBrush(attr.BackColor.ToColor4()))
                 {
                     foreach (var aabb in bounds)
                     {
-                        _renderTarget.FillRectangle(aabb.Inflated(attr.Inflation).ToRawRectangleF(), backBrush);
+                        _renderTarget.FillRectangle(aabb.Inflated(attr.Inflation).ToRawRectF(), backBrush);
                     }
                 }
             }
@@ -1267,10 +1270,10 @@ namespace PixDirectX.Rendering.DirectX
 
         public void Draw(AttributedText text, TextFormatAttributes textFormatAttributes, AABB area, Color color)
         {
-            EllipsisTrimming trimming = null;
+            IDWriteInlineObject trimming = null;
 
             using (var textFormat = TextFormatForAttributes(textFormatAttributes, ref trimming))
-            using (var textLayout = new TextLayout(_directWriteFactory, text.String, textFormat, area.Width, area.Height))
+            using (var textLayout = _directWriteFactory.CreateTextLayout(text.String, textFormat, area.Width, area.Height))
             {
                 var disposes = new List<IDisposable>();
 
@@ -1284,8 +1287,7 @@ namespace PixDirectX.Rendering.DirectX
 
                     if (consumer.ForeColor.HasValue)
                     {
-                        var segmentBrush =
-                            new SolidColorBrush(_renderTarget, consumer.ForeColor.Value.ToColor4());
+                        var segmentBrush = _renderTarget.CreateSolidColorBrush(consumer.ForeColor.Value.ToColor4());
 
                         disposes.Add(segmentBrush);
 
@@ -1310,18 +1312,18 @@ namespace PixDirectX.Rendering.DirectX
 
                     var bounds = metrics.Select(range => AABB.FromRectangle(range.Left, range.Top, range.Width, range.Height));
 
-                    using (var backBrush = new SolidColorBrush(_renderTarget, attr.BackColor.ToColor4()))
+                    using (var backBrush = _renderTarget.CreateSolidColorBrush(attr.BackColor.ToColor4()))
                     {
                         foreach (var aabb in bounds)
                         {
-                            _renderTarget.FillRectangle(aabb.Inflated(attr.Inflation).ToRawRectangleF(), backBrush);
+                            _renderTarget.FillRectangle(aabb.Inflated(attr.Inflation).ToRawRectF(), backBrush);
                         }
                     }
                 }
 
-                var brush = Brush ?? new SolidColorBrush(_renderTarget, color.ToColor4());
+                var brush = Brush ?? _renderTarget.CreateSolidColorBrush(color.ToColor4());
 
-                textLayout.Draw(brush, TextColorRenderer, area.Left, area.Top);
+                textLayout.Draw(brush.NativePointer, TextColorRenderer, area.Left, area.Top);
 
                 foreach (var disposable in disposes)
                 {
@@ -1337,7 +1339,7 @@ namespace PixDirectX.Rendering.DirectX
 
         // TODO: Reduce duplication with D2DTextSizeProvider
 
-        private void ApplyFont(TextLayout textLayout, System.Drawing.Font font, TextRange textRange)
+        private void ApplyFont(IDWriteTextLayout textLayout, System.Drawing.Font font, TextRange textRange)
         {
             textLayout.SetFontFamilyName(font.FontFamily.Name, textRange);
             textLayout.SetFontStyle(FontStyleFromSystemFontStyle(font.Style), textRange);
@@ -1356,29 +1358,28 @@ namespace PixDirectX.Rendering.DirectX
 
         public void Draw(string text, TextFormatAttributes textFormatAttributes, AABB area, Color color)
         {
-            EllipsisTrimming trimming = null;
+            IDWriteInlineObject trimming = null;
 
-            using (var foreground = new SolidColorBrush(_renderTarget, color.ToColor4()))
+            using (var foreground = _renderTarget.CreateSolidColorBrush(color.ToColor4()))
             using (var textFormat = TextFormatForAttributes(textFormatAttributes, ref trimming))
             {
-                _renderTarget.DrawText(text, textFormat, area.ToRawRectangleF(), foreground);
+                _renderTarget.DrawText(text, textFormat, area.ToRawRectF(), foreground);
             }
 
             trimming?.Dispose();
         }
 
-        private TextFormat TextFormatForAttributes(TextFormatAttributes textFormatAttributes, ref EllipsisTrimming trimming)
+        private IDWriteTextFormat TextFormatForAttributes(TextFormatAttributes textFormatAttributes, ref IDWriteInlineObject trimming)
         {
-            var textFormat = new TextFormat(_directWriteFactory, textFormatAttributes.Font, textFormatAttributes.FontSize)
-            {
-                WordWrapping = Direct2DConversionHelpers.DirectWriteWordWrapFor(textFormatAttributes.WordWrap),
-                TextAlignment = Direct2DConversionHelpers.DirectWriteAlignmentFor(textFormatAttributes.HorizontalTextAlignment),
-                ParagraphAlignment = Direct2DConversionHelpers.DirectWriteAlignmentFor(textFormatAttributes.VerticalTextAlignment)
-            };
+            var textFormat = _directWriteFactory.CreateTextFormat(textFormatAttributes.Font, textFormatAttributes.FontSize);
+
+            textFormat.WordWrapping = Direct2DConversionHelpers.DirectWriteWordWrapFor(textFormatAttributes.WordWrap);
+            textFormat.TextAlignment = Direct2DConversionHelpers.DirectWriteAlignmentFor(textFormatAttributes.HorizontalTextAlignment);
+            textFormat.ParagraphAlignment = Direct2DConversionHelpers.DirectWriteAlignmentFor(textFormatAttributes.VerticalTextAlignment);
 
             if (textFormatAttributes.TextEllipsisTrimming.HasValue)
             {
-                trimming = new EllipsisTrimming(_directWriteFactory, textFormat);
+                trimming = _directWriteFactory.CreateEllipsisTrimmingSign(textFormat);
                 textFormat.SetTrimming(Direct2DRenderManager.CreateTrimming(textFormatAttributes.TextEllipsisTrimming.Value), trimming);
             }
 

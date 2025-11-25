@@ -26,18 +26,23 @@ using JetBrains.Annotations;
 using PixCore.Geometry;
 using PixDirectX.Utils;
 using PixRendering;
-using SharpDX;
-using SharpDX.Direct2D1;
-using SharpDX.Direct3D;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-using Bitmap = SharpDX.WIC.Bitmap;
-using Device = SharpDX.Direct3D11.Device;
-using DeviceContext = SharpDX.Direct2D1.DeviceContext;
-using Factory = SharpDX.Direct2D1.Factory;
-using Factory2 = SharpDX.DXGI.Factory2;
-using FeatureLevel = SharpDX.Direct3D.FeatureLevel;
-using PixelFormat = SharpDX.Direct2D1.PixelFormat;
+
+using Vortice.Direct3D11;
+
+using PixVector = PixCore.Geometry.Vector;
+
+using Bitmap = Vortice.WIC.IWICBitmap; // SharpDX.WIC.Bitmap;
+using Device = Vortice.Direct3D11.ID3D11Device; //SharpDX.Direct3D11.Device;
+using DeviceCreationFlags = Vortice.Direct3D11.DeviceCreationFlags; //SharpDX.Direct3D11.Device;
+using DeviceContext = Vortice.Direct2D1.ID2D1DeviceContext; // SharpDX.Direct2D1.DeviceContext;
+using Factory = Vortice.Direct2D1.ID2D1Factory; // SharpDX.Direct2D1.Factory;
+using Factory2 = Vortice.DXGI.IDXGIFactory2; // SharpDX.DXGI.Factory2;
+using FeatureLevel = Vortice.Direct3D.FeatureLevel; // SharpDX.Direct3D.FeatureLevel;
+using PixelFormat = Vortice.DCommon.PixelFormat;
+using Vortice.Direct2D1;
+using Vortice.DirectWrite;
+using System.Numerics;
+using Vortice.DXGI; // SharpDX.Direct2D1.PixelFormat;
 
 namespace PixDirectX.Rendering.DirectX
 {
@@ -80,7 +85,7 @@ namespace PixDirectX.Rendering.DirectX
             creationFlags |= DeviceCreationFlags.Debug;
 #endif
 
-            _d3DDevice = new Device(DriverType.Hardware, creationFlags, featureLevels);
+            D3D11.D3D11CreateDevice(null, Vortice.Direct3D.DriverType.Hardware, creationFlags, featureLevels, out _d3DDevice);
         }
 
         public void Dispose()
@@ -91,26 +96,24 @@ namespace PixDirectX.Rendering.DirectX
         /// <inheritdoc />
         public void Initialize()
         {
-            var d3Device1 = _d3DDevice.QueryInterface<SharpDX.Direct3D11.Device1>();
+            var d3Device1 = _d3DDevice.QueryInterface<ID3D11Device1>();
 
-            var dxgiDevice = d3Device1.QueryInterface<SharpDX.DXGI.Device1>();
-            var dxgiFactory = dxgiDevice.Adapter.GetParent<Factory2>();
-            var d2dDevice = new SharpDX.Direct2D1.Device(dxgiDevice);
-            var d2dContext = new DeviceContext(d2dDevice, DeviceContextOptions.None);
+            var dxgiDevice = d3Device1.QueryInterface<Vortice.DXGI.IDXGIDevice1>();
+            var dxgiFactory = dxgiDevice.GetAdapter().GetParent<Factory2>();
+            var d2dDevice = D2D1.D2D1CreateDevice(dxgiDevice);
+            var d2dContext = d2dDevice.CreateDeviceContext(DeviceContextOptions.None);
 
-            var pixelFormat = new PixelFormat(Format.B8G8R8A8_UNorm, SharpDX.Direct2D1.AlphaMode.Premultiplied);
+            var pixelFormat = new PixelFormat(Vortice.DXGI.Format.B8G8R8A8_UNorm, Vortice.DCommon.AlphaMode.Premultiplied);
             var renderTargetProperties = new RenderTargetProperties(pixelFormat)
             {
                 Type = RenderTargetType.Software,
                 Usage = RenderTargetUsage.None
             };
 
-            var bitmapTarget = new WicRenderTarget(_d2DFactory, _target, renderTargetProperties)
-            {
-                TextAntialiasMode = TextAntialiasMode.Cleartype
-            };
+            var bitmapTarget = _d2DFactory.CreateWicBitmapRenderTarget(_target, renderTargetProperties);
+            bitmapTarget.TextAntialiasMode = Vortice.Direct2D1.TextAntialiasMode.Cleartype;
 
-            var directWriteFactory = new SharpDX.DirectWrite.Factory();
+            var directWriteFactory = DWrite.DWriteCreateFactory<IDWriteFactory>();
 
             _renderingState.D2DFactory = _d2DFactory;
             _renderingState.WicRenderTarget = bitmapTarget;
@@ -133,18 +136,18 @@ namespace PixDirectX.Rendering.DirectX
         {
             private readonly Stack<Matrix3x2> _matrixStack = new Stack<Matrix3x2>();
             
-            public SharpDX.DXGI.Factory Factory;
+            public IDXGIFactory Factory;
             
             public Factory D2DFactory { set; get; }
             public DeviceContext DeviceContext { get; set; }
             
-            public WicRenderTarget WicRenderTarget { private get; set; }
-            public RenderTarget D2DRenderTarget => WicRenderTarget;
-            public SharpDX.DirectWrite.Factory DirectWriteFactory { get; set; }
+            public ID2D1RenderTarget WicRenderTarget { private get; set; }
+            public ID2D1RenderTarget D2DRenderTarget => WicRenderTarget;
+            public IDWriteFactory DirectWriteFactory { get; set; }
 
             public TimeSpan FrameRenderDeltaTime => TimeSpan.Zero;
 
-            public Vector DesktopDpiScaling { get; set; }
+            public PixVector DesktopDpiScaling { get; set; }
 
             public Matrix3x2 Transform
             {
@@ -161,7 +164,7 @@ namespace PixDirectX.Rendering.DirectX
                 
             public void WithTemporaryClipping(AABB clipping, [InstantHandle] Action execute)
             {
-                D2DRenderTarget.PushAxisAlignedClip(clipping.ToRawRectangleF(), AntialiasMode.Aliased);
+                D2DRenderTarget.PushAxisAlignedClip(clipping.ToRawRectF(), AntialiasMode.Aliased);
 
                 execute();
 

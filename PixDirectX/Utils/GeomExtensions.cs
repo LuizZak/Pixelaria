@@ -22,9 +22,11 @@
 
 using JetBrains.Annotations;
 using PixCore.Geometry;
-using SharpDX;
-using SharpDX.Mathematics.Interop;
+using System.Drawing;
+using System.Numerics;
+using Vortice;
 using Matrix = System.Drawing.Drawing2D.Matrix;
+using PixVector = PixCore.Geometry.Vector;
 
 namespace PixDirectX.Utils
 {
@@ -38,58 +40,53 @@ namespace PixDirectX.Utils
         /// <summary>
         /// Converts a <see cref="RawVector2"/> to an equivalent <see cref="Vector"/> value.
         /// </summary>
-        public static unsafe Vector ToVector(this RawVector2 vec)
+        public static unsafe PixVector ToVector(this Vector2 vec)
         {
-            return *(Vector*)&vec;
+            //return *(PixVector*)&vec;
+            return new PixVector(vec.X, vec.Y);
         }
 
         /// <summary>
         /// Converts a <see cref="Vector"/> to an equivalent <see cref="RawVector2"/> value.
         /// </summary>
-        public static unsafe RawVector2 ToRawVector2(this Vector vec)
+        public static unsafe Vector2 ToVector2(this PixVector vec)
         {
-            return *(RawVector2*)&vec;
+            //return *(Vector2*)&vec;
+            return new Vector2(vec.X, vec.Y);
         }
 
         #endregion
 
-        #region AABB / RawRectangleF
+        #region AABB / RawRectF
 
         /// <summary>
-        /// Converts a <see cref="RawRectangleF"/> to an equivalent <see cref="AABB"/> value.
+        /// Converts a <see cref="RawRectF"/> to an equivalent <see cref="AABB"/> value.
         /// </summary>
         // ReSharper disable once InconsistentNaming
-        public static AABB ToAABB(this RawRectangleF rec)
+        public static AABB ToAABB(this RawRectF rec)
         {
             return new AABB(rec.Left, rec.Top, rec.Bottom, rec.Right);
         }
 
         /// <summary>
-        /// Converts a <see cref="AABB"/> to an equivalent <see cref="RawRectangleF"/> value.
+        /// Converts a <see cref="AABB"/> to an equivalent <see cref="RectangleF"/> value.
         /// </summary>
-        public static RawRectangleF ToRawRectangleF(this AABB rec)
+        public static RawRectF ToRawRectF(this AABB rec)
         {
-            return new RawRectangleF(rec.Left, rec.Top, rec.Right, rec.Bottom);
+            return new RectangleF(rec.Left, rec.Top, rec.Width, rec.Height);
         }
         
         #endregion
 
-        #region Matrix2D / RawMatrix3x2 / Matrix3x2
+        #region Matrix2D / Matrix3x2
 
         /// <summary>
         /// Converts a <see cref="Matrix2D"/> to an equivalent <see cref="RawMatrix3x2"/> value.
         /// </summary>
-        public static unsafe RawMatrix3x2 ToRawMatrix3X2(this Matrix2D matrix)
+        public static unsafe Matrix3x2 ToRawMatrix3X2(this Matrix2D matrix)
         {
-            return *(RawMatrix3x2*)&matrix;
-        }
-
-        /// <summary>
-        /// Converts a <see cref="RawMatrix3x2"/> to an equivalent <see cref="Matrix2D"/> value.
-        /// </summary>
-        public static unsafe Matrix2D ToMatrix2D(this RawMatrix3x2 matrix)
-        {
-            return *(Matrix2D*)&matrix;
+            //return *(Matrix3x2*)&matrix;
+            return new Matrix3x2(matrix.M11, matrix.M12, matrix.M21, matrix.M22, matrix.M31, matrix.M32);
         }
 
         /// <summary>
@@ -97,7 +94,8 @@ namespace PixDirectX.Utils
         /// </summary>
         public static unsafe Matrix2D ToMatrix2D(this Matrix3x2 matrix)
         {
-            return *(Matrix2D*)&matrix;
+            //return *(Matrix2D*)&matrix;
+            return new Matrix2D(matrix.M11, matrix.M12, matrix.M21, matrix.M22, matrix.M31, matrix.M32);
         }
 
         #endregion

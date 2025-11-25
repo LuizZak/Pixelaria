@@ -23,7 +23,9 @@
 using JetBrains.Annotations;
 using PixCore.Text;
 using PixRendering;
-using SharpDX.DirectWrite;
+using System.Numerics;
+using Vortice.DirectWrite;
+
 using HitTestMetrics = PixRendering.HitTestMetrics;
 
 namespace PixDirectX.Rendering.DirectX
@@ -31,22 +33,22 @@ namespace PixDirectX.Rendering.DirectX
     public class DirectWriteTextLayout : ITextLayout
     {
         [CanBeNull]
-        private readonly TextFormat _textFormat;
-        public TextLayout TextLayout { get; }
+        private readonly IDWriteTextFormat _textFormat;
+        public IDWriteTextLayout TextLayout { get; }
         [CanBeNull]
-        public EllipsisTrimming EllipsisTrimming { get; }
+        public IDWriteInlineObject EllipsisTrimming { get; }
         public TextLayoutAttributes Attributes { get; }
         public AttributedText Text { get; }
 
-        public DirectWriteTextLayout(Factory directWriteFactory, [NotNull] AttributedText text, TextLayoutAttributes attributes)
+        public DirectWriteTextLayout(IDWriteFactory directWriteFactory, [NotNull] AttributedText text, TextLayoutAttributes attributes)
         {
-            _textFormat = new TextFormat(directWriteFactory, attributes.TextFormatAttributes.Font, attributes.TextFormatAttributes.FontSize);
-            TextLayout = new TextLayout(directWriteFactory, text.String, _textFormat, attributes.AvailableWidth, attributes.AvailableHeight);
+            _textFormat = directWriteFactory.CreateTextFormat(attributes.TextFormatAttributes.Font, attributes.TextFormatAttributes.FontSize);
+            TextLayout = directWriteFactory.CreateTextLayout(text.String, _textFormat, attributes.AvailableWidth, attributes.AvailableHeight);
             Attributes = attributes;
             Text = text;
         }
 
-        public DirectWriteTextLayout(TextLayout textLayout, EllipsisTrimming ellipsisTrimming, TextLayoutAttributes attributes)
+        public DirectWriteTextLayout(IDWriteTextLayout textLayout, IDWriteInlineObject ellipsisTrimming, TextLayoutAttributes attributes)
         {
             TextLayout = textLayout;
             EllipsisTrimming = ellipsisTrimming;
@@ -71,11 +73,13 @@ namespace PixDirectX.Rendering.DirectX
 
         public HitTestMetrics HitTestTextPosition(int textPosition, bool isTrailingHit, out float x, out float y)
         {
-            var metrics = TextLayout.HitTestTextPosition(textPosition, isTrailingHit, out x, out y);
+            var metrics = TextLayout.HitTestTextPosition(textPosition, isTrailingHit, out Vector2 point);
+            x = point.X;
+            y = point.Y;
             return MetricsFromDirectWrite(metrics);
         }
 
-        private static HitTestMetrics MetricsFromDirectWrite(SharpDX.DirectWrite.HitTestMetrics metrics)
+        private static HitTestMetrics MetricsFromDirectWrite(Vortice.DirectWrite.HitTestMetrics metrics)
         {
             return new HitTestMetrics(metrics.TextPosition);
         }

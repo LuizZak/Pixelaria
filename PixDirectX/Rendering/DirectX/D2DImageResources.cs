@@ -27,6 +27,9 @@ using JetBrains.Annotations;
 using PixRendering;
 using Bitmap = System.Drawing.Bitmap;
 
+using D2DBitmap = Vortice.Direct2D1.ID2D1Bitmap;
+using WICBitmap = Vortice.WIC.IWICBitmap;
+
 namespace PixDirectX.Rendering.DirectX
 {
     /// <inheritdoc cref="IImageResourceManager" />
@@ -36,7 +39,7 @@ namespace PixDirectX.Rendering.DirectX
     public sealed class ImageResources : IDisposable, IImageResourceManager
     {
         private readonly IDirect2DRenderingStateProvider _renderStateProvider;
-        private readonly Dictionary<string, SharpDX.Direct2D1.Bitmap> _bitmapResources = new Dictionary<string, SharpDX.Direct2D1.Bitmap>();
+        private readonly Dictionary<string, D2DBitmap> _bitmapResources = new Dictionary<string, D2DBitmap>();
 
         public ImageResources(IDirect2DRenderingStateProvider renderStateProvider)
         {
@@ -47,7 +50,7 @@ namespace PixDirectX.Rendering.DirectX
         {
             foreach (var value in _bitmapResources.Values)
             {
-                value.Dispose();
+                value.Release();
             }
 
             _bitmapResources.Clear();
@@ -67,7 +70,7 @@ namespace PixDirectX.Rendering.DirectX
             return res;
         }
 
-        public ImageResource AddImageResource([NotNull] IDirect2DRenderingState state, [NotNull] SharpDX.WIC.Bitmap bitmap, [NotNull] string resourceName)
+        public ImageResource AddImageResource([NotNull] IDirect2DRenderingState state, [NotNull] WICBitmap bitmap, [NotNull] string resourceName)
         {
             var res = new ImageResource(resourceName, bitmap.Size.Width, bitmap.Size.Height);
 
@@ -104,7 +107,7 @@ namespace PixDirectX.Rendering.DirectX
         {
             foreach (var value in _bitmapResources.Values)
             {
-                value.Dispose();
+                value.Release();
             }
 
             _bitmapResources.Clear();
@@ -135,15 +138,20 @@ namespace PixDirectX.Rendering.DirectX
         }
         
         [CanBeNull]
-        public SharpDX.Direct2D1.Bitmap BitmapForResource(ImageResource resource)
+        public D2DBitmap BitmapForResource(ImageResource resource)
         {
             return BitmapForResource(resource.ResourceName);
         }
 
         [CanBeNull]
-        public SharpDX.Direct2D1.Bitmap BitmapForResource([NotNull] string name)
+        public D2DBitmap BitmapForResource([NotNull] string name)
         {
-            return _bitmapResources.TryGetValue(name, out var bitmap) ? bitmap : null;
+            if (_bitmapResources.TryGetValue(name, out var bitmap))
+            {
+                return bitmap;
+            }
+
+            return null;
         }
     }
 }

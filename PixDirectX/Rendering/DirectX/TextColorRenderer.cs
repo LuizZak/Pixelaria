@@ -20,24 +20,29 @@
     base directory of this project.
 */
 
-using SharpDX;
-using SharpDX.Direct2D1;
-using SharpDX.DirectWrite;
+using SharpGen.Runtime;
+using System;
+using System.Numerics;
+using Vortice.DirectWrite;
+
+using RenderTarget = Vortice.Direct2D1.ID2D1RenderTarget;
+using Brush = Vortice.Direct2D1.ID2D1Brush;
+using SolidColorBrush = Vortice.Direct2D1.ID2D1SolidColorBrush;
+using Vortice.DCommon;
 
 namespace PixDirectX.Rendering.DirectX
 {
     /// <summary>
     /// For rendering colored texts on a D2DRenderer
     /// </summary>
-    public class TextColorRenderer : TextRendererBase
+    public class TextColorRenderer : CallbackBase, IDWriteTextRenderer
     {
         private RenderTarget _renderTarget;
         public Brush DefaultBrush { get; set; }
 
         public TextColorRenderer()
         {
-            // BUG fix for issue described at: https://github.com/sharpdx/SharpDX/issues/1019
-            CppObject.ToCallbackPtr<TextColorRenderer>(this);
+
         }
 
         public void AssignResources(RenderTarget renderTarget, Brush defaultBrush)
@@ -46,21 +51,50 @@ namespace PixDirectX.Rendering.DirectX
             DefaultBrush = defaultBrush;
         }
 
-        public override Result DrawGlyphRun(object clientDrawingContext, float baselineOriginX, float baselineOriginY, MeasuringMode measuringMode, GlyphRun glyphRun, GlyphRunDescription glyphRunDescription, ComObject clientDrawingEffect)
+        public RawBool IsPixelSnappingDisabled(IntPtr clientDrawingContext)
+        {
+            return false;
+        }
+
+        public Matrix3x2 GetCurrentTransform(IntPtr clientDrawingContext)
+        {
+            return Matrix3x2.Identity;
+        }
+
+        public float GetPixelsPerDip(IntPtr clientDrawingContext)
+        {
+            return 1.0f;
+        }
+
+        public void DrawGlyphRun(IntPtr clientDrawingContext, float baselineOriginX, float baselineOriginY, MeasuringMode measuringMode, GlyphRun glyphRun, GlyphRunDescription glyphRunDescription, IUnknown clientDrawingEffect)
         {
             var sb = DefaultBrush;
-            if (clientDrawingEffect is SolidColorBrush brush)
-                sb = brush;
-            
+            if (clientDrawingContext != IntPtr.Zero)
+                sb = new SolidColorBrush(clientDrawingContext);
+
             try
             {
                 _renderTarget.DrawGlyphRun(new Vector2(baselineOriginX, baselineOriginY), glyphRun, sb, measuringMode);
-                return Result.Ok;
             }
             catch
             {
-                return Result.Fail;
+
             }
+        }
+
+        public void DrawUnderline(IntPtr clientDrawingContext, float baselineOriginX, float baselineOriginY, ref Underline underline, IUnknown clientDrawingEffect)
+        {
+            
+        }
+
+        public void DrawStrikethrough(IntPtr clientDrawingContext, float baselineOriginX, float baselineOriginY, ref Strikethrough strikethrough, IUnknown clientDrawingEffect)
+        {
+            
+        }
+
+        public void DrawInlineObject(IntPtr clientDrawingContext, float originX, float originY, IDWriteInlineObject inlineObject, RawBool isSideways, RawBool isRightToLeft, IUnknown clientDrawingEffect)
+        {
+            
         }
     }
 }

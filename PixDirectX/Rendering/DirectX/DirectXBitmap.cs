@@ -22,22 +22,22 @@
 
 using System.Drawing;
 using PixRendering;
-using SharpDX.Direct2D1;
+using Vortice.Direct2D1;
 using Bitmap = System.Drawing.Bitmap;
 
 namespace PixDirectX.Rendering.DirectX
 {
     public class DirectXBitmap : IManagedImageResource
     {
-        internal RenderTarget renderTarget;
-        internal SharpDX.Direct2D1.Bitmap bitmap;
+        internal ID2D1RenderTarget renderTarget;
+        internal ID2D1Bitmap bitmap;
         internal Bitmap original;
 
         public int Width => bitmap.PixelSize.Width;
         public int Height => bitmap.PixelSize.Height;
         public Size Size => new Size(Width, Height);
 
-        public DirectXBitmap(SharpDX.Direct2D1.Bitmap bitmap, Bitmap original, RenderTarget renderTarget)
+        public DirectXBitmap(ID2D1Bitmap bitmap, Bitmap original, ID2D1RenderTarget renderTarget)
         {
             this.bitmap = bitmap;
             this.original = original;
